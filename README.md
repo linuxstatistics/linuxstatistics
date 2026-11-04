@@ -2,7 +2,7 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 
-Linux-distro statistics: popularity rankings, desktop market share and project activity in a **sortable leaderboard**. Signed-in users can rate distros, mark "I use this" and leave short reviews.
+Linux-distro statistics: popularity rankings, desktop market share and project activity in a **sortable leaderboard**, plus a page per distro, a monthly "rising" list, side-by-side comparisons and a "which distro should I use?" picker. Signed-in users can rate distros, mark "I use this" and leave short reviews.
 
 ## Stack
 
@@ -57,6 +57,8 @@ pnpm --filter @linux-statistics/worker ingest --source all --rebuild            
 Sources: DistroWatch page-hit rankings (daily), GitHub repository activity (weekly; set `GITHUB_TOKEN` for a higher rate limit) and StatCounter desktop market share (monthly). Each source runs on its own: a failure is recorded, the last good data stays, and the other sources still run. The exit code is non-zero if any source failed.
 
 With PGlite, stop the API before ingesting (PGlite allows one connection). With Postgres they can run together.
+
+After the monthly StatCounter run, `pnpm --filter @linux-statistics/worker monthly` writes the month's summary (Markdown, HTML email, 1200×630 share card) from the API; `--draft` also creates a Resend Broadcast draft for review (nothing is sent automatically).
 
 `deploy/` has example systemd units and timers for a server (`deploy/worker.env.example` lists the settings).
 

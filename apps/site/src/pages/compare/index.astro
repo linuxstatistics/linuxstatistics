@@ -1,0 +1,33 @@
+---
+import Base from "../../layouts/Base.astro";
+import { ComparePicker } from "../../components/ComparePicker";
+import { CompareAny } from "../../components/CompareAny";
+import { loadDistros } from "../../lib/data";
+import { compareSlug, popularPairs } from "../../lib/compare";
+
+const list = await loadDistros();
+const names = new Map(list.map((d) => [d.slug, d.name]));
+const pairs = popularPairs(list);
+const options = list
+  .filter((d) => d.rank !== null)
+  .sort((x, y) => x.name.localeCompare(y.name))
+  .map((d) => ({ slug: d.slug, name: d.name }));
+---
+
+<Base
+  title="Compare Linux distros side by side | LinuxStatistics"
+  description="Compare any two Linux distributions: DistroWatch rank, popularity, family, GitHub activity and community ratings."
+>
+  <div class="page">
+    <h1>Compare Linux distros</h1>
+    <p class="lede">Pick two distros to see their rankings, family, activity and ratings side by side.</p>
+    <ComparePicker client:load options={options} staticPairs={pairs.map(([a, b]) => compareSlug(a, b))} />
+    <CompareAny client:only="react" />
+    <h2>Popular comparisons</h2>
+    <ul class="pair-list">
+      {pairs.map(([a, b]) => (
+        <li><a href={`/compare/${compareSlug(a, b)}/`}>{names.get(a)} vs {names.get(b)}</a></li>
+      ))}
+    </ul>
+  </div>
+</Base>

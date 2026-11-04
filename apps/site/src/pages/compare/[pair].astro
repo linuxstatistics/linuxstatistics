@@ -1,0 +1,85 @@
+---
+import Base from "../../layouts/Base.astro";
+import { FAMILY_LABELS } from "../../lib/families";
+import { loadDistro, loadDistros, loadMeta, mapLimit, dataDate } from "../../lib/data";
+import { compareSlug, popularPairs } from "../../lib/compare";
+import type { DistroDetail } from "@linux-statistics/shared";
+
+export async function getStaticPaths() {
+  const list = await loadDistros();
+  const pairs = popularPairs(list);
+  const keys = [...new Set(pairs.flat())];
+  const details = new Map((await mapLimit(keys, 8, loadDistro)).map((d) => [d.slug, d]));
+  return pairs.map(([a, b]) => ({
+    params: { pair: compareSlug(a, b) },
+    props: { a: details.get(a)!, b: details.get(b)! },
+  }));
+}
+
+const { a, b } = Astro.props as { a: DistroDetail; b: DistroDetail };
+const meta = await loadMeta();
+const asOf = dataDate(meta, "distrowatch");
+
+type Row = { label: string; a: string; b: string; better?: "a" | "b" };
+const num = (v: number | null) => (v == null ? "—" : v.toLocaleString("en-US"));
+// Lower rank is better; higher is better for the rest.
+function pick(x: number | null, y: number | null, lowerIsBetter = false): "a" | "b" | undefined {
+  if (x == null || y == null || x === y) return undefined;
+  return (lowerIsBetter ? x < y : x > y) ? "a" : "b";
+}
+const rating = (d: DistroDetail) =>
+  d.userRating.average != null ? `★ ${d.userRating.average.toFixed(1)} (${d.userRating.count})` : "—";
+
+const rows: Row[] = [
+  { label: "DistroWatch rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true) },
+  { label: "Rank last month", a: num(a.rank1m), b: num(b.rank1m), better: pick(a.rank1m, b.rank1m, true) },
+  { label: "Hits per day", a: num(a.hitsPerDay), b: num(b.hitsPerDay), better: pick(a.hitsPerDay, b.hitsPerDay) },
+  { label: "Family", a: FAMILY_LABELS[a.family], b: FAMILY_LABELS[b.family] },
+  { label: "Based on", a: a.basedOnSlug ?? "—", b: b.basedOnSlug ?? "—" },
+  { label: "First released", a: a.firstReleaseYear?.toString() ?? "—", b: b.firstReleaseYear?.toString() ?? "—" },
+  { label: "GitHub stars", a: num(a.stars), b: num(b.stars), better: pick(a.stars, b.stars) },
+  { label: "Commits, last 30 days", a: num(a.commitsLast30d), b: num(b.commitsLast30d), better: pick(a.commitsLast30d, b.commitsLast30d) },
+  { label: "Community rating", a: rating(a), b: rating(b) },
+  { label: "Users who use it", a: num(a.usesItCount || null), b: num(b.usesItCount || null), better: pick(a.usesItCount, b.usesItCount) },
+];
+
+const title = `${a.name} vs ${b.name} — Linux distro comparison | LinuxStatistics`;
+const lead =
+  a.rank != null && b.rank != null
+    ? `${a.rank < b.rank ? a.name : b.name} ranks higher on DistroWatch (#${Math.min(a.rank, b.rank)} vs #${Math.max(a.rank, b.rank)}).`
+    : "";
+const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, family, GitHub activity and community ratings side by side. ${lead}`.trim();
+---
+
+<Base title={title} description={description}>
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/compare/">Compare</a> / {a.name} vs {b.name}</nav>
+    <h1>{a.name} vs {b.name}</h1>
+    {lead && <p class="lede">{lead}</p>}
+    <div class="table-scroll">
+      <table class="data-table compare-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th><a href={`/distro/${a.slug}/`}>{a.name}</a></th>
+            <th><a href={`/distro/${b.slug}/`}>{b.name}</a></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <th scope="row">{r.label}</th>
+              <td class={r.better === "a" ? "better" : undefined}>{r.a}</td>
+              <td class={r.better === "b" ? "better" : undefined}>{r.b}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="source-note">
+      Rankings from <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.
+      Repository activity from GitHub. Ratings come from signed-in LinuxStatistics users.
+      Page hits measure interest, not installs.
+    </p>
+  </div>
+</Base>

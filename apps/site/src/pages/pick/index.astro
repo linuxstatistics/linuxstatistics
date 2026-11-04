@@ -1,0 +1,21 @@
+---
+import Base from "../../layouts/Base.astro";
+import { DistroPicker } from "../../components/DistroPicker";
+import { loadDistros } from "../../lib/data";
+import { PROFILES } from "../../lib/picker-profiles";
+
+const list = await loadDistros();
+const keys = new Set(PROFILES.map((p) => p.key));
+const distros = list.filter((d) => keys.has(d.slug)).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
+---
+
+<Base
+  title="Which Linux distro should I use? A 5-question picker | LinuxStatistics"
+  description="Answer five questions about your experience, hardware and taste to get three Linux distro suggestions, each with the reasons it fits."
+>
+  <div class="page">
+    <h1>Which Linux distro should I use?</h1>
+    <p class="lede">Five quick questions. You get three suggestions and why each one fits. Nothing is saved.</p>
+    <DistroPicker client:load distros={distros} />
+  </div>
+</Base>

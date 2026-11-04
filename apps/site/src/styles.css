@@ -362,3 +362,36 @@ html, body {
 .page a { color: var(--text); }
 .family-line a { color: inherit; }
 .affiliate-block a { color: var(--text); }
+
+/* ---------- Nav ---------- */
+.site-nav { display: flex; gap: 18px; margin-left: 28px; margin-right: auto; }
+.site-nav a { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); text-decoration: none; padding: 4px 0; border-bottom: 1px solid transparent; }
+.site-nav a:hover { color: var(--text); }
+.site-nav a[aria-current="page"] { color: var(--text); border-bottom-color: var(--text); }
+@media (max-width: 760px) {
+  .app-header { flex-wrap: wrap; }
+  .site-nav { order: 3; width: 100%; margin: 10px 0 0; gap: 14px; overflow-x: auto; }
+}
+
+/* ---------- Rising / compare / picker ---------- */
+.data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.data-table th, .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+.data-table th { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+.data-table td.num, .data-table th.num { text-align: right; font-family: var(--mono); }
+.data-table a { color: var(--text); }
+.compare-table th[scope="row"] { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 500; width: 30%; }
+.compare-table td { font-family: var(--mono); }
+.compare-table .better { color: var(--up); }
+.pair-list { columns: 3 220px; padding: 0; list-style: none; }
+.pair-list li { margin: 0 0 6px; }
+.pair-list a { color: var(--text); font-size: 14px; }
+.picker-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 0 0 24px; }
+.picker-form select, .picker-form button, .quiz button { background: transparent; color: var(--text); border: 1px solid var(--line-strong); border-radius: 3px; padding: 8px 12px; font: inherit; }
+.picker-form button, .quiz .primary { background: var(--text); color: #000; font-weight: 600; cursor: pointer; }
+.quiz fieldset { border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; margin: 0 0 14px; }
+.quiz legend { font-weight: 600; padding: 0 6px; }
+.quiz label { display: block; margin: 6px 0; cursor: pointer; }
+.quiz .results { margin-top: 24px; display: grid; gap: 14px; }
+.quiz .result { border: 1px solid var(--line-strong); border-radius: 6px; padding: 14px 16px; }
+.quiz .result h3 { margin: 0 0 6px; }
+.quiz .result ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }

@@ -1,0 +1,73 @@
+---
+import Base from "../../layouts/Base.astro";
+import { FAMILY_LABELS } from "../../lib/families";
+import { loadMeta, loadRising, dataDate } from "../../lib/data";
+
+const rising = await loadRising();
+const meta = await loadMeta();
+const asOf = dataDate(meta, "distrowatch");
+const month = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }) : "this month";
+const site = Astro.site!.href.replace(/\/$/, "");
+
+const lead = rising[0];
+const title = `Rising Linux distros — ${month} | LinuxStatistics`;
+const description = lead
+  ? `The Linux distros climbing fastest on DistroWatch in the last month. ${lead.name} leads, up ${lead.rank1mDelta} places.`
+  : "The Linux distros climbing fastest on DistroWatch in the last month.";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: `Rising Linux distributions, ${month}`,
+  itemListOrder: "https://schema.org/ItemListOrderDescending",
+  numberOfItems: rising.length,
+  itemListElement: rising.map((d, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    name: d.name,
+    url: `${site}/distro/${d.slug}/`,
+  })),
+};
+---
+
+<Base title={title} description={description} jsonLd={jsonLd}>
+  <div class="page">
+    <h1>Rising this month</h1>
+    <p class="lede">
+      Distros in the DistroWatch top 100 (last 12 months) that rank higher over the last month, biggest climb first.
+    </p>
+    {rising.length === 0 ? (
+      <p>No distro in the top 100 climbed this month.</p>
+    ) : (
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Distro</th>
+              <th>Family</th>
+              <th class="num">12-month rank</th>
+              <th class="num">Last month</th>
+              <th class="num">Climb</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rising.map((d, i) => (
+              <tr>
+                <td>{i + 1}</td>
+                <td><a href={`/distro/${d.slug}/`}>{d.name}</a></td>
+                <td>{FAMILY_LABELS[d.family]}</td>
+                <td class="num">{d.rank}</td>
+                <td class="num">{d.rank1m}</td>
+                <td class="num"><span class="trend up">▲ {d.rank1mDelta}</span></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+    <p class="source-note">
+      Source: <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page-hit rankings, last-1-month vs last-12-months tables{asOf ? `, captured ${asOf}` : ""}.
+      Page hits measure interest on DistroWatch, not installs.
+    </p>
+  </div>
+</Base>
