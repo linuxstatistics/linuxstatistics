@@ -11,9 +11,9 @@ afterEach(() => {
 });
 
 const items: DistroListItem[] = [
-  { slug: "mint", name: "Linux Mint", family: "debian", status: "active", rank: 1, hitsPerDay: 2600, stars: 5200, commitsLast30d: 180, firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", rankTrend: 2, userRating: { average: 4.6, count: 10 }, usesItCount: 22 },
-  { slug: "fedora", name: "Fedora", family: "rpm", status: "active", rank: 3, hitsPerDay: 1700, stars: 1300, commitsLast30d: 60, firstReleaseYear: 2003, repoFullName: null, rankTrend: -1, userRating: { average: 3.9, count: 4 }, usesItCount: 8 },
-  { slug: "arch", name: "Arch Linux", family: "arch", status: "active", rank: 2, hitsPerDay: 840, stars: 4100, commitsLast30d: 70, firstReleaseYear: 2002, repoFullName: "archlinux/archinstall", rankTrend: 1, userRating: { average: 4.2, count: 6 }, usesItCount: 15 },
+  { slug: "mint", name: "Linux Mint", family: "debian", status: "active", rank: 1, hitsPerDay: 2600, stars: 5200, commitsLast30d: 180, firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", rankTrend: 2, rank1m: null, rank1mDelta: null, userRating: { average: 4.6, count: 10 }, usesItCount: 22 },
+  { slug: "fedora", name: "Fedora", family: "rpm", status: "active", rank: 3, hitsPerDay: 1700, stars: 1300, commitsLast30d: 60, firstReleaseYear: 2003, repoFullName: null, rankTrend: -1, rank1m: null, rank1mDelta: null, userRating: { average: 3.9, count: 4 }, usesItCount: 8 },
+  { slug: "arch", name: "Arch Linux", family: "arch", status: "active", rank: 2, hitsPerDay: 840, stars: 4100, commitsLast30d: 70, firstReleaseYear: 2002, repoFullName: "archlinux/archinstall", rankTrend: 1, rank1m: null, rank1mDelta: null, userRating: { average: 4.2, count: 6 }, usesItCount: 15 },
 ];
 
 // Distro name is the second cell of each data row.

@@ -1,63 +1,78 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import {
+  addAlias,
   addDistrowatchSnapshot,
   addGithubSnapshot,
   addMarketShare,
   defaultPgliteDir,
+  findDistroIdByAlias,
   initPgliteDb,
   recordIngestionRun,
   schema,
-  upsertDistro,
   upsertGithubRepo,
 } from "@linux-statistics/db";
-import { MARKET_SHARE, TAIL_DISTROS, TOP_DISTROS, type SeedDistro } from "./seed-data.js";
+import { parseDistrowatchRanking } from "./sources/distrowatch.js";
+import { ingestDistrowatchRows } from "./ingest-distrowatch.js";
+import {
+  LEGACY_SLUGS,
+  MARKET_SHARE,
+  SEED_CAPTURED_AT,
+  SEED_PAGE,
+  SEED_REPOS,
+} from "./seed-data.js";
 
-const NOW = new Date("2026-06-01T00:00:00.000Z");
-const YEAR_AGO = new Date("2025-06-01T00:00:00.000Z");
-const PERIOD = "last-12-months";
-
-async function seedDistro(
-  db: Awaited<ReturnType<typeof initPgliteDb>>["db"],
-  d: SeedDistro,
-): Promise<void> {
-  const id = await upsertDistro(db, {
-    slug: d.slug,
-    name: d.name,
-    family: d.family,
-    basedOnSlug: d.basedOnSlug ?? null,
-    homepage: d.homepage ?? null,
-    logoUrl: null,
-    firstReleaseYear: d.firstReleaseYear ?? null,
-    status: "active",
-  });
-  await addDistrowatchSnapshot(db, id, { capturedAt: YEAR_AGO, rank: d.rankPrev, hitsPerDay: Math.round(d.hits * 0.9), period: PERIOD });
-  await addDistrowatchSnapshot(db, id, { capturedAt: NOW, rank: d.rank, hitsPerDay: d.hits, period: PERIOD });
-  if (d.repo) {
-    const repoId = await upsertGithubRepo(db, id, {
-      repoFullName: d.repo.fullName,
-      stars: d.repo.stars,
-      forks: d.repo.forks,
-      openIssues: d.repo.openIssues,
-    });
-    await addGithubSnapshot(db, repoId, {
-      capturedAt: NOW,
-      stars: d.repo.stars,
-      commitsLast30d: d.repo.commits30d,
-      contributors: d.repo.contributors,
-    });
-  }
-}
+const here = dirname(fileURLToPath(import.meta.url));
+const YEAR_AGO = new Date(SEED_CAPTURED_AT.getTime() - 365 * 24 * 3600 * 1000);
 
 async function main(): Promise<void> {
   const dir = defaultPgliteDir();
   const { db, client } = await initPgliteDb(dir);
 
-  // Reset for a clean, repeatable seed (cascade clears snapshots/repos).
+  // Reset for a clean, repeatable seed (cascade clears snapshots, repos, aliases).
   await db.delete(schema.marketShare);
   await db.delete(schema.ingestionRuns);
   await db.delete(schema.distros);
 
-  for (const d of [...TOP_DISTROS, ...TAIL_DISTROS]) {
-    await seedDistro(db, d);
+  const rows = parseDistrowatchRanking(readFileSync(resolve(here, "..", SEED_PAGE), "utf8"));
+  const result = await ingestDistrowatchRows(db, rows, SEED_CAPTURED_AT);
+
+  // A year-ago 12-month snapshot so the trend column has something to compare:
+  // use the 6-month rank as a stand-in (illustrative, not a real capture).
+  const sixMonth = rows.filter((r) => r.period === "last-6-months");
+  for (const r of sixMonth) {
+    const id = await findDistroIdByAlias(db, "distrowatch", r.key);
+    if (id) {
+      await addDistrowatchSnapshot(db, id, {
+        capturedAt: YEAR_AGO,
+        rank: r.rank,
+        hitsPerDay: r.hitsPerDay,
+        period: "last-12-months",
+      });
+    }
+  }
+
+  for (const [legacy, key] of Object.entries(LEGACY_SLUGS)) {
+    const id = await findDistroIdByAlias(db, "distrowatch", key);
+    if (id) await addAlias(db, "legacy", legacy, id);
+  }
+
+  for (const repo of SEED_REPOS) {
+    const id = await findDistroIdByAlias(db, "distrowatch", repo.key);
+    if (!id) continue;
+    const repoId = await upsertGithubRepo(db, id, {
+      repoFullName: repo.fullName,
+      stars: repo.stars,
+      forks: repo.forks,
+      openIssues: repo.openIssues,
+    });
+    await addGithubSnapshot(db, repoId, {
+      capturedAt: SEED_CAPTURED_AT,
+      stars: repo.stars,
+      commitsLast30d: repo.commits30d,
+      contributors: repo.contributors,
+    });
   }
 
   for (const point of MARKET_SHARE) {
@@ -67,13 +82,14 @@ async function main(): Promise<void> {
     await addMarketShare(db, { capturedAt, region: "global", platform: "macos", sharePct: point.macos });
   }
 
-  const distroCount = TOP_DISTROS.length + TAIL_DISTROS.length;
-  await recordIngestionRun(db, "distrowatch", "success", distroCount);
+  await recordIngestionRun(db, "distrowatch", "success", result.written);
   await recordIngestionRun(db, "statcounter", "success", MARKET_SHARE.length * 3);
-  await recordIngestionRun(db, "github", "success", TOP_DISTROS.filter((d) => d.repo).length);
+  await recordIngestionRun(db, "github", "success", SEED_REPOS.length);
 
   await client.close();
-  console.log(`Seeded ${distroCount} distros and ${MARKET_SHARE.length} market-share years into ${dir}`);
+  console.log(
+    `Seeded ${result.created.length} distros (${result.written} DistroWatch rows, ${result.uncurated.length} without a curated family) into ${dir}`,
+  );
 }
 
 main().catch((err) => {

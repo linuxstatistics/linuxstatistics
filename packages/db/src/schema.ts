@@ -55,7 +55,28 @@ export const distrowatchSnapshots = pgTable(
     hitsPerDay: integer("hits_per_day").notNull(),
     period: text("period").notNull(),
   },
-  (t) => ({ dwDistroIdx: index("dw_distro_captured_idx").on(t.distroId, t.capturedAt) }),
+  (t) => ({
+    dwDistroIdx: index("dw_distro_captured_idx").on(t.distroId, t.capturedAt),
+    dwPeriodIdx: index("dw_period_captured_idx").on(t.period, t.capturedAt),
+  }),
+);
+
+/**
+ * Other names a distro is known by. `source = 'distrowatch'` maps DistroWatch's
+ * key to our distro (the key is also our slug); `source = 'legacy'` keeps old
+ * slugs resolvable after a rename.
+ */
+export const distroAliases = pgTable(
+  "distro_aliases",
+  {
+    id: serial("id").primaryKey(),
+    source: text("source").notNull(),
+    alias: text("alias").notNull(),
+    distroId: integer("distro_id")
+      .notNull()
+      .references(() => distros.id, { onDelete: "cascade" }),
+  },
+  (t) => ({ sourceAliasUniq: uniqueIndex("distro_aliases_source_alias_uniq").on(t.source, t.alias) }),
 );
 
 export const githubRepos = pgTable("github_repos", {

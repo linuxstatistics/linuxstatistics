@@ -112,7 +112,7 @@ test("getMeta reports tracked count and source freshness", async () => {
 test("getDistroList includes user-rating aggregates with the public threshold", async () => {
   const { db, client } = await initPgliteDb();
   const id = await upsertDistro(db, { slug: "mint", name: "Linux Mint", family: "debian", status: "active" });
-  await addDistrowatchSnapshot(db, id, { capturedAt: new Date(), rank: 1, hitsPerDay: 2600, period: "p" });
+  await addDistrowatchSnapshot(db, id, { capturedAt: new Date(), rank: 1, hitsPerDay: 2600, period: "last-12-months" });
   const u = await upsertUser(db, { provider: "github", providerUserId: "1", username: "a", avatarUrl: null, accountCreatedAt: new Date("2015-01-01") });
   await upsertContribution(db, { userId: u.id, distroId: id, rating: 4, usesIt: true, reviewBody: null });
   // One rating is below the threshold: average withheld, usesItCount still reported.

@@ -10,7 +10,7 @@ test("distroListItem carries first-party rating aggregates", () => {
   const parsed = distroListItemSchema.parse({
     slug: "mint", name: "Linux Mint", family: "debian", status: "active",
     rank: 1, hitsPerDay: 2600, stars: 5200, commitsLast30d: 180,
-    firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", rankTrend: 2,
+    firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", rankTrend: 2, rank1m: 3, rank1mDelta: -1,
     userRating: { average: 4.5, count: 12 }, usesItCount: 30,
   });
   expect(parsed.userRating.average).toBe(4.5);

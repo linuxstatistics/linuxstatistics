@@ -5,27 +5,65 @@ import { expect, test } from "vitest";
 import { parseDistrowatchRanking } from "../src/sources/distrowatch.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const fixture = readFileSync(resolve(here, "fixtures/distrowatch.html"), "utf8");
+const small = readFileSync(resolve(here, "fixtures/distrowatch.html"), "utf8");
+// Live page saved 2026-11-03 from https://distrowatch.com/dwres.php?resource=popularity
+const live = readFileSync(resolve(here, "fixtures/distrowatch-2026-11-03.html"), "utf8");
 
-test("parses the ranking table into ordered rows", () => {
-  const rows = parseDistrowatchRanking(fixture);
+test("reads each table's period from its heading and the DistroWatch key from the link", () => {
+  const rows = parseDistrowatchRanking(small);
   expect(rows).toHaveLength(10);
   expect(rows[0]).toEqual({
     rank: 1,
+    key: "mx",
     name: "MX Linux",
     hitsPerDay: 2512,
     period: "last-12-months",
   });
-  expect(rows[1]!.name).toBe("Linux Mint");
-  expect(rows[9]!.rank).toBe(10);
+  expect(rows.filter((r) => r.period === "last-1-month").map((r) => r.key)).toEqual([
+    "fedora",
+    "mint",
+    "mx",
+    "debian",
+    "endeavour",
+  ]);
 });
 
 test("strips thousands separators from hits", () => {
-  const rows = parseDistrowatchRanking(fixture);
+  const rows = parseDistrowatchRanking(small);
   expect(rows[1]!.hitsPerDay).toBe(2103);
+});
+
+test("parses the live page: 4 periods x 545 rows, CachyOS #1 over 12 months", () => {
+  const rows = parseDistrowatchRanking(live);
+  const byPeriod = new Map<string, number>();
+  for (const r of rows) byPeriod.set(r.period, (byPeriod.get(r.period) ?? 0) + 1);
+  expect(Object.fromEntries(byPeriod)).toEqual({
+    "last-12-months": 545,
+    "last-6-months": 545,
+    "last-3-months": 545,
+    "last-1-month": 545,
+  });
+  const top = rows.find((r) => r.period === "last-12-months" && r.rank === 1);
+  expect(top).toEqual({ rank: 1, key: "cachyos", name: "CachyOS", hitsPerDay: 3248, period: "last-12-months" });
+  expect(rows.find((r) => r.period === "last-12-months" && r.rank === 2)?.key).toBe("mint");
 });
 
 test("fails loudly when the layout changes (too few rows)", () => {
   const broken = "<html><body><table><tr><td>nothing useful here</td></tr></table></body></html>";
   expect(() => parseDistrowatchRanking(broken)).toThrow(/layout may have changed/);
+});
+
+test("fails on an unrecognised table heading", () => {
+  const html = small.replace("Last 1 month", "Last fortnight");
+  expect(() => parseDistrowatchRanking(html)).toThrow(/heading/);
+});
+
+test("fails on duplicate ranks within a period", () => {
+  const html = small.replace('<th class="phr1">2</th><td class="phr2"><a title="Based on: Ubuntu"', '<th class="phr1">1</th><td class="phr2"><a title="Based on: Ubuntu"');
+  expect(() => parseDistrowatchRanking(html)).toThrow(/duplicate rank/);
+});
+
+test("fails when a row has no DistroWatch key", () => {
+  const html = small.replace('href="debian">Debian</a></td><td class="phr3">1,602', 'href="">Debian</a></td><td class="phr3">1,602');
+  expect(() => parseDistrowatchRanking(html)).toThrow(/key/);
 });

@@ -29,6 +29,13 @@
       "when": 1782400000000,
       "tag": "0003_multi_provider_users",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793750400000,
+      "tag": "0004_distro_aliases",
+      "breakpoints": true
     }
   ]
 }

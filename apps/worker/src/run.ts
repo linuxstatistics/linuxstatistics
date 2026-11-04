@@ -1,52 +1,24 @@
-import {
-  addDistrowatchSnapshot,
-  defaultPgliteDir,
-  initPgliteDb,
-  recordIngestionRun,
-  upsertDistro,
-  type Database,
-} from "@linux-statistics/db";
+import { defaultPgliteDir, initPgliteDb, recordIngestionRun, type Database } from "@linux-statistics/db";
 import { parseDistrowatchRanking } from "./sources/distrowatch.js";
+import { ingestDistrowatchRows } from "./ingest-distrowatch.js";
 
 const DW_URL = "https://distrowatch.com/dwres.php?resource=popularity";
 const USER_AGENT = "linux-statistics-bot/0.1 (+https://linuxstatistics.com)";
 
-function slugify(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
-}
-
 /**
- * Live DistroWatch ingestion. On any failure it records a failed run and throws
- * to the caller, which logs but does NOT clear existing data — so a transient
- * outage or layout change never destroys the last good snapshot.
+ * Live DistroWatch ingestion. The page is parsed fully before anything is
+ * written, so a layout change fails the run without touching existing data.
  */
 async function ingestDistrowatch(db: Database): Promise<number> {
   const res = await fetch(DW_URL, { headers: { "User-Agent": USER_AGENT } });
   if (!res.ok) throw new Error(`DistroWatch HTTP ${res.status}`);
-  const html = await res.text();
-  const rows = parseDistrowatchRanking(html);
-  const capturedAt = new Date();
-  let written = 0;
-  for (const r of rows) {
-    // Family is enriched separately via a curated mapping; default to "other".
-    const id = await upsertDistro(db, {
-      slug: slugify(r.name),
-      name: r.name,
-      family: "other",
-      status: "active",
-    });
-    await addDistrowatchSnapshot(db, id, {
-      capturedAt,
-      rank: r.rank,
-      hitsPerDay: r.hitsPerDay,
-      period: r.period,
-    });
-    written += 1;
+  const rows = parseDistrowatchRanking(await res.text());
+  const result = await ingestDistrowatchRows(db, rows, new Date());
+  if (result.created.length) console.log(`DistroWatch: ${result.created.length} new distros`);
+  if (result.uncurated.length) {
+    console.log(`DistroWatch: ${result.uncurated.length} distros without a curated family (see apps/worker/src/families.ts)`);
   }
-  return written;
+  return result.written;
 }
 
 async function main(): Promise<void> {

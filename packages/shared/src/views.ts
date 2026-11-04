@@ -58,6 +58,10 @@ export const distroListItemSchema = z.object({
   repoFullName: z.string().nullable(),
   // change in DistroWatch rank vs ~1 year ago (positive = improved). null if unknown.
   rankTrend: z.number().int().nullable(),
+  // rank in DistroWatch's last-1-month table, and the climb vs the 12-month rank
+  // (positive = rising). null when either rank is missing.
+  rank1m: z.number().int().nullable(),
+  rank1mDelta: z.number().int().nullable(),
   // first-party aggregates over visible user contributions
   userRating: userRatingSchema,
   usesItCount: z.number().int(),

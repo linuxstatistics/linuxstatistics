@@ -1,4 +1,5 @@
 import { and, asc, count, desc, eq, gte, lte } from "drizzle-orm";
+import { MAIN_PERIOD, TRENDING_PERIOD } from "@linux-statistics/shared";
 import type {
   DistroDetail,
   DistroListItem,
@@ -12,6 +13,7 @@ import type {
 } from "@linux-statistics/shared";
 import type { Database } from "./client.js";
 import {
+  distroAliases,
   distros,
   distrowatchSnapshots,
   githubRepos,
@@ -50,6 +52,12 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
   const dwAll = await db
     .select()
     .from(distrowatchSnapshots)
+    .where(eq(distrowatchSnapshots.period, MAIN_PERIOD))
+    .orderBy(desc(distrowatchSnapshots.capturedAt));
+  const dw1mAll = await db
+    .select()
+    .from(distrowatchSnapshots)
+    .where(eq(distrowatchSnapshots.period, TRENDING_PERIOD))
     .orderBy(desc(distrowatchSnapshots.capturedAt));
   const repos = await db.select().from(githubRepos);
   const ghAll = await db
@@ -59,6 +67,8 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
   const aggByDistro = await getContributionAggregates(db);
 
   const dwByDistro = groupBy(dwAll, (s) => s.distroId); // each list is desc by capturedAt
+  const dw1mLatest = new Map<number, (typeof dw1mAll)[number]>();
+  for (const s of dw1mAll) if (!dw1mLatest.has(s.distroId)) dw1mLatest.set(s.distroId, s);
   const repoByDistro = new Map(repos.map((r) => [r.distroId, r]));
   const ghLatestByRepo = new Map<number, (typeof ghAll)[number]>();
   for (const g of ghAll) if (!ghLatestByRepo.has(g.repoId)) ghLatestByRepo.set(g.repoId, g);
@@ -75,6 +85,7 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
     }
     const repo = repoByDistro.get(d.id);
     const gh = repo ? ghLatestByRepo.get(repo.id) : undefined;
+    const rank1m = dw1mLatest.get(d.id)?.rank ?? null;
     return {
       slug: d.slug,
       name: d.name,
@@ -87,6 +98,8 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
       firstReleaseYear: d.firstReleaseYear,
       repoFullName: repo?.repoFullName ?? null,
       rankTrend,
+      rank1m,
+      rank1mDelta: latest && rank1m !== null ? latest.rank - rank1m : null,
       userRating: {
         average: (aggByDistro.get(d.id) ?? EMPTY_AGG).average,
         count: (aggByDistro.get(d.id) ?? EMPTY_AGG).count,
@@ -96,6 +109,38 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
   });
 
   return items.sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity));
+}
+
+/**
+ * Biggest climbers: distros whose 1-month rank beats their 12-month rank,
+ * largest climb first. Distros outside the 12-month top `maxRank` (default 100) are left out
+ * to cut noise from tiny hit counts.
+ */
+export async function getRising(
+  db: Database,
+  limit = 20,
+  maxRank = 100,
+): Promise<DistroListItem[]> {
+  const list = await getDistroList(db);
+  return list
+    .filter(
+      (d): d is DistroListItem & { rank: number; rank1mDelta: number } =>
+        d.rank !== null && d.rank <= maxRank && (d.rank1mDelta ?? 0) > 0,
+    )
+    .sort((a, b) => b.rank1mDelta - a.rank1mDelta || a.rank - b.rank)
+    .slice(0, limit);
+}
+
+/** Canonical slug for a slug or a legacy alias; null if unknown. */
+export async function resolveSlug(db: Database, slug: string): Promise<string | null> {
+  const [direct] = await db.select({ slug: distros.slug }).from(distros).where(eq(distros.slug, slug));
+  if (direct) return direct.slug;
+  const [viaAlias] = await db
+    .select({ slug: distros.slug })
+    .from(distroAliases)
+    .innerJoin(distros, eq(distroAliases.distroId, distros.id))
+    .where(eq(distroAliases.alias, slug));
+  return viaAlias?.slug ?? null;
 }
 
 /** The 3D scene payload: Sun (#1), planets (#2–#10), starfield (the rest). */
@@ -132,14 +177,22 @@ export async function getDistroDetail(
   slug: string,
   userId?: number,
 ): Promise<DistroDetail | null> {
-  const [d] = await db.select().from(distros).where(eq(distros.slug, slug));
+  const canonical = await resolveSlug(db, slug);
+  if (!canonical) return null;
+  const [d] = await db.select().from(distros).where(eq(distros.slug, canonical));
   if (!d) return null;
 
   const snaps = await db
     .select()
     .from(distrowatchSnapshots)
-    .where(eq(distrowatchSnapshots.distroId, d.id))
+    .where(and(eq(distrowatchSnapshots.distroId, d.id), eq(distrowatchSnapshots.period, MAIN_PERIOD)))
     .orderBy(asc(distrowatchSnapshots.capturedAt));
+  const [latest1m] = await db
+    .select()
+    .from(distrowatchSnapshots)
+    .where(and(eq(distrowatchSnapshots.distroId, d.id), eq(distrowatchSnapshots.period, TRENDING_PERIOD)))
+    .orderBy(desc(distrowatchSnapshots.capturedAt))
+    .limit(1);
   const [repo] = await db
     .select()
     .from(githubRepos)
@@ -183,6 +236,8 @@ export async function getDistroDetail(
     stars: repo?.stars ?? null,
     commitsLast30d: latestGh?.commitsLast30d ?? null,
     rankTrend,
+    rank1m: latest1m?.rank ?? null,
+    rank1mDelta: latest && latest1m ? latest.rank - latest1m.rank : null,
     basedOnSlug: d.basedOnSlug,
     homepage: d.homepage,
     logoUrl: d.logoUrl,

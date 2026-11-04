@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
-import type { DistroInput, IngestionSource, IngestionStatus } from "@linux-statistics/shared";
+import { and, eq } from "drizzle-orm";
+import type { DistroInput, IngestionSource, IngestionStatus, Period } from "@linux-statistics/shared";
 import type { Database } from "./client.js";
 import {
+  distroAliases,
   distros,
   distrowatchSnapshots,
   githubRepos,
@@ -33,7 +34,7 @@ export async function upsertDistro(db: Database, input: DistroInput): Promise<nu
 export async function addDistrowatchSnapshot(
   db: Database,
   distroId: number,
-  s: { capturedAt: Date; rank: number; hitsPerDay: number; period: string },
+  s: { capturedAt: Date; rank: number; hitsPerDay: number; period: Period },
 ): Promise<void> {
   await db.insert(distrowatchSnapshots).values({ distroId, ...s });
 }
@@ -101,4 +102,45 @@ export async function findDistroIdBySlug(
     .from(distros)
     .where(eq(distros.slug, slug));
   return row?.id ?? null;
+}
+
+export type AliasSource = "distrowatch" | "legacy";
+
+/** Record another name for a distro (idempotent; re-points an existing alias). */
+export async function addAlias(
+  db: Database,
+  source: AliasSource,
+  alias: string,
+  distroId: number,
+): Promise<void> {
+  await db
+    .insert(distroAliases)
+    .values({ source, alias, distroId })
+    .onConflictDoUpdate({
+      target: [distroAliases.source, distroAliases.alias],
+      set: { distroId },
+    });
+}
+
+/** Resolve a distro id from an alias, if known. */
+export async function findDistroIdByAlias(
+  db: Database,
+  source: AliasSource,
+  alias: string,
+): Promise<number | null> {
+  const [row] = await db
+    .select({ id: distroAliases.distroId })
+    .from(distroAliases)
+    .where(and(eq(distroAliases.source, source), eq(distroAliases.alias, alias)));
+  return row?.id ?? null;
+}
+
+/** Families and bases set by hand; only these overwrite an existing value. */
+export async function setDistroFamily(
+  db: Database,
+  distroId: number,
+  family: DistroInput["family"],
+  basedOnSlug: string | null,
+): Promise<void> {
+  await db.update(distros).set({ family, basedOnSlug }).where(eq(distros.id, distroId));
 }

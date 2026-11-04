@@ -4,6 +4,8 @@ import rateLimit from "@fastify/rate-limit";
 import { z } from "zod";
 import {
   getDistroDetail,
+  getRising,
+  resolveSlug,
   getDistroList,
   getGalaxy,
   getMarketShare,
@@ -45,6 +47,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   const distrosCached = ttlCache(TTL, () => getDistroList(db));
   const galaxyCached = ttlCache(TTL, () => getGalaxy(db));
   const metaCached = ttlCache(TTL, () => getMeta(db));
+  const risingCached = ttlCache(TTL, () => getRising(db));
 
   app.get("/health", async () => ({ ok: true }));
 
@@ -53,6 +56,8 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   app.get("/api/galaxy", async () => galaxyCached());
 
   app.get("/api/meta", async () => metaCached());
+
+  app.get("/api/rising", async () => risingCached());
 
   app.get("/api/market-share", async (req) => {
     const q = marketQuerySchema.parse(req.query);
@@ -65,6 +70,10 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
 
   app.get("/api/distros/:slug", async (req, reply) => {
     const { slug } = req.params as { slug: string };
+    const canonical = await resolveSlug(db, slug);
+    if (canonical && canonical !== slug) {
+      return reply.redirect(`/api/distros/${encodeURIComponent(canonical)}`, 301);
+    }
     const user = await currentUser(db, req);
     const detail = await getDistroDetail(db, slug, user?.id);
     if (!detail) {

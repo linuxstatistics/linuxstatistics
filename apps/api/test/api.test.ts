@@ -2,6 +2,7 @@ import { afterAll, beforeAll, expect, test } from "vitest";
 import type { FastifyInstance } from "fastify";
 import type { PGlite } from "@electric-sql/pglite";
 import {
+  addAlias,
   addDistrowatchSnapshot,
   addMarketShare,
   initPgliteDb,
@@ -26,6 +27,13 @@ beforeAll(async () => {
     rank: 1,
     hitsPerDay: 2600,
     period: "last-12-months",
+  });
+  await addAlias(db, "legacy", "linux-mint", mintId);
+  await addDistrowatchSnapshot(db, mintId, {
+    capturedAt: new Date(),
+    rank: 3,
+    hitsPerDay: 1800,
+    period: "last-1-month",
   });
   await addMarketShare(db, {
     capturedAt: new Date("2026-01-01T00:00:00Z"),
@@ -79,4 +87,19 @@ test("GET /api/meta reports tracked count", async () => {
   const res = await app.inject({ method: "GET", url: "/api/meta" });
   expect(res.statusCode).toBe(200);
   expect(res.json().trackedDistros).toBe(1);
+});
+
+test("GET /api/distros/:slug redirects a legacy slug to the canonical one", async () => {
+  const res = await app.inject({ method: "GET", url: "/api/distros/linux-mint" });
+  expect(res.statusCode).toBe(301);
+  expect(res.headers.location).toBe("/api/distros/mint");
+});
+
+test("GET /api/rising lists climbers (none here: mint fell in the last month)", async () => {
+  const res = await app.inject({ method: "GET", url: "/api/rising" });
+  expect(res.statusCode).toBe(200);
+  expect(res.json()).toEqual([]);
+  const list = (await app.inject({ method: "GET", url: "/api/distros" })).json();
+  expect(list[0].rank1m).toBe(3);
+  expect(list[0].rank1mDelta).toBe(-2);
 });
