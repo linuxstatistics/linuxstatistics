@@ -9,3 +9,6 @@ dist/
 .superpowers/
 .playwright-mcp/
 .claude/settings.local.json
+apps/site/dist.next/
+apps/site/dist.prev/
+.astro/

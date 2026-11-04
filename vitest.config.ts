@@ -5,6 +5,6 @@ export default defineConfig({
   test: {
     include: ["packages/**/test/**/*.test.ts", "apps/**/test/**/*.test.{ts,tsx}"],
     pool: "forks",
-    environmentMatchGlobs: [["apps/web/**", "jsdom"]],
+    environmentMatchGlobs: [["apps/site/**", "jsdom"]],
   },
 });

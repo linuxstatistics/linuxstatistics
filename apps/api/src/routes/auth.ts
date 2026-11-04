@@ -34,7 +34,7 @@ export function registerAuthRoutes(
   opts: { registry?: ProviderRegistry; exchange?: ExchangeFn } = {},
 ): void {
   const registry = opts.registry ?? buildProviderRegistry();
-  const webOrigin = process.env.WEB_ORIGIN ?? "http://localhost:5173";
+  const webOrigin = process.env.WEB_ORIGIN ?? "http://localhost:4380";
   const apiPublicUrl = process.env.API_PUBLIC_URL ?? "http://localhost:3001";
   const exchange: ExchangeFn =
     opts.exchange ??

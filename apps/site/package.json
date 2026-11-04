@@ -1,30 +1,32 @@
 {
-  "name": "@linux-statistics/web",
+  "name": "@linux-statistics/site",
   "version": "0.0.0",
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "typecheck": "astro check && tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@astrojs/react": "^7.1.2",
+    "@astrojs/sitemap": "^3.7.4",
     "@linux-statistics/shared": "workspace:*",
     "@tanstack/react-query": "^5.105.3",
+    "astro": "^7.4.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "zustand": "^5.0.16"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.12",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
     "@types/react": "^18.3.31",
     "@types/react-dom": "^18.3.7",
-    "@vitejs/plugin-react": "^4.7.0",
     "jsdom": "^25.0.1",
-    "vite": "^5.4.21"
+    "typescript": "^5.9.3"
   }
 }

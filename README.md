@@ -6,7 +6,7 @@ Linux-distro statistics: popularity rankings, desktop market share and project a
 
 ## Stack
 
-- **web**: Vite + React SPA (leaderboard and distro details)
+- **site**: Astro static site with React islands (leaderboard and a page per distro)
 - **api**: Fastify REST API over the database (read-only data routes, plus auth, contributions and email signup)
 - **worker**: ingestion source parsers (DistroWatch / StatCounter / GitHub) and seed
 - **packages/db**: Drizzle schema, migrations, queries, repository
@@ -21,11 +21,22 @@ Local dev and tests use **PGlite** (in-process Postgres), so no database server 
 ```bash
 pnpm install
 pnpm seed       # seed the local PGlite database (exits)
-pnpm dev:api    # http://localhost:3001
-pnpm dev:web    # http://localhost:5173 (another terminal)
+pnpm dev:api    # API on http://localhost:3001
+pnpm dev:site   # site on http://localhost:4380 (another terminal; proxies /api to the API)
 ```
 
 PGlite allows a single connection, so run `pnpm seed` before starting the API. Run both from the repo root.
+
+## Building the site
+
+The site is built from the running API, so every page is plain HTML:
+
+```bash
+pnpm build:site   # needs the API running (API_URL, default http://localhost:3001)
+pnpm check:site   # checks the built HTML has the data without JavaScript
+```
+
+`build:site` builds into a temporary folder and only replaces `apps/site/dist` when the build succeeds. In production, serve `apps/site/dist` and route `/api/*` to the API on the same origin.
 
 ## Tests and checks
 

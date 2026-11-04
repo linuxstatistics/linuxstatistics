@@ -1,9 +1,7 @@
 import "@testing-library/jest-dom/vitest";
-import type { ReactNode } from "react";
 import { afterEach, expect, test, vi } from "vitest";
 import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { DistroListItem } from "@linux-statistics/shared";
 import { ListView } from "../src/components/ListView";
 
@@ -11,11 +9,6 @@ afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
 });
-
-function withClient(ui: ReactNode) {
-  const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return <QueryClientProvider client={qc}>{ui}</QueryClientProvider>;
-}
 
 const items: DistroListItem[] = [
   { slug: "mint", name: "Linux Mint", family: "debian", status: "active", rank: 1, hitsPerDay: 2600, stars: 5200, commitsLast30d: 180, firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", rankTrend: 2, userRating: { average: 4.6, count: 10 }, usesItCount: 22 },
@@ -67,7 +60,7 @@ test("family filter narrows the list", async () => {
 test("shows GitHub stars as plain text (no link in the row)", () => {
   render(<ListView items={items} />);
   expect(screen.getByText("5,200")).toBeInTheDocument();
-  // The GitHub link now lives only in the expanded detail pane.
+  // The GitHub link lives on the distro page.
   expect(screen.queryByRole("link", { name: "5,200" })).not.toBeInTheDocument();
 });
 
@@ -105,19 +98,7 @@ test("tags secondary columns to be hidden on mobile", () => {
   expect(distro).not.toHaveClass("col-hide-mobile");
 });
 
-test("clicking a row expands an inline detail row", async () => {
-  const archDetail = {
-    slug: "arch", name: "Arch Linux", family: "arch", status: "active",
-    rank: 2, hitsPerDay: 840, stars: 4100, commitsLast30d: 70,
-    firstReleaseYear: 2002, repoFullName: "archlinux/archinstall", rankTrend: 1,
-    userRating: { average: 4.2, count: 6 }, usesItCount: 15,
-    basedOnSlug: null, homepage: "https://archlinux.org", logoUrl: null,
-    rankHistory: [], starsHistory: [], myContribution: null,
-  };
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => archDetail }));
-  const user = userEvent.setup();
-  render(withClient(<ListView items={items} />));
-  await user.click(screen.getByRole("row", { name: /Arch Linux/ }));
-  // The expanded detail body renders distro stats below the row.
-  expect(await screen.findByText("DistroWatch rank")).toBeInTheDocument();
+test("each distro name links to its page", () => {
+  render(<ListView items={items} />);
+  expect(screen.getByRole("link", { name: "Arch Linux" })).toHaveAttribute("href", "/distro/arch/");
 });

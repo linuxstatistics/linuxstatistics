@@ -1,12 +1,17 @@
 import { useState } from "react";
-import { useDistros } from "../api";
+import type { DistroListItem, MarketSharePoint } from "@linux-statistics/shared";
 import { ShareCard } from "./ShareCard";
 import { DistroHighlights } from "./DistroHighlights";
 
-/** Mobile header menu that holds the summary KPI cards in a dropdown. */
-export function StatsMenu() {
+/** Collapsible panel holding the summary KPI cards (used on narrow screens). */
+export function StatsMenu({
+  items,
+  marketShare,
+}: {
+  items: DistroListItem[];
+  marketShare: MarketSharePoint[];
+}) {
   const [open, setOpen] = useState(false);
-  const { data } = useDistros();
 
   return (
     <div className="stats-menu t-acc" data-open={open}>
@@ -26,8 +31,8 @@ export function StatsMenu() {
       </button>
       <div className="t-acc-panel">
         <div className="t-acc-panel-inner stats-menu-panel">
-          <ShareCard className="stat-card" />
-          {data && <DistroHighlights items={data} />}
+          <ShareCard points={marketShare} className="stat-card" />
+          <DistroHighlights items={items} />
         </div>
       </div>
     </div>

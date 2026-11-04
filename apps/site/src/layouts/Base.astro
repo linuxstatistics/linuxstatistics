@@ -1,0 +1,66 @@
+---
+import "../styles.css";
+import { HeaderAuth } from "../components/HeaderAuth";
+import { FooterEmail } from "../components/FooterEmail";
+import { SponsorSlot } from "../components/SponsorSlot";
+
+interface Props {
+  title: string;
+  description: string;
+  jsonLd?: Record<string, unknown>;
+  noindex?: boolean;
+}
+
+const { title, description, jsonLd, noindex = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="LinuxStatistics" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body>
+    <div class="app">
+      <header class="app-header">
+        <a class="brand" href="/">
+          <span class="logo" aria-hidden="true">◐</span>
+          <div>
+            <span class="brand-name">LinuxStatistics</span>
+            <p>Linux distro rankings and statistics</p>
+          </div>
+        </a>
+        <div class="header-right">
+          <HeaderAuth client:idle />
+        </div>
+      </header>
+      <main class="app-main">
+        <slot />
+      </main>
+      <footer class="app-footer">
+        <div class="footer-bridges">
+          <SponsorSlot />
+          <FooterEmail client:visible />
+        </div>
+        <div class="footer-credit">
+          Data: <a href="https://distrowatch.com/" rel="noreferrer">DistroWatch</a> page-hit rankings ·
+          <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a> ·
+          <a href="https://github.com/" rel="noreferrer">GitHub</a> ·
+          <a href="https://github.com/linuxstatistics/linuxstatistics" rel="noreferrer">Source (AGPL-3.0)</a>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>

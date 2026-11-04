@@ -10,7 +10,8 @@ import type {
   ProviderSummary,
 } from "@linux-statistics/shared";
 
-const BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+// Same origin by default: Caddy (prod) or the Astro dev proxy routes /api to Fastify.
+const BASE: string = import.meta.env.PUBLIC_API_URL ?? "";
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`, { credentials: "include" });

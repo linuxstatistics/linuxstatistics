@@ -1,8 +1,6 @@
-import { Fragment, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import type { DistroListItem, DistroStatus, Family } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
-import { useDistro } from "../api";
-import { DistroDetailBody } from "./DistroDetailBody";
 
 type SortKey =
   | "rank"
@@ -24,9 +22,11 @@ function Trend({ value }: { value: number | null }) {
   );
 }
 
+export function distroHref(slug: string): string {
+  return `/distro/${slug}/`;
+}
+
 function starsCell(d: DistroListItem): ReactNode {
-  // Plain text — the GitHub link lives in the expanded detail pane so the whole
-  // row stays a single click target.
   return d.stars === null ? "—" : d.stars.toLocaleString();
 }
 
@@ -43,7 +43,12 @@ interface ColumnDef {
 
 const COLUMNS: ColumnDef[] = [
   { key: "rank", label: "#", numeric: true, fixed: true, render: (d) => d.rank ?? "—" },
-  { key: "name", label: "Distro", fixed: true, render: (d) => d.name },
+  {
+    key: "name",
+    label: "Distro",
+    fixed: true,
+    render: (d) => <a href={distroHref(d.slug)}>{d.name}</a>,
+  },
   {
     key: "family",
     label: "Family",
@@ -94,22 +99,7 @@ export interface ListViewProps {
   items: DistroListItem[];
 }
 
-/** The inline detail content shown in an expanded row below a distro. */
-function ListDetailRow({ slug }: { slug: string }) {
-  const { data, isLoading } = useDistro(slug);
-  return (
-    <div className="list-detail">
-      {isLoading || !data ? (
-        <p className="loading">Loading…</p>
-      ) : (
-        <DistroDetailBody data={data} showName={false} />
-      )}
-    </div>
-  );
-}
-
 export function ListView({ items }: ListViewProps) {
-  const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [asc, setAsc] = useState(true);
   const [family, setFamily] = useState<Family | "all">("all");
@@ -248,48 +238,24 @@ export function ListView({ items }: ListViewProps) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((d) => {
-              const expanded = expandedSlug === d.slug;
-              const toggle = () => setExpandedSlug((s) => (s === d.slug ? null : d.slug));
-              return (
-                <Fragment key={d.slug}>
-                  <tr
-                    className={`row-clickable${expanded ? " expanded" : ""}`}
-                    tabIndex={0}
-                    aria-expanded={expanded}
-                    onClick={toggle}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        toggle();
-                      }
-                    }}
+            {rows.map((d) => (
+              <tr key={d.slug}>
+                {visibleColumns.map((c) => (
+                  <td
+                    key={c.key}
+                    className={[
+                      thtdClass(c),
+                      c.key === "rank" ? "rank" : "",
+                      c.key === "name" ? "distro-name-cell" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
                   >
-                    {visibleColumns.map((c) => (
-                      <td
-                        key={c.key}
-                        className={[
-                          thtdClass(c),
-                          c.key === "rank" ? "rank" : "",
-                          c.key === "name" ? "distro-name-cell" : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                      >
-                        {c.render(d)}
-                      </td>
-                    ))}
-                  </tr>
-                  {expanded && (
-                    <tr className="detail-row">
-                      <td colSpan={visibleColumns.length}>
-                        <ListDetailRow slug={d.slug} />
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              );
-            })}
+                    {c.render(d)}
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

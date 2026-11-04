@@ -1,27 +1,19 @@
-import type { DistroDetail, Me } from "@linux-statistics/shared";
+import type { DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
-import { RatingWidget } from "./RatingWidget";
-import { AffiliateBlock } from "./AffiliateBlock";
-import { useMe, useUpsertContribution, useDeleteContribution } from "../api";
 
-/** Shared detail content used by the detail panel and the List inline row. */
-export function DistroDetailBody({
-  data,
-  showName = true,
-}: {
-  data: DistroDetail;
-  showName?: boolean;
-}) {
-  const { data: me } = useMe();
-  const save = useUpsertContribution(data.slug);
-  const remove = useDeleteContribution(data.slug);
+/** Static distro facts; rendered to HTML at build time (no client JS). */
+export function DistroStats({ data }: { data: DistroDetail }) {
   return (
     <>
-      {showName && <h2>{data.name}</h2>}
       <div className="family-line">
         <span className="family-chip" style={{ background: familyColor(data.family) }} />
         {FAMILY_LABELS[data.family]}
-        {data.basedOnSlug ? ` · based on ${data.basedOnSlug}` : ""}
+        {data.basedOnSlug ? (
+          <>
+            {" · based on "}
+            <a href={`/distro/${data.basedOnSlug}/`}>{data.basedOnSlug}</a>
+          </>
+        ) : null}
         {data.status === "discontinued" ? " · discontinued" : ""}
       </div>
       <dl className="stats">
@@ -31,15 +23,15 @@ export function DistroDetailBody({
         </div>
         <div>
           <dt>Hits / day</dt>
-          <dd>{data.hitsPerDay?.toLocaleString() ?? "—"}</dd>
+          <dd>{data.hitsPerDay?.toLocaleString("en-US") ?? "—"}</dd>
         </div>
         <div>
           <dt>GitHub</dt>
-          <dd>{data.stars?.toLocaleString() ?? "—"}</dd>
+          <dd>{data.stars?.toLocaleString("en-US") ?? "—"}</dd>
         </div>
         <div>
           <dt>Commits / mo</dt>
-          <dd>{data.commitsLast30d?.toLocaleString() ?? "—"}</dd>
+          <dd>{data.commitsLast30d?.toLocaleString("en-US") ?? "—"}</dd>
         </div>
         <div>
           <dt>Released</dt>
@@ -55,7 +47,7 @@ export function DistroDetailBody({
         </div>
         <div>
           <dt>Users</dt>
-          <dd>{data.usesItCount > 0 ? data.usesItCount.toLocaleString() : "—"}</dd>
+          <dd>{data.usesItCount > 0 ? data.usesItCount.toLocaleString("en-US") : "—"}</dd>
         </div>
       </dl>
       <div className="links">
@@ -70,15 +62,6 @@ export function DistroDetailBody({
           </a>
         )}
       </div>
-      <RatingWidget
-        me={(me ?? null) as Me | null}
-        mine={data.myContribution}
-        onSave={(c) => save.mutate(c)}
-        onDelete={() => remove.mutate()}
-        saved={save.isSuccess}
-        scoreIsPublic={data.userRating.average != null}
-      />
-      <AffiliateBlock />
     </>
   );
 }

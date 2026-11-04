@@ -20,7 +20,9 @@ Run everything from the repo root (the local DB path is anchored to it).
 pnpm install
 pnpm seed          # populate the local DB (run before the API)
 pnpm dev:api       # Fastify API on http://localhost:3001
-pnpm dev:web       # Vite SPA on http://localhost:5173 (separate terminal)
+pnpm dev:site      # Astro dev server on http://localhost:4380, proxies /api (separate terminal)
+pnpm build:site    # static build from the running API (API_URL), atomic swap into apps/site/dist
+pnpm check:site    # bot-view check of the built HTML
 
 pnpm test                         # full vitest suite
 pnpm test -- queries              # files matching "queries"
@@ -33,13 +35,13 @@ DB schema changes: edit `packages/db/src/schema.ts`, then `pnpm --filter @linux-
 
 ## Architecture
 
-pnpm-workspace monorepo (`packages/*`, `apps/*`), TypeScript, ESM. Data flows one way: **worker → Postgres → api → web**.
+pnpm-workspace monorepo (`packages/*`, `apps/*`), TypeScript, ESM. Data flows one way: **worker → Postgres → api → site** (the site is rebuilt from the API).
 
 - `packages/shared`: zod schemas and inferred types. `schemas.ts` = domain entities, `views.ts` = the API-DTO contract (`DistroListItem`, `DistroDetail`, `GalaxyPayload`, …). Single source of truth for shapes.
 - `packages/db`: Drizzle schema, migrations; the only package that touches the DB. `queries.ts` = reads returning view DTOs (API); `repository.ts`, `contributions.ts`, `email.ts` = writes. Top-N membership is derived at query time, never stored.
 - `apps/worker`: ingestion. `src/sources/*` are pure parsers (DistroWatch HTML, StatCounter CSV, GitHub JSON) tested against fixtures; `src/seed.ts` loads `seed-data.ts`; `src/run.ts` is the live ingestion entrypoint.
 - `apps/api`: Fastify. Public data routes are read-only and never scrape on a request. Write routes (auth, contributions, email signup, admin moderation) are isolated in `src/routes/`. `buildApp(db)` takes an injected db (tests use in-memory PGlite + `inject()`).
-- `apps/web`: Vite + React SPA. TanStack Query for data; `store.ts` (Zustand) holds `selectedSlug`.
+- `apps/site`: Astro 7 static site. Pages in `src/pages` (`index.astro`, `distro/[slug].astro`, 404, robots) read build-time data from the API through `src/lib/data.ts`, never the database. Interactive parts are React islands (`ListView`, `HeaderAuth`, `DistroRating`, `FooterEmail`, `StatsMenu`); each island wraps itself in `Island`, which shares one `QueryClient` so sign-in state reaches every island. Static parts (`DistroStats`, `ShareCard`, `AffiliateBlock`, `SponsorSlot`) render to HTML with no client JS.
 
 **Ingestion rule:** each source is isolated and idempotent; on failure it records a failed run and keeps the last good data. Never overwrite good data with partial or garbage data.
 
@@ -54,23 +56,25 @@ Local dev and tests use **PGlite** (in-process Postgres); production uses `creat
 
 Write endpoints require a session. Sign-in uses OAuth2 with GitHub, GitLab or Codeberg; a provider is enabled only when both its client id and secret are set. Never commit a `.env`.
 
-- Base: `SESSION_SECRET` (>= 32 chars), `API_PUBLIC_URL`, `WEB_ORIGIN`.
+- Base: `SESSION_SECRET` (>= 32 chars, required when `NODE_ENV=production`), `API_PUBLIC_URL`, `WEB_ORIGIN` (site origin; OAuth returns here, default `http://localhost:4380`).
 - Per provider (callback `${API_PUBLIC_URL}/api/auth/<provider>/callback`): `GITHUB_OAUTH_CLIENT_ID/SECRET`, `GITLAB_OAUTH_CLIENT_ID/SECRET`, `CODEBERG_OAUTH_CLIENT_ID/SECRET`.
 - Each `(provider, provider_user_id)` is an independent account; accounts are never linked across forges.
 - Local dev without OAuth: `ALLOW_DEV_LOGIN=1`, then POST `/api/auth/dev-login` `{ providerUserId, username, provider?, role? }`. Off in production. Tests use `apps/api/test/helpers.ts:loginAs`.
 
 ## Site config (public, no secrets)
 
-- `apps/web/src/config/affiliate.ts`: provider referral links. Empty array hides the block.
-- `apps/web/src/config/sponsor.ts`: `sponsor` record or `null` (house ad); `sponsorContactHref`.
+- `apps/site/src/config/affiliate.ts`: provider referral links. Empty array hides the block.
+- `apps/site/src/config/sponsor.ts`: `sponsor` record or `null` (house ad); `sponsorContactHref`.
 - Email capture: `POST /api/email-signups` (public, rate-limited); export via `GET /api/admin/email-signups` (admin). Collect only; no sending.
 
 ## Frontend gotchas
 
+- Island props must be serializable (plain data, no functions). Pass build-time data as props; fetch per-user data (`/api/me`, own contribution) inside the island.
+- Islands call the API on the same origin (`/api/...`); set `PUBLIC_API_URL` only for a split-origin setup.
 - The List table is config-driven (`COLUMNS` array with per-column `render` and sort key) with show/hide toggles.
-- `GET /api/galaxy` is an API-only payload; the web app doesn't call it.
+- `GET /api/galaxy` is an API-only payload; the site doesn't call it.
 - Uppercasing is CSS `text-transform`, not DOM text, so tests match real labels.
 
 ## Testing
 
-Vitest at the root. Web tests run under jsdom (`environmentMatchGlobs`, `esbuild.jsx: "automatic"`, `@testing-library/jest-dom/vitest`). Parsers, queries, zod schemas and API endpoints carry the coverage. Parser changes need a saved fixture under `apps/worker/test/fixtures/`.
+Vitest at the root. Site component tests (`apps/site/test`) run under jsdom (`environmentMatchGlobs`, `esbuild.jsx: "automatic"`, `@testing-library/jest-dom/vitest`). Parsers, queries, zod schemas and API endpoints carry the coverage. Parser changes need a saved fixture under `apps/worker/test/fixtures/`.

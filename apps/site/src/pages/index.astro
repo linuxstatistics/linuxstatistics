@@ -1,0 +1,50 @@
+---
+import Base from "../layouts/Base.astro";
+import { ListView } from "../components/ListView";
+import { ShareCard } from "../components/ShareCard";
+import { DistroHighlights } from "../components/DistroHighlights";
+import { StatsMenu } from "../components/StatsMenu";
+import { loadDistros, loadMarketShare, loadMeta, dataDate } from "../lib/data";
+
+const [items, marketShare, meta] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta()]);
+const asOf = dataDate(meta, "distrowatch");
+const site = Astro.site!.href.replace(/\/$/, "");
+
+const title = "Linux distro rankings and statistics — LinuxStatistics";
+const description = `Rankings for ${items.length} Linux distributions: DistroWatch popularity, desktop market share, GitHub activity and community ratings.`;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  name: "Linux distribution rankings",
+  description,
+  url: `${site}/`,
+  ...(asOf ? { dateModified: asOf } : {}),
+  license: "https://www.gnu.org/licenses/agpl-3.0.html",
+  isBasedOn: [
+    "https://distrowatch.com/dwres.php?resource=popularity",
+    "https://gs.statcounter.com/os-market-share/desktop/worldwide",
+    "https://github.com/",
+  ],
+  creator: { "@type": "Organization", name: "LinuxStatistics", url: `${site}/` },
+};
+---
+
+<Base title={title} description={description} jsonLd={jsonLd}>
+  <div class="page list-page">
+    <h1>Linux distro rankings</h1>
+    <p class="lede">{items.length} distributions ranked by DistroWatch page hits over the last 12 months, with market share, GitHub activity and community ratings.</p>
+    <div class="stats-strip">
+      <ShareCard points={marketShare} className="stat-card" />
+      <DistroHighlights items={items} />
+    </div>
+    <div class="stats-menu-mobile">
+      <StatsMenu client:media="(max-width: 640px)" items={items} marketShare={marketShare} />
+    </div>
+    <ListView client:load items={items} />
+    <p class="source-note">
+      Rankings: <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a>{asOf ? `, captured ${asOf}` : ""}.{" "}
+      Market share: <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a>.{" "}
+      Repository activity: GitHub.
+    </p>
+  </div>
+</Base>
