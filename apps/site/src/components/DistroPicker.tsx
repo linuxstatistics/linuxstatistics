@@ -5,7 +5,7 @@ import { PROFILES } from "../lib/picker-profiles";
 type Q<K extends keyof Answers> = { key: K; legend: string; options: [Answers[K], string][] };
 
 const QUESTIONS: [Q<"level">, Q<"use">, Q<"hardware">, Q<"updates">, Q<"desktop">] = [
-  { key: "level", legend: "How much Linux have you used?", options: [["new", "None or very little"], ["some", "Some — I can use a terminal"], ["expert", "A lot — I like setting things up myself"]] },
+  { key: "level", legend: "How much Linux have you used?", options: [["new", "None or very little"], ["some", "Some: I can use a terminal"], ["expert", "A lot: I like setting things up myself"]] },
   { key: "use", legend: "What's it mainly for?", options: [["everyday", "Everyday use: web, email, office"], ["gaming", "Gaming"], ["dev", "Programming and development"], ["old-hw", "Reviving an old computer"], ["privacy", "Privacy and security"]] },
   { key: "hardware", legend: "How old is the computer?", options: [["new", "Less than about 8 years"], ["old", "Older, or under 4 GB of RAM"]] },
   { key: "updates", legend: "How do you like updates?", options: [["stable", "Stable: tested releases, fewer surprises"], ["rolling", "Rolling: always the newest software"], ["any", "No preference"]] },

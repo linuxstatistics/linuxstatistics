@@ -1,17 +1,24 @@
 ---
 import Base from "../layouts/Base.astro";
 import { ListView } from "../components/ListView";
-import { ShareCard } from "../components/ShareCard";
-import { DistroHighlights } from "../components/DistroHighlights";
+import { Podium } from "../components/Podium";
 import { StatsMenu } from "../components/StatsMenu";
-import { loadDistros, loadMarketShare, loadMeta, dataDate } from "../lib/data";
+import { loadDistros, loadMarketShare, loadMeta, loadRising, dataDate } from "../lib/data";
+import { buildHeadline } from "../lib/headline";
+import { latestLinuxShare } from "../lib/marketShare";
 
-const [items, marketShare, meta] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta()]);
+const [items, marketShare, meta, rising] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta(), loadRising()]);
 const asOf = dataDate(meta, "distrowatch");
+const asOfText = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 const site = Astro.site!.href.replace(/\/$/, "");
+const headline = buildHeadline(items);
+const share = latestLinuxShare(marketShare);
+const restItems = items.filter((d) => d.rank === null || d.rank > 3);
 
-const title = "Linux distro rankings and statistics — LinuxStatistics";
-const description = `Rankings for ${items.length} Linux distributions: DistroWatch popularity, desktop market share, GitHub activity and community ratings.`;
+const title = headline
+  ? `${headline.leader} is #1. Linux distro rankings | LinuxStatistics`
+  : "Linux distro rankings and statistics | LinuxStatistics";
+const description = `Rankings for ${items.length} Linux distributions: DistroWatch popularity, last month's movers, desktop market share, GitHub activity and community ratings.`;
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Dataset",
@@ -30,21 +37,63 @@ const jsonLd = {
 ---
 
 <Base title={title} description={description} jsonLd={jsonLd}>
-  <div class="page list-page">
-    <h1>Linux distro rankings</h1>
-    <p class="lede">{items.length} distributions ranked by DistroWatch page hits over the last 12 months, with market share, GitHub activity and community ratings.</p>
-    <div class="stats-strip">
-      <ShareCard points={marketShare} className="stat-card" />
-      <DistroHighlights items={items} />
+  <div class="mast">
+    {headline ? (
+      <h1>
+        {headline.leader} holds <em>#1</em>.
+        {headline.mover && <span class="sub"><b>{headline.mover.name}</b> {headline.mover.text}</span>}
+      </h1>
+    ) : (
+      <h1>Linux distro rankings</h1>
+    )}
+    <div>
+      <p>The Linux distro chart: DistroWatch interest over the last 12 months, with last month's movers marked.</p>
+      <div class="meta">
+        <span>tracked <b>{items.length}</b></span>
+        {share && <span>desktop share <b>{share.value.toFixed(2)}%</b></span>}
+        {asOfText && <span>captured <b>{asOfText}</b></span>}
+      </div>
     </div>
-    <div class="stats-menu-mobile">
-      <StatsMenu client:media="(max-width: 640px)" items={items} marketShare={marketShare} />
-    </div>
-    <ListView client:load items={items} />
-    <p class="source-note">
-      Rankings: <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a>{asOf ? `, captured ${asOf}` : ""}.{" "}
-      Market share: <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a>.{" "}
-      Repository activity: GitHub.
-    </p>
+  </div>
+
+  <div class="home">
+    <section aria-label="Rankings">
+      <Podium items={items} />
+      <div class="stats-menu-mobile">
+        <StatsMenu client:media="(max-width: 760px)" items={items} marketShare={marketShare} />
+      </div>
+      <div class="sec"><h2>The rest of the chart</h2><span>hits per day, last 12 months</span></div>
+      <ListView client:load items={restItems} />
+    </section>
+
+    <aside class="side" aria-label="Highlights">
+      {rising.length > 0 && (
+        <section>
+          <h2>Climbing fastest</h2>
+          <ul>
+            {rising.slice(0, 5).map((d) => (
+              <li>
+                <a href={`/distro/${d.slug}/`}>{d.name}</a>
+                <span class="from">#{d.rank} → #{d.rank1m}</span>
+                <b>+{d.rank1mDelta}</b>
+              </li>
+            ))}
+          </ul>
+          <p><a href="/rising/">All risers</a></p>
+        </section>
+      )}
+      {share && (
+        <section>
+          <h2>Desktop share</h2>
+          <div class="share-big">{share.value.toFixed(2)}%</div>
+          <p>Linux on desktops worldwide, {share.label} (StatCounter).</p>
+        </section>
+      )}
+      <section>
+        <h2>Not sure where to start?</h2>
+        <p>Five questions, three matches, and why each one fits.</p>
+        <a class="cta" href="/pick/">Find my distro</a>
+      </section>
+    </aside>
   </div>
 </Base>

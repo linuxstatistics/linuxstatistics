@@ -79,9 +79,12 @@ test("the Columns menu hides a column", async () => {
   expect(screen.queryByRole("columnheader", { name: /Trend/ })).not.toBeInTheDocument();
 });
 
-test("includes a sortable Rating column", async () => {
+test("Rating is off by default and sortable once turned on", async () => {
   const user = userEvent.setup();
   render(<ListView items={items} />);
+  expect(screen.queryByRole("columnheader", { name: /Rating/ })).not.toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Choose columns" }));
+  await user.click(screen.getByRole("checkbox", { name: "Rating" }));
   expect(screen.getByRole("columnheader", { name: /Rating/ })).toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: /Rating/ }));
   // rating average descending: Mint(4.6), Arch(4.2), Fedora(3.9)
@@ -91,10 +94,12 @@ test("includes a sortable Rating column", async () => {
 test("tags secondary columns to be hidden on mobile", () => {
   render(<ListView items={items} />);
   const hits = screen.getByRole("columnheader", { name: /Hits\/day/ });
-  const commits = screen.getByRole("columnheader", { name: /Commits\/mo/ });
+  const stars = screen.getByRole("columnheader", { name: /GitHub/ });
   const distro = screen.getByRole("columnheader", { name: /Distro/ });
-  expect(hits).toHaveClass("col-hide-mobile");
-  expect(commits).toHaveClass("col-hide-mobile");
+  // Hits/day and the 1-month move stay on phones; secondary columns hide.
+  expect(hits).not.toHaveClass("col-hide-mobile");
+  expect(screen.getByRole("columnheader", { name: /1 mo/ })).not.toHaveClass("col-hide-mobile");
+  expect(stars).toHaveClass("col-hide-mobile");
   expect(distro).not.toHaveClass("col-hide-mobile");
 });
 

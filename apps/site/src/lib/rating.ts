@@ -1,8 +1,8 @@
 import type { UserRating } from "@linux-statistics/shared";
 
-/** "★ 4.2 (12)" or "—". The score is the smoothed average (DEC-0014). */
+/** "★ 4.2 (12)" or "-". The score is the smoothed average (DEC-0014). */
 export function formatRating(r: UserRating): string {
-  return r.average != null ? `★ ${r.average.toFixed(1)} (${r.count})` : "—";
+  return r.average != null ? `★ ${r.average.toFixed(1)} (${r.count})` : "-";
 }
 
 /** "12 ratings · 100% verified" or "No ratings yet". */

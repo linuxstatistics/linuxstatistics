@@ -12,10 +12,11 @@ type SortKey =
   | "commitsLast30d"
   | "firstReleaseYear"
   | "rankTrend"
+  | "rank1mDelta"
   | "rating";
 
 function Trend({ value }: { value: number | null }) {
-  if (value === null || value === 0) return <span className="trend flat">–</span>;
+  if (value === null || value === 0) return <span className="trend flat">=</span>;
   return value > 0 ? (
     <span className="trend up">▲ {value}</span>
   ) : (
@@ -28,7 +29,7 @@ export function distroHref(slug: string): string {
 }
 
 function starsCell(d: DistroListItem): ReactNode {
-  return d.stars === null ? "—" : d.stars.toLocaleString();
+  return d.stars === null ? "-" : d.stars.toLocaleString();
 }
 
 interface ColumnDef {
@@ -39,11 +40,15 @@ interface ColumnDef {
   mobileHide?: boolean;
   /** always shown; not user-toggleable */
   fixed?: boolean;
+  /** hidden until the user turns it on in the Columns menu */
+  hiddenByDefault?: boolean;
+  /** extra class on the cells */
+  cellClass?: string;
   render: (d: DistroListItem) => ReactNode;
 }
 
 const COLUMNS: ColumnDef[] = [
-  { key: "rank", label: "#", numeric: true, fixed: true, render: (d) => d.rank ?? "—" },
+  { key: "rank", label: "#", numeric: true, fixed: true, cellClass: "rank", render: (d) => d.rank ?? "-" },
   {
     key: "name",
     label: "Distro",
@@ -53,25 +58,27 @@ const COLUMNS: ColumnDef[] = [
   {
     key: "family",
     label: "Family",
+    cellClass: "fam-cell",
     render: (d) => (
-      <>
-        <span className="family-chip" style={{ background: familyColor(d.family) }} />
-        {FAMILY_LABELS[d.family]}
-      </>
+      <span className={`fam f-${d.family}`} style={{ color: familyColor(d.family) }}>
+        {FAMILY_LABELS[d.family].toLowerCase()}
+      </span>
     ),
   },
-  { key: "hitsPerDay", label: "Hits/day", numeric: true, mobileHide: true, render: (d) => d.hitsPerDay?.toLocaleString() ?? "—" },
-  { key: "stars", label: "GitHub", numeric: true, render: starsCell },
+  { key: "hitsPerDay", label: "Hits/day", numeric: true, render: (d) => d.hitsPerDay?.toLocaleString("en-US") ?? "-" },
+  { key: "rank1mDelta", label: "1 mo", numeric: true, render: (d) => <Trend value={d.rank1mDelta} /> },
+  { key: "stars", label: "GitHub", numeric: true, mobileHide: true, render: starsCell },
   {
     key: "rating",
     label: "Rating",
     numeric: true,
     mobileHide: true,
+    hiddenByDefault: true,
     render: (d) => formatRating(d.userRating),
   },
-  { key: "commitsLast30d", label: "Commits/mo", numeric: true, mobileHide: true, render: (d) => d.commitsLast30d?.toLocaleString() ?? "—" },
-  { key: "firstReleaseYear", label: "Released", numeric: true, mobileHide: true, render: (d) => d.firstReleaseYear ?? "—" },
-  { key: "rankTrend", label: "Trend", numeric: true, render: (d) => <Trend value={d.rankTrend} /> },
+  { key: "commitsLast30d", label: "Commits/mo", numeric: true, mobileHide: true, hiddenByDefault: true, render: (d) => d.commitsLast30d?.toLocaleString() ?? "-" },
+  { key: "firstReleaseYear", label: "Released", numeric: true, mobileHide: true, render: (d) => d.firstReleaseYear ?? "-" },
+  { key: "rankTrend", label: "Trend", numeric: true, mobileHide: true, render: (d) => <Trend value={d.rankTrend} /> },
 ];
 
 const TOGGLEABLE = COLUMNS.filter((c) => !c.fixed);
@@ -103,7 +110,9 @@ export function ListView({ items }: ListViewProps) {
   const [family, setFamily] = useState<Family | "all">("all");
   const [status, setStatus] = useState<DistroStatus | "all">("all");
   const [search, setSearch] = useState("");
-  const [hidden, setHidden] = useState<ReadonlySet<SortKey>>(() => new Set());
+  const [hidden, setHidden] = useState<ReadonlySet<SortKey>>(
+    () => new Set(COLUMNS.filter((c) => c.hiddenByDefault).map((c) => c.key)),
+  );
   const [colsOpen, setColsOpen] = useState(false);
 
   const visibleColumns = COLUMNS.filter((c) => !hidden.has(c.key));
@@ -243,7 +252,7 @@ export function ListView({ items }: ListViewProps) {
                     key={c.key}
                     className={[
                       thtdClass(c),
-                      c.key === "rank" ? "rank" : "",
+                      c.cellClass ?? "",
                       c.key === "name" ? "distro-name-cell" : "",
                     ]
                       .filter(Boolean)

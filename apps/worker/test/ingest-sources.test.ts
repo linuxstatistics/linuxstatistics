@@ -38,6 +38,13 @@ test("StatCounter ingest upserts monthly global shares and is idempotent", async
   expect(linux.find((p) => p.capturedAt.startsWith("2026-09"))?.sharePct).toBeCloseTo(4.54, 2);
 });
 
+test("StatCounter ingest skips the current, unfinished month", async () => {
+  await ingestStatcounter(db, { fetch: csvFetch, now: new Date("2026-10-15T00:00:00Z") });
+  const linux = (await getMarketShare(db, { region: "global" })).filter((p) => p.platform === "linux");
+  expect(linux.map((p) => p.capturedAt.slice(0, 7))).not.toContain("2026-10");
+  expect(linux.at(-1)?.capturedAt.startsWith("2026-09")).toBe(true);
+});
+
 test("StatCounter ingest writes nothing when the CSV is empty for the region", async () => {
   const empty: FetchLike = async () => new Response('"Date",""\n2026-10', { status: 200 });
   await expect(ingestStatcounter(db, { fetch: empty })).rejects.toThrow(/platform columns/);

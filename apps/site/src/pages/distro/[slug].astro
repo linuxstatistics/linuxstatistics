@@ -15,11 +15,12 @@ export async function getStaticPaths() {
 
 const { data } = Astro.props as { data: DistroDetail };
 const meta = await loadMeta();
+const baseName = data.basedOnSlug ? ((await loadDistros()).find((d) => d.slug === data.basedOnSlug)?.name ?? null) : null;
 const asOf = dataDate(meta, "distrowatch");
 const site = Astro.site!.href.replace(/\/$/, "");
 const family = FAMILY_LABELS[data.family];
 
-const title = `${data.name} — rank, popularity and ratings | LinuxStatistics`;
+const title = `${data.name}: rank, popularity and ratings | LinuxStatistics`;
 const rankText = data.rank != null ? `#${data.rank} on DistroWatch` : "unranked on DistroWatch";
 const hits = data.hitsPerDay != null ? ` with ${data.hitsPerDay.toLocaleString("en-US")} hits per day` : "";
 const description = `${data.name} (${family} family) is ${rankText}${hits}. Stats, GitHub activity and community ratings.`;
@@ -50,7 +51,7 @@ const jsonLd = {
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Rankings</a> / {data.name}</nav>
     <h1>{data.name}</h1>
     <p class="lede">{rankText}{data.firstReleaseYear ? ` · first released ${data.firstReleaseYear}` : ""}</p>
-    <DistroStats data={data} />
+    <DistroStats data={data} baseName={baseName} />
     <DistroRating client:visible slug={data.slug} />
     <AffiliateBlock />
     <p class="source-note">

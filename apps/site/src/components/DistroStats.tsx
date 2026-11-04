@@ -3,7 +3,7 @@ import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating, ratingDetail } from "../lib/rating";
 
 /** Static distro facts; rendered to HTML at build time (no client JS). */
-export function DistroStats({ data }: { data: DistroDetail }) {
+export function DistroStats({ data, baseName }: { data: DistroDetail; baseName?: string | null }) {
   return (
     <>
       <div className="family-line">
@@ -12,7 +12,7 @@ export function DistroStats({ data }: { data: DistroDetail }) {
         {data.basedOnSlug ? (
           <>
             {" · based on "}
-            <a href={`/distro/${data.basedOnSlug}/`}>{data.basedOnSlug}</a>
+            <a href={`/distro/${data.basedOnSlug}/`}>{baseName ?? data.basedOnSlug}</a>
           </>
         ) : null}
         {data.status === "discontinued" ? " · discontinued" : ""}
@@ -20,23 +20,23 @@ export function DistroStats({ data }: { data: DistroDetail }) {
       <dl className="stats">
         <div>
           <dt>DistroWatch rank</dt>
-          <dd>{data.rank ?? "—"}</dd>
+          <dd>{data.rank ?? "-"}</dd>
         </div>
         <div>
           <dt>Hits / day</dt>
-          <dd>{data.hitsPerDay?.toLocaleString("en-US") ?? "—"}</dd>
+          <dd>{data.hitsPerDay?.toLocaleString("en-US") ?? "-"}</dd>
         </div>
         <div>
           <dt>GitHub</dt>
-          <dd>{data.stars?.toLocaleString("en-US") ?? "—"}</dd>
+          <dd>{data.stars?.toLocaleString("en-US") ?? "-"}</dd>
         </div>
         <div>
           <dt>Commits / mo</dt>
-          <dd>{data.commitsLast30d?.toLocaleString("en-US") ?? "—"}</dd>
+          <dd>{data.commitsLast30d?.toLocaleString("en-US") ?? "-"}</dd>
         </div>
         <div>
           <dt>Released</dt>
-          <dd>{data.firstReleaseYear ?? "—"}</dd>
+          <dd>{data.firstReleaseYear ?? "-"}</dd>
         </div>
         <div>
           <dt>Community rating</dt>
@@ -44,7 +44,7 @@ export function DistroStats({ data }: { data: DistroDetail }) {
         </div>
         <div>
           <dt>Users</dt>
-          <dd>{data.usesItCount > 0 ? data.usesItCount.toLocaleString("en-US") : "—"}</dd>
+          <dd>{data.usesItCount > 0 ? data.usesItCount.toLocaleString("en-US") : "-"}</dd>
         </div>
       </dl>
       <p className="rating-detail">

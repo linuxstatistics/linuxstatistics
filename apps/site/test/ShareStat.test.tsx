@@ -26,6 +26,6 @@ test("shows a growth chip relative to the first year", () => {
 
 test("renders a dash and no growth chip with no data", () => {
   render(<ShareStat series={[]} />);
-  expect(screen.getByText("—")).toBeInTheDocument();
+  expect(screen.getByText("-")).toBeInTheDocument();
   expect(screen.queryByText(/since/)).not.toBeInTheDocument();
 });

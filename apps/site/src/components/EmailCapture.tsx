@@ -7,7 +7,7 @@ export function EmailCapture() {
   const signup = useEmailSignup();
 
   if (signup.isSuccess) {
-    return <p className="email-capture-done">Thanks — you're on the list.</p>;
+    return <p className="email-capture-done">Thanks, you're on the list.</p>;
   }
 
   const onSubmit = (e: React.FormEvent) => {
@@ -35,7 +35,7 @@ export function EmailCapture() {
       </div>
       {invalid && <p className="email-capture-error" role="alert">Enter a valid email.</p>}
       {signup.isError && (
-        <p className="email-capture-error" role="alert">Something went wrong — try again.</p>
+        <p className="email-capture-error" role="alert">Something went wrong. Try again.</p>
       )}
     </form>
   );

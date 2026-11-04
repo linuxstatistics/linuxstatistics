@@ -3,6 +3,8 @@ import "../styles.css";
 import { HeaderAuth } from "../components/HeaderAuth";
 import { FooterEmail } from "../components/FooterEmail";
 import { SponsorSlot } from "../components/SponsorSlot";
+import { JumpToDistro } from "../components/JumpToDistro";
+import { loadDistros } from "../lib/data";
 
 interface Props {
   title: string;
@@ -13,12 +15,14 @@ interface Props {
 
 const { title, description, jsonLd, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const jumpItems = (await loadDistros()).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="color-scheme" content="dark light" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -37,13 +41,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
   <body>
     <div class="app">
       <header class="app-header">
-        <a class="brand" href="/">
-          <span class="logo" aria-hidden="true">◐</span>
-          <div>
-            <span class="brand-name">LinuxStatistics</span>
-            <p>Linux distro rankings and statistics</p>
-          </div>
-        </a>
+        <a class="brand" href="/" aria-label="LinuxStatistics home">linux<b>stats</b></a>
         <nav class="site-nav" aria-label="Main">
           <a href="/" aria-current={Astro.url.pathname === "/" ? "page" : undefined}>Rankings</a>
           <a href="/rising/" aria-current={Astro.url.pathname.startsWith("/rising") ? "page" : undefined}>Rising</a>
@@ -51,9 +49,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
           <a href="/pick/" aria-current={Astro.url.pathname.startsWith("/pick") ? "page" : undefined}>Which distro?</a>
         </nav>
         <div class="header-right">
+          <JumpToDistro client:idle items={jumpItems} />
           <HeaderAuth client:idle />
         </div>
       </header>
+      <hr class="rule" />
       <main class="app-main">
         <slot />
       </main>
@@ -63,10 +63,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site).href;
           <FooterEmail client:visible />
         </div>
         <div class="footer-credit">
-          Data: <a href="https://distrowatch.com/" rel="noreferrer">DistroWatch</a> page-hit rankings ·
-          <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a> ·
-          <a href="https://github.com/" rel="noreferrer">GitHub</a> ·
-          <a href="https://github.com/linuxstatistics/linuxstatistics" rel="noreferrer">Source (AGPL-3.0)</a>
+          Data from <a href="https://distrowatch.com/" rel="noreferrer">DistroWatch</a> page-hit rankings,
+          <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a> and
+          <a href="https://github.com/" rel="noreferrer">GitHub</a>. Page hits measure interest, not installs.
+          <a href="https://github.com/linuxstatistics/linuxstatistics" rel="noreferrer">Source code</a> (AGPL-3.0).
         </div>
       </footer>
     </div>

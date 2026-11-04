@@ -16,7 +16,7 @@ export function ShareStat({ series, className, hint }: ShareStatProps) {
     <div className={className}>
       <div className="hud-stat">
         <span className="label">Linux desktop share</span>
-        <span className="value">{latest ? `${latest.value.toFixed(2)}%` : "—"}</span>
+        <span className="value">{latest ? `${latest.value.toFixed(2)}%` : "-"}</span>
         <span className="sub">global{latest ? ` · ${latest.year}` : ""}</span>
       </div>
       {deltaPts !== null && deltaPts > 0 && first && (

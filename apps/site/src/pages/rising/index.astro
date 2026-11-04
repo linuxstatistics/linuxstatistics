@@ -10,7 +10,7 @@ const month = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleString("en-US", { mon
 const site = Astro.site!.href.replace(/\/$/, "");
 
 const lead = rising[0];
-const title = `Rising Linux distros — ${month} | LinuxStatistics`;
+const title = `Rising Linux distros, ${month} | LinuxStatistics`;
 const description = lead
   ? `The Linux distros climbing fastest on DistroWatch in the last month. ${lead.name} leads, up ${lead.rank1mDelta} places.`
   : "The Linux distros climbing fastest on DistroWatch in the last month.";

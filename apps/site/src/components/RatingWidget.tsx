@@ -91,7 +91,7 @@ export function RatingWidget({
       </div>
       {showConfirm && (
         <p className="rating-saved" role="status">
-          Saved — thanks. The community score updates when the site next rebuilds.
+          Saved, thanks. The community score updates when the site next rebuilds.
         </p>
       )}
     </div>

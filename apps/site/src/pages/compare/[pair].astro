@@ -19,10 +19,11 @@ export async function getStaticPaths() {
 
 const { a, b } = Astro.props as { a: DistroDetail; b: DistroDetail };
 const meta = await loadMeta();
+const nameOf = new Map((await loadDistros()).map((d) => [d.slug, d.name]));
 const asOf = dataDate(meta, "distrowatch");
 
 type Row = { label: string; a: string; b: string; better?: "a" | "b" };
-const num = (v: number | null) => (v == null ? "—" : v.toLocaleString("en-US"));
+const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
 // Lower rank is better; higher is better for the rest.
 function pick(x: number | null, y: number | null, lowerIsBetter = false): "a" | "b" | undefined {
   if (x == null || y == null || x === y) return undefined;
@@ -35,15 +36,15 @@ const rows: Row[] = [
   { label: "Rank last month", a: num(a.rank1m), b: num(b.rank1m), better: pick(a.rank1m, b.rank1m, true) },
   { label: "Hits per day", a: num(a.hitsPerDay), b: num(b.hitsPerDay), better: pick(a.hitsPerDay, b.hitsPerDay) },
   { label: "Family", a: FAMILY_LABELS[a.family], b: FAMILY_LABELS[b.family] },
-  { label: "Based on", a: a.basedOnSlug ?? "—", b: b.basedOnSlug ?? "—" },
-  { label: "First released", a: a.firstReleaseYear?.toString() ?? "—", b: b.firstReleaseYear?.toString() ?? "—" },
+  { label: "Based on", a: a.basedOnSlug ? (nameOf.get(a.basedOnSlug) ?? a.basedOnSlug) : "-", b: b.basedOnSlug ? (nameOf.get(b.basedOnSlug) ?? b.basedOnSlug) : "-" },
+  { label: "First released", a: a.firstReleaseYear?.toString() ?? "-", b: b.firstReleaseYear?.toString() ?? "-" },
   { label: "GitHub stars", a: num(a.stars), b: num(b.stars), better: pick(a.stars, b.stars) },
   { label: "Commits, last 30 days", a: num(a.commitsLast30d), b: num(b.commitsLast30d), better: pick(a.commitsLast30d, b.commitsLast30d) },
   { label: "Community rating", a: rating(a), b: rating(b) },
   { label: "Users who use it", a: num(a.usesItCount || null), b: num(b.usesItCount || null), better: pick(a.usesItCount, b.usesItCount) },
 ];
 
-const title = `${a.name} vs ${b.name} — Linux distro comparison | LinuxStatistics`;
+const title = `${a.name} vs ${b.name}: Linux distro comparison | LinuxStatistics`;
 const lead =
   a.rank != null && b.rank != null
     ? `${a.rank < b.rank ? a.name : b.name} ranks higher on DistroWatch (#${Math.min(a.rank, b.rank)} vs #${Math.max(a.rank, b.rank)}).`

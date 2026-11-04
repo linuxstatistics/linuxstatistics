@@ -30,3 +30,14 @@ test("expands the stats panel on click", async () => {
   expect(screen.getByText("Linux desktop share")).toBeInTheDocument();
   expect(screen.getByText("4.50%")).toBeInTheDocument();
 });
+
+test("latestLinuxShare picks the newest Linux point and labels its month", async () => {
+  const { latestLinuxShare } = await import("../src/lib/marketShare");
+  expect(
+    latestLinuxShare([
+      { capturedAt: "2026-08-01T00:00:00.000Z", region: "global", platform: "linux", sharePct: 8.76 },
+      { capturedAt: "2026-09-01T00:00:00.000Z", region: "global", platform: "linux", sharePct: 4.54 },
+      { capturedAt: "2026-10-01T00:00:00.000Z", region: "global", platform: "windows", sharePct: 76 },
+    ]),
+  ).toEqual({ value: 4.54, label: "September 2026" });
+});

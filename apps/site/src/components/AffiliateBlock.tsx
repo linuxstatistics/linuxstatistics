@@ -9,7 +9,7 @@ export function AffiliateBlock({
   return (
     <section className="affiliate-block" aria-label="Try Linux in the cloud">
       <h3>Try Linux in the cloud</h3>
-      <p className="affiliate-disclosure">Affiliate links — we may earn a commission.</p>
+      <p className="affiliate-disclosure">Affiliate links: we may earn a commission.</p>
       <ul className="affiliate-providers">
         {providers.map((p) => (
           <li key={p.name}>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS } from "../lib/families";
 
-const num = (v: number | null) => (v == null ? "—" : v.toLocaleString("en-US"));
+const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
 
 /**
  * Client-rendered comparison for pairs without a static page (reads ?a=&b=).
@@ -40,8 +40,8 @@ export function CompareAny() {
     ["Rank last month", num(a.rank1m), num(b.rank1m)],
     ["Hits per day", num(a.hitsPerDay), num(b.hitsPerDay)],
     ["Family", FAMILY_LABELS[a.family], FAMILY_LABELS[b.family]],
-    ["Based on", a.basedOnSlug ?? "—", b.basedOnSlug ?? "—"],
-    ["First released", a.firstReleaseYear?.toString() ?? "—", b.firstReleaseYear?.toString() ?? "—"],
+    ["Based on", a.basedOnSlug ?? "-", b.basedOnSlug ?? "-"],
+    ["First released", a.firstReleaseYear?.toString() ?? "-", b.firstReleaseYear?.toString() ?? "-"],
     ["GitHub stars", num(a.stars), num(b.stars)],
     ["Commits, last 30 days", num(a.commitsLast30d), num(b.commitsLast30d)],
   ];
