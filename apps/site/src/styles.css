@@ -395,3 +395,6 @@ html, body {
 .quiz .result { border: 1px solid var(--line-strong); border-radius: 6px; padding: 14px 16px; }
 .quiz .result h3 { margin: 0 0 6px; }
 .quiz .result ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+
+.rating-detail { font-family: var(--mono); font-size: 11px; color: var(--muted); margin: -6px 0 12px; }
+.rating-detail a { color: var(--muted); }

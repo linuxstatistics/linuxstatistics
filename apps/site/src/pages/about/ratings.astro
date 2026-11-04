@@ -1,0 +1,29 @@
+---
+import Base from "../../layouts/Base.astro";
+import { RATING_PRIOR_WEIGHT } from "@linux-statistics/shared";
+---
+
+<Base
+  title="How community scores work | LinuxStatistics"
+  description="How LinuxStatistics turns user ratings into a distro score: a smoothed average that resists a few extreme ratings, with the verified share shown."
+>
+  <article class="page">
+    <h1>How community scores work</h1>
+    <p class="lede">Ratings come from signed-in users. One rating per person per distro; you can change or remove it any time.</p>
+    <h2>The score is a smoothed average</h2>
+    <p>
+      A distro with two ratings shouldn't be able to beat one with two hundred. So every score starts at the average of
+      all ratings on the site and moves toward the distro's own average as its ratings come in. The formula is
+      <code>(C × site average + sum of ratings) ÷ (C + number of ratings)</code>, with C = {RATING_PRIOR_WEIGHT}. After
+      about {RATING_PRIOR_WEIGHT} ratings a distro's own ratings outweigh the site average. Each distro page also shows
+      the plain average.
+    </p>
+    <h2>Verified ratings</h2>
+    <p>
+      Ratings from accounts signed in through GitHub, GitLab or Codeberg count straight away, and the forge account has to
+      be at least 30 days old. Each distro page shows what share of its ratings come from these verified accounts.
+    </p>
+    <h2>Moderation</h2>
+    <p>Reviews appear immediately. We hide spam and abuse after the fact. Sponsors and affiliates never change a score.</p>
+  </article>
+</Base>

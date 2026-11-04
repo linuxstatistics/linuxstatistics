@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MIN_PUBLIC_RATINGS, type Contribution, type Me } from "@linux-statistics/shared";
+import type { Contribution, Me } from "@linux-statistics/shared";
 
 export function RatingWidget({
   me,
@@ -7,7 +7,6 @@ export function RatingWidget({
   onSave,
   onDelete,
   saved = false,
-  scoreIsPublic = false,
 }: {
   me: Me | null;
   mine: Contribution | null;
@@ -15,8 +14,6 @@ export function RatingWidget({
   onDelete: () => void;
   /** True once the user's save has succeeded. */
   saved?: boolean;
-  /** True when the distro's community average is being shown publicly. */
-  scoreIsPublic?: boolean;
 }) {
   const [rating, setRating] = useState<number | null>(mine?.rating ?? null);
   const [usesIt, setUsesIt] = useState<boolean>(mine?.usesIt ?? false);
@@ -94,9 +91,7 @@ export function RatingWidget({
       </div>
       {showConfirm && (
         <p className="rating-saved" role="status">
-          {rating != null && !scoreIsPublic
-            ? `Saved — your rating's in. The community score appears once a distro has ${MIN_PUBLIC_RATINGS} ratings.`
-            : "Saved — thanks for the contribution."}
+          Saved — thanks. The community score updates when the site next rebuilds.
         </p>
       )}
     </div>

@@ -18,6 +18,7 @@ check compare/index.html 'class="pair-list"' "compare page lists popular pairs"
 pair=$(ls "$DIST/compare" | grep -- -vs- | head -1)
 check "compare/$pair/index.html" 'compare-table' "compare pair /compare/$pair/ has the table"
 check pick/index.html 'Which distro?' "picker page renders"
+check about/ratings/index.html 'smoothed average' "ratings explainer renders"
 [ -f "$DIST/favicon.svg" ] && echo "ok:   favicon" || { echo "FAIL: favicon missing"; fail=1; }
 [ -f "$DIST/sitemap-index.xml" ] && echo "ok:   sitemap" || { echo "FAIL: sitemap missing"; fail=1; }
 [ -f "$DIST/robots.txt" ] && echo "ok:   robots.txt" || { echo "FAIL: robots.txt missing"; fail=1; }

@@ -8,7 +8,7 @@ const d = (slug: string, rank: number | null, rank1m: number | null): DistroList
   slug, name: slug.toUpperCase(), family: "other", status: "active", rank, hitsPerDay: rank ? 1000 - rank : null,
   stars: null, commitsLast30d: null, firstReleaseYear: null, repoFullName: null, rankTrend: null,
   rank1m, rank1mDelta: rank != null && rank1m != null ? rank - rank1m : null,
-  userRating: { average: null, count: 0 }, usesItCount: 0,
+  userRating: { average: null, count: 0, mean: null, verifiedCount: 0 }, usesItCount: 0,
 });
 const list = [d("a", 1, 1), d("b", 2, 5), d("c", 3, 2), d("x<y", 4, 3), d("z", null, null)];
 const share: MarketSharePoint[] = [

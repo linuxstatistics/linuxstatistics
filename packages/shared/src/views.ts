@@ -7,8 +7,14 @@ import { familySchema, distroStatusSchema } from "./families.js";
  */
 
 export const userRatingSchema = z.object({
-  average: z.number().nullable(), // null until at least one rating exists
+  // Smoothed (Bayesian) score: pulled toward the site-wide mean when a distro
+  // has few ratings. null when the distro has no counted ratings.
+  average: z.number().nullable(),
   count: z.number().int(),
+  // Plain mean of the counted ratings, for transparency.
+  mean: z.number().nullable(),
+  // How many counted ratings come from verified (forge) accounts.
+  verifiedCount: z.number().int(),
 });
 export type UserRating = z.infer<typeof userRatingSchema>;
 
@@ -20,11 +26,17 @@ export const contributionSchema = z.object({
 export type Contribution = z.infer<typeof contributionSchema>;
 
 /**
- * Minimum number of star ratings a distro needs before its community score is
- * shown publicly. Below this, the aggregate average is withheld (returned null)
- * to avoid a single rater defining a distro's score.
+ * Weight of the site-wide mean in the smoothed score: a distro's score is
+ * (C·m + Σratings) / (C + n). With C = 5, a distro needs about five ratings
+ * before its own ratings outweigh the site mean.
  */
-export const MIN_PUBLIC_RATINGS = 3;
+export const RATING_PRIOR_WEIGHT = 5;
+
+/** Smoothed score; null when there are no ratings. */
+export function smoothedScore(sum: number, n: number, siteMean: number, c = RATING_PRIOR_WEIGHT): number | null {
+  if (n === 0) return null;
+  return (c * siteMean + sum) / (c + n);
+}
 
 export const authProviderSchema = z.enum(["github", "gitlab", "codeberg"]);
 export type AuthProvider = z.infer<typeof authProviderSchema>;

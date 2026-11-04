@@ -47,8 +47,9 @@ test("upserts a contribution and reflects it in detail", async () => {
   expect(put.statusCode).toBe(200);
   const detail = await app.inject({ method: "GET", url: "/api/distros/mint", headers: { cookie } });
   expect(detail.json().myContribution).toMatchObject({ rating: 4, usesIt: true });
-  // One rating is below the public threshold, so the average is withheld (null).
-  expect(detail.json().userRating).toEqual({ average: null, count: 1 });
+  // A single rating is shown at once (smoothed score).
+  expect(detail.json().userRating).toMatchObject({ count: 1, verifiedCount: 1 });
+  expect(detail.json().userRating.average).not.toBeNull();
 });
 
 test("rejects an empty contribution", async () => {

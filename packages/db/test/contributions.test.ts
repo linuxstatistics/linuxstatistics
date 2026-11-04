@@ -36,22 +36,35 @@ test("upsert creates then updates the same row", async () => {
   expect(mine).toMatchObject({ rating: 5, usesIt: true, reviewBody: "better" });
 });
 
-test("aggregates ratings, withholding the average below the public threshold", async () => {
+test("aggregates: smoothed score from the first rating, raw mean, verified count; removed rows drop out", async () => {
   const u2 = await upsertUser(db, { provider: "github", providerUserId: "8", username: "hubot", avatarUrl: null, accountCreatedAt: new Date("2016-01-01") });
-  const u3 = await upsertUser(db, { provider: "github", providerUserId: "9", username: "walle", avatarUrl: null, accountCreatedAt: new Date("2016-01-01") });
-  // Two ratings — below MIN_PUBLIC_RATINGS (3): average is withheld, but only visible rows count.
-  await upsertContribution(db, { userId, distroId, rating: 4, usesIt: true, reviewBody: null });
-  await upsertContribution(db, { userId: u2.id, distroId, rating: 2, usesIt: false, reviewBody: null });
-  let agg = (await getContributionAggregates(db)).get(distroId);
-  expect(agg).toEqual({ average: null, count: 2, usesItCount: 1 });
-  // A third rating crosses the threshold: average is revealed.
-  await upsertContribution(db, { userId: u3.id, distroId, rating: 3, usesIt: false, reviewBody: null });
-  agg = (await getContributionAggregates(db)).get(distroId);
-  expect(agg).toEqual({ average: 3, count: 3, usesItCount: 1 });
-  // Removing one drops back below the threshold: average withheld again.
-  await softRemoveContribution(db, u3.id, distroId);
-  agg = (await getContributionAggregates(db)).get(distroId);
-  expect(agg).toEqual({ average: null, count: 2, usesItCount: 1 });
+  // One 5-star rating: site mean m = 5, so the smoothed score is 5.
+  await upsertContribution(db, { userId, distroId, rating: 5, usesIt: true, reviewBody: null });
+  let agg = (await getContributionAggregates(db)).get(distroId)!;
+  expect(agg).toMatchObject({ average: 5, mean: 5, count: 1, verifiedCount: 1, usesItCount: 1 });
+  // A 1-star rating: m = 3, n = 2, sum = 6 -> (5*3 + 6) / (5 + 2) = 3.
+  await upsertContribution(db, { userId: u2.id, distroId, rating: 1, usesIt: false, reviewBody: null });
+  agg = (await getContributionAggregates(db)).get(distroId)!;
+  expect(agg.average).toBeCloseTo(3, 5);
+  expect(agg).toMatchObject({ mean: 3, count: 2, verifiedCount: 2 });
+  await softRemoveContribution(db, u2.id, distroId);
+  agg = (await getContributionAggregates(db)).get(distroId)!;
+  expect(agg).toMatchObject({ average: 5, count: 1 });
+});
+
+test("smoothing pulls a distro with few ratings toward the site mean", async () => {
+  const other = await upsertDistro(db, { slug: "other", name: "Other", family: "other", status: "active" });
+  // 10 users rate "other" 3 stars -> site mean pulled toward 3.
+  for (let i = 0; i < 10; i++) {
+    const u = await upsertUser(db, { provider: "github", providerUserId: `o${i}`, username: `o${i}`, avatarUrl: null, accountCreatedAt: new Date("2016-01-01") });
+    await upsertContribution(db, { userId: u.id, distroId: other, rating: 3, usesIt: false, reviewBody: null });
+  }
+  // One 5-star on our distro: m = (30 + 5) / 11 = 3.1818; score = (5*m + 5) / 6.
+  await upsertContribution(db, { userId, distroId, rating: 5, usesIt: false, reviewBody: null });
+  const agg = (await getContributionAggregates(db)).get(distroId)!;
+  const m = 35 / 11;
+  expect(agg.average).toBeCloseTo((5 * m + 5) / 6, 5);
+  expect(agg.mean).toBe(5);
 });
 
 test("admin can hide a contribution by id", async () => {

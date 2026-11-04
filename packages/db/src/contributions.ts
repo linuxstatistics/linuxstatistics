@@ -1,5 +1,5 @@
 import { and, eq, ne } from "drizzle-orm";
-import { MIN_PUBLIC_RATINGS, type AuthProvider } from "@linux-statistics/shared";
+import { smoothedScore, type AuthProvider } from "@linux-statistics/shared";
 import type { Database } from "./client.js";
 import { distroContributions, users } from "./schema.js";
 
@@ -115,38 +115,53 @@ export async function getMyContribution(
 }
 
 export interface ContributionAggregate {
-  /** Mean of star ratings, or null when fewer than MIN_PUBLIC_RATINGS exist. */
+  /** Smoothed (Bayesian) score toward the site-wide mean; null with no ratings. */
   average: number | null;
-  /** Number of star ratings (the "n" in "★ 4.2 (n)"). */
+  /** Number of counted star ratings (the "n" in "★ 4.2 (n)"). */
   count: number;
+  /** Plain mean of counted ratings; null with no ratings. */
+  mean: number | null;
+  /** Counted ratings from verified (forge) accounts. */
+  verifiedCount: number;
   usesItCount: number;
 }
 
-/** Per-distro aggregates over visible rows only. Distros with no visible rows are absent. */
+/**
+ * Per-distro aggregates over visible rows only (DEC-0014). Every current
+ * account signs in through a forge (GitHub, GitLab, Codeberg), so all ratings
+ * count as verified; email accounts (specs/007) will add a pending state.
+ * Distros with no visible rows are absent.
+ */
 export async function getContributionAggregates(
   db: Database,
 ): Promise<Map<number, ContributionAggregate>> {
-  const rows = await db
+  const rows = (await db
     .select()
     .from(distroContributions)
-    .where(eq(distroContributions.status, "visible"));
-  const byDistro = new Map<number, { sum: number; ratings: number; count: number; uses: number }>();
-  for (const r of rows as ContributionRow[]) {
-    const acc = byDistro.get(r.distroId) ?? { sum: 0, ratings: 0, count: 0, uses: 0 };
-    acc.count += 1;
+    .where(eq(distroContributions.status, "visible"))) as ContributionRow[];
+  const byDistro = new Map<number, { sum: number; ratings: number; verified: number; uses: number }>();
+  let siteSum = 0;
+  let siteN = 0;
+  for (const r of rows) {
+    const acc = byDistro.get(r.distroId) ?? { sum: 0, ratings: 0, verified: 0, uses: 0 };
     if (r.rating != null) {
       acc.sum += r.rating;
       acc.ratings += 1;
+      acc.verified += 1;
+      siteSum += r.rating;
+      siteN += 1;
     }
     if (r.usesIt) acc.uses += 1;
     byDistro.set(r.distroId, acc);
   }
+  const siteMean = siteN ? siteSum / siteN : 0;
   const out = new Map<number, ContributionAggregate>();
   for (const [distroId, a] of byDistro) {
     out.set(distroId, {
-      // Withhold the average until enough ratings exist so one rater can't define a score.
-      average: a.ratings >= MIN_PUBLIC_RATINGS ? a.sum / a.ratings : null,
+      average: smoothedScore(a.sum, a.ratings, siteMean),
       count: a.ratings,
+      mean: a.ratings ? a.sum / a.ratings : null,
+      verifiedCount: a.verified,
       usesItCount: a.uses,
     });
   }

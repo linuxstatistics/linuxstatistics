@@ -29,7 +29,11 @@ import {
 
 const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
-const EMPTY_AGG: ContributionAggregate = { average: null, count: 0, usesItCount: 0 };
+const EMPTY_AGG: ContributionAggregate = { average: null, count: 0, mean: null, verifiedCount: 0, usesItCount: 0 };
+
+function ratingOf(a: ContributionAggregate) {
+  return { average: a.average, count: a.count, mean: a.mean, verifiedCount: a.verifiedCount };
+}
 
 function groupBy<T, K>(rows: T[], key: (row: T) => K): Map<K, T[]> {
   const map = new Map<K, T[]>();
@@ -100,10 +104,7 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
       rankTrend,
       rank1m,
       rank1mDelta: latest && rank1m !== null ? latest.rank - rank1m : null,
-      userRating: {
-        average: (aggByDistro.get(d.id) ?? EMPTY_AGG).average,
-        count: (aggByDistro.get(d.id) ?? EMPTY_AGG).count,
-      },
+      userRating: ratingOf(aggByDistro.get(d.id) ?? EMPTY_AGG),
       usesItCount: (aggByDistro.get(d.id) ?? EMPTY_AGG).usesItCount,
     };
   });
@@ -245,7 +246,7 @@ export async function getDistroDetail(
     repoFullName: repo?.repoFullName ?? null,
     rankHistory,
     starsHistory,
-    userRating: { average: agg.average, count: agg.count },
+    userRating: ratingOf(agg),
     usesItCount: agg.usesItCount,
     myContribution: mine
       ? { rating: mine.rating, usesIt: mine.usesIt, reviewBody: mine.reviewBody }

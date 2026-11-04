@@ -25,7 +25,7 @@ test("logged-in users see the star controls", () => {
 
 const me = { id: 1, provider: "github" as const, username: "octocat", avatarUrl: null, role: "user" as const };
 
-test("after saving a rating below the threshold, tells the user it will show later", () => {
+test("after saving, confirms and explains when the score updates", () => {
   render(
     <RatingWidget
       me={me}
@@ -33,22 +33,7 @@ test("after saving a rating below the threshold, tells the user it will show lat
       onSave={vi.fn()}
       onDelete={vi.fn()}
       saved
-      scoreIsPublic={false}
     />,
   );
-  expect(screen.getByRole("status")).toHaveTextContent(/community score appears once/i);
-});
-
-test("after saving when the score is already public, just confirms", () => {
-  render(
-    <RatingWidget
-      me={me}
-      mine={{ rating: 5, usesIt: false, reviewBody: null }}
-      onSave={vi.fn()}
-      onDelete={vi.fn()}
-      saved
-      scoreIsPublic
-    />,
-  );
-  expect(screen.getByRole("status")).toHaveTextContent(/thanks for the contribution/i);
+  expect(screen.getByRole("status")).toHaveTextContent(/thanks/i);
 });

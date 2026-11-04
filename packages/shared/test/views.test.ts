@@ -11,7 +11,7 @@ test("distroListItem carries first-party rating aggregates", () => {
     slug: "mint", name: "Linux Mint", family: "debian", status: "active",
     rank: 1, hitsPerDay: 2600, stars: 5200, commitsLast30d: 180,
     firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", rankTrend: 2, rank1m: 3, rank1mDelta: -1,
-    userRating: { average: 4.5, count: 12 }, usesItCount: 30,
+    userRating: { average: 4.5, count: 12, mean: 4.6, verifiedCount: 12 }, usesItCount: 30,
   });
   expect(parsed.userRating.average).toBe(4.5);
   expect(parsed.usesItCount).toBe(30);
@@ -37,4 +37,12 @@ test("email signup accepts a valid email and optional source", () => {
 
 test("email signup rejects an invalid email", () => {
   expect(() => emailSignupInputSchema.parse({ email: "nope" })).toThrow();
+});
+
+test("smoothedScore: null with no ratings, pulled toward the site mean, converges with volume", async () => {
+  const { smoothedScore, RATING_PRIOR_WEIGHT } = await import("../src/views.js");
+  expect(RATING_PRIOR_WEIGHT).toBe(5);
+  expect(smoothedScore(0, 0, 3.5)).toBeNull();
+  expect(smoothedScore(5, 1, 3)).toBeCloseTo((5 * 3 + 5) / 6, 6); // one 5-star -> 3.33
+  expect(smoothedScore(5 * 200, 200, 3)).toBeGreaterThan(4.9); // many 5-stars -> near 5
 });

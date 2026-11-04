@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import { FAMILY_LABELS } from "../../lib/families";
 import { loadDistro, loadDistros, loadMeta, mapLimit, dataDate } from "../../lib/data";
 import { compareSlug, popularPairs } from "../../lib/compare";
+import { formatRating } from "../../lib/rating";
 import type { DistroDetail } from "@linux-statistics/shared";
 
 export async function getStaticPaths() {
@@ -27,8 +28,7 @@ function pick(x: number | null, y: number | null, lowerIsBetter = false): "a" | 
   if (x == null || y == null || x === y) return undefined;
   return (lowerIsBetter ? x < y : x > y) ? "a" : "b";
 }
-const rating = (d: DistroDetail) =>
-  d.userRating.average != null ? `★ ${d.userRating.average.toFixed(1)} (${d.userRating.count})` : "—";
+const rating = (d: DistroDetail) => formatRating(d.userRating);
 
 const rows: Row[] = [
   { label: "DistroWatch rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true) },

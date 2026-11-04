@@ -42,5 +42,5 @@ test("admin can list and hide a contribution", async () => {
   });
   expect(patch.statusCode).toBe(200);
   const detail = await app.inject({ method: "GET", url: "/api/distros/mint" });
-  expect(detail.json().userRating).toEqual({ average: null, count: 0 });
+  expect(detail.json().userRating).toEqual({ average: null, count: 0, mean: null, verifiedCount: 0 });
 });

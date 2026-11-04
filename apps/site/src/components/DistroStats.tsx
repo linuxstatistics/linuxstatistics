@@ -1,5 +1,6 @@
 import type { DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
+import { formatRating, ratingDetail } from "../lib/rating";
 
 /** Static distro facts; rendered to HTML at build time (no client JS). */
 export function DistroStats({ data }: { data: DistroDetail }) {
@@ -39,17 +40,21 @@ export function DistroStats({ data }: { data: DistroDetail }) {
         </div>
         <div>
           <dt>Community rating</dt>
-          <dd>
-            {data.userRating.average != null
-              ? `★ ${data.userRating.average.toFixed(1)} (${data.userRating.count})`
-              : "—"}
-          </dd>
+          <dd title={ratingDetail(data.userRating)}>{formatRating(data.userRating)}</dd>
         </div>
         <div>
           <dt>Users</dt>
           <dd>{data.usesItCount > 0 ? data.usesItCount.toLocaleString("en-US") : "—"}</dd>
         </div>
       </dl>
+      <p className="rating-detail">
+        {ratingDetail(data.userRating)}
+        {data.userRating.count > 0 && data.userRating.mean != null
+          ? ` · plain average ${data.userRating.mean.toFixed(1)}`
+          : ""}
+        {" · "}
+        <a href="/about/ratings/">How scores work</a>
+      </p>
       <div className="links">
         {data.homepage && (
           <a href={data.homepage} target="_blank" rel="noreferrer">

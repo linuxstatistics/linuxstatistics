@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import type { DistroListItem, DistroStatus, Family } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
+import { formatRating } from "../lib/rating";
 
 type SortKey =
   | "rank"
@@ -66,10 +67,7 @@ const COLUMNS: ColumnDef[] = [
     label: "Rating",
     numeric: true,
     mobileHide: true,
-    render: (d) =>
-      d.userRating.average != null
-        ? `★ ${d.userRating.average.toFixed(1)} (${d.userRating.count})`
-        : "—",
+    render: (d) => formatRating(d.userRating),
   },
   { key: "commitsLast30d", label: "Commits/mo", numeric: true, mobileHide: true, render: (d) => d.commitsLast30d?.toLocaleString() ?? "—" },
   { key: "firstReleaseYear", label: "Released", numeric: true, mobileHide: true, render: (d) => d.firstReleaseYear ?? "—" },

@@ -51,7 +51,7 @@ const jsonLd = {
     <h1>{data.name}</h1>
     <p class="lede">{rankText}{data.firstReleaseYear ? ` · first released ${data.firstReleaseYear}` : ""}</p>
     <DistroStats data={data} />
-    <DistroRating client:visible slug={data.slug} scoreIsPublic={data.userRating.average != null} />
+    <DistroRating client:visible slug={data.slug} />
     <AffiliateBlock />
     <p class="source-note">
       Ranking from <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page hits, last 12 months{asOf ? `, captured ${asOf}` : ""}.{" "}

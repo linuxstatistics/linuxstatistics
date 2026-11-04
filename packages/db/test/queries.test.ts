@@ -109,23 +109,23 @@ test("getMeta reports tracked count and source freshness", async () => {
   expect(gh.status).toBe("never");
 });
 
-test("getDistroList includes user-rating aggregates with the public threshold", async () => {
+test("getDistroList includes smoothed user-rating aggregates", async () => {
   const { db, client } = await initPgliteDb();
   const id = await upsertDistro(db, { slug: "mint", name: "Linux Mint", family: "debian", status: "active" });
   await addDistrowatchSnapshot(db, id, { capturedAt: new Date(), rank: 1, hitsPerDay: 2600, period: "last-12-months" });
   const u = await upsertUser(db, { provider: "github", providerUserId: "1", username: "a", avatarUrl: null, accountCreatedAt: new Date("2015-01-01") });
   await upsertContribution(db, { userId: u.id, distroId: id, rating: 4, usesIt: true, reviewBody: null });
-  // One rating is below the threshold: average withheld, usesItCount still reported.
+  // A single rating is shown at once (smoothed toward the site mean, which is itself here).
   let list = await getDistroList(db);
-  expect(list[0]!.userRating).toEqual({ average: null, count: 1 });
+  expect(list[0]!.userRating).toEqual({ average: 4, count: 1, mean: 4, verifiedCount: 1 });
   expect(list[0]!.usesItCount).toBe(1);
-  // Two more ratings cross the threshold: average is revealed.
+  // Two more ratings: plain mean 3, and with one distro the site mean is 3 too.
   const u2 = await upsertUser(db, { provider: "github", providerUserId: "2", username: "b", avatarUrl: null, accountCreatedAt: new Date("2015-01-01") });
   const u3 = await upsertUser(db, { provider: "github", providerUserId: "3", username: "c", avatarUrl: null, accountCreatedAt: new Date("2015-01-01") });
   await upsertContribution(db, { userId: u2.id, distroId: id, rating: 2, usesIt: false, reviewBody: null });
   await upsertContribution(db, { userId: u3.id, distroId: id, rating: 3, usesIt: false, reviewBody: null });
   list = await getDistroList(db);
-  expect(list[0]!.userRating).toEqual({ average: 3, count: 3 });
+  expect(list[0]!.userRating).toEqual({ average: 3, count: 3, mean: 3, verifiedCount: 3 });
   await client.close();
 });
 
