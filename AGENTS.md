@@ -4,13 +4,13 @@ Instructions for coding agents working in this repository.
 
 ## Scope
 
-This repository holds code only. The maintainer keeps product documents (requirements, specs, plans, research, decisions, reports) outside the repository. Don't add a `docs/`, `.specify/`, `specs/` or `research/` directory, and don't commit planning notes. On the maintainer's machine, all such material lives in `~/Obsidian/Personal/PROJECTS/DEVELOPMENT/LINUX-STATISTICS/` (see its `README.md`); write any such output there, not here and not in `~/Documents/AI/`.
+This repository holds code only. Don't add `docs/`, `.specify/`, `specs/` or `research/` directories, and don't commit planning notes, strategy or reports. Commit messages describe the code change only.
 
-Don't run `git commit` without asking first. Never `git push`, create remotes, or deploy.
+Don't commit or push without the maintainer's go-ahead. Don't create remotes or deploy.
 
 ## What this is
 
-LinuxStatistics: Linux-distro statistics in a sortable leaderboard with distro details. The earlier 3D "solar system" view is parked on the `parking/galaxy` branch; don't bring it back to `main` unless the maintainer asks. Data is bootstrapped from DistroWatch rankings, StatCounter market share and GitHub activity. The long-term direction is first-party, user-contributed data (ratings, reviews, "I use this"); treat scraped data as a bootstrap. Domains: `linuxstatistics.com`, `linuxrankings.com`.
+LinuxStatistics: Linux-distro statistics in a sortable leaderboard with distro details. Data is bootstrapped from DistroWatch rankings, StatCounter market share and GitHub activity. The long-term direction is first-party, user-contributed data (ratings, reviews, "I use this"); treat scraped data as a bootstrap. Domains: `linuxstatistics.com`, `linuxrankings.com`.
 
 ## Commands
 
@@ -59,7 +59,7 @@ Write endpoints require a session. Sign-in uses OAuth2 with GitHub, GitLab or Co
 - Each `(provider, provider_user_id)` is an independent account; accounts are never linked across forges.
 - Local dev without OAuth: `ALLOW_DEV_LOGIN=1`, then POST `/api/auth/dev-login` `{ providerUserId, username, provider?, role? }`. Off in production. Tests use `apps/api/test/helpers.ts:loginAs`.
 
-## Revenue config (public, no secrets)
+## Site config (public, no secrets)
 
 - `apps/web/src/config/affiliate.ts`: provider referral links. Empty array hides the block.
 - `apps/web/src/config/sponsor.ts`: `sponsor` record or `null` (house ad); `sponsorContactHref`.
@@ -68,7 +68,7 @@ Write endpoints require a session. Sign-in uses OAuth2 with GitHub, GitLab or Co
 ## Frontend gotchas
 
 - The List table is config-driven (`COLUMNS` array with per-column `render` and sort key) with show/hide toggles.
-- `GET /api/galaxy` still exists in the API for the parked 3D view; the web app no longer calls it.
+- `GET /api/galaxy` is an API-only payload; the web app doesn't call it.
 - Uppercasing is CSS `text-transform`, not DOM text, so tests match real labels.
 
 ## Testing

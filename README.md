@@ -1,5 +1,7 @@
 # LinuxStatistics
 
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
+
 Linux-distro statistics: popularity rankings, desktop market share and project activity in a **sortable leaderboard**. Signed-in users can rate distros, mark "I use this" and leave short reviews.
 
 ## Stack
@@ -38,6 +40,8 @@ pnpm typecheck
 
 ## Attribution
 
-Ranking data sources are credited on the site.
+Ranking data comes from DistroWatch, StatCounter Global Stats and GitHub, and is credited on the site.
 
-The earlier 3D "solar system" view lives on the `parking/galaxy` branch.
+## License
+
+[GNU Affero General Public License v3.0](LICENSE). If you run a modified version as a network service, you must offer its source to its users.
