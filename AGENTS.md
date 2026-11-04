@@ -10,7 +10,7 @@ Don't run `git commit` without asking first. Never `git push`, create remotes, o
 
 ## What this is
 
-LinuxStatistics: Linux-distro statistics shown two ways over one dataset, a 3D "solar system" (Galaxy view) and a sortable leaderboard (List view). Data is bootstrapped from DistroWatch rankings, StatCounter market share and GitHub activity. The long-term direction is first-party, user-contributed data (ratings, reviews, "I use this"); treat scraped data as a bootstrap. Domains: `linuxstatistics.com`, `linuxrankings.com`.
+LinuxStatistics: Linux-distro statistics in a sortable leaderboard with distro details. The earlier 3D "solar system" view is parked on the `parking/galaxy` branch; don't bring it back to `main` unless the maintainer asks. Data is bootstrapped from DistroWatch rankings, StatCounter market share and GitHub activity. The long-term direction is first-party, user-contributed data (ratings, reviews, "I use this"); treat scraped data as a bootstrap. Domains: `linuxstatistics.com`, `linuxrankings.com`.
 
 ## Commands
 
@@ -27,7 +27,6 @@ pnpm test -- queries              # files matching "queries"
 pnpm test -- -t "biggest climber" # tests matching a name
 pnpm typecheck                    # tsc --noEmit across every package
 
-bash scripts/fetch-textures.sh    # Galaxy planet textures (CC BY 4.0) -> apps/web/public/textures/planets
 ```
 
 DB schema changes: edit `packages/db/src/schema.ts`, then `pnpm --filter @linux-statistics/db db:generate` to emit a migration into `packages/db/drizzle/`. Migrations apply automatically on DB init (`initPgliteDb`); tests migrate an in-memory DB per file.
@@ -37,10 +36,10 @@ DB schema changes: edit `packages/db/src/schema.ts`, then `pnpm --filter @linux-
 pnpm-workspace monorepo (`packages/*`, `apps/*`), TypeScript, ESM. Data flows one way: **worker → Postgres → api → web**.
 
 - `packages/shared`: zod schemas and inferred types. `schemas.ts` = domain entities, `views.ts` = the API-DTO contract (`DistroListItem`, `DistroDetail`, `GalaxyPayload`, …). Single source of truth for shapes.
-- `packages/db`: Drizzle schema, migrations; the only package that touches the DB. `queries.ts` = reads returning view DTOs (API); `repository.ts`, `contributions.ts`, `email.ts` = writes. Top-N / Sun-vs-planet membership is derived at query time, never stored.
+- `packages/db`: Drizzle schema, migrations; the only package that touches the DB. `queries.ts` = reads returning view DTOs (API); `repository.ts`, `contributions.ts`, `email.ts` = writes. Top-N membership is derived at query time, never stored.
 - `apps/worker`: ingestion. `src/sources/*` are pure parsers (DistroWatch HTML, StatCounter CSV, GitHub JSON) tested against fixtures; `src/seed.ts` loads `seed-data.ts`; `src/run.ts` is the live ingestion entrypoint.
 - `apps/api`: Fastify. Public data routes are read-only and never scrape on a request. Write routes (auth, contributions, email signup, admin moderation) are isolated in `src/routes/`. `buildApp(db)` takes an injected db (tests use in-memory PGlite + `inject()`).
-- `apps/web`: Vite + React + react-three-fiber SPA. `GalaxyView` (3D) and List view share one TanStack Query cache; `store.ts` (Zustand) holds `view` + `selectedSlug`.
+- `apps/web`: Vite + React SPA. TanStack Query for data; `store.ts` (Zustand) holds `selectedSlug`.
 
 **Ingestion rule:** each source is isolated and idempotent; on failure it records a failed run and keeps the last good data. Never overwrite good data with partial or garbage data.
 
@@ -68,11 +67,10 @@ Write endpoints require a session. Sign-in uses OAuth2 with GitHub, GitLab or Co
 
 ## Frontend gotchas
 
-- Galaxy is desktop + WebGL only (`canUseGalaxy = webgl && !isMobile`) and lazy-loaded, so List/mobile users never download three.js.
-- Don't add `@react-three/postprocessing`; it renders a black screen in this three/fiber setup. The Sun's glow uses additive fresnel corona shells (`galaxy/Atmosphere.tsx`, `Sun.tsx`).
-- The List table is config-driven (`COLUMNS` array with per-column `render` and sort key). `galaxy/planetMap.ts` maps ranks #2–#9 to Mercury→Neptune (pure, unit-tested).
+- The List table is config-driven (`COLUMNS` array with per-column `render` and sort key) with show/hide toggles.
+- `GET /api/galaxy` still exists in the API for the parked 3D view; the web app no longer calls it.
 - Uppercasing is CSS `text-transform`, not DOM text, so tests match real labels.
 
 ## Testing
 
-Vitest at the root. Web tests run under jsdom (`environmentMatchGlobs`, `esbuild.jsx: "automatic"`, `@testing-library/jest-dom/vitest`). The 3D scene isn't unit-tested (no WebGL in jsdom). Parsers, `planetMap`, queries, zod schemas and API endpoints carry the coverage. Parser changes need a saved fixture under `apps/worker/test/fixtures/`.
+Vitest at the root. Web tests run under jsdom (`environmentMatchGlobs`, `esbuild.jsx: "automatic"`, `@testing-library/jest-dom/vitest`). Parsers, queries, zod schemas and API endpoints carry the coverage. Parser changes need a saved fixture under `apps/worker/test/fixtures/`.

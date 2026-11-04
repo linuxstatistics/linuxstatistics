@@ -4,7 +4,7 @@ import { RatingWidget } from "./RatingWidget";
 import { AffiliateBlock } from "./AffiliateBlock";
 import { useMe, useUpsertContribution, useDeleteContribution } from "../api";
 
-/** Shared detail content used by both the Galaxy popup and the List inline row. */
+/** Shared detail content used by the detail panel and the List inline row. */
 export function DistroDetailBody({
   data,
   showName = true,

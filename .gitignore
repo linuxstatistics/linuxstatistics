@@ -9,4 +9,3 @@ dist/
 .superpowers/
 .playwright-mcp/
 .claude/settings.local.json
-apps/web/public/textures/planets/

@@ -1,22 +1,14 @@
 # LinuxStatistics
 
-Linux-distro statistics with a 3D hook: the distro landscape as a **solar system** (Sun = #1 distro, planets = ranks #2–#9, starfield = the long tail) and as a **sortable leaderboard**. Signed-in users can rate distros, mark "I use this" and leave short reviews.
+Linux-distro statistics: popularity rankings, desktop market share and project activity in a **sortable leaderboard**. Signed-in users can rate distros, mark "I use this" and leave short reviews.
 
 ## Stack
 
-- **web**: Vite + React + react-three-fiber SPA (Galaxy + List views)
+- **web**: Vite + React SPA (leaderboard and distro details)
 - **api**: Fastify REST API over the database (read-only data routes, plus auth, contributions and email signup)
 - **worker**: ingestion source parsers (DistroWatch / StatCounter / GitHub) and seed
 - **packages/db**: Drizzle schema, migrations, queries, repository
 - **packages/shared**: zod domain and API-DTO schemas
-
-### Planet textures
-
-The Galaxy view uses planet textures from [Solar System Scope](https://www.solarsystemscope.com/textures/), licensed **CC BY 4.0**. They are not committed; fetch them with:
-
-```bash
-bash scripts/fetch-textures.sh   # → apps/web/public/textures/planets/
-```
 
 ### Database
 
@@ -46,4 +38,6 @@ pnpm typecheck
 
 ## Attribution
 
-Planet textures © Solar System Scope, CC BY 4.0. Ranking data sources are credited on the site.
+Ranking data sources are credited on the site.
+
+The earlier 3D "solar system" view lives on the `parking/galaxy` branch.

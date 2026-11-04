@@ -4,7 +4,6 @@ import type {
   DistroDetail,
   DistroListItem,
   EmailSignupInput,
-  GalaxyPayload,
   MarketSharePoint,
   Me,
   Meta,
@@ -34,9 +33,6 @@ export function useDistros() {
   return useQuery({ queryKey: ["distros"], queryFn: () => get<DistroListItem[]>("/api/distros") });
 }
 
-export function useGalaxy() {
-  return useQuery({ queryKey: ["galaxy"], queryFn: () => get<GalaxyPayload>("/api/galaxy") });
-}
 
 export function useDistro(slug: string | null) {
   return useQuery({

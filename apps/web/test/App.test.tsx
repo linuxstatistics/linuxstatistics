@@ -23,7 +23,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-test("renders the brand and falls back to the List view without WebGL", async () => {
+test("renders the brand and renders the List view", async () => {
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   render(
     <QueryClientProvider client={qc}>
@@ -32,8 +32,6 @@ test("renders the brand and falls back to the List view without WebGL", async ()
   );
 
   expect(screen.getByText("LinuxStatistics")).toBeInTheDocument();
-  // jsdom has no WebGL, so the Galaxy toggle is hidden and no canvas is rendered.
-  expect(screen.queryByRole("button", { name: "Galaxy" })).not.toBeInTheDocument();
   expect(document.querySelector("canvas")).toBeNull();
   // The List page renders (its search control is present).
   await waitFor(() => expect(screen.getByLabelText("Search distros")).toBeInTheDocument());

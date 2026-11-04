@@ -45,12 +45,6 @@ html, body, #root {
 .brand p { margin: 0; font-family: var(--mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
 .header-right { display: flex; align-items: center; gap: 14px; }
 
-.toggle { display: inline-flex; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
-.toggle button {
-  background: transparent; color: var(--muted); border: 0; padding: 8px 16px;
-  font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
-}
-.toggle button.active { background: var(--text); color: #000; font-weight: 700; }
 
 /* Mobile stats menu — a full-width inline accordion at the top of the list */
 .stats-menu { position: relative; width: 100%; margin-bottom: 14px; }
@@ -88,29 +82,6 @@ html, body, #root {
   border-top: 1px solid var(--line); text-align: center;
 }
 .app-footer a { color: var(--muted); text-decoration: underline; text-decoration-color: var(--line); }
-
-/* ---------- Galaxy ---------- */
-.galaxy-view { position: absolute; inset: 0; }
-.galaxy-view canvas { display: block; }
-
-/* Mission-control planet label */
-.planet-label { pointer-events: none; }
-.planet-label .box {
-  background: rgba(0, 0, 0, 0.62); border: 1px solid var(--line-strong);
-  border-radius: 3px; padding: 5px 8px; min-width: 92px;
-  font-family: var(--mono); color: var(--text); white-space: nowrap;
-  backdrop-filter: blur(2px); cursor: pointer; pointer-events: auto;
-  transition: border-color 0.15s, background 0.15s;
-}
-.planet-label .box:hover { border-color: #fff; background: rgba(0, 0, 0, 0.8); }
-.planet-label .name { font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
-.planet-label .sub { font-size: 9px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; margin-top: 1px; }
-.planet-label .fam-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
-.body-label span {
-  background: rgba(0, 0, 0, 0.7); border: 1px solid var(--line);
-  padding: 2px 7px; border-radius: 3px; font-family: var(--mono); font-size: 11px; color: var(--text);
-  white-space: nowrap; pointer-events: none;
-}
 
 .hud {
   position: absolute; left: 22px; bottom: 22px; width: 280px; max-width: 60vw;
