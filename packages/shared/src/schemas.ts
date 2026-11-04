@@ -6,8 +6,8 @@ export const distroSchema = z.object({
   name: z.string().min(1),
   family: familySchema,
   basedOnSlug: z.string().min(1).nullable().optional(),
-  homepage: z.string().url().nullable().optional(),
-  logoUrl: z.string().url().nullable().optional(),
+  homepage: z.url().nullable().optional(),
+  logoUrl: z.url().nullable().optional(),
   firstReleaseYear: z.number().int().min(1990).max(2100).nullable().optional(),
   status: distroStatusSchema.default("active"),
 });
@@ -15,7 +15,7 @@ export type DistroInput = z.infer<typeof distroSchema>;
 
 export const distrowatchSnapshotSchema = z.object({
   distroSlug: z.string().min(1),
-  capturedAt: z.string().datetime(),
+  capturedAt: z.iso.datetime(),
   rank: z.number().int().positive(),
   hitsPerDay: z.number().int().nonnegative(),
   period: z.string().min(1),
@@ -33,7 +33,7 @@ export type GithubRepoInput = z.infer<typeof githubRepoSchema>;
 
 export const githubSnapshotSchema = z.object({
   repoFullName: z.string().regex(/^[^/]+\/[^/]+$/),
-  capturedAt: z.string().datetime(),
+  capturedAt: z.iso.datetime(),
   stars: z.number().int().nonnegative(),
   commitsLast30d: z.number().int().nonnegative(),
   contributors: z.number().int().nonnegative(),
@@ -41,7 +41,7 @@ export const githubSnapshotSchema = z.object({
 export type GithubSnapshotInput = z.infer<typeof githubSnapshotSchema>;
 
 export const marketShareSchema = z.object({
-  capturedAt: z.string().datetime(),
+  capturedAt: z.iso.datetime(),
   region: z.string().min(1),
   platform: z.enum(["linux", "windows", "macos", "other"]),
   sharePct: z.number().min(0).max(100),

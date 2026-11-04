@@ -1,10 +1,24 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  esbuild: { jsx: "automatic" },
+  oxc: { jsx: { runtime: "automatic" } },
   test: {
-    include: ["packages/**/test/**/*.test.ts", "apps/**/test/**/*.test.{ts,tsx}"],
     pool: "forks",
-    environmentMatchGlobs: [["apps/site/**", "jsdom"]],
+    projects: [
+      {
+        test: {
+          name: "node",
+          include: ["packages/**/test/**/*.test.ts", "apps/{api,worker}/test/**/*.test.ts"],
+          environment: "node",
+        },
+      },
+      {
+        test: {
+          name: "site",
+          include: ["apps/site/test/**/*.test.{ts,tsx}"],
+          environment: "jsdom",
+        },
+      },
+    ],
   },
 });

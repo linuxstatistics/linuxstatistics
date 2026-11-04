@@ -91,7 +91,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   app.setErrorHandler((err, _req, reply) => {
     if (err instanceof z.ZodError) {
       reply.code(400);
-      return reply.send({ error: "bad_request", details: err.flatten() });
+      return reply.send({ error: "bad_request", details: z.flattenError(err) });
     }
     app.log.error(err);
     reply.code(503);

@@ -33,6 +33,8 @@ test("rejects an invalid email with 400", async () => {
     method: "POST", url: "/api/email-signups", payload: { email: "nope" },
   });
   expect(res.statusCode).toBe(400);
+  expect(res.json().error).toBe("bad_request");
+  expect(res.json().details.fieldErrors.email?.length).toBeGreaterThan(0);
 });
 
 test("a duplicate still returns ok and does not create a second row", async () => {

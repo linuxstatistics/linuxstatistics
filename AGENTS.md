@@ -52,6 +52,7 @@ pnpm-workspace monorepo (`packages/*`, `apps/*`), TypeScript, ESM. Data flows on
 `openDb()` picks the driver: Postgres when `DATABASE_URL` is set (production), otherwise local **PGlite**. Tests use in-memory PGlite. Same schema and migrations for both; `Database` is the driver-neutral Drizzle type. Distros are keyed by DistroWatch key (= slug); `distro_aliases` maps DistroWatch keys and legacy slugs. Snapshots carry a `period`; the main rank is `last-12-months`, "rising" uses `last-1-month`.
 
 - The local PGlite dir is `<root>/.data/pglite` (override `PGLITE_DIR`). Run seed and api from the repo root.
+- Zod 4: use `z.email()`, `z.url()`, `z.iso.datetime()` and `z.flattenError()`.
 - PGlite is single-connection: `pnpm seed` and `ingest` must finish before the API opens the same dir (with Postgres they can run together).
 
 ## Auth and contributions
@@ -80,4 +81,4 @@ Write endpoints require a session. Sign-in uses OAuth2 with GitHub, GitLab or Co
 
 ## Testing
 
-Vitest at the root. Site component tests (`apps/site/test`) run under jsdom (`environmentMatchGlobs`, `esbuild.jsx: "automatic"`, `@testing-library/jest-dom/vitest`). Parsers, queries, zod schemas and API endpoints carry the coverage. Parser changes need a saved fixture under `apps/worker/test/fixtures/`.
+Vitest 5 at the root with two projects in `vitest.config.ts`: `node` (packages, api, worker) and `site` (jsdom; `@testing-library/jest-dom/vitest`). `pnpm test -- --project site` runs one. Parsers, queries, zod schemas and API endpoints carry the coverage. Parser changes need a saved fixture under `apps/worker/test/fixtures/`.

@@ -3,3 +3,8 @@ packages:
   - "apps/*"
 allowBuilds:
   esbuild: true
+overrides:
+  # Patched for GHSA unzipSync infinite loop; satori pins 0.7.3.
+  "fflate@>=0.7.0 <0.7.5": "0.7.5"
+  # drizzle-kit pulls esbuild 0.18 via @esbuild-kit; only the dev server was affected.
+  "@esbuild-kit/core-utils>esbuild": "^0.25.0"

@@ -139,7 +139,7 @@ export const metaSchema = z.object({
 export type Meta = z.infer<typeof metaSchema>;
 
 export const emailSignupInputSchema = z.object({
-  email: z.string().email().max(320),
+  email: z.email().max(320),
   source: z.string().max(64).optional(),
 });
 export type EmailSignupInput = z.infer<typeof emailSignupInputSchema>;
