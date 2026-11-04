@@ -1,0 +1,12 @@
+[Unit]
+Description=LinuxStatistics: StatCounter market share, monthly
+# Runs on the 3rd so the previous month is complete.
+
+[Timer]
+OnCalendar=*-*-03 04:00:00 UTC
+RandomizedDelaySec=30min
+Persistent=true
+Unit=linuxstatistics-ingest@statcounter.service
+
+[Install]
+WantedBy=timers.target

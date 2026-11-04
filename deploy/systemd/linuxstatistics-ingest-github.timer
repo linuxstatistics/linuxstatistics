@@ -1,0 +1,11 @@
+[Unit]
+Description=LinuxStatistics: GitHub activity, weekly
+
+[Timer]
+OnCalendar=Mon *-*-* 03:30:00 UTC
+RandomizedDelaySec=30min
+Persistent=true
+Unit=linuxstatistics-ingest@github.service
+
+[Install]
+WantedBy=timers.target

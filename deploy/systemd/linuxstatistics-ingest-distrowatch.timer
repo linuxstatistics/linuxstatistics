@@ -1,0 +1,12 @@
+[Unit]
+Description=LinuxStatistics: DistroWatch rankings, daily
+# DistroWatch updates its tables around 00:30 UTC.
+
+[Timer]
+OnCalendar=*-*-* 02:15:00 UTC
+RandomizedDelaySec=20min
+Persistent=true
+Unit=linuxstatistics-ingest@distrowatch.service
+
+[Install]
+WantedBy=timers.target

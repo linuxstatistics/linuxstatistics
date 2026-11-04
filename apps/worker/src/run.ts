@@ -1,39 +1,63 @@
-import { defaultPgliteDir, initPgliteDb, recordIngestionRun, type Database } from "@linux-statistics/db";
-import { parseDistrowatchRanking } from "./sources/distrowatch.js";
-import { ingestDistrowatchRows } from "./ingest-distrowatch.js";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { openDb } from "@linux-statistics/db";
+import { runSources, SOURCES, type Source } from "./sources-run.js";
 
-const DW_URL = "https://distrowatch.com/dwres.php?resource=popularity";
-const USER_AGENT = "linux-statistics-bot/0.1 (+https://linuxstatistics.com)";
+const USAGE = `Usage: ingest [--source distrowatch|github|statcounter|all ...] [--backfill] [--rebuild]
+  --source    one or more sources (repeat or comma-separate); default: all
+  --backfill  StatCounter: fetch full history from 2009-01
+  --rebuild   after at least one source succeeds, run build-site (needs the API running)`;
 
-/**
- * Live DistroWatch ingestion. The page is parsed fully before anything is
- * written, so a layout change fails the run without touching existing data.
- */
-async function ingestDistrowatch(db: Database): Promise<number> {
-  const res = await fetch(DW_URL, { headers: { "User-Agent": USER_AGENT } });
-  if (!res.ok) throw new Error(`DistroWatch HTTP ${res.status}`);
-  const rows = parseDistrowatchRanking(await res.text());
-  const result = await ingestDistrowatchRows(db, rows, new Date());
-  if (result.created.length) console.log(`DistroWatch: ${result.created.length} new distros`);
-  if (result.uncurated.length) {
-    console.log(`DistroWatch: ${result.uncurated.length} distros without a curated family (see apps/worker/src/families.ts)`);
+function parseArgs(argv: string[]) {
+  const sources = new Set<Source>();
+  let backfill = false;
+  let rebuild = false;
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i]!;
+    if (a === "--backfill") backfill = true;
+    else if (a === "--rebuild") rebuild = true;
+    else if (a === "--help" || a === "-h") {
+      console.log(USAGE);
+      process.exit(0);
+    } else if (a === "--source" || a.startsWith("--source=")) {
+      const v = a.includes("=") ? a.split("=")[1]! : argv[++i];
+      if (!v) throw new Error("--source needs a value");
+      for (const s of v.split(",")) {
+        if (s === "all") SOURCES.forEach((x) => sources.add(x));
+        else if ((SOURCES as readonly string[]).includes(s)) sources.add(s as Source);
+        else throw new Error(`Unknown source "${s}". ${USAGE}`);
+      }
+    } else throw new Error(`Unknown argument "${a}". ${USAGE}`);
   }
-  return result.written;
+  return { sources: sources.size ? [...sources] : [...SOURCES], backfill, rebuild };
 }
 
 async function main(): Promise<void> {
-  const { db, client } = await initPgliteDb(defaultPgliteDir());
+  const args = parseArgs(process.argv.slice(2));
+  // Production: DATABASE_URL (Postgres, shared with the API). Local: PGlite,
+  // which is single-connection, so stop the API before ingesting locally.
+  const { db, close } = await openDb({ max: 2 });
+  let status;
   try {
-    const n = await ingestDistrowatch(db);
-    await recordIngestionRun(db, "distrowatch", "success", n);
-    console.log(`DistroWatch: wrote ${n} rows`);
-  } catch (err) {
-    await recordIngestionRun(db, "distrowatch", "failed", 0, String(err));
-    console.error("DistroWatch ingestion failed (previous data preserved):", err);
-    process.exitCode = 1;
+    status = await runSources(db, args.sources, { backfill: args.backfill });
   } finally {
-    await client.close();
+    await close();
   }
+  const failed = args.sources.filter((s) => status[s] === "failed");
+  const succeeded = args.sources.filter((s) => status[s] === "success");
+  if (args.rebuild && succeeded.length) {
+    const script = resolve(dirname(fileURLToPath(import.meta.url)), "../../../scripts/build-site.sh");
+    const r = spawnSync("bash", [script], { stdio: "inherit" });
+    if (r.status !== 0) {
+      console.error("build-site failed; the previous site is still live");
+      process.exitCode = 1;
+    }
+  }
+  if (failed.length) process.exitCode = 1;
 }
 
-main();
+main().catch((err) => {
+  console.error(err instanceof Error ? err.message : err);
+  process.exit(2);
+});

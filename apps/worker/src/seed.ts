@@ -6,9 +6,8 @@ import {
   addDistrowatchSnapshot,
   addGithubSnapshot,
   addMarketShare,
-  defaultPgliteDir,
   findDistroIdByAlias,
-  initPgliteDb,
+  openDb,
   recordIngestionRun,
   schema,
   upsertGithubRepo,
@@ -27,8 +26,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const YEAR_AGO = new Date(SEED_CAPTURED_AT.getTime() - 365 * 24 * 3600 * 1000);
 
 async function main(): Promise<void> {
-  const dir = defaultPgliteDir();
-  const { db, client } = await initPgliteDb(dir);
+  const { db, close, kind } = await openDb({ max: 2 });
 
   // Reset for a clean, repeatable seed (cascade clears snapshots, repos, aliases).
   await db.delete(schema.marketShare);
@@ -86,9 +84,9 @@ async function main(): Promise<void> {
   await recordIngestionRun(db, "statcounter", "success", MARKET_SHARE.length * 3);
   await recordIngestionRun(db, "github", "success", SEED_REPOS.length);
 
-  await client.close();
+  await close();
   console.log(
-    `Seeded ${result.created.length} distros (${result.written} DistroWatch rows, ${result.uncurated.length} without a curated family) into ${dir}`,
+    `Seeded ${result.created.length} distros (${result.written} DistroWatch rows, ${result.uncurated.length} without a curated family) into ${kind}`,
   );
 }
 

@@ -23,6 +23,7 @@ pnpm dev:api       # Fastify API on http://localhost:3001
 pnpm dev:site      # Astro dev server on http://localhost:4380, proxies /api (separate terminal)
 pnpm build:site    # static build from the running API (API_URL), atomic swap into apps/site/dist
 pnpm check:site    # bot-view check of the built HTML
+pnpm --filter @linux-statistics/worker ingest --source distrowatch|github|statcounter|all [--backfill] [--rebuild]
 
 pnpm test                         # full vitest suite
 pnpm test -- queries              # files matching "queries"
@@ -39,7 +40,7 @@ pnpm-workspace monorepo (`packages/*`, `apps/*`), TypeScript, ESM. Data flows on
 
 - `packages/shared`: zod schemas and inferred types. `schemas.ts` = domain entities, `views.ts` = the API-DTO contract (`DistroListItem`, `DistroDetail`, `GalaxyPayload`, …). Single source of truth for shapes.
 - `packages/db`: Drizzle schema, migrations; the only package that touches the DB. `queries.ts` = reads returning view DTOs (API); `repository.ts`, `contributions.ts`, `email.ts` = writes. Top-N membership is derived at query time, never stored.
-- `apps/worker`: ingestion. `src/sources/*` are pure parsers (DistroWatch HTML, StatCounter CSV, GitHub JSON) tested against fixtures; `src/seed.ts` loads `seed-data.ts`; `src/run.ts` is the live ingestion entrypoint.
+- `apps/worker`: ingestion. `src/sources/*` are pure parsers (DistroWatch HTML, StatCounter CSV, GitHub JSON) tested against fixtures. `ingest-*.ts` write one source each; `sources-run.ts` runs sources in isolation and records `ingestion_runs`; `run.ts` is the CLI. `http.ts` (`politeGet`) sets the bot User-Agent, retries 5xx and stops on 403/429; all fetchers take an injectable `fetch` so tests use no network. Curated data: `families.ts` (family/base per DistroWatch key), `github-repos.ts` (repo per distro). `seed.ts` loads the saved DistroWatch page.
 - `apps/api`: Fastify. Public data routes are read-only and never scrape on a request. Write routes (auth, contributions, email signup, admin moderation) are isolated in `src/routes/`. `buildApp(db)` takes an injected db (tests use in-memory PGlite + `inject()`).
 - `apps/site`: Astro 7 static site. Pages in `src/pages` (`index.astro`, `distro/[slug].astro`, 404, robots) read build-time data from the API through `src/lib/data.ts`, never the database. Interactive parts are React islands (`ListView`, `HeaderAuth`, `DistroRating`, `FooterEmail`, `StatsMenu`); each island wraps itself in `Island`, which shares one `QueryClient` so sign-in state reaches every island. Static parts (`DistroStats`, `ShareCard`, `AffiliateBlock`, `SponsorSlot`) render to HTML with no client JS.
 
@@ -47,10 +48,10 @@ pnpm-workspace monorepo (`packages/*`, `apps/*`), TypeScript, ESM. Data flows on
 
 ## Data layer
 
-Local dev and tests use **PGlite** (in-process Postgres); production uses `createPostgresDb()` (postgres-js). Same schema and migrations target both.
+`openDb()` picks the driver: Postgres when `DATABASE_URL` is set (production), otherwise local **PGlite**. Tests use in-memory PGlite. Same schema and migrations for both; `Database` is the driver-neutral Drizzle type. Distros are keyed by DistroWatch key (= slug); `distro_aliases` maps DistroWatch keys and legacy slugs. Snapshots carry a `period`; the main rank is `last-12-months`, "rising" uses `last-1-month`.
 
 - The local PGlite dir is `<root>/.data/pglite` (override `PGLITE_DIR`). Run seed and api from the repo root.
-- PGlite is single-connection: `pnpm seed` must finish before the API opens the same dir.
+- PGlite is single-connection: `pnpm seed` and `ingest` must finish before the API opens the same dir (with Postgres they can run together).
 
 ## Auth and contributions
 

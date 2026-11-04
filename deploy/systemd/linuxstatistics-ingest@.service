@@ -1,0 +1,16 @@
+# One ingestion run for a source (the instance name), then a site rebuild.
+#   systemctl enable --now linuxstatistics-ingest-distrowatch.timer
+# Adjust User, WorkingDirectory and EnvironmentFile for your server.
+[Unit]
+Description=LinuxStatistics ingest (%i)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=linuxstatistics
+WorkingDirectory=/srv/linuxstatistics
+EnvironmentFile=/etc/linuxstatistics/worker.env
+ExecStart=/usr/bin/env pnpm --filter @linux-statistics/worker ingest --source %i --rebuild
+Nice=10
+TimeoutStartSec=30min

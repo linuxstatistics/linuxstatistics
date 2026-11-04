@@ -14,7 +14,7 @@ Linux-distro statistics: popularity rankings, desktop market share and project a
 
 ### Database
 
-Local dev and tests use **PGlite** (in-process Postgres), so no database server is needed. The same Drizzle schema and migrations target a real Postgres in production via `createPostgresDb()` in `packages/db`. The local database lives at `.data/pglite` (override with `PGLITE_DIR`).
+Local dev and tests use **PGlite** (in-process Postgres), so no database server is needed. The local database lives at `.data/pglite` (override with `PGLITE_DIR`). Set `DATABASE_URL` to use a real Postgres instead (production); the API, worker and seed then share it, and migrations run on start.
 
 ## Local setup
 
@@ -47,7 +47,18 @@ pnpm typecheck
 
 ## Ingestion
 
-`apps/worker/src/run.ts` is the ingestion entrypoint (fetch → parse → write, keeping the last good data on failure): `pnpm --filter @linux-statistics/worker ingest`.
+```bash
+pnpm --filter @linux-statistics/worker ingest                      # all sources
+pnpm --filter @linux-statistics/worker ingest --source distrowatch  # one source
+pnpm --filter @linux-statistics/worker ingest --source statcounter --backfill   # full history since 2009
+pnpm --filter @linux-statistics/worker ingest --source all --rebuild            # then rebuild the site
+```
+
+Sources: DistroWatch page-hit rankings (daily), GitHub repository activity (weekly; set `GITHUB_TOKEN` for a higher rate limit) and StatCounter desktop market share (monthly). Each source runs on its own: a failure is recorded, the last good data stays, and the other sources still run. The exit code is non-zero if any source failed.
+
+With PGlite, stop the API before ingesting (PGlite allows one connection). With Postgres they can run together.
+
+`deploy/` has example systemd units and timers for a server (`deploy/worker.env.example` lists the settings).
 
 ## Attribution
 

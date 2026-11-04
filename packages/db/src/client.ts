@@ -3,19 +3,19 @@ import { dirname, resolve } from "node:path";
 import { mkdirSync } from "node:fs";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle as drizzlePglite } from "drizzle-orm/pglite";
-import type { PgliteDatabase } from "drizzle-orm/pglite";
 import { migrate as migratePglite } from "drizzle-orm/pglite/migrator";
+import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { drizzle as drizzlePostgres } from "drizzle-orm/postgres-js";
+import { migrate as migratePostgres } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import * as schema from "./schema.js";
 
 /**
- * The app standardizes on PGlite (in-process Postgres) for local dev and tests,
- * because host->container Postgres is not reachable in this environment.
- * `Database` is the PGlite-backed Drizzle type that repository functions accept.
- * `createPostgresDb` remains available for real production deployments.
+ * Local dev and tests use PGlite (in-process Postgres); production uses a real
+ * Postgres via DATABASE_URL. `Database` is the driver-neutral Drizzle type that
+ * repository and query functions accept.
  */
-export type Database = PgliteDatabase<typeof schema>;
+export type Database = PgDatabase<PgQueryResultHKT, typeof schema>;
 
 export const MIGRATIONS_FOLDER = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -47,7 +47,7 @@ export function createPgliteDb(dataDir?: string) {
 }
 
 /** Apply drizzle-kit SQL migrations to a PGlite database. */
-export async function runMigrations(db: Database) {
+export async function runMigrations(db: ReturnType<typeof createPgliteDb>["db"]) {
   await migratePglite(db, { migrationsFolder: MIGRATIONS_FOLDER });
 }
 
@@ -59,8 +59,28 @@ export async function initPgliteDb(dataDir?: string) {
 }
 
 /** Production driver: postgres-js over a real Postgres server. */
-export function createPostgresDb(connectionString: string) {
-  const sql = postgres(connectionString, { max: 10 });
+export function createPostgresDb(connectionString: string, max = 10) {
+  const sql = postgres(connectionString, { max, onnotice: () => {} });
   const db = drizzlePostgres(sql, { schema });
   return { db, sql };
+}
+
+/**
+ * Open the app database: Postgres when DATABASE_URL is set (production; many
+ * processes can share it), otherwise the local PGlite dir. Migrations run on
+ * open. `close()` releases the connection.
+ */
+export async function openDb(opts: { max?: number } = {}): Promise<{
+  db: Database;
+  close: () => Promise<void>;
+  kind: "postgres" | "pglite";
+}> {
+  const url = process.env.DATABASE_URL;
+  if (url) {
+    const { db, sql } = createPostgresDb(url, opts.max);
+    await migratePostgres(db, { migrationsFolder: MIGRATIONS_FOLDER });
+    return { db, close: () => sql.end(), kind: "postgres" };
+  }
+  const { db, client } = await initPgliteDb(defaultPgliteDir());
+  return { db, close: () => client.close(), kind: "pglite" };
 }

@@ -116,7 +116,10 @@ export const marketShare = pgTable(
     platform: platformEnum("platform").notNull(),
     sharePct: numeric("share_pct", { precision: 6, scale: 3 }).notNull(),
   },
-  (t) => ({ msIdx: index("market_share_idx").on(t.region, t.platform, t.capturedAt) }),
+  (t) => ({
+    msIdx: index("market_share_idx").on(t.region, t.platform, t.capturedAt),
+    msUniq: uniqueIndex("market_share_uniq").on(t.region, t.platform, t.capturedAt),
+  }),
 );
 
 export const ingestionSourceEnum = pgEnum("ingestion_source", [

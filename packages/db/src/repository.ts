@@ -63,6 +63,26 @@ export async function addGithubSnapshot(
   await db.insert(githubSnapshots).values({ repoId, ...s });
 }
 
+/** Insert or replace one month's share for a region and platform. */
+export async function upsertMarketShare(
+  db: Database,
+  m: {
+    capturedAt: Date;
+    region: string;
+    platform: "linux" | "windows" | "macos" | "other";
+    sharePct: number;
+  },
+): Promise<void> {
+  const sharePct = m.sharePct.toFixed(3);
+  await db
+    .insert(marketShare)
+    .values({ ...m, sharePct })
+    .onConflictDoUpdate({
+      target: [marketShare.region, marketShare.platform, marketShare.capturedAt],
+      set: { sharePct },
+    });
+}
+
 export async function addMarketShare(
   db: Database,
   m: {
@@ -143,4 +163,19 @@ export async function setDistroFamily(
   basedOnSlug: string | null,
 ): Promise<void> {
   await db.update(distros).set({ family, basedOnSlug }).where(eq(distros.id, distroId));
+}
+
+/**
+ * Make `repo` the only tracked repository for a distro (drops a stale mapping,
+ * e.g. after a repo moved), then record a snapshot.
+ */
+export async function replaceGithubRepo(
+  db: Database,
+  distroId: number,
+  r: { repoFullName: string; stars: number; forks: number; openIssues: number },
+  snap: { capturedAt: Date; commitsLast30d: number; contributors: number },
+): Promise<void> {
+  await db.delete(githubRepos).where(eq(githubRepos.distroId, distroId));
+  const repoId = await upsertGithubRepo(db, distroId, r);
+  await addGithubSnapshot(db, repoId, { capturedAt: snap.capturedAt, stars: r.stars, commitsLast30d: snap.commitsLast30d, contributors: snap.contributors });
 }
