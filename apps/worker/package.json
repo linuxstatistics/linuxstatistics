@@ -1,0 +1,19 @@
+{
+  "name": "@linux-statistics/worker",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "seed": "tsx src/seed.ts",
+    "ingest": "tsx src/run.ts"
+  },
+  "dependencies": {
+    "@linux-statistics/db": "workspace:*",
+    "@linux-statistics/shared": "workspace:*",
+    "cheerio": "^1.2.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}
