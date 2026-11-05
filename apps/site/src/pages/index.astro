@@ -57,7 +57,7 @@ const jsonLd = {
         <StatsMenu client:media="(max-width: 760px)" items={items} marketShare={marketShare} />
       </div>
       <div class="sec"><h2>The rest of the chart</h2><span>hits per day, last 12 months</span></div>
-      <ListView client:load items={restItems} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={97} pageSize={100} offset={items.length - restItems.length} />
+      <ListView client:load items={restItems} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={47} pageSize={50} offset={items.length - restItems.length} />
     </section>
 
     <aside class="side" aria-label="Highlights">

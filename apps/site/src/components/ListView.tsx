@@ -129,7 +129,7 @@ export interface ListViewProps {
   maxHits?: number;
   /** Rows shown before "Show more"; each click adds this many again. 0 = show all. */
   pageSize?: number;
-  /** First batch size when it differs (e.g. 97 so the table ends at #100 under a top-3 podium). */
+  /** First batch size when it differs (e.g. 47 so the table ends at #50 under a top-3 podium). */
   firstPage?: number;
   /** Rows shown elsewhere on the page (the podium), counted in the totals. */
   offset?: number;
