@@ -97,11 +97,11 @@ const jsonLd = {
         </p>
       </div>
       <aside class="side" aria-label="Related">
+        <SponsorCard />
         <section class="compare-box">
           <h2>Compare {data.name} with…</h2>
           <CompareWith client:visible self={{ slug: data.slug, name: data.name }} items={searchItems} staticPairs={[...staticPairs]} />
         </section>
-        <SponsorCard />
         <RelatedLinks compare={compare} family={family} familyLabel={family_label} near={near} />
       </aside>
     </div>

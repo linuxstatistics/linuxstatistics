@@ -179,7 +179,7 @@ h1, h2, h3 { text-wrap: balance; }
 .sponsor-card-pitch { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink2); }
 .sponsor-card-cta { justify-self: start; font-size: 14px; font-weight: 600; color: var(--ink); }
 .sponsor-card-cta:hover { color: var(--accent); }
-.distro-page .side .sponsor-card { margin: 28px 0 36px; }
+.distro-page .side .sponsor-card { margin: 0 0 32px; }
 
 .cta { display: inline-block; margin-top: 14px; background: var(--accent); color: var(--on-accent); font-weight: 600; padding: 11px 18px; border-radius: var(--pill); font-size: 15px; text-decoration: none; transition: transform 0.12s var(--ease-out); }
 .cta:active { transform: scale(0.97); }
