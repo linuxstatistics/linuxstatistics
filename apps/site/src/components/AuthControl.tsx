@@ -65,7 +65,7 @@ function AccountMenu({
   me,
   onSignOut,
 }: {
-  me: { username: string; provider: string; avatarUrl: string | null };
+  me: { username: string; provider: string; avatarUrl: string | null; role?: string };
   onSignOut: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -115,6 +115,11 @@ function AccountMenu({
             Signed in with {PROVIDER_NAMES[me.provider] ?? me.provider}
             <b>{me.username}</b>
           </div>
+          {me.role === "admin" && (
+            <a role="menuitem" className="signin-option" href="/admin/suggestions/">
+              Admin: suggestions
+            </a>
+          )}
           <button
             ref={firstItem}
             type="button"

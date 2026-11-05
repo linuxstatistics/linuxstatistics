@@ -9,7 +9,7 @@ export default defineConfig({
   site,
   trailingSlash: "ignore",
   build: { format: "directory" },
-  integrations: [react(), sitemap()],
+  integrations: [react(), sitemap({ filter: (page) => !page.includes("/admin/") })],
   server: { port: 4380, host: "localhost" },
   vite: {
     server: {

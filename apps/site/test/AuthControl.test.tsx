@@ -46,3 +46,15 @@ test("signed in: username opens an account menu with sign out", async () => {
   expect(await screen.findByRole("menuitem", { name: "Sign out" })).toBeInTheDocument();
   expect(screen.getByText("Signed in with GitLab")).toBeInTheDocument();
 });
+
+test("admins see an admin link in the account menu", async () => {
+  global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes("/api/me"))
+      return new Response(JSON.stringify({ id: 1, provider: "github", username: "boss", avatarUrl: null, role: "admin" }), { status: 200, headers: { "content-type": "application/json" } });
+    return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+  }) as unknown as typeof fetch;
+  renderControl();
+  (await screen.findByRole("button", { name: "Account menu for boss" })).click();
+  expect(await screen.findByRole("menuitem", { name: "Admin: suggestions" })).toHaveAttribute("href", "/admin/suggestions/");
+});

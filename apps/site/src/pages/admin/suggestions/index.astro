@@ -1,0 +1,13 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { AdminSuggestions } from "../../../components/AdminSuggestions";
+---
+
+<Base title="Suggestions | Admin | LinuxStatistics" description="Admin review queue." noindex>
+  <div class="page admin-page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">Admin / Suggestions</nav>
+    <h1>Suggestions</h1>
+    <p class="lede">Visitor suggestions from the <a href="/suggest/">suggest form</a>. Only admins can see this page.</p>
+    <AdminSuggestions client:only="react" />
+  </div>
+</Base>

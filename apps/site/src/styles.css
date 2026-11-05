@@ -484,6 +484,37 @@ h1, h2, h3 { text-wrap: balance; }
 .crypto-addr { font: 12px var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: all; }
 .crypto-copy { background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; font-size: 12px; color: var(--ink); cursor: pointer; }
 
+/* Admin: suggestions queue */
+.admin-page { max-width: 980px; }
+.adm-gate { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink2); }
+.adm-tabs { display: flex; gap: 6px; margin: 8px 0 16px; border-bottom: 1px solid var(--line); }
+.adm-tab { background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 10px 14px; font-weight: 600; color: var(--ink2); cursor: pointer; }
+.adm-tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.adm-count { display: inline-block; min-width: 22px; margin-left: 6px; padding: 1px 7px; border-radius: var(--pill); background: var(--row); font: 600 12px var(--mono); text-align: center; }
+.adm-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.adm-filters input, .adm-filters select { background: var(--panel); border: 1px solid var(--line); border-radius: var(--pill); padding: 8px 14px; font-size: 14px; }
+.adm-filters input { flex: 1; min-width: 0; }
+@media (max-width: 760px) { .adm-filters input, .adm-filters select { flex: 1 1 100%; } .adm-tab { padding: 10px; } }
+.adm-list { display: grid; gap: 14px; }
+.adm-card { padding: 16px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); display: grid; gap: 10px; }
+.adm-card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+.adm-card-head time { margin-left: auto; font: 12px var(--mono); color: var(--ink2); }
+.adm-kind { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: var(--pill); border: 1px solid currentColor; color: var(--ink2); }
+.adm-kind.k-add-distro { color: var(--up); }
+.adm-kind.k-correction { color: var(--accent); }
+.adm-subject { font-weight: 600; overflow-wrap: anywhere; }
+.adm-message { margin: 0; white-space: pre-wrap; line-height: 1.55; overflow-wrap: anywhere; }
+.adm-card-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding-top: 10px; border-top: 1px solid var(--row); }
+.adm-from { font: 12px var(--mono); color: var(--ink2); overflow-wrap: anywhere; }
+.adm-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.adm-btn { border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: var(--pill); padding: 6px 12px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; }
+.adm-btn:hover { border-color: var(--ink2); }
+.adm-btn:disabled { opacity: 0.5; cursor: wait; }
+.adm-btn.primary { background: var(--accent); color: var(--on-accent); border-color: transparent; font-weight: 600; }
+.adm-btn.danger { background: var(--danger); color: var(--bg); border-color: transparent; }
+.adm-btn.subtle { color: var(--ink2); }
+.adm-empty { padding: 28px; text-align: center; color: var(--ink2); border: 1px dashed var(--line); border-radius: var(--radius); }
+
 /* Suggestion form */
 .suggest-form { display: grid; gap: 20px; max-width: 640px; margin-top: 8px; }
 .suggest-form fieldset { border: 0; padding: 0; margin: 0; }

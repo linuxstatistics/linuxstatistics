@@ -123,3 +123,23 @@ test("GET /api/auth/providers lists enabled providers plus dev", async () => {
   await a.close();
   await client.close();
 });
+
+async function signInThroughCallback(a: Awaited<ReturnType<typeof appWithProviders>>["a"]) {
+  const start = await a.inject({ method: "GET", url: "/api/auth/github" });
+  const cookie = (start.headers["set-cookie"] as string).split(";")[0];
+  const state = new URL(start.headers.location as string).searchParams.get("state")!;
+  const cb = await a.inject({ method: "GET", url: `/api/auth/github/callback?code=c&state=${state}`, headers: { cookie } });
+  const sess = (cb.headers["set-cookie"] as string).split(";")[0];
+  return (await a.inject({ method: "GET", url: "/api/me", headers: { cookie: sess } })).json();
+}
+
+test("ADMIN_USERS grants admin at sign-in and removes it when no longer listed", async () => {
+  const { a, client } = await appWithProviders();
+  process.env.ADMIN_USERS = "github:#555";
+  expect((await signInThroughCallback(a)).role).toBe("admin");
+  process.env.ADMIN_USERS = "github:#999";
+  expect((await signInThroughCallback(a)).role).toBe("user");
+  delete process.env.ADMIN_USERS;
+  await a.close();
+  await client.close();
+});

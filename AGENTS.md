@@ -62,6 +62,7 @@ Write endpoints require a session. Sign-in uses OAuth2 with GitHub, GitLab or Co
 - Base: `SESSION_SECRET` (>= 32 chars, required when `NODE_ENV=production`), `API_PUBLIC_URL`, `WEB_ORIGIN` (site origin; OAuth returns here, default `http://localhost:4380`).
 - Per provider (callback `${API_PUBLIC_URL}/api/auth/<provider>/callback`): `GITHUB_OAUTH_CLIENT_ID/SECRET`, `GITLAB_OAUTH_CLIENT_ID/SECRET`, `CODEBERG_OAUTH_CLIENT_ID/SECRET`.
 - Each `(provider, provider_user_id)` is an independent account; accounts are never linked across forges.
+- Admins: `ADMIN_USERS` (comma-separated `provider:#<id>` or `provider:<username>`, e.g. `github:#226349`). When set, matching accounts become admin at sign-in and unlisted admins are demoted. Admin pages live under `/admin/` (noindex, not in the sitemap, disallowed in robots.txt); the API enforces the role.
 - Local dev without OAuth: `ALLOW_DEV_LOGIN=1`, then POST `/api/auth/dev-login` `{ providerUserId, username, provider?, role? }`. Off in production. Tests use `apps/api/test/helpers.ts:loginAs`.
 
 ## Site config (public, no secrets)

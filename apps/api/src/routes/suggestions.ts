@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { suggestionInputSchema } from "@linux-statistics/shared";
-import { addSuggestion, listSuggestions, setSuggestionStatus, type Database } from "@linux-statistics/db";
+import { addSuggestion, deleteSuggestion, listSuggestions, setSuggestionStatus, type Database } from "@linux-statistics/db";
 import { currentUser, requireAdmin } from "../lib/session.js";
 
 const statusSchema = z.enum(["new", "done", "dismissed"]);
@@ -30,6 +30,14 @@ export function registerSuggestionRoutes(app: FastifyInstance, db: Database): vo
     const { id } = z.object({ id: z.coerce.number().int().positive() }).parse(req.params);
     const { status } = z.object({ status: statusSchema }).parse(req.body);
     if (!(await setSuggestionStatus(db, id, status))) {
+      reply.code(404);
+      return { error: "not_found" };
+    }
+    return { ok: true };
+  });
+  app.delete("/api/admin/suggestions/:id", { preHandler: admin }, async (req, reply) => {
+    const { id } = z.object({ id: z.coerce.number().int().positive() }).parse(req.params);
+    if (!(await deleteSuggestion(db, id))) {
       reply.code(404);
       return { error: "not_found" };
     }

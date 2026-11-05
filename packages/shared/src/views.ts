@@ -160,3 +160,18 @@ export const suggestionInputSchema = z.object({
   website: z.string().max(0).optional(),
 });
 export type SuggestionInput = z.infer<typeof suggestionInputSchema>;
+
+export const SUGGESTION_STATUSES = ["new", "done", "dismissed"] as const;
+export type SuggestionStatus = (typeof SUGGESTION_STATUSES)[number];
+/** One suggestion as the admin queue sees it. */
+export interface AdminSuggestion {
+  id: number;
+  kind: string;
+  subject: string | null;
+  message: string;
+  email: string | null;
+  status: SuggestionStatus;
+  createdAt: string;
+  username: string | null;
+  provider: string | null;
+}

@@ -54,3 +54,18 @@ test("admin routes need admin", async () => {
   const user = await loginAs(app, { providerUserId: "803", username: "rando" });
   expect((await app.inject({ method: "GET", url: "/api/admin/suggestions", headers: { cookie: user } })).statusCode).toBe(403);
 });
+
+test("admin list includes the sender's sign-in name, and admins can delete", async () => {
+  const user = await loginAs(app, { providerUserId: "810", username: "sender" });
+  await post({ kind: "idea", message: "A dark mode for the share card, please." }, user);
+  const admin = await loginAs(app, { providerUserId: "811", username: "boss4", role: "admin" });
+  const list = (await app.inject({ method: "GET", url: "/api/admin/suggestions", headers: { cookie: admin } })).json();
+  const mine = list.find((r: { message: string }) => r.message.startsWith("A dark mode"));
+  expect(mine).toMatchObject({ username: "sender", provider: "github" });
+  const del = await app.inject({ method: "DELETE", url: `/api/admin/suggestions/${mine.id}`, headers: { cookie: admin } });
+  expect(del.statusCode).toBe(200);
+  const again = await app.inject({ method: "DELETE", url: `/api/admin/suggestions/${mine.id}`, headers: { cookie: admin } });
+  expect(again.statusCode).toBe(404);
+  const user2 = await loginAs(app, { providerUserId: "812", username: "rando2" });
+  expect((await app.inject({ method: "DELETE", url: `/api/admin/suggestions/1`, headers: { cookie: user2 } })).statusCode).toBe(403);
+});

@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { upsertUser, type AuthProvider, type Database } from "@linux-statistics/db";
+import { setUserRole, upsertUser, type AuthProvider, type Database } from "@linux-statistics/db";
+import { adminFromEnv } from "../lib/admins.js";
 import { currentUser } from "../lib/session.js";
 import {
   authorizeRedirect,
@@ -84,6 +85,8 @@ export function registerAuthRoutes(
     req.session.set("oauthState", "");
     const profile = await exchange(provider, q.code, callbackUrl(slug));
     const user = await upsertUser(db, profile);
+    const admin = adminFromEnv(user);
+    if (admin !== null && admin !== (user.role === "admin")) await setUserRole(db, user.id, admin ? "admin" : "user");
     req.session.set("userId", user.id);
     return reply.redirect(webOrigin);
   });

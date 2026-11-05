@@ -38,6 +38,10 @@ export async function upsertUser(db: Database, p: UserProfileInput): Promise<Use
   return row as UserRow;
 }
 
+export async function setUserRole(db: Database, id: number, role: "user" | "admin"): Promise<void> {
+  await db.update(users).set({ role }).where(eq(users.id, id));
+}
+
 export async function findUserById(db: Database, id: number): Promise<UserRow | null> {
   const [row] = await db.select().from(users).where(eq(users.id, id));
   return (row as UserRow) ?? null;
