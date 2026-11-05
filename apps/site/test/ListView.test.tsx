@@ -144,3 +144,10 @@ test("first batch can differ and totals include rows shown elsewhere", async () 
   expect(screen.getByText("Showing 20 of 33")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "Show all 33" })).toBeInTheDocument();
 });
+
+test("hits bars scale linearly with a visible minimum", async () => {
+  const { hitsBarPct } = await import("../src/components/ListView");
+  expect(hitsBarPct(1600, 3200)).toBe(50);
+  expect(hitsBarPct(10, 3200)).toBe(2);
+  expect(hitsBarPct(null, 3200)).toBe(0);
+});

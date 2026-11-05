@@ -7,7 +7,8 @@ import { StatsMenu } from "../components/StatsMenu";
 import { SponsorCard } from "../components/SponsorCard";
 import { loadDistros, loadMarketShare, loadMeta, loadRising, dataDate } from "../lib/data";
 import { buildHeadline } from "../lib/headline";
-import { latestLinuxShare } from "../lib/marketShare";
+import { latestLinuxShare, linuxYearlySeries } from "../lib/marketShare";
+import { ShareChart } from "../components/ShareChart";
 
 const [items, marketShare, meta, rising] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta(), loadRising()]);
 const asOf = dataDate(meta, "distrowatch");
@@ -56,7 +57,7 @@ const jsonLd = {
         <StatsMenu client:media="(max-width: 760px)" items={items} marketShare={marketShare} />
       </div>
       <div class="sec"><h2>The rest of the chart</h2><span>hits per day, last 12 months</span></div>
-      <ListView client:load items={restItems} firstPage={97} pageSize={100} offset={items.length - restItems.length} />
+      <ListView client:load items={restItems} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={97} pageSize={100} offset={items.length - restItems.length} />
     </section>
 
     <aside class="side" aria-label="Highlights">
@@ -80,6 +81,8 @@ const jsonLd = {
           <h2>Desktop share</h2>
           <div class="share-big">{share.value.toFixed(2)}%</div>
           <p>Linux on desktops worldwide, {share.label} (StatCounter).</p>
+          <ShareChart series={linuxYearlySeries(marketShare)} />
+          <p class="sc-note">Yearly average. Single months jump around, so the line shows the trend.</p>
         </section>
       )}
       <SponsorCard />

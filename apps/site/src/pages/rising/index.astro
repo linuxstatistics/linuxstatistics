@@ -29,6 +29,7 @@ const jsonLd = {
     url: `${site}/distro/${d.slug}/`,
   })),
 };
+const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
 ---
 
 <Base title={title} description={description} jsonLd={jsonLd}>
@@ -62,7 +63,10 @@ const jsonLd = {
                 <td>{FAMILY_LABELS[d.family]}</td>
                 <td class="num">{d.rank}</td>
                 <td class="num">{d.rank1m}</td>
-                <td class="num"><span class="trend up">▲ {d.rank1mDelta}</span></td>
+                <td class="num climb-cell">
+                  <span class="climb-bar" aria-hidden="true"><i style={`width:${Math.round(((d.rank1mDelta ?? 0) / maxClimb) * 100)}%`} /></span>
+                  <span class="trend up">▲ {d.rank1mDelta}</span>
+                </td>
               </tr>
             ))}
           </tbody>

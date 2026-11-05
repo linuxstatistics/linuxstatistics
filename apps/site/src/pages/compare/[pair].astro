@@ -42,7 +42,7 @@ const options = list
   .map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "distrowatch");
 
-type Row = { label: string; a: string; b: string; better?: "a" | "b" };
+type Row = { label: string; a: string; b: string; better?: "a" | "b"; split?: number };
 const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
 // Lower rank is better; higher is better for the rest.
 function pick(x: number | null, y: number | null, lowerIsBetter = false): "a" | "b" | undefined {
@@ -55,15 +55,22 @@ const tm = (slug: string) => {
   return t ? TELEMETRY_LABEL[t.level] : "-";
 };
 
+/** Share of A in a head-to-head bar (0-1). Ranks count inversely: #1 vs #4 is 80/20. */
+function split(x: number | null, y: number | null, lowerIsBetter = false): number | undefined {
+  if (x == null || y == null || x <= 0 || y <= 0) return undefined;
+  const [px, py] = lowerIsBetter ? [1 / x, 1 / y] : [x, y];
+  return px / (px + py);
+}
+
 const rows: Row[] = [
-  { label: "DistroWatch rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true) },
-  { label: "Rank last month", a: num(a.rank1m), b: num(b.rank1m), better: pick(a.rank1m, b.rank1m, true) },
-  { label: "Hits per day", a: num(a.hitsPerDay), b: num(b.hitsPerDay), better: pick(a.hitsPerDay, b.hitsPerDay) },
+  { label: "DistroWatch rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true), split: split(a.rank, b.rank, true) },
+  { label: "Rank last month", a: num(a.rank1m), b: num(b.rank1m), better: pick(a.rank1m, b.rank1m, true), split: split(a.rank1m, b.rank1m, true) },
+  { label: "Hits per day", a: num(a.hitsPerDay), b: num(b.hitsPerDay), better: pick(a.hitsPerDay, b.hitsPerDay), split: split(a.hitsPerDay, b.hitsPerDay) },
   { label: "Family", a: FAMILY_LABELS[a.family], b: FAMILY_LABELS[b.family] },
   { label: "Based on", a: a.basedOnSlug ? (nameOf.get(a.basedOnSlug) ?? a.basedOnSlug) : "-", b: b.basedOnSlug ? (nameOf.get(b.basedOnSlug) ?? b.basedOnSlug) : "-" },
   { label: "First released", a: a.firstReleaseYear?.toString() ?? "-", b: b.firstReleaseYear?.toString() ?? "-" },
-  { label: "GitHub stars", a: num(a.stars), b: num(b.stars), better: pick(a.stars, b.stars) },
-  { label: "Commits, last 30 days", a: num(a.commitsLast30d), b: num(b.commitsLast30d), better: pick(a.commitsLast30d, b.commitsLast30d) },
+  { label: "GitHub stars", a: num(a.stars), b: num(b.stars), better: pick(a.stars, b.stars), split: split(a.stars, b.stars) },
+  { label: "Commits, last 30 days", a: num(a.commitsLast30d), b: num(b.commitsLast30d), better: pick(a.commitsLast30d, b.commitsLast30d), split: split(a.commitsLast30d, b.commitsLast30d) },
   { label: "Telemetry (OS default)", a: tm(a.slug), b: tm(b.slug) },
   { label: "Community rating", a: rating(a), b: rating(b) },
   { label: "Users who use it", a: num(a.usesItCount || null), b: num(b.usesItCount || null), better: pick(a.usesItCount, b.usesItCount) },
@@ -93,8 +100,9 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
         <thead>
           <tr>
             <th></th>
-            {[a, b].map((d) => (
+            {[a, b].map((d, i) => (
               <th>
+                <i class={`h2h-key ${i === 0 ? "h2h-a" : "h2h-b"}`} aria-hidden="true" />
                 <a href={`/distro/${d.slug}/`}>{d.name}</a>
                 <span class="th-sub">{d.rank != null ? `#${d.rank} · ` : ""}{FAMILY_LABELS[d.family]}</span>
               </th>
@@ -104,7 +112,12 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
         <tbody>
           {rows.map((r) => (
             <tr>
-              <th scope="row">{r.label}</th>
+              <th scope="row">
+                {r.label}
+                {r.split != null && (
+                  <span class="h2h" aria-hidden="true"><i class="h2h-a" style={`width:${(r.split * 100).toFixed(0)}%`} /><i class="h2h-b" /></span>
+                )}
+              </th>
               <td class={r.better === "a" ? "better" : undefined}>{r.a}</td>
               <td class={r.better === "b" ? "better" : undefined}>{r.b}</td>
             </tr>

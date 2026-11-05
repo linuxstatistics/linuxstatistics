@@ -44,7 +44,30 @@ interface ColumnDef {
   hiddenByDefault?: boolean;
   /** extra class on the cells */
   cellClass?: string;
-  render: (d: DistroListItem) => ReactNode;
+  render: (d: DistroListItem, ctx: RenderCtx) => ReactNode;
+}
+
+interface RenderCtx {
+  /** Highest hits/day in the full list, for bar scaling. */
+  maxHits: number;
+}
+
+/** Bar width for hits/day relative to the busiest distro (minimum 2% so it stays visible). */
+export function hitsBarPct(v: number | null, max: number): number {
+  if (v == null || v <= 0 || max <= 0) return 0;
+  return Math.max(2, Math.round((v / max) * 100));
+}
+
+function HitsCell({ v, max }: { v: number | null; max: number }) {
+  if (v == null) return <>-</>;
+  return (
+    <span className="hits-cell">
+      <span className="hits-track" aria-hidden="true">
+        <i style={{ width: `${hitsBarPct(v, max)}%` }} />
+      </span>
+      <span className="hits-num">{v.toLocaleString("en-US")}</span>
+    </span>
+  );
 }
 
 const COLUMNS: ColumnDef[] = [
@@ -65,7 +88,7 @@ const COLUMNS: ColumnDef[] = [
       </span>
     ),
   },
-  { key: "hitsPerDay", label: "Hits/day", numeric: true, render: (d) => d.hitsPerDay?.toLocaleString("en-US") ?? "-" },
+  { key: "hitsPerDay", label: "Hits/day", numeric: true, render: (d, ctx) => <HitsCell v={d.hitsPerDay} max={ctx.maxHits} /> },
   { key: "rank1mDelta", label: "1 mo", numeric: true, render: (d) => <Trend value={d.rank1mDelta} /> },
   { key: "stars", label: "GitHub", numeric: true, mobileHide: true, render: starsCell },
   {
@@ -102,6 +125,8 @@ function compare(a: DistroListItem, b: DistroListItem, key: SortKey): number {
 
 export interface ListViewProps {
   items: DistroListItem[];
+  /** Highest hits/day across the whole chart (including rows shown elsewhere). */
+  maxHits?: number;
   /** Rows shown before "Show more"; each click adds this many again. 0 = show all. */
   pageSize?: number;
   /** First batch size when it differs (e.g. 97 so the table ends at #100 under a top-3 podium). */
@@ -110,7 +135,8 @@ export interface ListViewProps {
   offset?: number;
 }
 
-export function ListView({ items, pageSize = 0, firstPage, offset = 0 }: ListViewProps) {
+export function ListView({ items, pageSize = 0, firstPage, offset = 0, maxHits }: ListViewProps) {
+  const ctx: RenderCtx = { maxHits: maxHits ?? Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0)) };
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [asc, setAsc] = useState(true);
   const [family, setFamily] = useState<Family | "all">("all");
@@ -270,7 +296,7 @@ export function ListView({ items, pageSize = 0, firstPage, offset = 0 }: ListVie
                       .filter(Boolean)
                       .join(" ")}
                   >
-                    {c.render(d)}
+                    {c.render(d, ctx)}
                   </td>
                 ))}
               </tr>
