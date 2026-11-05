@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { familySchema, distroStatusSchema } from "./families.js";
+import { familySchema, distroStatusSchema, periodSchema } from "./families.js";
 
 /**
  * API response DTOs (the contract between the API and the web app).
@@ -93,6 +93,10 @@ export const distroDetailSchema = distroListItemSchema.extend({
   firstReleaseYear: z.number().int().nullable(),
   repoFullName: z.string().nullable(),
   rankHistory: z.array(timeSeriesPointSchema),
+  // latest rank in each DistroWatch period table (1, 3, 6, 12 months), shortest first
+  rankByPeriod: z.array(
+    z.object({ period: periodSchema, rank: z.number().int(), hitsPerDay: z.number().int() }),
+  ),
   starsHistory: z.array(timeSeriesPointSchema),
   myContribution: contributionSchema.nullable(),
 });

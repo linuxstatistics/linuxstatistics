@@ -5,9 +5,19 @@ import { RatingWidget } from "../src/components/RatingWidget";
 
 afterEach(cleanup);
 
-test("logged-out users see a sign-in prompt", () => {
-  render(<RatingWidget me={null} mine={null} onSave={vi.fn()} onDelete={vi.fn()} />);
+test("logged-out users see a sign-in prompt with a link per provider", () => {
+  render(
+    <RatingWidget
+      me={null}
+      mine={null}
+      onSave={vi.fn()}
+      onDelete={vi.fn()}
+      providers={[{ slug: "github", displayName: "GitHub" }, { slug: "gitlab", displayName: "GitLab" }]}
+    />,
+  );
   expect(screen.getByText(/Sign in to rate/i)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "/api/auth/github");
+  expect(screen.getByRole("link", { name: "GitLab" })).toBeInTheDocument();
 });
 
 test("logged-in users see the star controls", () => {

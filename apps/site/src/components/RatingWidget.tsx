@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Contribution, Me } from "@linux-statistics/shared";
+import type { Contribution, Me, ProviderSummary } from "@linux-statistics/shared";
 
 export function RatingWidget({
   me,
@@ -7,6 +7,9 @@ export function RatingWidget({
   onSave,
   onDelete,
   saved = false,
+  providers = [],
+  loginHref = (slug) => `/api/auth/${slug}`,
+  onDevLogin,
 }: {
   me: Me | null;
   mine: Contribution | null;
@@ -14,6 +17,10 @@ export function RatingWidget({
   onDelete: () => void;
   /** True once the user's save has succeeded. */
   saved?: boolean;
+  /** Sign-in options shown to signed-out visitors. */
+  providers?: ProviderSummary[];
+  loginHref?: (slug: string) => string;
+  onDevLogin?: () => void;
 }) {
   const [rating, setRating] = useState<number | null>(mine?.rating ?? null);
   const [usesIt, setUsesIt] = useState<boolean>(mine?.usesIt ?? false);
@@ -24,7 +31,22 @@ export function RatingWidget({
   if (!me) {
     return (
       <div className="rating-widget">
-        <span className="signin-link">Sign in to rate</span>
+        <div className="signin-prompt">
+          <b>Sign in to rate</b>
+          {providers.map((p) =>
+            p.slug === "dev" ? (
+              onDevLogin && (
+                <button key="dev" type="button" onClick={onDevLogin}>
+                  {p.displayName}
+                </button>
+              )
+            ) : (
+              <a key={p.slug} href={loginHref(p.slug)}>
+                {p.displayName}
+              </a>
+            ),
+          )}
+        </div>
       </div>
     );
   }

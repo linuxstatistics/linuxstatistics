@@ -93,12 +93,10 @@ export function registerAuthRoutes(
     return { ok: true };
   });
 
-  app.get("/api/me", async (req, reply) => {
+  // Signed out is a normal state, not an error: 200 with null keeps browser consoles clean.
+  app.get("/api/me", async (req) => {
     const user = await currentUser(db, req);
-    if (!user) {
-      reply.code(401);
-      return { error: "unauthorized" };
-    }
+    if (!user) return null;
     return {
       id: user.id,
       provider: user.provider,

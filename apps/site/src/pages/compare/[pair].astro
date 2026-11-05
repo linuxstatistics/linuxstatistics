@@ -4,6 +4,8 @@ import { FAMILY_LABELS } from "../../lib/families";
 import { loadDistro, loadDistros, loadMeta, mapLimit, dataDate } from "../../lib/data";
 import { compareSlug, popularPairs } from "../../lib/compare";
 import { formatRating } from "../../lib/rating";
+import { compareSuggestions } from "../../lib/related";
+import { ComparePicker } from "../../components/ComparePicker";
 import type { DistroDetail } from "@linux-statistics/shared";
 
 export async function getStaticPaths() {
@@ -19,7 +21,19 @@ export async function getStaticPaths() {
 
 const { a, b } = Astro.props as { a: DistroDetail; b: DistroDetail };
 const meta = await loadMeta();
-const nameOf = new Map((await loadDistros()).map((d) => [d.slug, d.name]));
+const list = await loadDistros();
+const nameOf = new Map(list.map((d) => [d.slug, d.name]));
+const staticPairs = new Set(popularPairs(list).map(([x, y]) => compareSlug(x, y)));
+const thisPair = compareSlug(a.slug, b.slug);
+// Related pairs: each side against its other likely rivals, minus this page.
+const related = [...compareSuggestions(list, a, staticPairs, 5), ...compareSuggestions(list, b, staticPairs, 5)]
+  .filter((l) => !l.href.includes(thisPair))
+  .filter((l, i, all) => all.findIndex((x) => x.href === l.href) === i)
+  .slice(0, 8);
+const options = list
+  .filter((d) => d.rank !== null)
+  .sort((x, y) => x.name.localeCompare(y.name))
+  .map((d) => ({ slug: d.slug, name: d.name }));
 const asOf = dataDate(meta, "distrowatch");
 
 type Row = { label: string; a: string; b: string; better?: "a" | "b" };
@@ -42,7 +56,7 @@ const rows: Row[] = [
   { label: "Commits, last 30 days", a: num(a.commitsLast30d), b: num(b.commitsLast30d), better: pick(a.commitsLast30d, b.commitsLast30d) },
   { label: "Community rating", a: rating(a), b: rating(b) },
   { label: "Users who use it", a: num(a.usesItCount || null), b: num(b.usesItCount || null), better: pick(a.usesItCount, b.usesItCount) },
-];
+].filter((r) => r.a !== "-" || r.b !== "-");
 
 const title = `${a.name} vs ${b.name}: Linux distro comparison | LinuxStatistics`;
 const lead =
@@ -62,8 +76,12 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
         <thead>
           <tr>
             <th></th>
-            <th><a href={`/distro/${a.slug}/`}>{a.name}</a></th>
-            <th><a href={`/distro/${b.slug}/`}>{b.name}</a></th>
+            {[a, b].map((d) => (
+              <th>
+                <a href={`/distro/${d.slug}/`}>{d.name}</a>
+                <span class="th-sub">{d.rank != null ? `#${d.rank} · ` : ""}{FAMILY_LABELS[d.family]}</span>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
@@ -82,5 +100,15 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
       Repository activity from GitHub. Ratings come from signed-in LinuxStatistics users.
       Page hits measure interest, not installs.
     </p>
+    {related.length > 0 && (
+      <section>
+        <h2>Related comparisons</h2>
+        <ul class="pair-list">
+          {related.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      </section>
+    )}
+    <h2>Compare other distros</h2>
+    <ComparePicker client:visible options={options} staticPairs={[...staticPairs]} initialA={a.slug} />
   </div>
 </Base>

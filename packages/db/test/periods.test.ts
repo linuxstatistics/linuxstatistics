@@ -8,6 +8,7 @@ import {
   findDistroIdByAlias,
   upsertDistro,
 } from "../src/repository.js";
+import { PERIODS as PERIOD_ORDER } from "@linux-statistics/shared";
 import { getDistroDetail, getDistroList, getRising, resolveSlug } from "../src/queries.js";
 
 let db: Database;
@@ -64,6 +65,13 @@ test("detail rank history uses only the 12-month table", async () => {
   const detail = await getDistroDetail(db, "fedora");
   expect(detail!.rank).toBe(3);
   expect(detail!.rankHistory).toEqual([{ capturedAt: now.toISOString(), value: 3 }]);
+});
+
+test("detail lists the latest rank in each period, shortest first", async () => {
+  const detail = await getDistroDetail(db, "fedora");
+  const periods = detail!.rankByPeriod.map((p) => p.period);
+  expect(periods).toEqual([...periods].sort((a, b) => PERIOD_ORDER.indexOf(a) - PERIOD_ORDER.indexOf(b)));
+  expect(detail!.rankByPeriod.find((p) => p.period === "last-12-months")?.rank).toBe(3);
 });
 
 test("old slugs resolve through legacy aliases", async () => {

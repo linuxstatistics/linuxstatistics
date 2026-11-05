@@ -61,7 +61,7 @@ export function useMe() {
       const res = await fetch(`${BASE}/api/me`, { credentials: "include" });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error(`/api/me -> ${res.status}`);
-      return res.json() as Promise<Me>;
+      return (await res.json()) as Me | null;
     },
     retry: false,
   });

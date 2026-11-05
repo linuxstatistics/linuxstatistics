@@ -23,9 +23,10 @@ beforeAll(async () => {
 
 afterAll(async () => { await app.close(); await client.close(); });
 
-test("GET /api/me is 401 when logged out", async () => {
+test("GET /api/me is null when logged out", async () => {
   const res = await app.inject({ method: "GET", url: "/api/me" });
-  expect(res.statusCode).toBe(401);
+  expect(res.statusCode).toBe(200);
+  expect(res.json()).toBeNull();
 });
 
 test("dev-login then /api/me returns the user", async () => {
@@ -41,7 +42,7 @@ test("logout clears the session", async () => {
   // the original cookie value still maps to a session payload, but logout deletes it server-side;
   // a fresh request without re-login is unauthorized
   const res = await app.inject({ method: "GET", url: "/api/me" });
-  expect(res.statusCode).toBe(401);
+  expect(res.json()).toBeNull();
 });
 
 async function appWithProviders() {

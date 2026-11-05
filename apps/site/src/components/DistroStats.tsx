@@ -2,6 +2,23 @@ import type { DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating, ratingDetail } from "../lib/rating";
 
+type Stat = [label: string, value: string, title?: string];
+
+/** The headline numbers, leaving out any the distro doesn't have. */
+export function statItems(data: DistroDetail): Stat[] {
+  const n = (v: number | null) => (v == null ? null : v.toLocaleString("en-US"));
+  const out: Array<Stat | null> = [
+    data.rank != null ? ["DistroWatch rank", `#${data.rank}`] : null,
+    data.hitsPerDay != null ? ["Hits / day", n(data.hitsPerDay)!] : null,
+    data.stars != null ? ["GitHub stars", n(data.stars)!] : null,
+    data.commitsLast30d != null ? ["Commits / mo", n(data.commitsLast30d)!] : null,
+    data.firstReleaseYear != null ? ["Released", String(data.firstReleaseYear)] : null,
+    data.userRating.count > 0 ? ["Community rating", formatRating(data.userRating), ratingDetail(data.userRating)] : null,
+    data.usesItCount > 0 ? ["Users", n(data.usesItCount)!] : null,
+  ];
+  return out.filter((x): x is Stat => x !== null);
+}
+
 /** Static distro facts; rendered to HTML at build time (no client JS). */
 export function DistroStats({ data, baseName }: { data: DistroDetail; baseName?: string | null }) {
   return (
@@ -18,35 +35,14 @@ export function DistroStats({ data, baseName }: { data: DistroDetail; baseName?:
         {data.status === "discontinued" ? " · discontinued" : ""}
       </div>
       <dl className="stats">
-        <div>
-          <dt>DistroWatch rank</dt>
-          <dd>{data.rank ?? "-"}</dd>
-        </div>
-        <div>
-          <dt>Hits / day</dt>
-          <dd>{data.hitsPerDay?.toLocaleString("en-US") ?? "-"}</dd>
-        </div>
-        <div>
-          <dt>GitHub</dt>
-          <dd>{data.stars?.toLocaleString("en-US") ?? "-"}</dd>
-        </div>
-        <div>
-          <dt>Commits / mo</dt>
-          <dd>{data.commitsLast30d?.toLocaleString("en-US") ?? "-"}</dd>
-        </div>
-        <div>
-          <dt>Released</dt>
-          <dd>{data.firstReleaseYear ?? "-"}</dd>
-        </div>
-        <div>
-          <dt>Community rating</dt>
-          <dd title={ratingDetail(data.userRating)}>{formatRating(data.userRating)}</dd>
-        </div>
-        <div>
-          <dt>Users</dt>
-          <dd>{data.usesItCount > 0 ? data.usesItCount.toLocaleString("en-US") : "-"}</dd>
-        </div>
+        {statItems(data).map(([label, value, title]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd title={title}>{value}</dd>
+          </div>
+        ))}
       </dl>
+      {data.userRating.count > 0 && (
       <p className="rating-detail">
         {ratingDetail(data.userRating)}
         {data.userRating.count > 0 && data.userRating.mean != null
@@ -55,6 +51,7 @@ export function DistroStats({ data, baseName }: { data: DistroDetail; baseName?:
         {" · "}
         <a href="/about/ratings/">How scores work</a>
       </p>
+      )}
       <div className="links">
         {data.homepage && (
           <a href={data.homepage} target="_blank" rel="noreferrer">

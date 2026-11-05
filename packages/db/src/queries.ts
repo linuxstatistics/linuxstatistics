@@ -1,5 +1,5 @@
 import { and, asc, count, desc, eq, gte, lte } from "drizzle-orm";
-import { MAIN_PERIOD, TRENDING_PERIOD } from "@linux-statistics/shared";
+import { MAIN_PERIOD, PERIODS, TRENDING_PERIOD } from "@linux-statistics/shared";
 import type {
   DistroDetail,
   DistroListItem,
@@ -194,6 +194,16 @@ export async function getDistroDetail(
     .where(and(eq(distrowatchSnapshots.distroId, d.id), eq(distrowatchSnapshots.period, TRENDING_PERIOD)))
     .orderBy(desc(distrowatchSnapshots.capturedAt))
     .limit(1);
+  const rankByPeriod: DistroDetail["rankByPeriod"] = [];
+  for (const period of PERIODS) {
+    const [snap] = await db
+      .select()
+      .from(distrowatchSnapshots)
+      .where(and(eq(distrowatchSnapshots.distroId, d.id), eq(distrowatchSnapshots.period, period)))
+      .orderBy(desc(distrowatchSnapshots.capturedAt))
+      .limit(1);
+    if (snap) rankByPeriod.push({ period, rank: snap.rank, hitsPerDay: snap.hitsPerDay });
+  }
   const [repo] = await db
     .select()
     .from(githubRepos)
@@ -245,6 +255,7 @@ export async function getDistroDetail(
     firstReleaseYear: d.firstReleaseYear,
     repoFullName: repo?.repoFullName ?? null,
     rankHistory,
+    rankByPeriod,
     starsHistory,
     userRating: ratingOf(agg),
     usesItCount: agg.usesItCount,
