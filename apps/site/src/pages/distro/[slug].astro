@@ -6,6 +6,11 @@ import { AffiliateBlock } from "../../components/AffiliateBlock";
 import { RankByPeriod } from "../../components/RankByPeriod";
 import { RelatedLinks } from "../../components/RelatedLinks";
 import { CompareWith } from "../../components/CompareWith";
+import { ProsCons } from "../../components/ProsCons";
+import { TelemetryNote } from "../../components/TelemetryNote";
+import { WhoItSuits } from "../../components/PairVerdict";
+import { notesFor } from "../../lib/distro-notes";
+import { reasonsFor } from "../../lib/verdict";
 import { compareSlug, popularPairs } from "../../lib/compare";
 import { compareSuggestions, neighbours, sameFamily } from "../../lib/related";
 import { FAMILY_LABELS } from "../../lib/families";
@@ -27,6 +32,8 @@ const staticPairs = new Set(popularPairs(list).map(([a, b]) => compareSlug(a, b)
 const compare = compareSuggestions(list, data, staticPairs);
 const family = sameFamily(list, data, new Map(Object.entries(basedOn)));
 const near = neighbours(list, data.slug);
+const notes = notesFor(data.slug);
+const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "distrowatch");
 const site = Astro.site!.href.replace(/\/$/, "");
@@ -67,6 +74,9 @@ const jsonLd = {
     <div class="distro-grid">
       <div class="distro-main">
         <DistroStats data={data} baseName={baseName} />
+        <WhoItSuits name={data.name} reasons={suits} />
+        {notes && <ProsCons notes={notes} />}
+        <TelemetryNote slug={data.slug} />
         <RankByPeriod periods={data.rankByPeriod} />
         <DistroRating client:only="react" slug={data.slug} />
         <AffiliateBlock />

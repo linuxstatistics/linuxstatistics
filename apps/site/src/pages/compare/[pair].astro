@@ -6,6 +6,13 @@ import { compareSlug, popularPairs } from "../../lib/compare";
 import { formatRating } from "../../lib/rating";
 import { compareSuggestions } from "../../lib/related";
 import { ComparePicker } from "../../components/ComparePicker";
+import { PairVerdict } from "../../components/PairVerdict";
+import { ProsConsPair } from "../../components/ProsCons";
+import { Faq } from "../../components/Faq";
+import { notesFor } from "../../lib/distro-notes";
+import { TELEMETRY_LABEL, telemetryFor } from "../../lib/telemetry";
+import { pairVerdict } from "../../lib/verdict";
+import { faqJsonLd, pairFaq } from "../../lib/faq";
 import type { DistroDetail } from "@linux-statistics/shared";
 
 export async function getStaticPaths() {
@@ -43,6 +50,10 @@ function pick(x: number | null, y: number | null, lowerIsBetter = false): "a" | 
   return (lowerIsBetter ? x < y : x > y) ? "a" : "b";
 }
 const rating = (d: DistroDetail) => formatRating(d.userRating);
+const tm = (slug: string) => {
+  const t = telemetryFor(slug);
+  return t ? TELEMETRY_LABEL[t.level] : "-";
+};
 
 const rows: Row[] = [
   { label: "DistroWatch rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true) },
@@ -53,10 +64,16 @@ const rows: Row[] = [
   { label: "First released", a: a.firstReleaseYear?.toString() ?? "-", b: b.firstReleaseYear?.toString() ?? "-" },
   { label: "GitHub stars", a: num(a.stars), b: num(b.stars), better: pick(a.stars, b.stars) },
   { label: "Commits, last 30 days", a: num(a.commitsLast30d), b: num(b.commitsLast30d), better: pick(a.commitsLast30d, b.commitsLast30d) },
+  { label: "Telemetry (OS default)", a: tm(a.slug), b: tm(b.slug) },
   { label: "Community rating", a: rating(a), b: rating(b) },
   { label: "Users who use it", a: num(a.usesItCount || null), b: num(b.usesItCount || null), better: pick(a.usesItCount, b.usesItCount) },
 ].filter((r) => r.a !== "-" || r.b !== "-");
 
+const verdict = pairVerdict(a, b, nameOf);
+const na = notesFor(a.slug);
+const nb = notesFor(b.slug);
+const faq = pairFaq(a, b);
+const jsonLd = faq.length > 0 ? faqJsonLd(faq) : undefined;
 const title = `${a.name} vs ${b.name}: Linux distro comparison | LinuxStatistics`;
 const lead =
   a.rank != null && b.rank != null
@@ -65,11 +82,12 @@ const lead =
 const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, family, GitHub activity and community ratings side by side. ${lead}`.trim();
 ---
 
-<Base title={title} description={description}>
+<Base title={title} description={description} jsonLd={jsonLd}>
   <div class="page">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/compare/">Compare</a> / {a.name} vs {b.name}</nav>
     <h1>{a.name} vs {b.name}</h1>
     {lead && <p class="lede">{lead}</p>}
+    {verdict && <PairVerdict v={verdict} />}
     <div class="table-scroll">
       <table class="data-table compare-table">
         <thead>
@@ -94,10 +112,12 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
         </tbody>
       </table>
     </div>
+    {na && nb && <ProsConsPair a={{ name: a.name, notes: na }} b={{ name: b.name, notes: nb }} />}
+    <Faq items={faq} />
     <p class="source-note">
       Rankings from <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.
       Repository activity from GitHub. Ratings come from signed-in LinuxStatistics users.
-      Page hits measure interest, not installs.
+      Page hits measure interest, not installs. "Pick if", pros and cons are LinuxStatistics editorial notes based on each project's own documentation.
     </p>
     {related.length > 0 && (
       <section>

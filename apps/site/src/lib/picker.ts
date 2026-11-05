@@ -1,4 +1,5 @@
 import type { Desktop, Level, PickerProfile, Updates, Use } from "./picker-profiles";
+import { telemetryFor } from "./telemetry";
 
 export interface Answers {
   level: Level;
@@ -6,6 +7,8 @@ export interface Answers {
   hardware: "new" | "old";
   updates: Updates | "any";
   desktop: Desktop | "any";
+  /** "none": nothing sent unless I agree. Missing or "any": no preference. */
+  telemetry?: "none" | "any";
 }
 
 export interface Suggestion {
@@ -71,6 +74,22 @@ export function suggest(
     if (answers.desktop !== "any" && p.desktops.includes(answers.desktop)) {
       score += 2;
       reasons.push(`Offers ${DESKTOP_TEXT[answers.desktop]}`);
+    }
+    // Telemetry: only distros we've checked count as "sends nothing by default".
+    // The fact is always shown; the answer only changes the score.
+    const t = telemetryFor(p.key);
+    const strict = answers.telemetry === "none";
+    if (t && t.level !== "counting") {
+      reasons.push(t.level === "none" ? "Sends no usage data" : "Sends no usage data unless you agree");
+    }
+    if (strict || answers.use === "privacy") {
+      if (t && t.level !== "counting") {
+        score += strict ? 3 : 1;
+      } else if (t?.level === "counting") {
+        score -= strict ? 6 : 2;
+      } else if (strict) {
+        score -= 1; // not checked: don't promise anything
+      }
     }
     return { key: p.key, score, reasons };
   });

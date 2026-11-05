@@ -41,3 +41,19 @@ test("old hardware favours light systems", () => {
 test("every profile key is unique", () => {
   expect(new Set(PROFILES.map((p) => p.key)).size).toBe(PROFILES.length);
 });
+
+test("asking for no telemetry puts checked no-telemetry distros first and drops counting ones", () => {
+  const s = suggest({ ...base, desktop: "windows-like", telemetry: "none" }, PROFILES, rankOf);
+  expect(s[0]!.key).toBe("mint");
+  expect(s[0]!.reasons).toContain("Sends no usage data");
+  expect(s.map((x) => x.key)).not.toContain("zorin");
+});
+
+test("the no-telemetry fact is shown even when counting is fine; only the order changes", () => {
+  const fine = suggest({ ...base, level: "some", use: "gaming", telemetry: "any" }, PROFILES, rankOf);
+  const pop = fine.find((x) => x.key === "popos");
+  expect(pop?.reasons).toContain("Sends no usage data");
+  const strict = suggest({ ...base, level: "some", use: "gaming", telemetry: "none" }, PROFILES, rankOf);
+  expect(strict.find((x) => x.key === "popos")?.reasons).toContain("Sends no usage data");
+  expect(strict.map((x) => x.key)).not.toContain("bazzite");
+});
