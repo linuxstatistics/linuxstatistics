@@ -90,8 +90,8 @@ const jsonLd = {
         </section>
         <AffiliateBlock />
         <p class="source-note">
-          Ranking from <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.{" "}
-          {data.repoFullName && <Fragment>Repository activity from <a href={`https://github.com/${data.repoFullName}`} rel="noreferrer">GitHub</a>.{" "}</Fragment>}
+          Ranking from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.{" "}
+          {data.repoFullName && <Fragment>Repository activity from <a href={`https://github.com/${data.repoFullName}`} target="_blank" rel="noopener noreferrer">GitHub</a>.{" "}</Fragment>}
           Ratings come from signed-in LinuxStatistics users. Page hits measure interest, not installs.
         </p>
       </div>

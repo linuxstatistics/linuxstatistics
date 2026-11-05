@@ -1,0 +1,55 @@
+---
+import Base from "../../layouts/Base.astro";
+import { CONTACT } from "../../config/site";
+import { sponsor } from "../../config/sponsor";
+import { affiliateProviders } from "../../config/affiliate";
+import { loadDistros } from "../../lib/data";
+
+const count = (await loadDistros()).length;
+---
+
+<Base
+  title="Sponsor LinuxStatistics"
+  description="Reach people choosing their next Linux distribution. One clearly labelled sponsor slot on every page; rankings and editorial notes are never for sale."
+>
+  <article class="page prose legal">
+    <h1>Sponsors</h1>
+    <p class="lede">Reach people at the moment they're choosing a Linux distribution: switching from Windows, picking a gaming setup or comparing two options.</p>
+
+    <h2>Current sponsor</h2>
+    {sponsor ? (
+      <p>
+        <a href={sponsor.href} target="_blank" rel="sponsored noopener">{sponsor.name}</a>: {sponsor.tagline}
+      </p>
+    ) : (
+      <p>The sponsor slot is open. Thanks for considering it.</p>
+    )}
+
+    <h2>What sponsors get</h2>
+    <ul>
+      <li>A single sponsor slot in the footer of every page: logo, name, one line and a link. One sponsor at a time, so it isn't lost among others.</li>
+      <li>Placement across {count} distro pages, comparisons, the rising chart and the picker.</li>
+      <li>A mention in the monthly State of Linux Distros email.</li>
+    </ul>
+
+    <h2>Good fits</h2>
+    <p>Hosting and VPS providers, Linux hardware makers, developer tools, backup and privacy services, training and courses. We don't accept gambling, crypto token promotions, malware-adjacent tools or anything misleading.</p>
+
+    <h2>What sponsorship doesn't buy</h2>
+    <ul>
+      <li>Rankings, scores, "Pick if" notes, pros and cons or telemetry details. These stay independent.</li>
+      <li>Reviews of your product or distro written by us.</li>
+      <li>Unlabelled placements. Sponsor content is always marked "Sponsor".</li>
+    </ul>
+
+    {affiliateProviders.length > 0 && (
+      <>
+        <h2>Affiliate links</h2>
+        <p>Some distro pages have a labelled "Try Linux in the cloud" box with affiliate links to server providers. We may earn a commission if you sign up. These partners don't influence rankings either.</p>
+      </>
+    )}
+
+    <h2>Get in touch</h2>
+    <p>Email <a href={`mailto:${CONTACT.sponsor}`}>{CONTACT.sponsor}</a> with your company, what you'd like to promote and for how long. We'll send traffic figures and rates.</p>
+  </article>
+</Base>

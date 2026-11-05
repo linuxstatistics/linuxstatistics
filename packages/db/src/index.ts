@@ -4,3 +4,4 @@ export * from "./queries.js";
 export * from "./repository.js";
 export * from "./contributions.js";
 export * from "./email.js";
+export * from "./suggestions.js";

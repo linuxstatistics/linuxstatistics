@@ -17,6 +17,7 @@ import { registerAuthRoutes } from "./routes/auth.js";
 import { registerContributionRoutes } from "./routes/contributions.js";
 import { registerAdminRoutes } from "./routes/admin.js";
 import { registerEmailRoutes } from "./routes/email.js";
+import { registerSuggestionRoutes } from "./routes/suggestions.js";
 
 /** Tiny in-memory TTL cache for hot, argument-free queries. */
 function ttlCache<T>(ttlMs: number, fn: () => Promise<T>): () => Promise<T> {
@@ -87,6 +88,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   registerContributionRoutes(app, db);
   registerAdminRoutes(app, db);
   registerEmailRoutes(app, db);
+  registerSuggestionRoutes(app, db);
 
   app.setErrorHandler((err, _req, reply) => {
     if (err instanceof z.ZodError) {

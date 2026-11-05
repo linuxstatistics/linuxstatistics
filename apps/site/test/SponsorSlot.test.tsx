@@ -8,6 +8,7 @@ afterEach(cleanup);
 test("shows the house ad when there is no sponsor", () => {
   render(<SponsorSlot sponsor={null} />);
   expect(screen.getByText(/Sponsorships available/i)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /Sponsorships available/i })).toHaveAttribute("href", "/sponsors/");
 });
 
 test("shows the sponsor when one is set", () => {

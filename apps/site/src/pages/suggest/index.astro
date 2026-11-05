@@ -1,0 +1,19 @@
+---
+import Base from "../../layouts/Base.astro";
+import { SuggestForm } from "../../components/SuggestForm";
+import { CONTACT } from "../../config/site";
+---
+
+<Base
+  title="Suggest a distro or a correction | LinuxStatistics"
+  description="Missing a distro, spotted outdated information or have an idea? Send it to the LinuxStatistics team. We read every suggestion."
+>
+  <article class="page prose suggest-page">
+    <h1>Suggestions</h1>
+    <p class="lede">Missing a distro, spotted something wrong, or have an idea? Tell us. Suggestions go to a private review queue; nothing is published.</p>
+    <SuggestForm client:load />
+    <p class="source-note">
+      Prefer email? <a href={`mailto:${CONTACT.general}`}>{CONTACT.general}</a>. We only use your address to reply. See our <a href="/privacy/">privacy policy</a>.
+    </p>
+  </article>
+</Base>

@@ -6,6 +6,9 @@ import { SponsorSlot } from "../components/SponsorSlot";
 import { JumpToDistro } from "../components/JumpToDistro";
 import { loadDistros, loadMarketShare, loadMeta, dataDate } from "../lib/data";
 import { latestLinuxShare } from "../lib/marketShare";
+import { OPERATOR } from "../config/site";
+import { CRYPTO_ADDRESSES, SUPPORT_LINKS, hasSupport } from "../config/support";
+import { SupportBlock } from "../components/SupportBlock";
 
 interface Props {
   title: string;
@@ -22,6 +25,7 @@ const jumpItems = allDistros.map((d) => ({ slug: d.slug, name: d.name, rank: d.r
 const asOf = dataDate(meta, "distrowatch");
 const asOfText = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 const share = latestLinuxShare(marketShare);
+const year = new Date().getUTCFullYear();
 ---
 
 <!doctype html>
@@ -88,15 +92,15 @@ const share = latestLinuxShare(marketShare);
           <div class="footer-about">
             <a class="brand" href="/" aria-label="LinuxStatistics home">linux<b>stats</b></a>
             <p class="footer-credit">
-              The Linux distro chart: <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page-hit interest over the last 12 months, with last month's movers
-              marked. Desktop share from <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a>,
-              repository activity from <a href="https://github.com/" rel="noreferrer">GitHub</a>. Page hits measure interest,
+              The Linux distro chart: <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page-hit interest over the last 12 months, with last month's movers
+              marked. Desktop share from <a href="https://gs.statcounter.com/" target="_blank" rel="noopener noreferrer">StatCounter Global Stats</a>,
+              repository activity from <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a>. Page hits measure interest,
               not installs.
             </p>
             <dl class="footer-facts">
               <div><dt>Tracked</dt><dd>{allDistros.length}</dd></div>
               {share && <div><dt>Desktop share</dt><dd>{share.value.toFixed(2)}%</dd></div>}
-              {asOfText && <div><dt>Captured</dt><dd><a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">{asOfText}</a></dd></div>}
+              {asOfText && <div><dt>Captured</dt><dd><a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">{asOfText}</a></dd></div>}
             </dl>
           </div>
           <nav class="footer-links" aria-label="Footer">
@@ -106,19 +110,34 @@ const share = latestLinuxShare(marketShare);
               <li><a href="/rising/">Rising this month</a></li>
               <li><a href="/compare/">Compare distros</a></li>
               <li><a href="/pick/">Which distro?</a></li>
+              <li><a href="/suggest/">Suggest a distro or fix</a></li>
             </ul>
           </nav>
           <nav class="footer-links" aria-label="About">
             <h2>About</h2>
             <ul>
+              <li><a href="/about/">About</a></li>
               <li><a href="/about/ratings/">How scores work</a></li>
-              <li><a href="https://github.com/linuxstatistics/linuxstatistics" rel="noreferrer">Source code (AGPL-3.0)</a></li>
+              <li><a href="/sponsors/">Sponsors</a></li>
+              <li><a href="/privacy/">Privacy</a></li>
+              <li><a href="/terms/">Terms and rules</a></li>
+              <li><a href="https://github.com/linuxstatistics/linuxstatistics" target="_blank" rel="noopener noreferrer">Source code (AGPL-3.0)</a></li>
             </ul>
           </nav>
           <div class="footer-sponsor">
             <h2>Sponsor</h2>
             <SponsorSlot />
+            {hasSupport && (
+              <>
+                <h2 class="footer-subhead">Support the site</h2>
+                <SupportBlock client:visible links={SUPPORT_LINKS} crypto={CRYPTO_ADDRESSES} />
+              </>
+            )}
           </div>
+        </div>
+        <div class="footer-bottom">
+          <p>© {year} {OPERATOR.name}. LinuxStatistics code is open source under AGPL-3.0; ranking data belongs to its sources.</p>
+          <p><a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p>
         </div>
       </footer>
     </div>

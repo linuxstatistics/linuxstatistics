@@ -43,6 +43,13 @@
       "when": 1793750460000,
       "tag": "0005_market_share_unique",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793750520000,
+      "tag": "0006_suggestions",
+      "breakpoints": true
     }
   ]
 }

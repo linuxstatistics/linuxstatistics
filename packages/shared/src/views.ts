@@ -147,3 +147,16 @@ export const emailSignupInputSchema = z.object({
   source: z.string().max(64).optional(),
 });
 export type EmailSignupInput = z.infer<typeof emailSignupInputSchema>;
+
+export const SUGGESTION_KINDS = ["add-distro", "correction", "idea", "other"] as const;
+export const suggestionInputSchema = z.object({
+  kind: z.enum(SUGGESTION_KINDS),
+  message: z.string().trim().min(10).max(4000),
+  /** Optional: a distro key or URL the suggestion is about. */
+  subject: z.string().trim().max(200).optional(),
+  /** Optional reply address. */
+  email: z.email().max(320).optional().or(z.literal("").transform(() => undefined)),
+  /** Honeypot: must stay empty (bots fill every field). */
+  website: z.string().max(0).optional(),
+});
+export type SuggestionInput = z.infer<typeof suggestionInputSchema>;

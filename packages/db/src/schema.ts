@@ -207,3 +207,17 @@ export const emailSignups = pgTable("email_signups", {
   source: text("source"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const suggestionStatusEnum = pgEnum("suggestion_status", ["new", "done", "dismissed"]);
+
+/** Visitor suggestions (add a distro, correct data, ideas), reviewed by admins. */
+export const suggestions = pgTable("suggestions", {
+  id: serial("id").primaryKey(),
+  kind: text("kind").notNull(),
+  subject: text("subject"),
+  message: text("message").notNull(),
+  email: text("email"),
+  userId: integer("user_id").references(() => users.id, { onDelete: "set null" }),
+  status: suggestionStatusEnum("status").notNull().default("new"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});

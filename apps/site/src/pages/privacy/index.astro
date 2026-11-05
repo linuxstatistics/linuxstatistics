@@ -1,0 +1,92 @@
+---
+import Base from "../../layouts/Base.astro";
+import { CONTACT, OPERATOR, POLICIES_UPDATED } from "../../config/site";
+
+const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+---
+
+<Base
+  title="Privacy policy | LinuxStatistics"
+  description="What LinuxStatistics collects, why, how long we keep it and how to get it deleted. No ads, no tracking scripts, no selling data."
+>
+  <article class="page prose legal">
+    <h1>Privacy policy</h1>
+    <p class="lede">Short version: no ads, no tracking scripts, no selling data. We store only what we need to run sign-in, ratings and the monthly email.</p>
+    <p class="legal-meta">Last updated {updated}. Operator: {OPERATOR.name}, {OPERATOR.country}. Contact: <a href={`mailto:${CONTACT.privacy}`}>{CONTACT.privacy}</a>.</p>
+
+    <h2>If you just browse</h2>
+    <ul>
+      <li>No account, no cookies set by us, no analytics or advertising scripts, no third-party trackers.</li>
+      <li>Fonts and all page files are served from our own domain, so browsing doesn't contact Google Fonts or similar services.</li>
+      <li>Our hosting and network provider (Cloudflare) handles each request and briefly processes your IP address and browser details to deliver the page and block attacks. We don't use these to identify you.</li>
+      <li>Your light/dark choice is saved in your own browser (local storage) and never sent to us.</li>
+    </ul>
+
+    <h2>If you sign in</h2>
+    <p>You sign in with GitHub, GitLab or Codeberg. We never see your password. We ask only for read access to your public profile, and store:</p>
+    <ul>
+      <li>which service you used and its account ID, your username and your avatar link;</li>
+      <li>when that account was created, to stop brand-new accounts from flooding ratings;</li>
+      <li>your role (user or moderator) and when you first signed in.</li>
+    </ul>
+    <p>A signed, HTTP-only session cookie (<code>ls_session</code>) keeps you signed in. It's needed for sign-in to work, isn't used for tracking, and is cleared when you sign out.</p>
+
+    <h2>Ratings, reviews and "I use this"</h2>
+    <p>
+      When you rate a distro, mark that you use it or write a review, we store it with your account. Scores are shown as totals and averages.
+      Your rating and review can be removed by you at any time from the distro page; moderators can hide spam or abuse.
+    </p>
+
+    <h2>The monthly email</h2>
+    <p>
+      If you subscribe, we store your email address, where you signed up (for example the footer) and when. We use it only to send the
+      State of Linux Distros report. Every email has an unsubscribe link, and we delete your address when you unsubscribe or ask us to.
+    </p>
+
+    <h2>Suggestions</h2>
+    <p>
+      If you send a suggestion, we store what you wrote, the type of suggestion, the date, your email address if you give one, and your
+      account if you're signed in. Suggestions are private and only used to improve the site. We delete them once handled, or on request.
+    </p>
+
+    <h2>Why we can use your data</h2>
+    <ul>
+      <li><strong>Sign-in, ratings and reviews:</strong> to provide the service you asked for.</li>
+      <li><strong>Email:</strong> your consent, which you can withdraw at any time.</li>
+      <li><strong>Security logs and abuse prevention:</strong> our legitimate interest in keeping the site working and fair.</li>
+    </ul>
+
+    <h2>Who else handles it</h2>
+    <ul>
+      <li><strong>Cloudflare</strong> (network, security and backup storage).</li>
+      <li><strong>Our server host</strong>, where the site and database run.</li>
+      <li><strong>An email delivery service</strong>, only for subscribers and only to send the report.</li>
+      <li><strong>GitHub, GitLab or Codeberg</strong>, only when you choose to sign in with them.</li>
+    </ul>
+    <p>We don't sell, rent or share your data for advertising. Some of these providers are in the United States; where the law requires, transfers are covered by their standard data-protection terms.</p>
+
+    <h2>How long we keep it</h2>
+    <ul>
+      <li>Account and contributions: until you ask us to delete them.</li>
+      <li>Email address: until you unsubscribe.</li>
+      <li>Server logs: up to 30 days. Encrypted database backups: up to 30 days.</li>
+    </ul>
+
+    <h2>Your rights</h2>
+    <p>
+      You can ask to see, correct, export or delete your data, or object to how we use it, by emailing{" "}
+      <a href={`mailto:${CONTACT.privacy}`}>{CONTACT.privacy}</a>. We reply within 30 days. Deleting your account removes your
+      ratings, reviews and "I use this" marks. If you're in the EU or UK you can also complain to your data protection authority;
+      California and other US state residents have similar rights, and we don't sell or share personal information.
+    </p>
+
+    <h2>Children</h2>
+    <p>The site isn't aimed at children under 13 and we don't knowingly collect their data.</p>
+
+    <h2>Links to other sites</h2>
+    <p>Links to distro websites, data sources, sponsors and affiliates open in a new tab. Those sites have their own privacy policies.</p>
+
+    <h2>Changes</h2>
+    <p>If this policy changes, we update the date above. Significant changes are announced on the site before they apply.</p>
+  </article>
+</Base>

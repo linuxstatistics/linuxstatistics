@@ -115,7 +115,7 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
     {na && nb && <ProsConsPair a={{ name: a.name, notes: na }} b={{ name: b.name, notes: nb }} />}
     <Faq items={faq} />
     <p class="source-note">
-      Rankings from <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.
+      Rankings from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.
       Repository activity from GitHub. Ratings come from signed-in LinuxStatistics users.
       Page hits measure interest, not installs. "Pick if", pros and cons are LinuxStatistics editorial notes based on each project's own documentation.
     </p>

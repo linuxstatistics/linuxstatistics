@@ -1,0 +1,58 @@
+---
+import Base from "../../layouts/Base.astro";
+import { CONTACT, OPERATOR, POLICIES_UPDATED, SOURCE_URL } from "../../config/site";
+
+const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+---
+
+<Base
+  title="Terms of use and community rules | LinuxStatistics"
+  description="The terms for using LinuxStatistics and the rules for ratings and reviews, including how we keep rankings independent of sponsors and affiliates."
+>
+  <article class="page prose legal">
+    <h1>Terms and community rules</h1>
+    <p class="lede">The short version: use the site freely, rate honestly, and don't game the numbers.</p>
+    <p class="legal-meta">Last updated {updated}. Operated by {OPERATOR.name}, {OPERATOR.country}. Questions: <a href={`mailto:${CONTACT.general}`}>{CONTACT.general}</a>.</p>
+
+    <h2>Using the site</h2>
+    <ul>
+      <li>LinuxStatistics is free to use. By using it you accept these terms.</li>
+      <li>Rankings come from third-party sources and our own editorial notes. We work to keep them accurate, but they're provided as they are, without guarantees. Check a distro's own documentation before you install it.</li>
+      <li>The site's code is open source under the <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">AGPL-3.0</a>. Data from DistroWatch, StatCounter and GitHub belongs to those sources; please credit them if you reuse it.</li>
+      <li>Please don't overload the site with automated requests. Reasonable scraping that credits the sources is fine.</li>
+    </ul>
+
+    <h2>Ratings and reviews</h2>
+    <ul>
+      <li>One rating per person per distro. Rate distros you've actually used.</li>
+      <li>Accounts must be at least 30 days old on GitHub, GitLab or Codeberg for their ratings to count straight away.</li>
+      <li>No paid, swapped or incentivised reviews, and no rating your own project to push it up. Say so if you're involved with a distro.</li>
+      <li>Be civil. Criticise software, not people.</li>
+    </ul>
+    <p>We hide, without notice, contributions that are:</p>
+    <ul>
+      <li>spam, advertising or off topic;</li>
+      <li>abusive, hateful or harassing;</li>
+      <li>clearly coordinated to move a score;</li>
+      <li>illegal, or someone else's private information.</li>
+    </ul>
+    <p>Repeated breaches can get an account blocked. If you think something was hidden by mistake, email <a href={`mailto:${CONTACT.general}`}>{CONTACT.general}</a>.</p>
+    <p>You keep ownership of what you write. By posting, you let us show it on the site and in our reports.</p>
+
+    <h2>Independence</h2>
+    <ul>
+      <li>Rankings, community scores, "Pick if" notes, pros and cons, and telemetry details are never for sale.</li>
+      <li>Sponsors and affiliate partners can't buy, change or review editorial content before it's published.</li>
+      <li>Sponsor placements are labelled "Sponsor". Affiliate links are labelled, and we may earn a commission if you buy through them.</li>
+    </ul>
+
+    <h2>Corrections</h2>
+    <p>Spot an error, an out-of-date claim or a telemetry detail that's changed? Use the <a href="/suggest/?kind=correction">suggestion form</a>, email <a href={`mailto:${CONTACT.general}`}>{CONTACT.general}</a> or open an issue on <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">GitHub</a>. We fix confirmed errors quickly.</p>
+
+    <h2>Liability</h2>
+    <p>As far as the law allows, we aren't liable for losses from using the site or choosing a distro based on it. Nothing here limits rights you have under consumer law.</p>
+
+    <h2>Changes</h2>
+    <p>We may update these terms; the date above shows the latest version. Continuing to use the site means you accept the current terms.</p>
+  </article>
+</Base>

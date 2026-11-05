@@ -1,0 +1,57 @@
+---
+import Base from "../../layouts/Base.astro";
+import { CONTACT, OPERATOR, SOURCE_URL } from "../../config/site";
+import { loadDistros } from "../../lib/data";
+
+const count = (await loadDistros()).length;
+---
+
+<Base
+  title="About LinuxStatistics"
+  description="LinuxStatistics tracks the popularity of Linux distributions and explains what sets them apart. Independent, open source and funded without selling rankings."
+>
+  <article class="page prose legal">
+    <h1>About LinuxStatistics</h1>
+    <p class="lede">A clear, honest chart of Linux distributions: which ones people are looking at, which are climbing, and which one might suit you.</p>
+
+    <h2>What we do</h2>
+    <p>
+      We track {count} Linux distributions. Each has a page with its ranking, how that ranking has moved, who it suits,
+      its pros and trade-offs, and whether the system sends any usage data. You can compare any two side by side, or answer five questions
+      on <a href="/pick/">Which distro?</a> to get three suggestions with reasons.
+    </p>
+
+    <h2>Where the numbers come from</h2>
+    <ul>
+      <li><strong>Popularity:</strong> <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page-hit rankings over 12, 6 and 3 months and the last month. Page hits measure interest, not installs.</li>
+      <li><strong>Desktop share:</strong> <a href="https://gs.statcounter.com/" target="_blank" rel="noopener noreferrer">StatCounter Global Stats</a>, monthly, worldwide.</li>
+      <li><strong>Development activity:</strong> public <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a> repositories (stars, commits).</li>
+      <li><strong>Community scores:</strong> ratings from signed-in visitors. <a href="/about/ratings/">How scores work</a>.</li>
+      <li><strong>Editorial notes:</strong> "Pick if", pros and cons and telemetry details are written by us from each project's own documentation, with sources linked.</li>
+    </ul>
+    <p>Data refreshes automatically: DistroWatch daily, GitHub weekly, StatCounter monthly. If a source fails, we keep the last good data rather than show broken numbers.</p>
+
+    <h2>Independence</h2>
+    <p>
+      Rankings, scores and editorial notes are never for sale. Sponsors and affiliate links pay for hosting; they don't change where a distro
+      ranks or what we say about it. Paid placements are always labelled. See <a href="/sponsors/">Sponsors</a> and our <a href="/terms/">terms and community rules</a>.
+    </p>
+
+    <h2>Open source</h2>
+    <p>
+      The whole site is open source under the AGPL-3.0 licence. You can read how every number is calculated, report a mistake or suggest a change
+      on <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">GitHub</a>.
+    </p>
+
+    <h2>Who runs it</h2>
+    <p>LinuxStatistics is run by {OPERATOR.name} in the {OPERATOR.country}.</p>
+
+    <h2>Contact</h2>
+    <ul>
+      <li>Missing distro or wrong information: the <a href="/suggest/">suggestion form</a></li>
+      <li>General questions: <a href={`mailto:${CONTACT.general}`}>{CONTACT.general}</a></li>
+      <li>Sponsorship: <a href={`mailto:${CONTACT.sponsor}`}>{CONTACT.sponsor}</a></li>
+      <li>Privacy requests: <a href={`mailto:${CONTACT.privacy}`}>{CONTACT.privacy}</a></li>
+    </ul>
+  </article>
+</Base>

@@ -18,7 +18,7 @@ export function TelemetryNote({ slug }: { slug: string }) {
           <p className="note">
             The OS itself, by default. Every distro contacts its servers to check for updates; that isn't counted here. Apps you install have their own settings.{" "}
             {t.checked === "build" ? "Checked in the project's build files." : "Based on the project's own statement."}{" "}
-            <a href={t.source} rel="noreferrer">
+            <a href={t.source} target="_blank" rel="noopener noreferrer">
               Source
             </a>
           </p>

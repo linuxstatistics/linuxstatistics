@@ -54,12 +54,12 @@ export function DistroStats({ data, baseName }: { data: DistroDetail; baseName?:
       )}
       <div className="links">
         {data.homepage && (
-          <a href={data.homepage} target="_blank" rel="noreferrer">
+          <a href={data.homepage} target="_blank" rel="noopener noreferrer">
             Website ↗
           </a>
         )}
         {data.repoFullName && (
-          <a href={`https://github.com/${data.repoFullName}`} target="_blank" rel="noreferrer">
+          <a href={`https://github.com/${data.repoFullName}`} target="_blank" rel="noopener noreferrer">
             GitHub ↗
           </a>
         )}
