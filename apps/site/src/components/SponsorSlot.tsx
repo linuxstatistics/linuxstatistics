@@ -14,7 +14,7 @@ export function SponsorSlot({
   if (!sponsor) {
     return (
       <div className="sponsor-slot sponsor-slot-empty">
-        <span className="sponsor-label">Sponsor</span>
+        <p>Reach people choosing their next Linux distro.</p>
         <a href={contactHref} className="sponsor-house-ad">
           Sponsorships available. Get in touch
         </a>
@@ -23,7 +23,6 @@ export function SponsorSlot({
   }
   return (
     <div className="sponsor-slot">
-      <span className="sponsor-label">Sponsor</span>
       <a href={sponsor.href} target="_blank" rel="sponsored noopener" className="sponsor-link">
         <img src={sponsor.logoUrl} alt={sponsor.name} className="sponsor-logo" />
         <span className="sponsor-tagline">{sponsor.tagline}</span>

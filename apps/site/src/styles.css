@@ -389,20 +389,33 @@ h1, h2, h3 { text-wrap: balance; }
 .quiz .result ul { margin: 0; padding-left: 18px; color: var(--ink2); font-size: 14px; }
 
 /* ---------- Footer ---------- */
-.app-footer { max-width: var(--wrap); margin: 0 auto; width: 100%; padding: 18px var(--gutter) 40px; border-top: 1px solid var(--line); display: grid; gap: 14px; }
-.footer-bridges { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
-.footer-credit { font: 12px/1.6 var(--mono); color: var(--ink2); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Signup band above the footer */
+.signup-band { border-top: 1px solid var(--line); background: var(--panel); margin-top: 32px; }
+.signup-inner { max-width: var(--wrap); margin: 0 auto; padding: 36px var(--gutter); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: center; }
+.signup-copy h2 { font: 700 22px/1.2 var(--display); letter-spacing: -0.02em; margin: 0 0 6px; }
+.signup-copy p { margin: 0; color: var(--ink2); max-width: 56ch; }
+
+/* Footer columns */
+.app-footer { border-top: 1px solid var(--line); }
+.footer-cols { max-width: var(--wrap); margin: 0 auto; padding: 40px var(--gutter) 56px; display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 40px; }
+.footer-cols h2 { font: 600 12px var(--mono); color: var(--ink2); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 14px; }
+.footer-about .brand { font-size: 18px; }
+.footer-credit { font: 12px/1.7 var(--mono); color: var(--ink2); margin: 14px 0 0; max-width: 46ch; }
 .footer-credit a { color: var(--ink2); }
-.sponsor-slot { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; }
-.sponsor-label { font: 12px var(--mono); color: var(--ink2); }
+.footer-links ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.footer-links a { color: var(--ink); text-decoration: none; font-size: 14px; }
+.footer-links a:hover { color: var(--accent); }
+.sponsor-slot { display: grid; gap: 8px; font-size: 14px; }
+.sponsor-slot p { margin: 0; color: var(--ink2); line-height: 1.5; }
 .sponsor-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
 .sponsor-logo { height: 22px; width: auto; }
-.sponsor-house-ad { color: var(--ink2); }
+.sponsor-house-ad { color: var(--ink); }
 .email-capture { display: grid; gap: 6px; }
-.email-capture label { font-weight: 600; font-size: 14px; }
 .email-capture-row { display: flex; gap: 6px; }
-.email-capture input { background: var(--panel); border: 1px solid var(--line); border-radius: var(--pill); padding: 8px 14px; min-width: 240px; }
-.email-capture button { background: var(--ink); color: var(--bg); border: 0; border-radius: var(--pill); padding: 8px 16px; font-weight: 600; cursor: pointer; }
+.email-capture input { background: var(--bg); border: 1px solid var(--line); border-radius: var(--pill); padding: 10px 16px; min-width: 280px; }
+.email-capture button { background: var(--accent); color: var(--on-accent); border: 0; border-radius: var(--pill); padding: 10px 20px; font-weight: 600; cursor: pointer; }
 .email-capture-error { color: var(--danger); font-size: 13px; margin: 0; }
 .email-capture-done { font-size: 14px; color: var(--up); margin: 0; }
 
@@ -416,6 +429,9 @@ code { font-family: var(--mono); font-size: 0.92em; }
   .site-nav { order: 3; width: 100%; overflow-x: auto; }
 }
 @media (max-width: 960px) {
+  .footer-cols { grid-template-columns: 1fr 1fr; }
+  .footer-about { grid-column: 1 / -1; }
+  .signup-inner { grid-template-columns: 1fr; gap: 18px; }
   .distro-grid { grid-template-columns: 1fr; gap: 48px; }
   .mast, .home { grid-template-columns: 1fr; gap: 28px; }
   .podium { grid-template-columns: 1fr; gap: 8px; }
@@ -434,6 +450,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
   .list-controls .search { flex: 1 1 100%; }
   .picker-form .combo, .picker-form .combo input { width: 100%; }
   .email-capture input { min-width: 0; flex: 1; }
+  .footer-cols { padding-top: 32px; gap: 28px; }
 }
 @media (max-width: 480px) {
   .header-right .jump { display: none; }

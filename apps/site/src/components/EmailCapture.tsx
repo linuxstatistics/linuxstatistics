@@ -22,7 +22,7 @@ export function EmailCapture() {
 
   return (
     <form className="email-capture" onSubmit={onSubmit} noValidate>
-      <label htmlFor="email-capture-input">Get the State of Linux Distros report</label>
+      <label htmlFor="email-capture-input" className="visually-hidden">Email for the State of Linux Distros report</label>
       <div className="email-capture-row">
         <input
           id="email-capture-input"

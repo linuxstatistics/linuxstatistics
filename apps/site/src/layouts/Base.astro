@@ -56,16 +56,45 @@ const jumpItems = (await loadDistros()).map((d) => ({ slug: d.slug, name: d.name
       <main class="app-main">
         <slot />
       </main>
-      <footer class="app-footer">
-        <div class="footer-bridges">
-          <SponsorSlot />
+      <section class="signup-band" aria-label="Monthly report">
+        <div class="signup-inner">
+          <div class="signup-copy">
+            <h2>The State of Linux Distros, monthly</h2>
+            <p>Who climbed, who fell and what changed in desktop share. One email a month, no spam.</p>
+          </div>
           <FooterEmail client:visible />
         </div>
-        <div class="footer-credit">
-          Data from <a href="https://distrowatch.com/" rel="noreferrer">DistroWatch</a> page-hit rankings,{" "}
-          <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a> and{" "}
-          <a href="https://github.com/" rel="noreferrer">GitHub</a>. Page hits measure interest, not installs.{" "}
-          <a href="https://github.com/linuxstatistics/linuxstatistics" rel="noreferrer">Source code</a> (AGPL-3.0).
+      </section>
+      <footer class="app-footer">
+        <div class="footer-cols">
+          <div class="footer-about">
+            <a class="brand" href="/" aria-label="LinuxStatistics home">linux<b>stats</b></a>
+            <p class="footer-credit">
+              Data from <a href="https://distrowatch.com/" rel="noreferrer">DistroWatch</a> page-hit rankings,{" "}
+              <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a> and{" "}
+              <a href="https://github.com/" rel="noreferrer">GitHub</a>. Page hits measure interest, not installs.
+            </p>
+          </div>
+          <nav class="footer-links" aria-label="Footer">
+            <h2>Explore</h2>
+            <ul>
+              <li><a href="/">Rankings</a></li>
+              <li><a href="/rising/">Rising this month</a></li>
+              <li><a href="/compare/">Compare distros</a></li>
+              <li><a href="/pick/">Which distro?</a></li>
+            </ul>
+          </nav>
+          <nav class="footer-links" aria-label="About">
+            <h2>About</h2>
+            <ul>
+              <li><a href="/about/ratings/">How scores work</a></li>
+              <li><a href="https://github.com/linuxstatistics/linuxstatistics" rel="noreferrer">Source code (AGPL-3.0)</a></li>
+            </ul>
+          </nav>
+          <div class="footer-sponsor">
+            <h2>Sponsor</h2>
+            <SponsorSlot />
+          </div>
         </div>
       </footer>
     </div>
