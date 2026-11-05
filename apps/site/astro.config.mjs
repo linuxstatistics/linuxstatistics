@@ -9,6 +9,8 @@ export default defineConfig({
   site,
   trailingSlash: "ignore",
   build: { format: "directory" },
+  // Fetch a page when the pointer rests on its link, so the click feels instant.
+  prefetch: { prefetchAll: true, defaultStrategy: "hover" },
   integrations: [react(), sitemap({ filter: (page) => !page.includes("/admin/") })],
   server: { port: 4380, host: "localhost" },
   vite: {

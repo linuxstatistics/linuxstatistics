@@ -84,7 +84,7 @@ const COLUMNS: ColumnDef[] = [
 const TOGGLEABLE = COLUMNS.filter((c) => !c.fixed);
 
 function thtdClass(c: ColumnDef): string {
-  return [c.numeric ? "num" : "", c.mobileHide ? "col-hide-mobile" : ""].filter(Boolean).join(" ");
+  return [c.numeric ? "num" : "", c.mobileHide ? "col-hide-mobile" : "", `col-${c.key}`].filter(Boolean).join(" ");
 }
 
 function compare(a: DistroListItem, b: DistroListItem, key: SortKey): number {

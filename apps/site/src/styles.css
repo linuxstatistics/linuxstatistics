@@ -19,9 +19,9 @@
   --danger: oklch(0.7 0.16 25);
   --star: oklch(0.82 0.15 85);
 
-  --display: "Archivo Variable", "Archivo", "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --sans: "IBM Plex Sans Variable", "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --display: "Archivo Variable", "Archivo", "Archivo Fallback", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --sans: "IBM Plex Sans Variable", "IBM Plex Sans", "Plex Sans Fallback", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", "Plex Mono Fallback", ui-monospace, "SF Mono", Menlo, monospace;
 
   --radius: 12px;
   --pill: 999px;
@@ -68,7 +68,24 @@
 :root[data-theme="light"] { color-scheme: light; }
 
 * { box-sizing: border-box; }
+
+/* Smooth page changes: browsers that support cross-document view transitions
+   fade between pages and keep the header still; others just navigate. */
+@view-transition { navigation: auto; }
+.app-header { view-transition-name: site-header; }
+.rule { view-transition-name: site-rule; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 160ms; animation-timing-function: var(--ease-out); }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+
+/* Fallback fonts sized to match the web fonts, so the swap barely moves text. */
+@font-face { font-family: "Archivo Fallback"; src: local("Arial"); size-adjust: 104%; ascent-override: 88%; descent-override: 21%; line-gap-override: 0%; }
+@font-face { font-family: "Plex Sans Fallback"; src: local("Arial"); size-adjust: 102%; ascent-override: 100%; descent-override: 27%; line-gap-override: 0%; }
+@font-face { font-family: "Plex Mono Fallback"; src: local("Courier New"); size-adjust: 100%; ascent-override: 102%; descent-override: 27%; line-gap-override: 0%; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
+/* Keep space for the scrollbar so pages don't shift sideways when it appears. */
+html { scrollbar-gutter: stable; }
 body { font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased; }
 a { color: inherit; }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -88,6 +105,9 @@ h1, h2, h3 { text-wrap: balance; }
 .site-nav a:hover { color: var(--ink); background: var(--panel); }
 .site-nav a[aria-current="page"] { background: var(--ink); color: var(--bg); }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+/* Reserve the sign-in button's space before its script runs (no header jump). */
+.jump-slot { min-height: 34px; }
+.auth-slot { min-width: 92px; min-height: 36px; display: flex; justify-content: flex-end; align-items: center; }
 .theme-toggle { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink2); cursor: pointer; transition: color 0.15s var(--ease-out), border-color 0.15s var(--ease-out); }
 .theme-toggle:hover { color: var(--ink); border-color: var(--ink2); }
 .theme-toggle:active { transform: scale(0.94); }
@@ -210,6 +230,15 @@ h1, h2, h3 { text-wrap: balance; }
 
 .table-scroll { overflow-x: auto; }
 .leaderboard { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+/* Fixed column widths so the table doesn't re-measure when the list script loads. */
+@media (min-width: 761px) {
+  .leaderboard { table-layout: fixed; }
+  .leaderboard .col-rank { width: 52px; }
+  .leaderboard .col-family { width: 15%; }
+  .leaderboard .col-hitsPerDay, .leaderboard .col-stars, .leaderboard .col-commitsLast30d, .leaderboard .col-rating { width: 12%; }
+  .leaderboard .col-rank1mDelta, .leaderboard .col-rankTrend, .leaderboard .col-firstReleaseYear { width: 9%; }
+  .leaderboard td.distro-name-cell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
 .leaderboard th { text-align: left; font: 500 11px var(--mono); color: var(--ink2); padding: 6px 8px; border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: var(--z-sticky); }
 .leaderboard th button { all: unset; cursor: pointer; }
 .leaderboard th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
@@ -586,7 +615,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
   .crypto-toggle { white-space: nowrap; }
 }
 @media (max-width: 480px) {
-  .header-right .jump { display: none; }
+  .header-right .jump, .header-right .jump-slot { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; }
