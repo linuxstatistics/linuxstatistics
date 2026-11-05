@@ -102,9 +102,15 @@ function compare(a: DistroListItem, b: DistroListItem, key: SortKey): number {
 
 export interface ListViewProps {
   items: DistroListItem[];
+  /** Rows shown before "Show more"; each click adds this many again. 0 = show all. */
+  pageSize?: number;
+  /** First batch size when it differs (e.g. 97 so the table ends at #100 under a top-3 podium). */
+  firstPage?: number;
+  /** Rows shown elsewhere on the page (the podium), counted in the totals. */
+  offset?: number;
 }
 
-export function ListView({ items }: ListViewProps) {
+export function ListView({ items, pageSize = 0, firstPage, offset = 0 }: ListViewProps) {
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [asc, setAsc] = useState(true);
   const [family, setFamily] = useState<Family | "all">("all");
@@ -114,6 +120,7 @@ export function ListView({ items }: ListViewProps) {
     () => new Set(COLUMNS.filter((c) => c.hiddenByDefault).map((c) => c.key)),
   );
   const [colsOpen, setColsOpen] = useState(false);
+  const [limit, setLimit] = useState(firstPage ?? pageSize);
 
   const visibleColumns = COLUMNS.filter((c) => !hidden.has(c.key));
 
@@ -137,6 +144,11 @@ export function ListView({ items }: ListViewProps) {
     const sorted = [...r].sort((a, b) => compare(a, b, sortKey));
     return asc ? sorted : sorted.reverse();
   }, [items, family, status, search, sortKey, asc]);
+
+  // Searching or filtering looks through everything; only the shown rows are capped.
+  const shown = limit > 0 ? rows.slice(0, limit) : rows;
+  const remaining = rows.length - shown.length;
+  const nextBatch = Math.min(pageSize, remaining);
 
   function toggleSort(key: SortKey) {
     if (key === sortKey) setAsc((v) => !v);
@@ -245,7 +257,7 @@ export function ListView({ items }: ListViewProps) {
             </tr>
           </thead>
           <tbody>
-            {rows.map((d) => (
+            {shown.map((d) => (
               <tr key={d.slug}>
                 {visibleColumns.map((c) => (
                   <td
@@ -266,6 +278,19 @@ export function ListView({ items }: ListViewProps) {
           </tbody>
         </table>
       </div>
+      {remaining > 0 && (
+        <div className="list-more">
+          <button type="button" onClick={() => setLimit((l) => l + pageSize)}>
+            Show next {nextBatch}
+          </button>
+          <button type="button" className="list-more-all" onClick={() => setLimit(0)}>
+            Show all {rows.length + offset}
+          </button>
+          <span className="list-count">
+            Showing {shown.length + offset} of {rows.length + offset}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

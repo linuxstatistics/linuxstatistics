@@ -107,3 +107,40 @@ test("each distro name links to its page", () => {
   render(<ListView items={items} />);
   expect(screen.getByRole("link", { name: "Arch Linux" })).toHaveAttribute("href", "/distro/arch/");
 });
+
+test("caps rows and loads more on demand; search still covers every row", async () => {
+  const many = Array.from({ length: 25 }, (_, i) => ({
+    ...items[0]!,
+    slug: `d${i}`,
+    name: `Distro ${String(i).padStart(2, "0")}`,
+    rank: i + 1,
+  }));
+  const user = userEvent.setup();
+  render(<ListView items={many} pageSize={10} />);
+  const bodyRows = () => screen.getAllByRole("row").length - 1;
+  expect(bodyRows()).toBe(10);
+  expect(screen.getByText("Showing 10 of 25")).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Show next 10" }));
+  expect(bodyRows()).toBe(20);
+  await user.click(screen.getByRole("button", { name: "Show next 5" }));
+  expect(bodyRows()).toBe(25);
+  expect(screen.queryByRole("button", { name: /Show next/ })).not.toBeInTheDocument();
+});
+
+test("search finds distros beyond the cap", async () => {
+  const many = Array.from({ length: 25 }, (_, i) => ({ ...items[0]!, slug: `d${i}`, name: `Distro ${i}`, rank: i + 1 }));
+  const user = userEvent.setup();
+  render(<ListView items={many} pageSize={10} />);
+  await user.type(screen.getByRole("searchbox", { name: "Search distros" }), "Distro 24");
+  expect(screen.getByRole("link", { name: "Distro 24" })).toBeInTheDocument();
+});
+
+test("first batch can differ and totals include rows shown elsewhere", async () => {
+  const many = Array.from({ length: 30 }, (_, i) => ({ ...items[0]!, slug: `e${i}`, name: `E ${i}`, rank: i + 4 }));
+  const user = userEvent.setup();
+  render(<ListView items={many} firstPage={7} pageSize={10} offset={3} />);
+  expect(screen.getByText("Showing 10 of 33")).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Show next 10" }));
+  expect(screen.getByText("Showing 20 of 33")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Show all 33" })).toBeInTheDocument();
+});

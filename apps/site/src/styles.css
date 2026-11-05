@@ -3,7 +3,7 @@
 @import "@fontsource/ibm-plex-mono/400.css";
 @import "@fontsource/ibm-plex-mono/600.css";
 
-/* ---------- Tokens (dark default, light via system setting) ---------- */
+/* ---------- Tokens (dark default; light via system setting or the header toggle) ---------- */
 :root {
   color-scheme: dark light;
   --bg: oklch(0.17 0.008 265);
@@ -33,8 +33,9 @@
   --z-sticky: 10;
   --z-dropdown: 30;
 }
+/* Light tokens: when the system asks for light and no manual choice is set, or when light is chosen. */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --bg: oklch(0.975 0.004 265);
     --panel: oklch(0.995 0.002 265);
     --ink: oklch(0.2 0.015 265);
@@ -49,6 +50,22 @@
     --star: oklch(0.68 0.16 70);
   }
 }
+:root[data-theme="light"] {
+    --bg: oklch(0.975 0.004 265);
+    --panel: oklch(0.995 0.002 265);
+    --ink: oklch(0.2 0.015 265);
+    --ink2: oklch(0.45 0.015 265);
+    --line: oklch(0.87 0.008 265);
+    --row: oklch(0.92 0.006 265);
+    --accent: oklch(0.6 0.16 55);
+    --on-accent: oklch(0.99 0.01 70);
+    --up: oklch(0.48 0.13 155);
+    --down: oklch(0.52 0.17 25);
+    --danger: oklch(0.52 0.17 25);
+    --star: oklch(0.68 0.16 70);
+}
+:root[data-theme="dark"] { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--ink); }
@@ -71,6 +88,12 @@ h1, h2, h3 { text-wrap: balance; }
 .site-nav a:hover { color: var(--ink); background: var(--panel); }
 .site-nav a[aria-current="page"] { background: var(--ink); color: var(--bg); }
 .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.theme-toggle { display: inline-grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink2); cursor: pointer; transition: color 0.15s var(--ease-out), border-color 0.15s var(--ease-out); }
+.theme-toggle:hover { color: var(--ink); border-color: var(--ink2); }
+.theme-toggle:active { transform: scale(0.94); }
+.theme-toggle svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.theme-toggle .i-sun, .theme-toggle .i-moon, .theme-toggle .i-auto { display: none; }
+.theme-toggle[data-mode="light"] .i-sun, .theme-toggle[data-mode="dark"] .i-moon, .theme-toggle[data-mode="system"] .i-auto { display: block; }
 .rule { max-width: calc(var(--wrap) + 2 * 0px); margin: 0 auto; border: 0; border-top: 3px solid var(--ink); width: calc(100% - 2 * var(--gutter)); }
 
 /* Jump to a distro */
@@ -179,6 +202,15 @@ h1, h2, h3 { text-wrap: balance; }
 .leaderboard tbody tr:hover { background: var(--panel); }
 .leaderboard td.distro-name-cell a { font-weight: 500; text-decoration: none; }
 .leaderboard td.distro-name-cell a:hover { color: var(--accent); }
+
+/* Show more */
+.list-more { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 20px 0 4px; }
+.list-more button { border: 1px solid var(--line); border-radius: var(--pill); background: var(--panel); color: var(--ink); font-weight: 600; padding: 10px 20px; cursor: pointer; }
+.list-more button:hover { border-color: var(--ink2); }
+.list-more button:active { transform: scale(0.97); }
+.list-more .list-more-all { background: transparent; font-weight: 500; color: var(--ink2); }
+.list-more .list-count { margin-left: auto; font: 12px var(--mono); color: var(--ink2); }
+@media (max-width: 760px) { .list-more button { flex: 1; } .list-more .list-count { width: 100%; margin: 0; text-align: center; } }
 
 /* ---------- Stat cards (mobile stats menu) ---------- */
 .stat-card { padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
