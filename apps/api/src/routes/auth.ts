@@ -119,11 +119,10 @@ export function registerAuthRoutes(
         avatarUrl: b.avatarUrl ?? null,
         accountCreatedAt: b.accountCreatedAt ? new Date(b.accountCreatedAt) : new Date("2015-01-01"),
       });
-      if (b.role) {
-        const { schema } = await import("@linux-statistics/db");
-        const { eq } = await import("drizzle-orm");
-        await db.update(schema.users).set({ role: b.role }).where(eq(schema.users.id, user.id));
-      }
+      // Explicit role wins (tests); otherwise ADMIN_USERS applies, as at a real sign-in.
+      const fromEnv = adminFromEnv(user);
+      const role = b.role ?? (fromEnv === null ? null : fromEnv ? "admin" : "user");
+      if (role && role !== user.role) await setUserRole(db, user.id, role);
       req.session.set("userId", user.id);
       return { ok: true, id: user.id };
     });

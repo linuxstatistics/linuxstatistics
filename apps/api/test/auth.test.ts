@@ -143,3 +143,10 @@ test("ADMIN_USERS grants admin at sign-in and removes it when no longer listed",
   await a.close();
   await client.close();
 });
+
+test("dev login also follows ADMIN_USERS", async () => {
+  process.env.ADMIN_USERS = "github:#777";
+  const cookie = await loginAs(app, { providerUserId: "777", username: "localadmin" });
+  expect((await app.inject({ method: "GET", url: "/api/me", headers: { cookie } })).json().role).toBe("admin");
+  delete process.env.ADMIN_USERS;
+});

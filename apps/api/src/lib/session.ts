@@ -11,8 +11,19 @@ export function resolveSessionSecret(env: NodeJS.ProcessEnv = process.env): stri
   return secret;
 }
 
+/**
+ * Dev login lets anyone sign in as anyone (and pick a role). Refuse to run
+ * with it in production so a stray env var can't open the site.
+ */
+export function assertNoDevLoginInProduction(env: NodeJS.ProcessEnv = process.env): void {
+  if (env.NODE_ENV === "production" && env.ALLOW_DEV_LOGIN === "1") {
+    throw new Error("ALLOW_DEV_LOGIN=1 is not allowed when NODE_ENV=production");
+  }
+}
+
 /** Register the signed, httpOnly session cookie. */
 export async function registerSession(app: FastifyInstance): Promise<void> {
+  assertNoDevLoginInProduction();
   const secret = resolveSessionSecret();
   if (secret.length < 32) throw new Error("SESSION_SECRET must be >= 32 chars");
   await app.register(secureSession, {
