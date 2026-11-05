@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS } from "../lib/families";
+import { CompareSkeleton } from "./Skeleton";
 
 const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
 
@@ -33,7 +34,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
 
   if (!wanted) return null;
   if (error) return <p className="error">{error}</p>;
-  if (!pair) return <p className="loading">Loading comparison…</p>;
+  if (!pair) return <CompareSkeleton />;
   const [a, b] = pair;
   const base = (s: string | null) => (s ? (names[s] ?? s) : "-");
   const all: [string, string, string][] = [

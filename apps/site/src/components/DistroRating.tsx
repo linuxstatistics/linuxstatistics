@@ -3,16 +3,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { devLogin, loginHref, useDeleteContribution, useDistro, useMe, useProviders, useUpsertContribution } from "../api";
 import { Island } from "./Island";
 import { RatingWidget } from "./RatingWidget";
+import { RatingSkeleton } from "./Skeleton";
 
 function DistroRatingInner({ slug }: { slug: string }) {
-  const { data: me } = useMe();
-  const { data: providers } = useProviders();
+  const { data: me, isPending: mePending } = useMe();
+  const { data: providers, isPending: providersPending } = useProviders();
   const qc = useQueryClient();
   // Only signed-in users need their own contribution, so fetch the detail then.
   const { data: detail } = useDistro(me ? slug : null);
   const save = useUpsertContribution(slug);
   const remove = useDeleteContribution(slug);
-  if (me && !detail) return <div className="rating-widget loading">Loading…</div>;
+  if (mePending || (!me && providersPending) || (me && !detail)) return <RatingSkeleton />;
   return (
     <RatingWidget
       // Remount once the user's own contribution arrives so the form starts from it.

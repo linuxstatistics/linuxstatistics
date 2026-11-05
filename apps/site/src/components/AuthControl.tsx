@@ -1,12 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMe, useProviders, loginHref, logout, devLogin } from "../api";
+import { AuthSkeleton } from "./Skeleton";
+import { rememberAuth } from "../lib/auth-hint";
 
 export function AuthControl() {
-  const { data: me } = useMe();
-  const { data: providers } = useProviders();
+  const { data: me, isPending: mePending } = useMe();
+  const { data: providers, isPending: providersPending } = useProviders();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!mePending) rememberAuth(Boolean(me));
+  }, [me, mePending]);
+
+  if (mePending || (!me && providersPending)) return <AuthSkeleton />;
 
   if (me) {
     return <AccountMenu me={me} onSignOut={async () => {

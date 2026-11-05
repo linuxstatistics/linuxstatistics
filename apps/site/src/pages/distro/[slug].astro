@@ -8,6 +8,7 @@ import { RelatedLinks } from "../../components/RelatedLinks";
 import { CompareWith } from "../../components/CompareWith";
 import { SponsorCard } from "../../components/SponsorCard";
 import { BadgeEmbed } from "../../components/BadgeEmbed";
+import { RatingSkeleton } from "../../components/Skeleton";
 import { badgeSnippets } from "../../lib/badge";
 import { ProsCons } from "../../components/ProsCons";
 import { TelemetryNote } from "../../components/TelemetryNote";
@@ -101,7 +102,7 @@ const jsonLd = {
         <TelemetryNote slug={data.slug} />
         <section class="dsec" aria-labelledby="rate-h">
           <h2 id="rate-h">Rate {data.name}</h2>
-          <DistroRating client:only="react" slug={data.slug} />
+          <DistroRating client:only="react" slug={data.slug}><RatingSkeleton slot="fallback" /></DistroRating>
         </section>
         <section class="dsec" aria-labelledby="badge-h">
           <h2 id="badge-h">Badge for your README</h2>

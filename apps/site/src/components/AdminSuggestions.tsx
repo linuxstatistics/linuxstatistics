@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { CardsSkeleton } from "./Skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SUGGESTION_STATUSES, type AdminSuggestion, type SuggestionStatus } from "@linux-statistics/shared";
 import { useMe } from "../api";
@@ -134,7 +135,7 @@ export function AdminSuggestionsInner() {
     );
   }, [all, tab, kind, q]);
 
-  if (meLoading) return <p className="loading">Checking your account…</p>;
+  if (meLoading) return <CardsSkeleton label="Checking your account" />;
   if (!me) return <p className="adm-gate">Sign in with an admin account to see this page.</p>;
   if (!isAdmin) return <p className="adm-gate">Your account isn't an admin. Ask the site owner to add it to ADMIN_USERS.</p>;
   if (list.isError) return <p className="error">Couldn't load suggestions. Try reloading.</p>;
@@ -168,7 +169,7 @@ export function AdminSuggestionsInner() {
         </select>
       </div>
       {list.isLoading ? (
-        <p className="loading">Loading…</p>
+        <CardsSkeleton label="Loading suggestions" />
       ) : shown.length === 0 ? (
         <p className="adm-empty">{tab === "new" && !q && kind === "all" ? "Nothing new. All caught up." : "No suggestions match."}</p>
       ) : (
