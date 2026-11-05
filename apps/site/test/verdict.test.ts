@@ -60,3 +60,11 @@ test("telemetry entries are sourced, and the FAQ compares them", async () => {
   expect(q.a).toContain("Mint: none.");
   expect(q.a).toContain("Zorin sends an anonymous count by default");
 });
+
+test("a side whose reasons are all shared falls back to desktops, then to its summary", () => {
+  const v = pairVerdict({ slug: "fedora", name: "Fedora", family: "rpm", rank: 7 }, { slug: "ubuntu", name: "Ubuntu", family: "debian", rank: 9 })!;
+  expect(v.a.reasons.length > 0 || v.a.empty === "same").toBe(true);
+  expect(v.a.empty).not.toBe("unknown");
+  const u = pairVerdict({ slug: "x1", name: "X1", family: "other", rank: null }, { slug: "mint", name: "Mint", family: "debian", rank: 2 })!;
+  expect(u.a.empty).toBe("unknown");
+});

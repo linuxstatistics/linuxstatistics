@@ -26,8 +26,20 @@ export function ProsCons({ notes, heading = "Pros and cons" }: { notes: DistroNo
   );
 }
 
-/** Pros and cons of two distros side by side. */
-export function ProsConsPair({ a, b }: { a: { name: string; notes: DistroNotes }; b: { name: string; notes: DistroNotes } }) {
+/** Shown where pros and cons would go when we haven't written them yet. */
+export function NotEnoughData({ name, what = "pros and cons" }: { name: string; what?: string }) {
+  return (
+    <div className="no-data" role="note">
+      <span className="no-data-label">Not enough data</span>
+      <p>
+        We haven't written {what} for {name} yet. <a href={`/suggest/?kind=correction&subject=${encodeURIComponent(`${name}: ${what}`)}`}>Suggest some</a>.
+      </p>
+    </div>
+  );
+}
+
+/** Pros and cons of two distros side by side; a placeholder for a side without notes. */
+export function ProsConsPair({ a, b }: { a: { name: string; notes: DistroNotes | null }; b: { name: string; notes: DistroNotes | null } }) {
   return (
     <section className="pros-cons pair" aria-label="Pros and cons">
       <h2>Pros and cons</h2>
@@ -35,8 +47,14 @@ export function ProsConsPair({ a, b }: { a: { name: string; notes: DistroNotes }
         {[a, b].map((x) => (
           <div key={x.name}>
             <h3 className="pc-name">{x.name}</h3>
-            <List title="Good" items={x.notes.pros} kind="pro" />
-            <List title="Trade-offs" items={x.notes.cons} kind="con" />
+            {x.notes ? (
+              <>
+                <List title="Good" items={x.notes.pros} kind="pro" />
+                <List title="Trade-offs" items={x.notes.cons} kind="con" />
+              </>
+            ) : (
+              <NotEnoughData name={x.name} />
+            )}
           </div>
         ))}
       </div>

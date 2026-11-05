@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import type { DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS } from "../lib/families";
 import { CompareSkeleton } from "./Skeleton";
+import { PairVerdict } from "./PairVerdict";
+import { ProsConsPair } from "./ProsCons";
+import { pairVerdict } from "../lib/verdict";
+import { notesFor } from "../lib/distro-notes";
 
 const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
 
@@ -48,11 +52,27 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
     ["Commits, last 30 days", num(a.commitsLast30d), num(b.commitsLast30d)],
   ];
   const rows = all.filter(([, x, y]) => x !== "-" || y !== "-");
+  const nameMap = new Map(Object.entries(names));
+  const verdict = pairVerdict(a, b, nameMap) ?? {
+    a: { name: a.name, reasons: [], empty: "unknown" as const },
+    b: { name: b.name, reasons: [], empty: "unknown" as const },
+  };
+  const thin = [a, b].filter(
+    (d) => [d.firstReleaseYear, d.stars, d.commitsLast30d, d.basedOnSlug, notesFor(d.slug), d.userRating.count || null].filter((v) => v != null).length <= 1,
+  );
   return (
     <section aria-label="Comparison">
       <h2>
         {a.name} vs {b.name}
       </h2>
+      <PairVerdict v={verdict} />
+      {thin.length > 0 && (
+        <p className="no-data-note" role="note">
+          <span className="no-data-label">Limited data</span>
+          {thin.map((d) => d.name).join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond DistroWatch page hits, so some rows below are empty.{" "}
+          <a href="/suggest/?kind=correction">Help fill it in</a>.
+        </p>
+      )}
       <div className="table-scroll">
         <table className="data-table compare-table">
           <thead>
@@ -80,6 +100,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
           </tbody>
         </table>
       </div>
+      <ProsConsPair a={{ name: a.name, notes: notesFor(a.slug) }} b={{ name: b.name, notes: notesFor(b.slug) }} />
     </section>
   );
 }

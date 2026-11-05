@@ -4,14 +4,23 @@ import { orList, type PairVerdict as Verdict } from "../lib/verdict";
 export function PairVerdict({ v }: { v: Verdict }) {
   return (
     <section className="verdict" aria-label="Which to pick">
-      {[v.a, v.b].map(
-        (side) =>
-          side.reasons.length > 0 && (
-            <div key={side.name} className="verdict-card">
-              <span className="verdict-label">Pick {side.name} if</span>
-              <p>{orList(side.reasons)}.</p>
-            </div>
-          ),
+      {[v.a, v.b].map((side) =>
+        side.reasons.length > 0 ? (
+          <div key={side.name} className="verdict-card">
+            <span className="verdict-label">Pick {side.name} if</span>
+            <p>{orList(side.reasons)}.</p>
+          </div>
+        ) : side.empty === "same" ? (
+          <div key={side.name} className="verdict-card">
+            <span className="verdict-label">{side.name} suits the same people</span>
+            <p>{side.blurb}</p>
+          </div>
+        ) : (
+          <div key={side.name} className="verdict-card no-data">
+            <span className="no-data-label">Pick {side.name} if</span>
+            <p>Not enough data to say who {side.name} suits. Compare the numbers below.</p>
+          </div>
+        ),
       )}
     </section>
   );

@@ -35,19 +35,52 @@ export function reasonsFor(d: Facts, baseName?: string | null): { id: string; te
 }
 
 export interface PairVerdict {
-  a: { name: string; reasons: string[] };
-  b: { name: string; reasons: string[] };
+  a: VerdictSide;
+  b: VerdictSide;
 }
+
+export interface VerdictSide {
+  name: string;
+  reasons: string[];
+  /**
+   * Why a side has no reasons: "same" = both suit the same people (profile
+   * exists, nothing sets it apart); "unknown" = we don't know enough.
+   */
+  empty?: "same" | "unknown";
+  /** One-line profile summary shown when nothing sets it apart. */
+  blurb?: string;
+}
+
+/** Desktop-style tie-breakers, used when the main reasons are all shared. */
+const DESKTOP_TEXT: Record<string, string> = {
+  gnome: "you like the GNOME desktop",
+  kde: "you like KDE Plasma and lots of settings",
+  light: "you want a light, simple desktop",
+};
 
 /** "Pick A if… / Pick B if…": reasons that tell them apart (shared ones dropped), at most 3 each. */
 export function pairVerdict(a: Facts, b: Facts, names: ReadonlyMap<string, string> = new Map()): PairVerdict | null {
   const ra = reasonsFor(a, a.basedOnSlug ? names.get(a.basedOnSlug) : null);
   const rb = reasonsFor(b, b.basedOnSlug ? names.get(b.basedOnSlug) : null);
   const shared = new Set(ra.map((r) => r.id).filter((id) => rb.some((r) => r.id === id)));
-  const pa = ra.filter((r) => !shared.has(r.id)).slice(0, 3).map((r) => r.text);
-  const pb = rb.filter((r) => !shared.has(r.id)).slice(0, 3).map((r) => r.text);
-  if (pa.length === 0 && pb.length === 0) return null;
-  return { a: { name: a.name, reasons: pa }, b: { name: b.name, reasons: pb } };
+  const side = (d: Facts, own: { id: string; text: string }[], other: Facts): VerdictSide => {
+    let reasons = own.filter((r) => !shared.has(r.id)).slice(0, 3).map((r) => r.text);
+    const p = profileFor(d.slug);
+    if (reasons.length === 0 && p) {
+      // Fall back to desktops the other one doesn't offer.
+      const op = profileFor(other.slug);
+      reasons = p.desktops
+        .filter((x) => !op?.desktops.includes(x) && DESKTOP_TEXT[x])
+        .slice(0, 2)
+        .map((x) => DESKTOP_TEXT[x]!);
+    }
+    if (reasons.length > 0) return { name: d.name, reasons };
+    return p ? { name: d.name, reasons: [], empty: "same", blurb: p.blurb } : { name: d.name, reasons: [], empty: "unknown" };
+  };
+  const va = side(a, ra, b);
+  const vb = side(b, rb, a);
+  if (va.reasons.length === 0 && vb.reasons.length === 0 && va.empty === "unknown" && vb.empty === "unknown") return null;
+  return { a: va, b: vb };
 }
 
 /** Join clauses as "a, b or c". */

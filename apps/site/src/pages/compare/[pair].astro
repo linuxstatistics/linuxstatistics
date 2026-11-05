@@ -7,7 +7,7 @@ import { formatRating } from "../../lib/rating";
 import { compareSuggestions } from "../../lib/related";
 import { ComparePicker } from "../../components/ComparePicker";
 import { PairVerdict } from "../../components/PairVerdict";
-import { ProsConsPair } from "../../components/ProsCons";
+import { NotEnoughData, ProsConsPair } from "../../components/ProsCons";
 import { Faq } from "../../components/Faq";
 import { notesFor } from "../../lib/distro-notes";
 import { TELEMETRY_LABEL, telemetryFor } from "../../lib/telemetry";
@@ -77,6 +77,10 @@ const rows: Row[] = [
 ].filter((r) => r.a !== "-" || r.b !== "-");
 
 const verdict = pairVerdict(a, b, nameOf);
+/** Distros missing most optional facts (repo, release year, profile notes, ratings). */
+const thin = [a, b]
+  .filter((d) => [d.firstReleaseYear, d.stars, d.commitsLast30d, d.basedOnSlug, notesFor(d.slug), d.userRating.count || null].filter((v) => v != null).length <= 1)
+  .map((d) => d.name);
 const na = notesFor(a.slug);
 const nb = notesFor(b.slug);
 const faq = pairFaq(a, b);
@@ -94,7 +98,14 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/compare/">Compare</a> / {a.name} vs {b.name}</nav>
     <h1>{a.name} vs {b.name}</h1>
     {lead && <p class="lede">{lead}</p>}
-    {verdict && <PairVerdict v={verdict} />}
+    <PairVerdict v={verdict ?? { a: { name: a.name, reasons: [], empty: "unknown" }, b: { name: b.name, reasons: [], empty: "unknown" } }} />
+    {thin.length > 0 && (
+      <p class="no-data-note" role="note">
+        <span class="no-data-label">Limited data</span>
+        {thin.join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond DistroWatch page hits, so some rows below are empty.
+        <a href="/suggest/?kind=correction">Help fill it in</a>.
+      </p>
+    )}
     <div class="table-scroll">
       <table class="data-table compare-table">
         <thead>
@@ -125,7 +136,17 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
         </tbody>
       </table>
     </div>
-    {na && nb && <ProsConsPair a={{ name: a.name, notes: na }} b={{ name: b.name, notes: nb }} />}
+    {(na || nb) ? (
+      <ProsConsPair a={{ name: a.name, notes: na }} b={{ name: b.name, notes: nb }} />
+    ) : (
+      <section class="pros-cons pair" aria-label="Pros and cons">
+        <h2>Pros and cons</h2>
+        <div class="pc-pair">
+          <div><h3 class="pc-name">{a.name}</h3><NotEnoughData name={a.name} /></div>
+          <div><h3 class="pc-name">{b.name}</h3><NotEnoughData name={b.name} /></div>
+        </div>
+      </section>
+    )}
     <Faq items={faq} />
     <p class="source-note">
       Rankings from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.
