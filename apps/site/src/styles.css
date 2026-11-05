@@ -596,7 +596,7 @@ h1, h2, h3 { text-wrap: balance; }
 code { font-family: var(--mono); font-size: 0.92em; }
 
 /* Mobile menu (shown below 1040px) */
-.app-header { position: relative; }
+.app-header { position: relative; z-index: 60; }
 .menu { display: none; }
 .menu-btn { position: relative; z-index: 51; list-style: none; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px 0 10px; border: 1px solid var(--line); border-radius: var(--pill); color: var(--ink); font: 500 14px var(--sans); cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; transition: border-color 0.15s var(--ease-out), background-color 0.15s var(--ease-out); }
 .menu-btn::-webkit-details-marker { display: none; }
