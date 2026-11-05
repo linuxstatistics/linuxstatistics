@@ -31,9 +31,8 @@ const related = [...compareSuggestions(list, a, staticPairs, 5), ...compareSugge
   .filter((l, i, all) => all.findIndex((x) => x.href === l.href) === i)
   .slice(0, 8);
 const options = list
-  .filter((d) => d.rank !== null)
   .sort((x, y) => x.name.localeCompare(y.name))
-  .map((d) => ({ slug: d.slug, name: d.name }));
+  .map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "distrowatch");
 
 type Row = { label: string; a: string; b: string; better?: "a" | "b" };

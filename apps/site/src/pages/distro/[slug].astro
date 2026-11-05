@@ -5,6 +5,7 @@ import { DistroRating } from "../../components/DistroRating";
 import { AffiliateBlock } from "../../components/AffiliateBlock";
 import { RankByPeriod } from "../../components/RankByPeriod";
 import { RelatedLinks } from "../../components/RelatedLinks";
+import { CompareWith } from "../../components/CompareWith";
 import { compareSlug, popularPairs } from "../../lib/compare";
 import { compareSuggestions, neighbours, sameFamily } from "../../lib/related";
 import { FAMILY_LABELS } from "../../lib/families";
@@ -26,6 +27,7 @@ const staticPairs = new Set(popularPairs(list).map(([a, b]) => compareSlug(a, b)
 const compare = compareSuggestions(list, data, staticPairs);
 const family = sameFamily(list, data, new Map(Object.entries(basedOn)));
 const near = neighbours(list, data.slug);
+const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "distrowatch");
 const site = Astro.site!.href.replace(/\/$/, "");
 const familyName = FAMILY_LABELS[data.family];
@@ -75,6 +77,10 @@ const jsonLd = {
         </p>
       </div>
       <aside class="side" aria-label="Related">
+        <section class="compare-box">
+          <h2>Compare {data.name} with…</h2>
+          <CompareWith client:visible self={{ slug: data.slug, name: data.name }} items={searchItems} staticPairs={[...staticPairs]} />
+        </section>
         <RelatedLinks compare={compare} family={family} familyLabel={family_label} near={near} />
       </aside>
     </div>

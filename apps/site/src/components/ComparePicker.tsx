@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { compareSlug } from "../lib/compare";
+import { DistroCombo } from "./DistroCombo";
 
 export interface PickerOption {
   slug: string;
   name: string;
+  rank: number | null;
 }
 
 /**
@@ -23,6 +25,16 @@ export function ComparePicker({
 }) {
   const [a, setA] = useState(initialA);
   const [b, setB] = useState(initialB);
+  // On the any-pair view (/compare/?a=&b=) show the chosen pair in the boxes.
+  useEffect(() => {
+    if (initialA || initialB) return;
+    const p = new URLSearchParams(window.location.search);
+    const known = new Set(options.map((o) => o.slug));
+    const qa = p.get("a");
+    const qb = p.get("b");
+    if (qa && known.has(qa)) setA(qa);
+    if (qb && known.has(qb)) setB(qb);
+  }, [initialA, initialB, options]);
   const ready = a && b && a !== b;
 
   function go(e: React.FormEvent) {
@@ -34,22 +46,11 @@ export function ComparePicker({
       : `/compare/?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`;
   }
 
-  const select = (value: string, set: (v: string) => void, label: string) => (
-    <select aria-label={label} value={value} onChange={(e) => set(e.target.value)}>
-      <option value="">Choose a distro…</option>
-      {options.map((o) => (
-        <option key={o.slug} value={o.slug}>
-          {o.name}
-        </option>
-      ))}
-    </select>
-  );
-
   return (
     <form className="picker-form" onSubmit={go}>
-      {select(a, setA, "First distro")}
+      <DistroCombo items={options} value={a} onChange={setA} label="First distro" />
       <span>vs</span>
-      {select(b, setB, "Second distro")}
+      <DistroCombo items={options.filter((o) => o.slug !== a)} value={b} onChange={setB} label="Second distro" />
       <button type="submit" disabled={!ready}>
         Compare
       </button>

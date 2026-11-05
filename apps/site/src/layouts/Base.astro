@@ -45,12 +45,11 @@ const jumpItems = (await loadDistros()).map((d) => ({ slug: d.slug, name: d.name
         <nav class="site-nav" aria-label="Main">
           <a href="/" aria-current={Astro.url.pathname === "/" ? "page" : undefined}>Rankings</a>
           <a href="/rising/" aria-current={Astro.url.pathname.startsWith("/rising") ? "page" : undefined}>Rising</a>
-          <a href="/compare/" aria-current={Astro.url.pathname.startsWith("/compare") ? "page" : undefined}>Compare</a>
           <a href="/pick/" aria-current={Astro.url.pathname.startsWith("/pick") ? "page" : undefined}>Which distro?</a>
         </nav>
         <div class="header-right">
           <JumpToDistro client:idle items={jumpItems} />
-          <HeaderAuth client:idle />
+          <HeaderAuth client:only="react" />
         </div>
       </header>
       <hr class="rule" />

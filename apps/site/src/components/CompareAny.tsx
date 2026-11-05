@@ -9,7 +9,7 @@ const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
  * Not indexed: the page carries noindex via its parent, and popular pairs
  * have their own static pages.
  */
-export function CompareAny() {
+export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
   const [pair, setPair] = useState<[DistroDetail, DistroDetail] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [wanted, setWanted] = useState(false);
@@ -35,16 +35,18 @@ export function CompareAny() {
   if (error) return <p className="error">{error}</p>;
   if (!pair) return <p className="loading">Loading comparison…</p>;
   const [a, b] = pair;
-  const rows: [string, string, string][] = [
+  const base = (s: string | null) => (s ? (names[s] ?? s) : "-");
+  const all: [string, string, string][] = [
     ["DistroWatch rank (12 months)", num(a.rank), num(b.rank)],
     ["Rank last month", num(a.rank1m), num(b.rank1m)],
     ["Hits per day", num(a.hitsPerDay), num(b.hitsPerDay)],
     ["Family", FAMILY_LABELS[a.family], FAMILY_LABELS[b.family]],
-    ["Based on", a.basedOnSlug ?? "-", b.basedOnSlug ?? "-"],
+    ["Based on", base(a.basedOnSlug), base(b.basedOnSlug)],
     ["First released", a.firstReleaseYear?.toString() ?? "-", b.firstReleaseYear?.toString() ?? "-"],
     ["GitHub stars", num(a.stars), num(b.stars)],
     ["Commits, last 30 days", num(a.commitsLast30d), num(b.commitsLast30d)],
   ];
+  const rows = all.filter(([, x, y]) => x !== "-" || y !== "-");
   return (
     <section aria-label="Comparison">
       <h2>
@@ -55,12 +57,15 @@ export function CompareAny() {
           <thead>
             <tr>
               <th />
-              <th>
-                <a href={`/distro/${a.slug}/`}>{a.name}</a>
-              </th>
-              <th>
-                <a href={`/distro/${b.slug}/`}>{b.name}</a>
-              </th>
+              {[a, b].map((d) => (
+                <th key={d.slug}>
+                  <a href={`/distro/${d.slug}/`}>{d.name}</a>
+                  <span className="th-sub">
+                    {d.rank != null ? `#${d.rank} · ` : ""}
+                    {FAMILY_LABELS[d.family]}
+                  </span>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>

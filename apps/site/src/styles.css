@@ -83,6 +83,10 @@ h1, h2, h3 { text-wrap: balance; }
 .jump li a span { font: 12px var(--mono); color: var(--ink2); }
 .jump li a:hover, .jump li a[aria-selected="true"] { background: var(--row); }
 
+.compare-with input { width: 100%; font-size: 14px; padding: 9px 14px; }
+.side .compare-box ul { list-style: none; }
+.side .compare-box li { display: block; padding: 0; border: 0; }
+
 /* ---------- Page scaffolding ---------- */
 .page { max-width: var(--wrap); margin: 0 auto; padding: 28px var(--gutter) 64px; }
 .page h1 { font: 700 clamp(30px, 4vw, 48px)/1.05 var(--display); letter-spacing: -0.03em; margin: 0 0 10px; }
@@ -287,6 +291,14 @@ h1, h2, h3 { text-wrap: balance; }
 /* Picker and compare forms */
 .picker-form { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 0 0 24px; }
 .picker-form select { background: var(--panel); border: 1px solid var(--line); border-radius: var(--pill); padding: 9px 14px; min-width: 200px; }
+.combo { position: relative; }
+.combo input { width: 240px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--pill); padding: 9px 14px; color: var(--ink); }
+.combo input::placeholder { color: var(--ink2); }
+.combo ul { position: absolute; top: calc(100% + 6px); left: 0; min-width: 100%; width: max-content; max-width: 320px; z-index: var(--z-dropdown); margin: 0; padding: 6px; list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); max-height: 340px; overflow: auto; }
+.combo li { display: flex; justify-content: space-between; gap: 16px; padding: 7px 10px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+.combo li span { font: 12px var(--mono); color: var(--ink2); }
+.combo li[aria-selected="true"] { background: var(--row); }
+.combo li.combo-hint { font: 12px var(--mono); color: var(--ink2); cursor: default; padding: 4px 10px 6px; }
 .picker-form button, .quiz .primary { background: var(--accent); color: var(--on-accent); font-weight: 600; border: 0; border-radius: var(--pill); padding: 10px 20px; cursor: pointer; transition: transform 0.12s var(--ease-out); }
 .picker-form button:active, .quiz .primary:active { transform: scale(0.97); }
 .picker-form button:disabled, .quiz .primary:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -344,14 +356,15 @@ code { font-family: var(--mono); font-size: 0.92em; }
 }
 @media (max-width: 760px) {
   :root { --gutter: 16px; }
-  .jump input { width: 160px; }
+  .header-right .jump input { width: 160px; }
   .col-hide-mobile { display: none; }
   .stats-menu-mobile { display: block; }
   .list-controls .search { flex: 1 1 100%; }
+  .picker-form .combo, .picker-form .combo input { width: 100%; }
   .email-capture input { min-width: 0; flex: 1; }
 }
 @media (max-width: 480px) {
-  .jump { display: none; }
+  .header-right .jump { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; }

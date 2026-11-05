@@ -29,7 +29,7 @@ export function RelatedLinks({
     <>
       {compare.length > 0 && (
         <section>
-          <h2>Compare</h2>
+          <h2>Popular comparisons</h2>
           <ul>
             {compare.map((c) => (
               <li key={c.href}>
@@ -37,6 +37,9 @@ export function RelatedLinks({
               </li>
             ))}
           </ul>
+          <p>
+            <a href="/compare/">All comparisons</a>
+          </p>
         </section>
       )}
       {family.length > 0 && (
