@@ -250,7 +250,13 @@ h1, h2, h3 { text-wrap: balance; }
 .signin-backdrop { position: fixed; inset: 0; background: transparent; border: 0; z-index: var(--z-dropdown); }
 .signin-popover { position: absolute; right: 0; top: calc(100% + 8px); z-index: calc(var(--z-dropdown) + 1); min-width: 220px; display: grid; gap: 2px; padding: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
 .signin-option { display: block; text-align: left; padding: 8px 10px; border-radius: 8px; background: none; border: 0; font-size: 14px; text-decoration: none; cursor: pointer; }
-.signin-option:hover { background: var(--row); }
+.signin-option:hover, .signin-option:focus-visible { background: var(--row); outline: none; }
+.account-trigger .avatar { width: 20px; height: 20px; border-radius: 50%; }
+.account-trigger .avatar-initial { display: inline-grid; place-items: center; background: var(--accent); color: var(--on-accent); font: 700 11px var(--sans); }
+.account-trigger .login { max-width: 14ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-menu[data-open="true"] .t-acc-chevron { transform: scaleY(-1); }
+.menu-head { display: grid; gap: 2px; padding: 8px 10px 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); font: 12px var(--mono); color: var(--ink2); }
+.menu-head b { font: 600 14px var(--sans); color: var(--ink); overflow-wrap: anywhere; }
 
 /* ---------- Distro page ---------- */
 .family-line { font: 13px var(--mono); color: var(--ink2); margin-bottom: 4px; }

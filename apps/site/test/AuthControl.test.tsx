@@ -30,7 +30,7 @@ test("signed out: renders a sign-in trigger and provider options", async () => {
   expect(screen.getByText("Sign in with GitLab")).toBeInTheDocument();
 });
 
-test("signed in: shows username and sign out", async () => {
+test("signed in: username opens an account menu with sign out", async () => {
   global.fetch = vi.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
     if (url.includes("/api/me"))
@@ -38,7 +38,11 @@ test("signed in: shows username and sign out", async () => {
     return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
   }) as unknown as typeof fetch;
   renderControl();
-  await waitFor(() => expect(screen.getByText("chris")).toBeInTheDocument());
-  expect(screen.queryByText("gitlab")).not.toBeInTheDocument();
-  expect(screen.getByRole("button", { name: "Sign out" })).toBeInTheDocument();
+  const trigger = await screen.findByRole("button", { name: "Account menu for chris" });
+  expect(trigger).toHaveTextContent("chris");
+  // Sign out is inside the menu, not on the header.
+  expect(screen.queryByRole("menuitem", { name: "Sign out" })).not.toBeInTheDocument();
+  trigger.click();
+  expect(await screen.findByRole("menuitem", { name: "Sign out" })).toBeInTheDocument();
+  expect(screen.getByText("Signed in with GitLab")).toBeInTheDocument();
 });

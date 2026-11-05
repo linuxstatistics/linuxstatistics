@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMe, useProviders, loginHref, logout, devLogin } from "../api";
 
@@ -9,22 +9,10 @@ export function AuthControl() {
   const [open, setOpen] = useState(false);
 
   if (me) {
-    return (
-      <span className="auth-control">
-        {me.avatarUrl && <img src={me.avatarUrl} alt="" className="avatar" width={20} height={20} />}
-        <span className="login">{me.username}</span>
-        <button
-          type="button"
-          className="signout"
-          onClick={async () => {
-            await logout();
-            qc.invalidateQueries({ queryKey: ["me"] });
-          }}
-        >
-          Sign out
-        </button>
-      </span>
-    );
+    return <AccountMenu me={me} onSignOut={async () => {
+      await logout();
+      qc.invalidateQueries({ queryKey: ["me"] });
+    }} />;
   }
 
   const list = providers ?? [];
@@ -64,6 +52,81 @@ export function AuthControl() {
               </a>
             ),
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const PROVIDER_NAMES: Record<string, string> = { github: "GitHub", gitlab: "GitLab", codeberg: "Codeberg", dev: "dev login" };
+
+/** Signed-in control: the username opens a small account menu. */
+function AccountMenu({
+  me,
+  onSignOut,
+}: {
+  me: { username: string; provider: string; avatarUrl: string | null };
+  onSignOut: () => void | Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const firstItem = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    firstItem.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        trigger.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  return (
+    <div className="auth-control signin-menu account-menu" data-open={open}>
+      <button
+        ref={trigger}
+        type="button"
+        className="signin-trigger account-trigger"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label={`Account menu for ${me.username}`}
+        onClick={() => setOpen((o) => !o)}
+      >
+        {me.avatarUrl ? (
+          <img src={me.avatarUrl} alt="" className="avatar" width={20} height={20} />
+        ) : (
+          <span className="avatar avatar-initial" aria-hidden>
+            {me.username.slice(0, 1).toUpperCase()}
+          </span>
+        )}
+        <span className="login">{me.username}</span>
+        <span className="t-acc-chevron" aria-hidden>
+          <svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5" /></svg>
+        </span>
+      </button>
+      {open && <button type="button" className="signin-backdrop" aria-label="Close menu" onClick={() => setOpen(false)} />}
+      {open && (
+        <div className="signin-popover" role="menu" aria-label="Account">
+          <div className="menu-head" role="presentation">
+            Signed in with {PROVIDER_NAMES[me.provider] ?? me.provider}
+            <b>{me.username}</b>
+          </div>
+          <button
+            ref={firstItem}
+            type="button"
+            role="menuitem"
+            className="signin-option"
+            onClick={async () => {
+              setOpen(false);
+              await onSignOut();
+            }}
+          >
+            Sign out
+          </button>
         </div>
       )}
     </div>
