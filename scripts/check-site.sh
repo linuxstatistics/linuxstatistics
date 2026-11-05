@@ -41,6 +41,10 @@ check switch/windows/index.html 'FAQPage' "Windows switch page has FAQ JSON-LD"
 check switch/mac/index.html 'Asahi' "Mac switch page covers Apple Silicon"
 check switch/mac/index.html 'apps-table' "Mac switch page has the app table"
 check distro/mint/index.html 'href="/switch/windows/"' "Mint links to the Windows switch page"
+check desktop-share/index.html 'sc-growth' "desktop share page has the growth table"
+check desktop-share/index.html 'class="sc-line os-windows"' "desktop share chart renders without JS"
+check desktop-share/index.html 'StatCounter' "desktop share page credits StatCounter"
+check index.html 'href="/desktop-share/"' "home links to the desktop share page"
 [ -f "$DIST/favicon.svg" ] && echo "ok:   favicon" || { echo "FAIL: favicon missing"; fail=1; }
 [ -f "$DIST/sitemap-index.xml" ] && echo "ok:   sitemap" || { echo "FAIL: sitemap missing"; fail=1; }
 [ -f "$DIST/robots.txt" ] && echo "ok:   robots.txt" || { echo "FAIL: robots.txt missing"; fail=1; }

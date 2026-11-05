@@ -1,0 +1,124 @@
+---
+import Base from "../../layouts/Base.astro";
+import { ShareCompare } from "../../components/ShareCompare";
+import { SponsorCard } from "../../components/SponsorCard";
+import SwitchSide from "../../components/SwitchSide.astro";
+import { loadMarketShare } from "../../lib/data";
+import { latestLinuxShare } from "../../lib/marketShare";
+import { OSES, OS_LABEL, summaries, yearlyByOs } from "../../lib/share-compare";
+
+const points = await loadMarketShare();
+const rows = yearlyByOs(points);
+const latest = latestLinuxShare(points);
+const all = summaries(rows);
+const ten = summaries(rows.slice(-11));
+const first = rows[0];
+const last = rows[rows.length - 1];
+const s = (os: string, list = all) => list.find((x) => x.os === os)!;
+const linux = s("linux");
+const lead =
+  first && last
+    ? `Linux went from ${linux.from.toFixed(2)}% of desktops in ${first.year} to ${linux.to.toFixed(2)}% in ${last.year}${last.months < 12 ? " so far" : ""}, ${linux.ratio} times as much. Windows fell ${Math.abs(s("windows").delta).toFixed(1)} points; macOS gained ${s("macos").delta.toFixed(1)}.`
+    : "";
+const sc = "https://gs.statcounter.com/os-market-share/desktop/worldwide";
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  name: "Desktop operating system market share by year: Windows, macOS, Linux",
+  description: "Yearly average desktop OS market share worldwide, from StatCounter Global Stats monthly figures.",
+  temporalCoverage: first && last ? `${first.year}/${last.year}` : undefined,
+  isBasedOn: sc,
+  license: "https://creativecommons.org/licenses/by-sa/3.0/",
+  distribution: [{ "@type": "DataDownload", encodingFormat: "text/csv", contentUrl: new URL("/data/market-share.csv", Astro.site).href }],
+};
+---
+
+<Base
+  title="Linux vs Windows vs macOS desktop market share over time | LinuxStatistics"
+  description={`Compare desktop market share for Windows, macOS and Linux since ${first?.year}. ${lead}`}
+  jsonLd={jsonLd}
+>
+  <div class="page">
+    <div class="with-side">
+      <div class="with-side-main">
+        <h1>Desktop share: Linux, Windows and macOS</h1>
+        <p class="lede">{lead}</p>
+        {latest && <p class="legal-meta">Latest month: Linux {latest.value.toFixed(2)}% ({latest.label}).</p>}
+
+        <ShareCompare client:visible rows={rows} />
+
+        <section class="sc-sec" aria-labelledby="grow-h">
+          <h2 id="grow-h">Who grew</h2>
+          <div class="table-scroll">
+            <table class="data-table sc-growth">
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th class="num" scope="col">{first?.year}</th>
+                  <th class="num" scope="col">{last?.year}{last && last.months < 12 ? " so far" : ""}</th>
+                  <th class="num" scope="col">Change since {first?.year}</th>
+                  <th class="num" scope="col">Last 10 years</th>
+                </tr>
+              </thead>
+              <tbody>
+                {OSES.map((os) => {
+                  const a = s(os);
+                  const t = s(os, ten);
+                  return (
+                    <tr>
+                      <th scope="row"><i class={`sc-swatch os-${os}`} aria-hidden="true" /> {OS_LABEL[os]}</th>
+                      <td class="num">{a.from.toFixed(2)}%</td>
+                      <td class="num">{a.to.toFixed(2)}%</td>
+                      <td class="num"><span class={`trend ${a.delta >= 0 ? "up" : "down"}`}>{a.delta >= 0 ? "▲" : "▼"} {Math.abs(a.delta).toFixed(1)} pts</span>{a.ratio != null && a.ratio > 1 && <span class="sc-ratio"> ×{a.ratio}</span>}</td>
+                      <td class="num"><span class={`trend ${t.delta >= 0 ? "up" : "down"}`}>{t.delta >= 0 ? "▲" : "▼"} {Math.abs(t.delta).toFixed(1)} pts</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p class="note">"Pts" are percentage points: going from 2% to 5% is +3 points. "×" is how many times larger the share is now.</p>
+        </section>
+
+        <section class="sc-sec" aria-labelledby="year-h">
+          <details class="sc-years">
+            <summary><h2 id="year-h">Every year</h2></summary>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr><th scope="col">Year</th>{OSES.map((o) => <th class="num" scope="col">{OS_LABEL[o]}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {[...rows].reverse().map((r) => (
+                    <tr>
+                      <th scope="row">{r.year}{r.months < 12 ? ` (${r.months} months)` : ""}</th>
+                      {OSES.map((o) => <td class="num">{r.values[o].toFixed(2)}%</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </section>
+
+        <section class="sc-sec" aria-labelledby="know-h">
+          <h2 id="know-h">Things to know</h2>
+          <ul class="sc-list">
+            <li>StatCounter counts page views on websites that use its tracker, so this is share of web browsing on desktops, not installed computers.</li>
+            <li>Each year is the average of its months. Single months can jump by a point or more, so the yearly line shows the trend.</li>
+            <li>ChromeOS and other systems make up the rest; they aren't shown.</li>
+          </ul>
+        </section>
+
+        <p class="source-note">
+          Source: <a href={sc} target="_blank" rel="noopener noreferrer">StatCounter Global Stats</a>, desktop OS market share, worldwide, monthly (CC BY-SA 3.0).
+          Download the monthly figures as <a href="/data/market-share.csv">CSV</a>.
+        </p>
+      </div>
+      <aside class="side" aria-label="More">
+        <SponsorCard context="people following Linux's growth" />
+        <SwitchSide />
+      </aside>
+    </div>
+  </div>
+</Base>

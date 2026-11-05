@@ -29,6 +29,7 @@ export function ShareStat({ series, className, hint, latest: month }: ShareStatP
           ▲ +{deltaPts.toFixed(1)} pts since {first.year} (yearly average)
         </span>
       )}
+      <a className="share-more" href="/desktop-share/">Compare with Windows and macOS</a>
       {hint && <div className="hud-hint">{hint}</div>}
     </div>
   );
