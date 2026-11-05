@@ -1,0 +1,73 @@
+---
+import { AppAlternatives } from "./AppAlternatives";
+import { Faq } from "./Faq";
+import { CATEGORIES, appsFor } from "../lib/app-alternatives";
+import { loadDistros } from "../lib/data";
+import { PROFILES } from "../lib/picker-profiles";
+import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
+import { END_OF_10, WHAT_CHANGES, picksFor, switchFaq, type From } from "../lib/switch";
+
+interface Props {
+  from: From;
+}
+const { from } = Astro.props;
+const list = await loadDistros();
+const bySlug = new Map(list.map((d) => [d.slug, d]));
+const picks = picksFor(from, PROFILES).filter((p) => bySlug.has(p.key));
+const apps = appsFor(from);
+const faq = switchFaq(from);
+const label = from === "windows" ? "Windows" : "a Mac";
+---
+
+<section class="switch-sec" aria-labelledby="picks-h">
+  <h2 id="picks-h">Good places to start</h2>
+  <ol class="switch-picks">
+    {picks.map((p) => {
+      const d = bySlug.get(p.key)!;
+      const t = telemetryFor(p.key);
+      return (
+        <li>
+          <h3><a href={`/distro/${d.slug}/`}>{d.name}</a>{d.rank != null && <span class="sub"> · #{d.rank} on DistroWatch</span>}</h3>
+          <p class="switch-why">{p.why}</p>
+          <p>{p.profile.blurb}</p>
+          <p class="telemetry-line">Telemetry: {t ? TELEMETRY_LABEL[t.level] : "not checked yet"}</p>
+        </li>
+      );
+    })}
+  </ol>
+  <p>Not sure? <a href="/pick/">Answer a few questions</a> for three matches with reasons.</p>
+</section>
+
+<slot />
+
+<section class="switch-sec" aria-labelledby="changes-h">
+  <h2 id="changes-h">What changes day to day</h2>
+  <dl class="switch-changes">
+    {WHAT_CHANGES[from].map((c) => (
+      <div>
+        <dt>{c.title}</dt>
+        <dd>{c.body}</dd>
+      </div>
+    ))}
+  </dl>
+</section>
+
+<section class="switch-sec" aria-labelledby="apps-h">
+  <h2 id="apps-h">Your apps on Linux</h2>
+  <p>What to use instead of {apps.length} common apps from {label}. Missing one? <a href="/suggest/?kind=correction">Tell us</a>.</p>
+  <AppAlternatives client:visible apps={apps} categories={CATEGORIES} />
+</section>
+
+<section class="switch-sec" aria-labelledby="help-h">
+  <h2 id="help-h">Get help installing</h2>
+  <p>
+    <a href={END_OF_10} target="_blank" rel="noopener noreferrer">End of 10</a> lists repair cafés, install events and local helpers
+    worldwide, run by volunteers. Each distro's own site has install guides; start with a live USB so you can try it first.
+  </p>
+</section>
+
+<Faq items={faq} />
+<p class="source-note">
+  Picks and app notes are LinuxStatistics editorial notes based on each project's own documentation. Corrections welcome via the
+  <a href="/suggest/?kind=correction">suggestion form</a>. Install help listings from End of 10 (CC BY 4.0).
+</p>

@@ -34,6 +34,13 @@ check data/market-share.csv 'month,region,platform' "market-share.csv has its he
 check "badge/$first.svg" '<svg' "badge /badge/$first.svg renders"
 check "badge/$first-light.svg" '<svg' "light badge renders"
 check "distro/$first/index.html" 'Badge for your README' "distro page offers the badge"
+check switch/index.html 'href="/switch/windows/"' "switch chooser links both pages"
+check switch/windows/index.html '12 October 2027' "Windows switch page has the ESU date"
+check switch/windows/index.html 'apps-table' "Windows switch page has the app table"
+check switch/windows/index.html 'FAQPage' "Windows switch page has FAQ JSON-LD"
+check switch/mac/index.html 'Asahi' "Mac switch page covers Apple Silicon"
+check switch/mac/index.html 'apps-table' "Mac switch page has the app table"
+check distro/mint/index.html 'href="/switch/windows/"' "Mint links to the Windows switch page"
 [ -f "$DIST/favicon.svg" ] && echo "ok:   favicon" || { echo "FAIL: favicon missing"; fail=1; }
 [ -f "$DIST/sitemap-index.xml" ] && echo "ok:   sitemap" || { echo "FAIL: sitemap missing"; fail=1; }
 [ -f "$DIST/robots.txt" ] && echo "ok:   robots.txt" || { echo "FAIL: robots.txt missing"; fail=1; }

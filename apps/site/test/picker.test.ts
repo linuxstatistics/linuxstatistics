@@ -57,3 +57,20 @@ test("the no-telemetry fact is shown even when counting is fine; only the order 
   expect(strict.find((x) => x.key === "popos")?.reasons).toContain("Sends no usage data");
   expect(strict.map((x) => x.key)).not.toContain("bazzite");
 });
+
+test("coming from a Mac nudges toward a Mac-style desktop only without a desktop preference", () => {
+  const mac = suggest({ ...base, from: "mac" }, PROFILES, rankOf);
+  expect(mac.some((r) => r.reasons.includes("Feels familiar coming from a Mac"))).toBe(true);
+  const pinned = suggest({ ...base, from: "mac", desktop: "kde" }, PROFILES, rankOf);
+  expect(pinned.every((r) => !r.reasons.includes("Feels familiar coming from a Mac"))).toBe(true);
+});
+
+test("coming from Windows puts a Windows-style distro first", () => {
+  const s = suggest({ ...base, from: "windows" }, PROFILES, rankOf);
+  const p = PROFILES.find((x) => x.key === s[0]!.key)!;
+  expect(p.desktops).toContain("windows-like");
+});
+
+test("already on Linux changes nothing", () => {
+  expect(suggest({ ...base, from: "linux" }, PROFILES, rankOf)).toEqual(suggest(base, PROFILES, rankOf));
+});

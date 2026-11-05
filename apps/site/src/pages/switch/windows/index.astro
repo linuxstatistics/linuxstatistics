@@ -1,0 +1,53 @@
+---
+import Base from "../../../layouts/Base.astro";
+import SwitchPage from "../../../components/SwitchPage.astro";
+import { SponsorCard } from "../../../components/SponsorCard";
+import { faqJsonLd } from "../../../lib/faq";
+import { OLDER_PC_PICKS, WINDOWS_10, fmt, switchFaq } from "../../../lib/switch";
+import { loadDistros } from "../../../lib/data";
+
+const list = await loadDistros();
+const nameOf = new Map(list.map((d) => [d.slug, d.name]));
+const light = OLDER_PC_PICKS.filter((k) => nameOf.has(k));
+---
+
+<Base
+  title="Switching from Windows to Linux: which distro, and what changes | LinuxStatistics"
+  description={`Windows 10 updates end ${fmt(WINDOWS_10.consumerEsuEnds)} for home PCs. Which Linux distro to pick, what changes day to day, and what to use instead of your Windows apps.`}
+  jsonLd={faqJsonLd(switchFaq("windows"))}
+>
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/switch/">Switch to Linux</a> / From Windows</nav>
+    <div class="with-side">
+      <div class="with-side-main switch-page">
+        <h1>Switching from Windows</h1>
+        <p class="lede">Which distro to pick, what changes, and what to use instead of your Windows apps.</p>
+
+        <section class="switch-sec switch-why-now" aria-labelledby="now-h">
+          <h2 id="now-h">Why now</h2>
+          <p>
+            Windows 10 support ended on {fmt(WINDOWS_10.endOfSupport)}. Home PCs enrolled in Microsoft's Extended Security Updates
+            get security fixes until <strong>{fmt(WINDOWS_10.consumerEsuEnds)}</strong>, then nothing.
+            <a href={WINDOWS_10.source} target="_blank" rel="noopener noreferrer">Microsoft's page</a>
+          </p>
+          <h3>Your PC can't run Windows 11? It can still run Linux.</h3>
+          <p>
+            Most distros run well on PCs from the last ten years. For older or slower machines, try
+            {light.map((k, i) => (
+              <>{i > 0 && (i === light.length - 1 ? " or " : ", ")}<a href={`/distro/${k}/`}>{nameOf.get(k)}</a></>
+            ))}.
+          </p>
+        </section>
+
+        <SwitchPage from="windows" />
+      </div>
+      <aside class="side" aria-label="More">
+        <SponsorCard context="people switching from Windows" />
+        <section>
+          <h2>Coming from a Mac?</h2>
+          <p><a href="/switch/mac/">Switching from a Mac</a></p>
+        </section>
+      </aside>
+    </div>
+  </div>
+</Base>

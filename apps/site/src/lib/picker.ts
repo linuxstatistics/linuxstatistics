@@ -9,7 +9,16 @@ export interface Answers {
   desktop: Desktop | "any";
   /** "none": nothing sent unless I agree. Missing or "any": no preference. */
   telemetry?: "none" | "any";
+  /** Where the user is coming from. Nudges the desktop style when they have no preference. */
+  from?: "windows" | "mac" | "linux" | "chromeos";
 }
+
+/** The desktop that feels familiar for each origin. */
+const FAMILIAR: Partial<Record<NonNullable<Answers["from"]>, { desktop: Desktop; reason: string }>> = {
+  windows: { desktop: "windows-like", reason: "Feels familiar coming from Windows" },
+  mac: { desktop: "mac-like", reason: "Feels familiar coming from a Mac" },
+  chromeos: { desktop: "gnome", reason: "Simple, launcher-style desktop like ChromeOS" },
+};
 
 export interface Suggestion {
   key: string;
@@ -74,6 +83,11 @@ export function suggest(
     if (answers.desktop !== "any" && p.desktops.includes(answers.desktop)) {
       score += 2;
       reasons.push(`Offers ${DESKTOP_TEXT[answers.desktop]}`);
+    }
+    const fam = answers.from ? FAMILIAR[answers.from] : undefined;
+    if (fam && answers.desktop === "any" && p.desktops.includes(fam.desktop)) {
+      score += 2;
+      reasons.push(fam.reason);
     }
     // Telemetry: only distros we've checked count as "sends nothing by default".
     // The fact is always shown; the answer only changes the score.

@@ -1,0 +1,44 @@
+---
+import Base from "../../../layouts/Base.astro";
+import SwitchPage from "../../../components/SwitchPage.astro";
+import { SponsorCard } from "../../../components/SponsorCard";
+import { faqJsonLd } from "../../../lib/faq";
+import { switchFaq } from "../../../lib/switch";
+---
+
+<Base
+  title="Switching from Mac to Linux: which distro, and what changes | LinuxStatistics"
+  description="Which Linux distro to pick on an Intel or Apple Silicon Mac, what changes day to day, and what to use instead of your Mac apps."
+  jsonLd={faqJsonLd(switchFaq("mac"))}
+>
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/switch/">Switch to Linux</a> / From a Mac</nav>
+    <div class="with-side">
+      <div class="with-side-main switch-page">
+        <h1>Switching from a Mac</h1>
+        <p class="lede">Which distro to pick, what works on your Mac, and what to use instead of your Mac apps.</p>
+
+        <section class="switch-sec" aria-labelledby="mac-h">
+          <h2 id="mac-h">Intel or Apple Silicon?</h2>
+          <p>
+            <strong>Intel Macs</strong> run most distros, though some need extra Wi-Fi or camera drivers.
+            <strong>Apple Silicon Macs</strong> (M1, M2) run
+            <a href="https://asahilinux.org/fedora/" target="_blank" rel="noopener noreferrer">Fedora Asahi Remix</a>, installed next to macOS.
+            Newer chips and some features aren't supported yet; check the
+            <a href="https://asahilinux.org/docs/platform/feature-support/overview/" target="_blank" rel="noopener noreferrer">Asahi feature list</a>
+            for your model.
+          </p>
+        </section>
+
+        <SwitchPage from="mac" />
+      </div>
+      <aside class="side" aria-label="More">
+        <SponsorCard context="people switching from a Mac" />
+        <section>
+          <h2>Coming from Windows?</h2>
+          <p><a href="/switch/windows/">Switching from Windows</a></p>
+        </section>
+      </aside>
+    </div>
+  </div>
+</Base>

@@ -13,6 +13,7 @@ import { ProsCons } from "../../components/ProsCons";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { WhoItSuits } from "../../components/PairVerdict";
 import { notesFor } from "../../lib/distro-notes";
+import { PROFILES } from "../../lib/picker-profiles";
 import { reasonsFor } from "../../lib/verdict";
 import { compareSlug, popularPairs } from "../../lib/compare";
 import { compareSuggestions, neighbours, sameFamily } from "../../lib/related";
@@ -41,6 +42,9 @@ const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank 
 const asOf = dataDate(meta, "distrowatch");
 const site = Astro.site!.href.replace(/\/$/, "");
 const snippets = badgeSnippets(site, data.slug, data.name);
+const switchFrom = (["windows", "mac"] as const).filter((f) =>
+  PROFILES.find((p) => p.key === data.slug)?.desktops.includes(f === "windows" ? "windows-like" : "mac-like"),
+);
 const familyName = FAMILY_LABELS[data.family];
 const family_label = data.family === "independent" ? "independent" : `${familyName}-family`;
 
@@ -84,6 +88,13 @@ const jsonLd = {
           <section class="dsec">
             <WhoItSuits name={data.name} reasons={suits} />
           </section>
+        )}
+        {switchFrom.length > 0 && (
+          <p class="switch-link">
+            {switchFrom.map((f, i) => (
+              <>{i > 0 && " · "}<a href={`/switch/${f}/`}>Switching from {f === "windows" ? "Windows" : "a Mac"}? What changes and which apps to use</a></>
+            ))}
+          </p>
         )}
         {notes && <ProsCons notes={notes} />}
         <RankByPeriod periods={data.rankByPeriod} />

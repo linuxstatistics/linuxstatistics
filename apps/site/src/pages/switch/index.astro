@@ -1,0 +1,25 @@
+---
+import Base from "../../layouts/Base.astro";
+import { WINDOWS_10, fmt } from "../../lib/switch";
+---
+
+<Base
+  title="Switch to Linux from Windows or Mac | LinuxStatistics"
+  description="Leaving Windows or macOS? Pick a Linux distro with reasons, see what changes, and find Linux alternatives to your apps."
+>
+  <div class="page switch-page">
+    <h1>Switch to Linux</h1>
+    <p class="lede">Pick a distro with reasons, see what changes, and find what to use instead of your apps.</p>
+    <div class="switch-choose">
+      <a class="switch-card" href="/switch/windows/">
+        <h2>From Windows</h2>
+        <p>Windows 10 home updates end {fmt(WINDOWS_10.consumerEsuEnds)}. Distros that feel familiar, gaming, dual boot and your apps.</p>
+      </a>
+      <a class="switch-card" href="/switch/mac/">
+        <h2>From a Mac</h2>
+        <p>Intel and Apple Silicon, Mac-like desktops, iCloud and AirDrop, and your apps.</p>
+      </a>
+    </div>
+    <p>Already know what you want? <a href="/pick/">Answer a few questions</a> or browse the <a href="/">rankings</a>.</p>
+  </div>
+</Base>
