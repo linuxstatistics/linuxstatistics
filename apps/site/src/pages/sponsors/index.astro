@@ -19,7 +19,7 @@ const count = (await loadDistros()).length;
     <h2>Current sponsor</h2>
     {sponsor ? (
       <p>
-        <a href={sponsor.href} target="_blank" rel="sponsored noopener">{sponsor.name}</a>: {sponsor.tagline}
+        <a href={sponsor.href} target="_blank" rel="sponsored nofollow noopener">{sponsor.name}</a>: {sponsor.tagline}
       </p>
     ) : (
       <p>The sponsor slot is open. Thanks for considering it.</p>
@@ -27,7 +27,7 @@ const count = (await loadDistros()).length;
 
     <h2>What sponsors get</h2>
     <ul>
-      <li>A single sponsor slot in the footer of every page: logo, name, one line and a link. One sponsor at a time, so it isn't lost among others.</li>
+      <li>A sponsor card in the sidebar of the home page, the rising chart, the picker and every distro page, plus the footer slot on every page: logo, name, one line and a link. One sponsor at a time, so it isn't lost among others.</li>
       <li>Placement across {count} distro pages, comparisons, the rising chart and the picker.</li>
       <li>A mention in the monthly State of Linux Distros email.</li>
     </ul>

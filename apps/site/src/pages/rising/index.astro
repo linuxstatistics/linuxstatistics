@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { SponsorCard } from "../../components/SponsorCard";
 import { FAMILY_LABELS } from "../../lib/families";
 import { loadMeta, loadRising, dataDate } from "../../lib/data";
 
@@ -31,6 +32,8 @@ const jsonLd = {
 
 <Base title={title} description={description} jsonLd={jsonLd}>
   <div class="page">
+    <div class="with-side">
+    <div class="with-side-main">
     <h1>Rising this month</h1>
     <p class="lede">
       Distros in the DistroWatch top 100 (last 12 months) that rank higher over the last month, biggest climb first.
@@ -69,5 +72,15 @@ const jsonLd = {
       Source: <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page-hit rankings, last-1-month vs last-12-months tables{asOf ? `, captured ${asOf}` : ""}.
       Page hits measure interest on DistroWatch, not installs.
     </p>
+    </div>
+    <aside class="side" aria-label="More">
+      <SponsorCard context="people tracking which distros are taking off" />
+      <section>
+        <h2>Not sure where to start?</h2>
+        <p>Five questions, three matches, and why each one fits.</p>
+        <a class="cta" href="/pick/">Find my distro</a>
+      </section>
+    </aside>
+    </div>
   </div>
 </Base>

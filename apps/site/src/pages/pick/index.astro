@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { SponsorCard } from "../../components/SponsorCard";
 import { DistroPicker } from "../../components/DistroPicker";
 import { loadDistros } from "../../lib/data";
 import { PROFILES } from "../../lib/picker-profiles";
@@ -14,8 +15,20 @@ const distros = list.filter((d) => keys.has(d.slug)).map((d) => ({ slug: d.slug,
   description="Answer five questions about your experience, hardware and taste to get three Linux distro suggestions, each with the reasons it fits."
 >
   <div class="page">
-    <h1>Which Linux distro should I use?</h1>
-    <p class="lede">Five quick questions. You get three suggestions and why each one fits. Nothing is saved.</p>
-    <DistroPicker client:load distros={distros} />
+    <div class="with-side">
+      <div class="with-side-main">
+        <h1>Which Linux distro should I use?</h1>
+        <p class="lede">Five quick questions. You get three suggestions and why each one fits. Nothing is saved.</p>
+        <DistroPicker client:load distros={distros} />
+      </div>
+      <aside class="side" aria-label="More">
+        <SponsorCard context="people about to install Linux" />
+        <section>
+          <h2>See the full chart</h2>
+          <p>Every tracked distro ranked by interest, with last month's movers.</p>
+          <p><a href="/">Rankings</a> · <a href="/rising/">Rising this month</a></p>
+        </section>
+      </aside>
+    </div>
   </div>
 </Base>

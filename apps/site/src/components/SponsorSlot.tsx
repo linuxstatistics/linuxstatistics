@@ -23,7 +23,7 @@ export function SponsorSlot({
   }
   return (
     <div className="sponsor-slot">
-      <a href={sponsor.href} target="_blank" rel="sponsored noopener" className="sponsor-link">
+      <a href={sponsor.href} target="_blank" rel="sponsored nofollow noopener" className="sponsor-link">
         <img src={sponsor.logoUrl} alt={sponsor.name} className="sponsor-logo" />
         <span className="sponsor-tagline">{sponsor.tagline}</span>
       </a>

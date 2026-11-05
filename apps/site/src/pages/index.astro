@@ -3,6 +3,7 @@ import Base from "../layouts/Base.astro";
 import { ListView } from "../components/ListView";
 import { Podium } from "../components/Podium";
 import { StatsMenu } from "../components/StatsMenu";
+import { SponsorCard } from "../components/SponsorCard";
 import { loadDistros, loadMarketShare, loadMeta, loadRising, dataDate } from "../lib/data";
 import { buildHeadline } from "../lib/headline";
 import { latestLinuxShare } from "../lib/marketShare";
@@ -73,6 +74,7 @@ const jsonLd = {
           <p><a href="/rising/">All risers</a></p>
         </section>
       )}
+      <SponsorCard />
       {share && (
         <section>
           <h2>Desktop share</h2>
