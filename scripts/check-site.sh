@@ -24,6 +24,16 @@ check privacy/index.html 'Your rights' "privacy page renders"
 check terms/index.html 'Ratings and reviews' "terms page renders"
 check sponsors/index.html "doesn't buy" "sponsors page renders"
 check suggest/index.html 'Suggestions' "suggest page renders"
+check data/index.html 'CC BY 4.0' "open data page renders"
+check data/index.html '/api/v1/distros' "open data page documents the v1 API"
+check data/distros.json '"license": "CC-BY-4.0"' "distros.json carries its licence"
+check data/distros.csv 'slug,name,family' "distros.csv has its header"
+check data/rank-history.csv 'slug,captured_on,rank_12m' "rank-history.csv has its header"
+check data/notes.json '"pros"' "notes.json has editorial data"
+check data/market-share.csv 'month,region,platform' "market-share.csv has its header"
+check "badge/$first.svg" '<svg' "badge /badge/$first.svg renders"
+check "badge/$first-light.svg" '<svg' "light badge renders"
+check "distro/$first/index.html" 'Badge for your README' "distro page offers the badge"
 [ -f "$DIST/favicon.svg" ] && echo "ok:   favicon" || { echo "FAIL: favicon missing"; fail=1; }
 [ -f "$DIST/sitemap-index.xml" ] && echo "ok:   sitemap" || { echo "FAIL: sitemap missing"; fail=1; }
 [ -f "$DIST/robots.txt" ] && echo "ok:   robots.txt" || { echo "FAIL: robots.txt missing"; fail=1; }

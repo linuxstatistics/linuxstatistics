@@ -7,6 +7,8 @@ import { RankByPeriod } from "../../components/RankByPeriod";
 import { RelatedLinks } from "../../components/RelatedLinks";
 import { CompareWith } from "../../components/CompareWith";
 import { SponsorCard } from "../../components/SponsorCard";
+import { BadgeEmbed } from "../../components/BadgeEmbed";
+import { badgeSnippets } from "../../lib/badge";
 import { ProsCons } from "../../components/ProsCons";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { WhoItSuits } from "../../components/PairVerdict";
@@ -38,6 +40,7 @@ const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "distrowatch");
 const site = Astro.site!.href.replace(/\/$/, "");
+const snippets = badgeSnippets(site, data.slug, data.name);
 const familyName = FAMILY_LABELS[data.family];
 const family_label = data.family === "independent" ? "independent" : `${familyName}-family`;
 
@@ -88,6 +91,11 @@ const jsonLd = {
         <section class="dsec" aria-labelledby="rate-h">
           <h2 id="rate-h">Rate {data.name}</h2>
           <DistroRating client:only="react" slug={data.slug} />
+        </section>
+        <section class="dsec" aria-labelledby="badge-h">
+          <h2 id="badge-h">Badge for your README</h2>
+          <p class="note">Maintain {data.name} or write about it? Show its rank and link here.</p>
+          <BadgeEmbed client:visible slug={data.slug} name={data.name} markdown={snippets.markdown} html={snippets.html} />
         </section>
         <AffiliateBlock />
         <p class="source-note">

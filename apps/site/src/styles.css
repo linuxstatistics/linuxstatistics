@@ -513,6 +513,19 @@ h1, h2, h3 { text-wrap: balance; }
 .crypto-addr { font: 12px var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: all; }
 .crypto-copy { background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 3px 8px; font-size: 12px; color: var(--ink); cursor: pointer; }
 
+/* Open data page and badge embed */
+.data-files { list-style: none; padding: 0 !important; }
+.data-files li { display: grid; gap: 2px; padding: 10px 0; border-bottom: 1px solid var(--row); }
+.data-files span { color: var(--ink2); font-size: 14px; }
+.data-page code { overflow-wrap: anywhere; }
+.credit-line { max-width: 68ch; margin: 0 0 16px; padding: 12px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; }
+.badge-embed { display: grid; gap: 8px; }
+.badge-preview { display: flex; gap: 10px; flex-wrap: wrap; margin: 0 0 4px; }
+.embed-row { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+.embed-label { font: 600 12px var(--mono); color: var(--ink2); }
+.embed-code { font: 12px var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: all; }
+.distro-main .note { font: 13px var(--mono); color: var(--ink2); margin: 0 0 12px; }
+
 /* Admin: suggestions queue */
 .admin-page { max-width: 980px; }
 .adm-gate { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink2); }
