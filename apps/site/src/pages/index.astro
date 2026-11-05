@@ -9,7 +9,6 @@ import { latestLinuxShare } from "../lib/marketShare";
 
 const [items, marketShare, meta, rising] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta(), loadRising()]);
 const asOf = dataDate(meta, "distrowatch");
-const asOfText = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 const site = Astro.site!.href.replace(/\/$/, "");
 const headline = buildHeadline(items);
 const share = latestLinuxShare(marketShare);
@@ -46,14 +45,6 @@ const jsonLd = {
     ) : (
       <h1>Linux distro rankings</h1>
     )}
-    <div>
-      <p>The Linux distro chart: DistroWatch interest over the last 12 months, with last month's movers marked.</p>
-      <div class="meta">
-        <span>tracked <b>{items.length}</b></span>
-        {share && <span>desktop share <b>{share.value.toFixed(2)}%</b></span>}
-        {asOfText && <span>captured <b>{asOfText}</b></span>}
-      </div>
-    </div>
   </div>
 
   <div class="home">

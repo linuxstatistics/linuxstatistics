@@ -123,14 +123,11 @@ h1, h2, h3 { text-wrap: balance; }
 .breadcrumb a { color: var(--ink2); }
 
 /* ---------- Home masthead ---------- */
-.mast { max-width: var(--wrap); margin: 0 auto; padding: 28px var(--gutter) 30px; display: grid; grid-template-columns: 1.6fr 1fr; gap: 56px; align-items: end; }
+.mast { max-width: var(--wrap); margin: 0 auto; padding: 28px var(--gutter) 30px; }
 .mast h1 { font: 700 clamp(38px, 5vw, 68px)/1 var(--display); letter-spacing: -0.03em; margin: 0; }
 .mast h1 em { font-style: normal; color: var(--accent); }
 .mast h1 .sub { display: block; margin-top: 0.12em; font-weight: 400; font-size: 0.62em; letter-spacing: -0.015em; color: var(--ink2); }
 .mast h1 .sub b { font-weight: 600; color: var(--ink); }
-.mast p { margin: 0; color: var(--ink2); font-size: 16px; max-width: 46ch; }
-.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; font: 13px var(--mono); color: var(--ink2); }
-.meta b { color: var(--ink); font-weight: 600; }
 
 .home { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter) 64px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; }
 .home > * { min-width: 0; }
@@ -440,7 +437,13 @@ h1, h2, h3 { text-wrap: balance; }
 .footer-cols { max-width: var(--wrap); margin: 0 auto; padding: 40px var(--gutter) 56px; display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 40px; }
 .footer-cols h2 { font: 600 12px var(--mono); color: var(--ink2); text-transform: uppercase; letter-spacing: 0.06em; margin: 0 0 14px; }
 .footer-about .brand { font-size: 18px; }
-.footer-credit { font: 12px/1.7 var(--mono); color: var(--ink2); margin: 14px 0 0; max-width: 46ch; }
+.footer-credit { font: 12px/1.7 var(--mono); color: var(--ink2); margin: 14px 0 0; max-width: 52ch; }
+.footer-facts { display: flex; flex-wrap: wrap; gap: 12px 28px; margin: 18px 0 0; }
+.footer-facts div { display: grid; gap: 2px; }
+.footer-facts dt { font: 12px var(--mono); color: var(--ink2); }
+.footer-facts dd { margin: 0; font: 700 18px/1.2 var(--display); letter-spacing: -0.01em; color: var(--ink); }
+.footer-facts dd a { color: inherit; text-decoration: none; }
+.footer-facts dd a:hover { color: var(--accent); }
 .footer-credit a { color: var(--ink2); }
 .footer-links ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .footer-links a { color: var(--ink); text-decoration: none; font-size: 14px; }
@@ -471,7 +474,7 @@ code { font-family: var(--mono); font-size: 0.92em; }
   .footer-about { grid-column: 1 / -1; }
   .signup-inner { grid-template-columns: 1fr; gap: 18px; }
   .distro-grid { grid-template-columns: 1fr; gap: 48px; }
-  .mast, .home { grid-template-columns: 1fr; gap: 28px; }
+  .home { grid-template-columns: 1fr; gap: 28px; }
   .podium { grid-template-columns: 1fr; gap: 8px; }
   .pod { display: grid; grid-template-columns: auto 1fr; column-gap: 16px; align-items: center; padding: 12px 16px 16px; }
   .pod .pr, .pod:first-child .pr { font-size: 44px; grid-row: span 2; }

@@ -4,7 +4,8 @@ import { HeaderAuth } from "../components/HeaderAuth";
 import { FooterEmail } from "../components/FooterEmail";
 import { SponsorSlot } from "../components/SponsorSlot";
 import { JumpToDistro } from "../components/JumpToDistro";
-import { loadDistros } from "../lib/data";
+import { loadDistros, loadMarketShare, loadMeta, dataDate } from "../lib/data";
+import { latestLinuxShare } from "../lib/marketShare";
 
 interface Props {
   title: string;
@@ -15,7 +16,12 @@ interface Props {
 
 const { title, description, jsonLd, noindex = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const jumpItems = (await loadDistros()).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
+const [allDistros, marketShare, meta] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta()]);
+const jumpItems = allDistros.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
+// Data facts for the footer, shown on every page.
+const asOf = dataDate(meta, "distrowatch");
+const asOfText = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
+const share = latestLinuxShare(marketShare);
 ---
 
 <!doctype html>
@@ -82,10 +88,16 @@ const jumpItems = (await loadDistros()).map((d) => ({ slug: d.slug, name: d.name
           <div class="footer-about">
             <a class="brand" href="/" aria-label="LinuxStatistics home">linux<b>stats</b></a>
             <p class="footer-credit">
-              Data from <a href="https://distrowatch.com/" rel="noreferrer">DistroWatch</a> page-hit rankings,{" "}
-              <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a> and{" "}
-              <a href="https://github.com/" rel="noreferrer">GitHub</a>. Page hits measure interest, not installs.
+              The Linux distro chart: <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page-hit interest over the last 12 months, with last month's movers
+              marked. Desktop share from <a href="https://gs.statcounter.com/" rel="noreferrer">StatCounter Global Stats</a>,
+              repository activity from <a href="https://github.com/" rel="noreferrer">GitHub</a>. Page hits measure interest,
+              not installs.
             </p>
+            <dl class="footer-facts">
+              <div><dt>Tracked</dt><dd>{allDistros.length}</dd></div>
+              {share && <div><dt>Desktop share</dt><dd>{share.value.toFixed(2)}%</dd></div>}
+              {asOfText && <div><dt>Captured</dt><dd><a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">{asOfText}</a></dd></div>}
+            </dl>
           </div>
           <nav class="footer-links" aria-label="Footer">
             <h2>Explore</h2>
