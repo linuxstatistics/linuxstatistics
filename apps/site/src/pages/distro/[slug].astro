@@ -73,12 +73,21 @@ const jsonLd = {
     <p class="lede">{rankText}{data.firstReleaseYear ? ` · first released ${data.firstReleaseYear}` : ""}</p>
     <div class="distro-grid">
       <div class="distro-main">
-        <DistroStats data={data} baseName={baseName} />
-        <WhoItSuits name={data.name} reasons={suits} />
+        <section class="dsec dsec-overview" aria-label="Overview">
+          <DistroStats data={data} baseName={baseName} />
+        </section>
+        {suits.length > 0 && (
+          <section class="dsec">
+            <WhoItSuits name={data.name} reasons={suits} />
+          </section>
+        )}
         {notes && <ProsCons notes={notes} />}
-        <TelemetryNote slug={data.slug} />
         <RankByPeriod periods={data.rankByPeriod} />
-        <DistroRating client:only="react" slug={data.slug} />
+        <TelemetryNote slug={data.slug} />
+        <section class="dsec" aria-labelledby="rate-h">
+          <h2 id="rate-h">Rate {data.name}</h2>
+          <DistroRating client:only="react" slug={data.slug} />
+        </section>
         <AffiliateBlock />
         <p class="source-note">
           Ranking from <a href="https://distrowatch.com/dwres.php?resource=popularity" rel="noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.{" "}

@@ -8,9 +8,8 @@ export function TelemetryNote({ slug }: { slug: string }) {
       <h2 id="telemetry-h">Telemetry</h2>
       {t ? (
         <>
-          <p>
-            <span className={`tm-badge tm-${t.level}`}>{TELEMETRY_LABEL[t.level]}</span> {t.detail}
-          </p>
+          <span className={`tm-badge tm-${t.level}`}>{TELEMETRY_LABEL[t.level]}</span>
+          <p className="tm-detail">{t.detail}</p>
           {t.turnOff && (
             <p className="tm-off">
               To turn it off: <code>{t.turnOff}</code>
