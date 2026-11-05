@@ -30,6 +30,20 @@ const asOf = dataDate(meta, "distrowatch");
 const asOfText = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 const share = latestLinuxShare(marketShare);
 const year = new Date().getUTCFullYear();
+
+const NAV = [
+  { href: "/", label: "Rankings", desc: "Every distro ranked by interest" },
+  { href: "/rising/", label: "Rising", desc: "Biggest climbers this month" },
+  { href: "/pick/", label: "Which distro?", desc: "A few questions, three matches" },
+  { href: "/switch/", label: "Switch to Linux", desc: "Coming from Windows or a Mac" },
+];
+const MORE = [
+  { href: "/compare/", label: "Compare" },
+  { href: "/data/", label: "Open data" },
+  { href: "/about/", label: "About" },
+];
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 ---
 
 <!doctype html>
@@ -67,9 +81,9 @@ const year = new Date().getUTCFullYear();
       <header class="app-header">
         <a class="brand" href="/" aria-label="LinuxStatistics home">linux<b>stats</b></a>
         <nav class="site-nav" aria-label="Main">
-          <a href="/" aria-current={Astro.url.pathname === "/" ? "page" : undefined}>Rankings</a>
-          <a href="/rising/" aria-current={Astro.url.pathname.startsWith("/rising") ? "page" : undefined}>Rising</a>
-          <a href="/pick/" aria-current={Astro.url.pathname.startsWith("/pick") ? "page" : undefined}>Which distro?</a>
+          {NAV.map((n) => (
+            <a href={n.href} aria-current={isCurrent(n.href) ? "page" : undefined}>{n.label}</a>
+          ))}
         </nav>
         <div class="header-right">
           <div class="jump-slot"><JumpToDistro client:idle items={jumpItems} /></div>
@@ -79,6 +93,29 @@ const year = new Date().getUTCFullYear();
             <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" /></svg>
           </button>
           <div class="auth-slot"><HeaderAuth client:only="react" /></div>
+          <details class="menu" id="site-menu">
+            <summary class="menu-btn" aria-label="Menu">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path class="l1" d="M4 7h16" /><path class="l2" d="M4 12h16" /><path class="l3" d="M4 17h16" /></svg>
+              <span>Menu</span>
+            </summary>
+            <div class="menu-panel">
+              <nav aria-label="Main">
+                <ul class="menu-main">
+                  {NAV.map((n) => (
+                    <li>
+                      <a href={n.href} aria-current={isCurrent(n.href) ? "page" : undefined}>
+                        <span class="menu-label">{n.label}</span>
+                        <span class="menu-desc">{n.desc}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+                <ul class="menu-more">
+                  {MORE.map((n) => <li><a href={n.href} aria-current={isCurrent(n.href) ? "page" : undefined}>{n.label}</a></li>)}
+                </ul>
+              </nav>
+            </div>
+          </details>
         </div>
       </header>
       <hr class="rule" />
@@ -150,6 +187,33 @@ const year = new Date().getUTCFullYear();
         </div>
       </footer>
     </div>
+    <script is:inline>
+      // Mobile menu: a <details> dropdown (works without JS). JS adds Escape,
+      // outside tap and focus handling.
+      (function () {
+        var menu = document.getElementById("site-menu");
+        if (!menu) return;
+        var btn = menu.querySelector("summary");
+        btn.setAttribute("aria-expanded", "false");
+        menu.addEventListener("toggle", function () {
+          btn.setAttribute("aria-expanded", String(menu.open));
+          btn.setAttribute("aria-label", menu.open ? "Close menu" : "Menu");
+          if (menu.open) { var cur = menu.querySelector('.menu-main a[aria-current="page"]') || menu.querySelector(".menu-main a"); if (cur) cur.focus({ preventScroll: true }); }
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && menu.open) { menu.open = false; btn.focus(); }
+        });
+        document.addEventListener("click", function (e) {
+          if (menu.open && (!menu.contains(e.target) || e.target === menu)) menu.open = false;
+        });
+        menu.addEventListener("click", function (e) {
+          if (e.target.closest && e.target.closest(".menu-panel a")) menu.open = false;
+        });
+        // Close when the layout grows to desktop width.
+        var mq = window.matchMedia("(min-width: 1041px)");
+        mq.addEventListener("change", function (m) { if (m.matches) menu.open = false; });
+      })();
+    </script>
     <script is:inline>
       // Theme toggle: system -> light -> dark -> system.
       (function () {

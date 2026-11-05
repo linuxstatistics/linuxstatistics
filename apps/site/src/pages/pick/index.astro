@@ -1,4 +1,5 @@
 ---
+import SwitchSide from "../../components/SwitchSide.astro";
 import Base from "../../layouts/Base.astro";
 import { SponsorCard } from "../../components/SponsorCard";
 import { DistroPicker } from "../../components/DistroPicker";
@@ -23,6 +24,7 @@ const distros = list.filter((d) => keys.has(d.slug)).map((d) => ({ slug: d.slug,
       </div>
       <aside class="side" aria-label="More">
         <SponsorCard context="people about to install Linux" />
+        <SwitchSide />
         <section>
           <h2>See the full chart</h2>
           <p>Every tracked distro ranked by interest, with last month's movers.</p>

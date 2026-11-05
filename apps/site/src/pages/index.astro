@@ -1,4 +1,5 @@
 ---
+import SwitchSide from "../components/SwitchSide.astro";
 import Base from "../layouts/Base.astro";
 import { ListView } from "../components/ListView";
 import { Podium } from "../components/Podium";
@@ -87,11 +88,7 @@ const jsonLd = {
         <p>A few questions, three matches, and why each one fits.</p>
         <a class="cta" href="/pick/">Find my distro</a>
       </section>
-      <section>
-        <h2>Leaving Windows or Mac?</h2>
-        <p>Which distro feels familiar, what changes, and what to use instead of your apps.</p>
-        <p><a href="/switch/windows/">From Windows</a> · <a href="/switch/mac/">From a Mac</a></p>
-      </section>
+      <SwitchSide />
     </aside>
   </div>
 </Base>
