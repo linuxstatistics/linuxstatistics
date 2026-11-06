@@ -25,7 +25,7 @@ export function DistroHighlights({ items }: { items: DistroListItem[] }) {
           <div className="hud-stat">
             <span className="label">Top distro</span>
             <span className="value">{top.name}</span>
-            <span className="sub">#{top.rank} on DistroWatch</span>
+            <span className="sub">#{top.rank} in popularity</span>
           </div>
         </div>
       )}
@@ -34,7 +34,7 @@ export function DistroHighlights({ items }: { items: DistroListItem[] }) {
           <div className="hud-stat">
             <span className="label">Biggest climber</span>
             <span className="value">{climber.name}</span>
-            <span className="sub">DistroWatch · {year}</span>
+            <span className="sub">Popularity · {year}</span>
           </div>
           <span className="trend-chip up">▲ {climber.rankTrend} spots this year</span>
         </div>

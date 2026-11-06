@@ -14,8 +14,8 @@ const site = Astro.site!.href.replace(/\/$/, "");
 const lead = rising[0];
 const title = `Rising Linux distros, ${month} | LinuxStatistics`;
 const description = lead
-  ? `The Linux distros climbing fastest on DistroWatch in the last month. ${lead.name} leads, up ${lead.rank1mDelta} places.`
-  : "The Linux distros climbing fastest on DistroWatch in the last month.";
+  ? `The Linux distros gaining interest fastest in the last month. ${lead.name} leads, up ${lead.rank1mDelta} places.`
+  : "The Linux distros gaining interest fastest in the last month.";
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ItemList",
@@ -38,7 +38,7 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
     <div class="with-side-main">
     <h1>Rising this month</h1>
     <p class="lede">
-      Distros in the DistroWatch top 100 (last 12 months) that rank higher over the last month, biggest climb first.
+      Distros in the popularity top 100 (last 12 months) that rank higher over the last month, biggest climb first.
     </p>
     {rising.length === 0 ? (
       <p>No distro in the top 100 climbed this month.</p>
@@ -75,7 +75,7 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
     )}
     <p class="source-note">
       Source: <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page-hit rankings, last-1-month vs last-12-months tables{asOf ? `, captured ${asOf}` : ""}.
-      Page hits measure interest on DistroWatch, not installs.
+      Page hits measure interest, not installs.
     </p>
     </div>
     <aside class="side" aria-label="More">

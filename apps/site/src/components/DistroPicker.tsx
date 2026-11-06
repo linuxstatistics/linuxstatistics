@@ -298,7 +298,7 @@ function ResultCard({ r, i, d, p, server, forUse }: { r: Suggestion; i: number; 
         {i + 1}. <a href={`/distro/${d.slug}/${forUse}`}>{d.name}</a> <span className="match">{matchLabel(r.pct)}</span>
       </h3>
       <p className="sub">
-        {d.rank != null ? `#${d.rank} on DistroWatch (12 months)` : "Not in DistroWatch's top 100"}
+        {d.rank != null ? `#${d.rank} in popularity (12 months)` : "Outside the popularity top 100"}
         {d.rankTrend ? ` · ${d.rankTrend > 0 ? "up" : "down"} ${Math.abs(d.rankTrend)} in a year` : ""}
       </p>
       <p>{p.blurb}</p>

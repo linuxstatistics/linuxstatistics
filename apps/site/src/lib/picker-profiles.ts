@@ -1,5 +1,5 @@
 /**
- * Curated picker profiles, keyed by DistroWatch key. Tags describe how a
+ * Curated picker profiles, keyed by distro slug. Tags describe how a
  * distro is generally used and maintained (reviewed 2026-11-03, extended
  * 2026-11-06, pending maintainer review). Keep claims conservative; the quiz
  * explains each match, so every tag must be defensible.

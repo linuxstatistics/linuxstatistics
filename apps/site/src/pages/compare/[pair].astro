@@ -63,7 +63,7 @@ function split(x: number | null, y: number | null, lowerIsBetter = false): numbe
 }
 
 const rows: Row[] = [
-  { label: "DistroWatch rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true), split: split(a.rank, b.rank, true) },
+  { label: "Popularity rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true), split: split(a.rank, b.rank, true) },
   { label: "Rank last month", a: num(a.rank1m), b: num(b.rank1m), better: pick(a.rank1m, b.rank1m, true), split: split(a.rank1m, b.rank1m, true) },
   { label: "Hits per day", a: num(a.hitsPerDay), b: num(b.hitsPerDay), better: pick(a.hitsPerDay, b.hitsPerDay), split: split(a.hitsPerDay, b.hitsPerDay) },
   { label: "Family", a: FAMILY_LABELS[a.family], b: FAMILY_LABELS[b.family] },
@@ -88,9 +88,9 @@ const jsonLd = faq.length > 0 ? faqJsonLd(faq) : undefined;
 const title = `${a.name} vs ${b.name}: Linux distro comparison | LinuxStatistics`;
 const lead =
   a.rank != null && b.rank != null
-    ? `${a.rank < b.rank ? a.name : b.name} ranks higher on DistroWatch (#${Math.min(a.rank, b.rank)} vs #${Math.max(a.rank, b.rank)}).`
+    ? `${a.rank < b.rank ? a.name : b.name} draws more interest (#${Math.min(a.rank, b.rank)} vs #${Math.max(a.rank, b.rank)}).`
     : "";
-const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, family, GitHub activity and community ratings side by side. ${lead}`.trim();
+const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popularity, family, GitHub activity and community ratings side by side. ${lead}`.trim();
 ---
 
 <Base title={title} description={description} jsonLd={jsonLd}>
@@ -102,7 +102,7 @@ const description = `${a.name} vs ${b.name}: DistroWatch rank, popularity, famil
     {thin.length > 0 && (
       <p class="no-data-note" role="note">
         <span class="no-data-label">Limited data</span>
-        {thin.join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond DistroWatch page hits, so some rows below are empty.
+        {thin.join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond popularity, so some rows below are empty.
         <a href="/suggest/?kind=correction">Help fill it in</a>.
       </p>
     )}

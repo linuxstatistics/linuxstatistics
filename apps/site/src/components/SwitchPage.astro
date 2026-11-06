@@ -27,7 +27,7 @@ const label = from === "windows" ? "Windows" : "a Mac";
       const t = telemetryFor(p.key);
       return (
         <li>
-          <h3><a href={`/distro/${d.slug}/`}>{d.name}</a>{d.rank != null && <span class="sub"> · #{d.rank} on DistroWatch</span>}</h3>
+          <h3><a href={`/distro/${d.slug}/`}>{d.name}</a>{d.rank != null && <span class="sub"> · #{d.rank} in popularity</span>}</h3>
           <p class="switch-why">{p.why}</p>
           <p>{p.profile.blurb}</p>
           <p class="telemetry-line">Telemetry: {t ? TELEMETRY_LABEL[t.level] : "not checked yet"}</p>

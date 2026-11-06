@@ -8,7 +8,7 @@ const LABEL: Record<string, string> = {
 };
 
 /**
- * Rank in each DistroWatch period, shortest first. The bar shows hits/day
+ * Popularity rank in each period, shortest first. The bar shows hits/day
  * relative to the busiest period. Static HTML.
  */
 export function RankByPeriod({ periods }: { periods: DistroDetail["rankByPeriod"] | undefined }) {
@@ -21,7 +21,7 @@ export function RankByPeriod({ periods }: { periods: DistroDetail["rankByPeriod"
       <table className="data-table">
         <thead>
           <tr>
-            <th>DistroWatch window</th>
+            <th>Window</th>
             <th className="num">Rank</th>
             <th className="num">Hits / day</th>
             <th aria-hidden="true"></th>

@@ -1,10 +1,10 @@
 import type { APIRoute } from "astro";
-import { loadDistros, loadMeta, dataDate } from "../../lib/data";
-import { byRank, distroRecord, envelope } from "../../lib/dataset";
+import { loadDistros } from "../../lib/data";
+import { byName, distroRecord, envelope } from "../../lib/dataset";
 
 export const GET: APIRoute = async () => {
-  const [list, meta] = await Promise.all([loadDistros(), loadMeta()]);
-  const generatedAt = dataDate(meta, "distrowatch") ?? new Date().toISOString().slice(0, 10);
-  const body = envelope(generatedAt, byRank(list).map(distroRecord), ["distrowatch", "github"]);
+  const list = await loadDistros();
+  const generatedAt = new Date().toISOString().slice(0, 10);
+  const body = envelope(generatedAt, byName(list).map(distroRecord), ["github"]);
   return new Response(JSON.stringify(body, null, 2), { headers: { "Content-Type": "application/json; charset=utf-8" } });
 };

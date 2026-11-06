@@ -8,7 +8,7 @@ import { runSources } from "../src/sources-run.js";
 import type { FetchLike } from "../src/http.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const dw = readFileSync(resolve(here, "fixtures/distrowatch-2026-11-03.html"), "utf8");
+const dw = readFileSync(resolve(here, "fixtures/ranking-full.html"), "utf8");
 
 let db: Database;
 let client: PGlite;

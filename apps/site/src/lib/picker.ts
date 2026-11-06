@@ -125,7 +125,7 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
 
 /**
  * Every distro that fits, best first, each with reasons, misses and a match %.
- * `rankOf` (DistroWatch 12-month rank) breaks ties so better-known distros come first. Pure: no I/O.
+ * `rankOf` (12-month popularity rank) breaks ties so better-known distros come first. Pure: no I/O.
  */
 export function rankAll(answers: Answers, profiles: PickerProfile[], rankOf: (key: string) => number | null): Suggestion[] {
   return profiles

@@ -14,16 +14,24 @@ function publicHeaders(reply: FastifyReply) {
   reply.header("X-Data-License", LICENSE.license);
 }
 
-/** Public detail: drop the per-user field. */
-function publicDetail(d: DistroDetail) {
-  const { myContribution: _mine, ...rest } = d;
+/** Third-party ranking data is shown on the site with credit but never redistributed. */
+function publicItem(d: DistroListItem) {
+  const { rank: _r, hitsPerDay: _h, rankTrend: _t, rank1m: _r1, rank1mDelta: _d1, ...rest } = d;
   return rest;
+}
+
+/** Public detail: drop ranking data and the per-user field. */
+function publicDetail(d: DistroDetail) {
+  const { myContribution: _mine, rankHistory: _rh, rankByPeriod: _rp, ...rest } = d;
+  return publicItem(rest as DistroDetail);
 }
 
 export function registerPublicV1(app: FastifyInstance, db: Database, list: () => Promise<DistroListItem[]>): void {
   app.get("/api/v1/distros", { config: { rateLimit } }, async (_req, reply) => {
     publicHeaders(reply);
-    return { ...LICENSE, data: await list() };
+    const items = (await list()).map(publicItem);
+    items.sort((a, b) => a.name.localeCompare(b.name) || a.slug.localeCompare(b.slug));
+    return { ...LICENSE, data: items };
   });
 
   app.get("/api/v1/distros/:slug", { config: { rateLimit } }, async (req, reply) => {

@@ -42,7 +42,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
   const [a, b] = pair;
   const base = (s: string | null) => (s ? (names[s] ?? s) : "-");
   const all: [string, string, string][] = [
-    ["DistroWatch rank (12 months)", num(a.rank), num(b.rank)],
+    ["Popularity rank (12 months)", num(a.rank), num(b.rank)],
     ["Rank last month", num(a.rank1m), num(b.rank1m)],
     ["Hits per day", num(a.hitsPerDay), num(b.hitsPerDay)],
     ["Family", FAMILY_LABELS[a.family], FAMILY_LABELS[b.family]],
@@ -69,7 +69,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
       {thin.length > 0 && (
         <p className="no-data-note" role="note">
           <span className="no-data-label">Limited data</span>
-          {thin.map((d) => d.name).join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond DistroWatch page hits, so some rows below are empty.{" "}
+          {thin.map((d) => d.name).join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond popularity, so some rows below are empty.{" "}
           <a href="/suggest/?kind=correction">Help fill it in</a>.
         </p>
       )}

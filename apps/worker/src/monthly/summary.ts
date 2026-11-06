@@ -70,9 +70,9 @@ export function summaryMarkdown(s: MonthlySummary, site: string): string {
   const lines = [
     `# Linux distro rankings — ${s.month}`,
     "",
-    `Top 10 on DistroWatch (page hits, last 12 months, captured ${s.capturedAt}):`,
+    `Top 10 by interest, last 12 months (captured ${s.capturedAt}):`,
     "",
-    ...s.top10.map((d) => `${d.rank}. ${d.name}${d.hitsPerDay != null ? ` — ${d.hitsPerDay.toLocaleString("en-US")} hits/day` : ""}`),
+    ...s.top10.map((d) => `${d.rank}. ${d.name}`),
     "",
     "Rising this month (top 100, last month vs 12 months):",
     "",
@@ -89,7 +89,7 @@ export function summaryMarkdown(s: MonthlySummary, site: string): string {
       `Linux desktop share worldwide (StatCounter, ${s.linuxShare.month}): ${s.linuxShare.pct.toFixed(2)}%${ch != null ? ` (${ch >= 0 ? "+" : ""}${ch.toFixed(2)} pts vs the month before)` : ""}.`,
     );
   }
-  lines.push("", `Full rankings: ${site}/ · Rising: ${site}/rising/`, "", "Page hits measure interest on DistroWatch, not installs.");
+  lines.push("", `Full rankings: ${site}/ · Rising: ${site}/rising/`, "", "Source: DistroWatch page-hit ranking. Interest, not installs.");
   return lines.join("\n") + "\n";
 }
 
@@ -99,15 +99,15 @@ export function summaryEmailHtml(s: MonthlySummary, site: string, cardUrl?: stri
   const a = (slug: string, name: string) => `<a href="${esc(site)}/distro/${esc(slug)}/" style="color:#111">${esc(name)}</a>`;
   return `<!doctype html><html><body style="font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#111;max-width:560px;margin:0 auto;padding:20px">
 <h1 style="font-size:22px;margin:0 0 4px">Linux distro rankings — ${esc(s.month)}</h1>
-<p style="color:#555;margin:0 0 18px">DistroWatch page hits, last 12 months, captured ${esc(s.capturedAt)}.</p>
+<p style="color:#555;margin:0 0 18px">Interest over the last 12 months, captured ${esc(s.capturedAt)}.</p>
 ${cardUrl ? `<img src="${esc(cardUrl)}" width="560" alt="Top distros for ${esc(s.month)}" style="width:100%;border-radius:8px;margin:0 0 18px">` : ""}
 <h2 style="font-size:16px">Top 10</h2>
-<ol style="padding-left:20px">${s.top10.map((d) => li(`${a(d.slug, d.name)}${d.hitsPerDay != null ? ` <span style="color:#777">· ${d.hitsPerDay.toLocaleString("en-US")} hits/day</span>` : ""}`)).join("")}</ol>
+<ol style="padding-left:20px">${s.top10.map((d) => li(a(d.slug, d.name))).join("")}</ol>
 <h2 style="font-size:16px">Rising this month</h2>
 <ul style="padding-left:20px">${s.rising.length ? s.rising.map((d) => li(`${a(d.slug, d.name)}: #${d.rank} → #${d.rank1m} <b style="color:#1a7f4b">▲${d.climb}</b>`)).join("") : li("No climbers in the top 100.")}</ul>
 ${s.falling.length ? `<h2 style="font-size:16px">Cooling off</h2><ul style="padding-left:20px">${s.falling.map((d) => li(`${a(d.slug, d.name)}: #${d.rank} → #${d.rank1m} <b style="color:#b3263e">▼${d.drop}</b>`)).join("")}</ul>` : ""}
 ${s.linuxShare ? `<p>Linux desktop share worldwide (StatCounter, ${esc(s.linuxShare.month)}): <b>${s.linuxShare.pct.toFixed(2)}%</b>${s.linuxShare.changePts != null ? ` (${s.linuxShare.changePts >= 0 ? "+" : ""}${s.linuxShare.changePts.toFixed(2)} pts)` : ""}.</p>` : ""}
 <p><a href="${esc(site)}/" style="color:#111">Full rankings</a> · <a href="${esc(site)}/rising/" style="color:#111">Rising</a> · <a href="${esc(site)}/pick/" style="color:#111">Which distro should I use?</a></p>
-<p style="color:#777;font-size:12px">Page hits measure interest on DistroWatch, not installs. You get this because you signed up at LinuxStatistics. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#777">Unsubscribe</a>.</p>
+<p style="color:#777;font-size:12px">Source: DistroWatch page-hit ranking (interest, not installs). You get this because you signed up at LinuxStatistics. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#777">Unsubscribe</a>.</p>
 </body></html>`;
 }

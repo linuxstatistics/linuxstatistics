@@ -5,7 +5,7 @@ import { PROFILES } from "./picker-profiles";
 import { FAMILY_LABELS } from "./families";
 
 /** Bump on breaking changes to any file's shape; list changes on /data/. */
-export const DATASET_VERSION = "1.0.0";
+export const DATASET_VERSION = "2.0.0";
 export const DATA_LICENSE = "CC-BY-4.0";
 export const DATA_CREDIT = "Data: LinuxStatistics (linuxstatistics.com), CC BY 4.0";
 
@@ -15,8 +15,8 @@ export interface DataSource {
   note?: string;
 }
 
-export const SOURCES: Record<"distrowatch" | "statcounter" | "github", DataSource> = {
-  distrowatch: { name: "DistroWatch page-hit ranking", url: "https://distrowatch.com/dwres.php?resource=popularity", note: "Page hits measure interest on DistroWatch, not installs." },
+/** Third-party sources whose data appears in the exports. Ranking-site data is never exported. */
+export const SOURCES: Record<"statcounter" | "github", DataSource> = {
   statcounter: { name: "StatCounter Global Stats", url: "https://gs.statcounter.com/os-market-share/desktop/worldwide" },
   github: { name: "GitHub", url: "https://github.com/" },
 };
@@ -33,22 +33,20 @@ export function envelope<T>(generatedAt: string, data: T, sources: (keyof typeof
 }
 
 export const DISTRO_COLUMNS = [
-  "slug", "name", "family", "status", "rank_12m", "hits_per_day", "rank_1m", "rank_1m_change",
-  "rank_trend_12m", "first_release_year", "github_repo", "github_stars", "github_commits_30d",
+  "slug", "name", "family", "status", "first_release_year", "github_repo", "github_stars", "github_commits_30d",
   "rating_average", "rating_count", "uses_it_count",
 ] as const;
 
 export function distroRow(d: DistroListItem): (string | number | null)[] {
   return [
-    d.slug, d.name, d.family, d.status, d.rank, d.hitsPerDay, d.rank1m, d.rank1mDelta,
-    d.rankTrend, d.firstReleaseYear, d.repoFullName, d.stars, d.commitsLast30d,
+    d.slug, d.name, d.family, d.status, d.firstReleaseYear, d.repoFullName, d.stars, d.commitsLast30d,
     d.userRating.count > 0 ? Number((d.userRating.average ?? 0).toFixed(2)) : null, d.userRating.count, d.usesItCount,
   ];
 }
 
-/** Ranked first by rank, then unranked by name. */
-export function byRank(list: DistroListItem[]): DistroListItem[] {
-  return [...list].sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity) || a.name.localeCompare(b.name));
+/** Alphabetical by name, then slug, so the order doesn't depend on any ranking. */
+export function byName(list: DistroListItem[]): DistroListItem[] {
+  return [...list].sort((a, b) => a.name.localeCompare(b.name) || a.slug.localeCompare(b.slug));
 }
 
 export function distroRecord(d: DistroListItem) {

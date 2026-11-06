@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import {
@@ -18,11 +18,12 @@ import {
   LEGACY_SLUGS,
   MARKET_SHARE,
   SEED_CAPTURED_AT,
-  SEED_PAGE,
+  SEED_CAPTURE,
+  SEED_FALLBACK,
   SEED_REPOS,
 } from "./seed-data.js";
 
-const here = dirname(fileURLToPath(import.meta.url));
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const YEAR_AGO = new Date(SEED_CAPTURED_AT.getTime() - 365 * 24 * 3600 * 1000);
 
 async function main(): Promise<void> {
@@ -33,7 +34,9 @@ async function main(): Promise<void> {
   await db.delete(schema.ingestionRuns);
   await db.delete(schema.distros);
 
-  const rows = parseDistrowatchRanking(readFileSync(resolve(here, "..", SEED_PAGE), "utf8"));
+  const capture = resolve(root, SEED_CAPTURE);
+  const page = existsSync(capture) ? capture : resolve(root, SEED_FALLBACK);
+  const rows = parseDistrowatchRanking(readFileSync(page, "utf8"));
   const result = await ingestDistrowatchRows(db, rows, SEED_CAPTURED_AT);
 
   // A year-ago 12-month snapshot so the trend column has something to compare:
@@ -86,7 +89,7 @@ async function main(): Promise<void> {
 
   await close();
   console.log(
-    `Seeded ${result.created.length} distros (${result.written} DistroWatch rows, ${result.uncurated.length} without a curated family) into ${kind}`,
+    `Seeded ${result.created.length} distros (${result.written} ranking rows from ${page === capture ? "local capture" : "synthetic page"}, ${result.uncurated.length} without a curated family) into ${kind}`,
   );
 }
 

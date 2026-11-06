@@ -1,5 +1,5 @@
 /**
- * Curated pros and cons, keyed by DistroWatch key (same keys as
+ * Curated pros and cons, keyed by distro slug (same keys as
  * picker-profiles.ts). Draft 2026-11-05, pending maintainer review.
  * Rules: short, plain, checkable against the project's own docs; a con must be
  * a fair trade-off, never an insult; no version numbers that go stale.

@@ -24,7 +24,7 @@ export function pairFaq(a: Facts, b: Facts): QA[] {
     const [hi, lo] = a.rank < b.rank ? [a, b] : [b, a];
     out.push({
       q: `Is ${a.name} or ${b.name} more popular?`,
-      a: `${hi.name} ranks higher on DistroWatch's 12-month page-hit ranking (#${hi.rank} vs #${lo.rank}). Page hits measure interest, not installs.`,
+      a: `${hi.name} draws more interest over the last 12 months (#${hi.rank} vs #${lo.rank} in our popularity ranking). That measures interest, not installs.`,
     });
   }
 

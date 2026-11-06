@@ -23,7 +23,7 @@ export async function renderMatchCard(m: { name: string; blurb: string; rank: nu
       h("div", { fontSize: 96, fontWeight: 700, marginTop: 4, color: "#3cfe3f" }, m.name),
       h("div", { fontSize: 32, marginTop: 24, maxWidth: 1000, lineHeight: 1.3 }, m.blurb),
       h("div", { position: "absolute", left: 64, right: 64, bottom: 56, justifyContent: "space-between", fontSize: 26, color: "#7d8794" }, [
-        h("div", {}, m.rank != null ? `#${m.rank} on DistroWatch · take the quiz` : "Take the quiz"),
+        h("div", {}, "Take the quiz"),
         h("div", { color: "#3cfe3f" }, `${siteHost}/pick`),
       ]),
     ],

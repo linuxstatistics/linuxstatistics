@@ -20,7 +20,7 @@ const restItems = items.filter((d) => d.rank === null || d.rank > 3);
 const title = headline
   ? `${headline.leader} is #1. Linux distro rankings | LinuxStatistics`
   : "Linux distro rankings and statistics | LinuxStatistics";
-const description = `Rankings for ${items.length} Linux distributions: DistroWatch popularity, last month's movers, desktop market share, GitHub activity and community ratings.`;
+const description = `Rankings for ${items.length} Linux distributions: popularity, last month's movers, desktop market share, GitHub activity and community ratings, plus a quiz to pick one.`;
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Dataset",

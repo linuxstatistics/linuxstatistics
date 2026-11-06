@@ -1,6 +1,6 @@
 /**
  * What the operating system itself sends home by default, keyed by
- * DistroWatch key. Only distros checked against the project's own docs are
+ * distro slug. Only distros checked against the project's own docs are
  * listed; anything missing is "not checked" and the site makes no claim.
  * Apps you install (browsers, Steam…) have their own policies and aren't
  * covered. Checked 2026-11-05, pending maintainer review.

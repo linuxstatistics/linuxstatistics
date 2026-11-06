@@ -29,13 +29,15 @@ test("v1 list is public, cacheable and licensed", async () => {
   const body = res.json();
   expect(body.license).toBe("CC-BY-4.0");
   expect(body.data.map((d: { slug: string }) => d.slug)).toContain("mint");
+  for (const k of ["rank", "hitsPerDay", "rankTrend", "rank1m", "rank1mDelta"]) expect(k in body.data[0]).toBe(false);
 });
 
-test("v1 detail never includes the caller's own contribution", async () => {
+test("v1 detail has no ranking data and never the caller's own contribution", async () => {
   const cookie = await loginAs(app, { providerUserId: "70", username: "u70" });
   const res = await app.inject({ method: "GET", url: "/api/v1/distros/mint", headers: { cookie } });
   expect(res.statusCode).toBe(200);
-  expect(res.json().data.rank).toBe(2);
-  expect("myContribution" in res.json().data).toBe(false);
+  const data = res.json().data;
+  expect(data.slug).toBe("mint");
+  for (const k of ["myContribution", "rank", "hitsPerDay", "rankHistory", "rankByPeriod"]) expect(k in data).toBe(false);
   expect((await app.inject({ method: "GET", url: "/api/v1/distros/nope" })).statusCode).toBe(404);
 });

@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { badgeSnippets, badgeSvg, rankText } from "../src/lib/badge";
 import { csvField, toCsv } from "../src/lib/csv";
-import { DISTRO_COLUMNS, byRank, distroRow, envelope, notesDataset } from "../src/lib/dataset";
+import { DISTRO_COLUMNS, byName, distroRow, envelope, notesDataset } from "../src/lib/dataset";
 import type { DistroListItem } from "@linux-statistics/shared";
 
 test("badge SVG is self-contained, labelled and escapes text", () => {
@@ -35,16 +35,17 @@ test("dataset rows match the column list and carry licence metadata", () => {
     firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", stars: 5200, commitsLast30d: 180,
     userRating: { average: null, count: 0, mean: null, verifiedCount: 0 }, usesItCount: 0 } as DistroListItem;
   expect(distroRow(d)).toHaveLength(DISTRO_COLUMNS.length);
-  expect(distroRow(d)[13]).toBeNull(); // no rating average without ratings
-  const e = envelope("2026-11-05", [], ["distrowatch"]);
-  expect(e).toMatchObject({ version: "1.0.0", license: "CC-BY-4.0" });
-  expect(e.sources[0]!.note).toMatch(/not installs/);
+  expect(distroRow(d)[DISTRO_COLUMNS.indexOf("rating_average")]).toBeNull(); // no rating average without ratings
+  expect(DISTRO_COLUMNS.some((c) => /rank|hits/.test(c))).toBe(false); // ranking-site data is never exported
+  const e = envelope("2026-11-05", [], ["github"]);
+  expect(e).toMatchObject({ version: "2.0.0", license: "CC-BY-4.0" });
+  expect(e.sources[0]!.name).toBe("GitHub");
   const notes = notesDataset();
   expect(notes.find((n) => n.slug === "mint")?.telemetry?.level).toBe("none");
   expect(notes.every((n) => Array.isArray(n.pros))).toBe(true);
 });
 
-test("dataset lists ranked distros first, unranked by name", () => {
-  const mk = (name: string, rank: number | null) => ({ name, rank }) as DistroListItem;
-  expect(byRank([mk("Zed", null), mk("B", 2), mk("Abc", null), mk("A", 1)]).map((d) => d.name)).toEqual(["A", "B", "Abc", "Zed"]);
+test("dataset lists distros by name, independent of rank", () => {
+  const mk = (name: string, rank: number | null) => ({ name, slug: name.toLowerCase(), rank }) as DistroListItem;
+  expect(byName([mk("Zed", 1), mk("B", null), mk("Abc", 3), mk("A", 2)]).map((d) => d.name)).toEqual(["A", "Abc", "B", "Zed"]);
 });

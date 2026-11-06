@@ -8,7 +8,7 @@ type Stat = [label: string, value: string, title?: string];
 export function statItems(data: DistroDetail): Stat[] {
   const n = (v: number | null) => (v == null ? null : v.toLocaleString("en-US"));
   const out: Array<Stat | null> = [
-    data.rank != null ? ["DistroWatch rank", `#${data.rank}`] : null,
+    data.rank != null ? ["Popularity rank", `#${data.rank}`] : null,
     data.hitsPerDay != null ? ["Hits / day", n(data.hitsPerDay)!] : null,
     data.stars != null ? ["GitHub stars", n(data.stars)!] : null,
     data.commitsLast30d != null ? ["Commits / mo", n(data.commitsLast30d)!] : null,

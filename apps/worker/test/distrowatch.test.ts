@@ -6,8 +6,8 @@ import { parseDistrowatchRanking } from "../src/sources/distrowatch.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const small = readFileSync(resolve(here, "fixtures/distrowatch.html"), "utf8");
-// Live page saved 2026-11-03 from https://distrowatch.com/dwres.php?resource=popularity
-const live = readFileSync(resolve(here, "fixtures/distrowatch-2026-11-03.html"), "utf8");
+// Synthetic full-size page in the real layout (invented ranks and hits).
+const full = readFileSync(resolve(here, "fixtures/ranking-full.html"), "utf8");
 
 test("reads each table's period from its heading and the DistroWatch key from the link", () => {
   const rows = parseDistrowatchRanking(small);
@@ -33,18 +33,18 @@ test("strips thousands separators from hits", () => {
   expect(rows[1]!.hitsPerDay).toBe(2103);
 });
 
-test("parses the live page: 4 periods x 545 rows, CachyOS #1 over 12 months", () => {
-  const rows = parseDistrowatchRanking(live);
+test("parses a full-size page: 4 periods x 450 rows", () => {
+  const rows = parseDistrowatchRanking(full);
   const byPeriod = new Map<string, number>();
   for (const r of rows) byPeriod.set(r.period, (byPeriod.get(r.period) ?? 0) + 1);
   expect(Object.fromEntries(byPeriod)).toEqual({
-    "last-12-months": 545,
-    "last-6-months": 545,
-    "last-3-months": 545,
-    "last-1-month": 545,
+    "last-12-months": 450,
+    "last-6-months": 450,
+    "last-3-months": 450,
+    "last-1-month": 450,
   });
   const top = rows.find((r) => r.period === "last-12-months" && r.rank === 1);
-  expect(top).toEqual({ rank: 1, key: "cachyos", name: "CachyOS", hitsPerDay: 3248, period: "last-12-months" });
+  expect(top).toEqual({ rank: 1, key: "cachyos", name: "CachyOS", hitsPerDay: 4000, period: "last-12-months" });
   expect(rows.find((r) => r.period === "last-12-months" && r.rank === 2)?.key).toBe("mint");
 });
 

@@ -53,7 +53,7 @@ export async function mapLimit<T, R>(
   return out;
 }
 
-/** Latest successful DistroWatch capture, for "data as of" lines. */
+/** Latest successful capture for a source, for "data as of" lines. */
 export function dataDate(meta: Meta, source: "distrowatch" | "statcounter" | "github"): string | null {
   const s = meta.sources.find((x) => x.source === source);
   return s?.lastSuccessAt ? s.lastSuccessAt.slice(0, 10) : null;

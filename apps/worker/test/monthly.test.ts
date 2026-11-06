@@ -27,7 +27,8 @@ test("summary: top list, risers, fallers and share change", () => {
 
 test("markdown and email carry the data; email escapes names and has an unsubscribe link", () => {
   const md = summaryMarkdown(s, "https://linuxstatistics.com");
-  expect(md).toContain("1. A — 999 hits/day");
+  expect(md).toContain("1. A\n");
+  expect(md).not.toContain("hits/day");
   expect(md).toContain("B: #2 → #5 (▼3)");
   const html = summaryEmailHtml(s, "https://linuxstatistics.com");
   expect(html).toContain("X&lt;Y");

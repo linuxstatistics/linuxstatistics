@@ -1,29 +1,27 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { DATA_CREDIT, DATASET_VERSION, SOURCES } from "../../lib/dataset";
-import { loadDistros, loadMeta, dataDate } from "../../lib/data";
+import { loadDistros } from "../../lib/data";
 import { SOURCE_URL } from "../../config/site";
 
-const [list, meta] = await Promise.all([loadDistros(), loadMeta()]);
-const asOf = dataDate(meta, "distrowatch");
+const list = await loadDistros();
 const site = Astro.site!.href.replace(/\/$/, "");
 const files = [
-  { href: "/data/distros.json", name: "distros.json", what: `Current ranking and stats for all ${list.length} distros, with version, licence and sources.` },
+  { href: "/data/distros.json", name: "distros.json", what: `Facts, GitHub activity and community ratings for all ${list.length} distros, with version, licence and sources.` },
   { href: "/data/distros.csv", name: "distros.csv", what: "The same table as CSV." },
-  { href: "/data/rank-history.csv", name: "rank-history.csv", what: "Every stored 12-month DistroWatch rank, by distro and date." },
   { href: "/data/notes.json", name: "notes.json", what: "Our editorial data: who each distro suits, pros and cons, and telemetry facts with sources." },
   { href: "/data/market-share.csv", name: "market-share.csv", what: "Desktop OS market share by month (StatCounter)." },
 ];
 ---
 
 <Base
-  title="Open data: Linux distro rankings as JSON and CSV | LinuxStatistics"
-  description={`Download Linux distro rankings, history, editorial notes and desktop market share as JSON or CSV under CC BY 4.0. ${list.length} distros, updated daily.`}
+  title="Open data: Linux distro facts and ratings as JSON and CSV | LinuxStatistics"
+  description={`Download Linux distro facts, community ratings, editorial notes and desktop market share as JSON or CSV under CC BY 4.0. ${list.length} distros.`}
 >
   <article class="page prose legal data-page">
     <h1>Open data</h1>
     <p class="lede">Everything behind the site, free to reuse under CC BY 4.0. Credit us and link back.</p>
-    <p class="legal-meta">Dataset version {DATASET_VERSION}{asOf ? ` · data captured ${asOf}` : ""} · rebuilt after every ingest.</p>
+    <p class="legal-meta">Dataset version {DATASET_VERSION} · rebuilt after every ingest.</p>
 
     <h2>Files</h2>
     <ul class="data-files">
@@ -45,22 +43,15 @@ const files = [
     <h2>API (v1)</h2>
     <p>A read-only JSON API with the same data, open to any website (CORS), cached for 5 minutes, limited to 120 requests a minute per IP. No key needed.</p>
     <ul class="data-files">
-      <li><code>GET {site}/api/v1/distros</code> <span>All distros with current rank, hits, ratings and GitHub stats.</span></li>
-      <li><code>GET {site}/api/v1/distros/&lt;slug&gt;</code> <span>One distro with rank history and details. Old slugs redirect to the current one.</span></li>
+      <li><code>GET {site}/api/v1/distros</code> <span>All distros with facts, ratings and GitHub stats.</span></li>
+      <li><code>GET {site}/api/v1/distros/&lt;slug&gt;</code> <span>One distro with details and GitHub star history. Old slugs redirect to the current one.</span></li>
       <li><code>GET {site}/api/v1/market-share?region=global</code> <span>Desktop OS market share by month.</span></li>
     </ul>
     <p>Every response carries <code>license</code> and <code>credit</code> fields. Fields are only removed or renamed in a new version (<code>/api/v2/</code>); new fields can appear at any time.</p>
 
-    <h2>Rank badges</h2>
-    <p>
-      Each distro page has a badge you can put in a README or on a website, for example
-      <code>{site}/badge/mint.svg</code> (dark) or <code>{site}/badge/mint-light.svg</code> (light). Copy the snippet from the distro's page.
-    </p>
-    <p><img src="/badge/mint.svg" alt="Linux Mint on LinuxStatistics" /> <img src="/badge/mint-light.svg" alt="Linux Mint on LinuxStatistics (light)" /></p>
-
     <h2>Things to know</h2>
     <ul>
-      <li>Rankings are DistroWatch page hits: interest, not installs.</li>
+      <li>Rankings aren't in the open data yet. They'll be added once our own ranking method is published.</li>
       <li>Community ratings are shown as averages and counts only; individual ratings and reviews aren't published.</li>
       <li>Pros, cons and telemetry notes are our editorial work, checked against each project's documentation. Corrections welcome via the <a href="/suggest/?kind=correction">suggestion form</a>.</li>
       <li>Field names only change in a new major version. Changes are listed below.</li>
@@ -68,6 +59,7 @@ const files = [
 
     <h2>Changelog</h2>
     <ul>
+      <li><strong>2.0.0</strong> (2026-11): rank and page-hit columns, <code>rank-history.csv</code> and rank badges removed; files sorted by name.</li>
       <li><strong>1.0.0</strong> (2026-11): first release.</li>
     </ul>
 

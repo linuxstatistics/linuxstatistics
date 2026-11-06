@@ -12,7 +12,7 @@ check index.html 'application/ld+json' "home has JSON-LD"
 check index.html 'rel="canonical"' "home has a canonical link"
 first=$(ls "$DIST/distro" | head -1)
 check "distro/$first/index.html" '<dl class="stats">' "distro page /distro/$first/ has stats"
-check "distro/$first/index.html" 'DistroWatch' "distro page credits DistroWatch"
+check "distro/$first/index.html" 'class="source-note"' "distro page credits its sources"
 check rising/index.html '<table class="data-table"' "rising page has its table"
 check compare/index.html 'class="pair-list"' "compare page lists popular pairs"
 pair=$(ls "$DIST/compare" | grep -- -vs- | head -1)
@@ -28,12 +28,8 @@ check data/index.html 'CC BY 4.0' "open data page renders"
 check data/index.html '/api/v1/distros' "open data page documents the v1 API"
 check data/distros.json '"license": "CC-BY-4.0"' "distros.json carries its licence"
 check data/distros.csv 'slug,name,family' "distros.csv has its header"
-check data/rank-history.csv 'slug,captured_on,rank_12m' "rank-history.csv has its header"
 check data/notes.json '"pros"' "notes.json has editorial data"
 check data/market-share.csv 'month,region,platform' "market-share.csv has its header"
-check "badge/$first.svg" '<svg' "badge /badge/$first.svg renders"
-check "badge/$first-light.svg" '<svg' "light badge renders"
-check "distro/$first/index.html" 'Badge for your README' "distro page offers the badge"
 check switch/index.html 'href="/switch/windows/"' "switch chooser links both pages"
 check switch/windows/index.html '12 October 2027' "Windows switch page has the ESU date"
 check switch/windows/index.html 'apps-table' "Windows switch page has the app table"
@@ -52,5 +48,8 @@ check index.html 'href="/desktop-share/"' "home links to the desktop share page"
 # External links must open in a new tab (keep visitors on the site).
 same_tab=$(grep -rhoE '<a [^>]*href="https?://[^"]*"[^>]*>' "$DIST" --include=*.html | grep -v 'target="_blank"' | grep -v 'href="https://linuxstatistics.com' | sort -u | head -5 || true)
 if [ -n "$same_tab" ]; then echo "FAIL: external links without target=\"_blank\":"; echo "$same_tab"; fail=1; else echo "ok:   external links open in a new tab"; fi
+# Open data never carries third-party ranking data.
+if grep -qiE 'rank_|hits_per_day|hitsPerDay|distrowatch' "$DIST/data/distros.json" "$DIST/data/distros.csv"; then echo "FAIL: open data carries ranking fields"; fail=1; else echo "ok:   open data has no ranking fields"; fi
+[ ! -e "$DIST/data/rank-history.csv" ] && [ ! -d "$DIST/badge" ] && echo "ok:   no rank exports or badges" || { echo "FAIL: rank-history.csv or badges still built"; fail=1; }
 echo "distro pages: $(ls "$DIST/distro" | wc -l | tr -d ' ')"
 exit $fail

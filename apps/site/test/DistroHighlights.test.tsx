@@ -16,7 +16,7 @@ test("shows the top-ranked distro", () => {
   render(<DistroHighlights items={items} />);
   expect(screen.getByText("Top distro")).toBeInTheDocument();
   expect(screen.getByText("Linux Mint")).toBeInTheDocument();
-  expect(screen.getByText("#1 on DistroWatch")).toBeInTheDocument();
+  expect(screen.getByText("#1 in popularity")).toBeInTheDocument();
 });
 
 test("shows the biggest climber by rank trend", () => {

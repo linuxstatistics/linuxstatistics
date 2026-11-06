@@ -16,7 +16,7 @@ import { parseDistrowatchRanking } from "../src/sources/distrowatch.js";
 import { ingestDistrowatchRows } from "../src/ingest-distrowatch.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const live = readFileSync(resolve(here, "fixtures/distrowatch-2026-11-03.html"), "utf8");
+const full = readFileSync(resolve(here, "fixtures/ranking-full.html"), "utf8");
 const capturedAt = new Date("2026-11-03T12:00:00.000Z");
 
 let db: Database;
@@ -37,22 +37,22 @@ afterAll(async () => {
   await client.close();
 });
 
-test("ingesting the live page twice creates each distro once with per-period snapshots", async () => {
-  const rows = parseDistrowatchRanking(live);
+test("ingesting a full page twice creates each distro once with per-period snapshots", async () => {
+  const rows = parseDistrowatchRanking(full);
   const first = await ingestDistrowatchRows(db, rows, capturedAt);
-  expect(first.written).toBe(545 * 4);
+  expect(first.written).toBe(450 * 4);
   expect(first.created).toContain("cachyos");
   await ingestDistrowatchRows(db, rows, new Date("2026-11-04T12:00:00.000Z"));
 
   const list = await getDistroList(db);
   const slugs = list.map((d) => d.slug);
   expect(new Set(slugs).size).toBe(slugs.length);
-  expect(list[0]).toMatchObject({ slug: "cachyos", name: "CachyOS", rank: 1, hitsPerDay: 3248, family: "arch" });
+  expect(list[0]).toMatchObject({ slug: "cachyos", name: "CachyOS", rank: 1, hitsPerDay: 4000, family: "arch" });
   expect(list.find((d) => d.slug === "mint")).toMatchObject({ rank: 2, family: "debian" });
 });
 
 test("curated families and bases are applied; uncurated distros are logged as other", async () => {
-  const rows = parseDistrowatchRanking(live);
+  const rows = parseDistrowatchRanking(full);
   const res = await ingestDistrowatchRows(db, rows, capturedAt);
   const list = await getDistroList(db);
   const top100 = list.filter((d) => d.rank !== null && d.rank <= 100);

@@ -1,11 +1,12 @@
 /**
- * Seed data. Rankings come from the DistroWatch popularity page saved on
- * 2026-11-03 (apps/worker/test/fixtures/distrowatch-2026-11-03.html), so the
- * local site shows real data. GitHub figures and the market-share series are
+ * Seed data. Rankings come from a local, git-ignored capture of the ranking
+ * page at `<root>/.data/ranking-capture.html` when present, else from the
+ * synthetic test page (invented ranks). GitHub figures and the market-share series are
  * representative samples until those sources are ingested live.
  */
 
-export const SEED_PAGE = "test/fixtures/distrowatch-2026-11-03.html";
+export const SEED_CAPTURE = ".data/ranking-capture.html";
+export const SEED_FALLBACK = "apps/worker/test/fixtures/ranking-full.html";
 export const SEED_CAPTURED_AT = new Date("2026-11-03T00:30:00.000Z");
 
 /** Old seed slugs, kept resolvable after the switch to DistroWatch keys. */

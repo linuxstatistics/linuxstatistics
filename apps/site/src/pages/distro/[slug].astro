@@ -7,9 +7,7 @@ import { RankByPeriod } from "../../components/RankByPeriod";
 import { RelatedLinks } from "../../components/RelatedLinks";
 import { CompareWith } from "../../components/CompareWith";
 import { SponsorCard } from "../../components/SponsorCard";
-import { BadgeEmbed } from "../../components/BadgeEmbed";
 import { RatingSkeleton } from "../../components/Skeleton";
-import { badgeSnippets } from "../../lib/badge";
 import { ProsCons } from "../../components/ProsCons";
 import { UseFitTabs } from "../../components/UseFitTabs";
 import { useFits } from "../../lib/use-fit";
@@ -46,17 +44,15 @@ const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "distrowatch");
 const site = Astro.site!.href.replace(/\/$/, "");
-const snippets = badgeSnippets(site, data.slug, data.name);
 const switchFrom = (["windows", "mac"] as const).filter((f) =>
   PROFILES.find((p) => p.key === data.slug)?.desktops.includes(f === "windows" ? "windows-like" : "mac-like"),
 );
 const familyName = FAMILY_LABELS[data.family];
 const family_label = data.family === "independent" ? "independent" : `${familyName}-family`;
 
-const title = `${data.name}: rank, popularity and ratings | LinuxStatistics`;
-const rankText = data.rank != null ? `#${data.rank} on DistroWatch` : "unranked on DistroWatch";
-const hits = data.hitsPerDay != null ? ` with ${data.hitsPerDay.toLocaleString("en-US")} hits per day` : "";
-const description = `${data.name} (${familyName} family) is ${rankText}${hits}. Stats, GitHub activity and community ratings.`;
+const title = `${data.name}: who it's for, pros, cons and ratings | LinuxStatistics`;
+const based = baseName ? `, based on ${baseName}` : "";
+const description = `${data.name} (${familyName} family${based}): who it suits, pros and cons, popularity, GitHub activity and community ratings.`;
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -83,7 +79,7 @@ const jsonLd = {
   <article class="page distro-page">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Rankings</a> / {data.name}</nav>
     <h1>{data.name}</h1>
-    <p class="lede">{rankText}{data.firstReleaseYear ? ` · first released ${data.firstReleaseYear}` : ""}</p>
+    <p class="lede">{data.family === "independent" ? "Independent" : `${familyName} family`}{baseName ? `, based on ${baseName}` : ""}{data.firstReleaseYear ? ` · first released ${data.firstReleaseYear}` : ""}</p>
     <div class="distro-grid">
       <div class="distro-main">
         <section class="dsec dsec-overview" aria-label="Overview">
@@ -113,11 +109,6 @@ const jsonLd = {
         <section class="dsec" aria-labelledby="rate-h">
           <h2 id="rate-h">Rate {data.name}</h2>
           <DistroRating client:only="react" slug={data.slug}><RatingSkeleton slot="fallback" /></DistroRating>
-        </section>
-        <section class="dsec" aria-labelledby="badge-h">
-          <h2 id="badge-h">Badge for your README</h2>
-          <p class="note">Maintain {data.name} or write about it? Show its rank and link here.</p>
-          <BadgeEmbed client:visible slug={data.slug} name={data.name} markdown={snippets.markdown} html={snippets.html} />
         </section>
         <AffiliateBlock />
         <p class="source-note">
