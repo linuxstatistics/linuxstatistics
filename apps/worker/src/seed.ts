@@ -7,6 +7,7 @@ import {
   addGithubSnapshot,
   addMarketShare,
   findDistroIdByAlias,
+  findDistroIdBySlug,
   openDb,
   recordIngestionRun,
   schema,
@@ -56,12 +57,12 @@ async function main(): Promise<void> {
   }
 
   for (const [legacy, key] of Object.entries(LEGACY_SLUGS)) {
-    const id = await findDistroIdByAlias(db, "distrowatch", key);
+    const id = await findDistroIdBySlug(db, key);
     if (id) await addAlias(db, "legacy", legacy, id);
   }
 
   for (const repo of SEED_REPOS) {
-    const id = await findDistroIdByAlias(db, "distrowatch", repo.key);
+    const id = await findDistroIdBySlug(db, repo.key);
     if (!id) continue;
     const repoId = await upsertGithubRepo(db, id, {
       repoFullName: repo.fullName,

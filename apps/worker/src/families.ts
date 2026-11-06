@@ -2,7 +2,7 @@ import type { Family } from "@linux-statistics/shared";
 
 export interface CuratedDistro {
   family: Family;
-  /** DistroWatch key of the parent distro, when it has one we track. */
+  /** Our slug of the parent distro, when it has one we track. */
   basedOn?: string;
   firstReleaseYear?: number;
   homepage?: string;
@@ -10,7 +10,7 @@ export interface CuratedDistro {
 
 /**
  * Hand-curated family and lineage for the top distros on DistroWatch's
- * 12-month table (reviewed 2026-11-03), keyed by DistroWatch key. Ingest and
+ * 12-month table (reviewed 2026-11-03), keyed by our slug. Ingest and
  * seed apply these; they are the only values allowed to overwrite a distro's
  * family. Anything not listed is created as "other" and logged for curation.
  *

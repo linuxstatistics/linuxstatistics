@@ -124,7 +124,14 @@ export async function findDistroIdBySlug(
   return row?.id ?? null;
 }
 
-export type AliasSource = "distrowatch" | "legacy";
+/** A distro's slug from its id, if it exists. */
+export async function findDistroSlugById(db: Database, id: number): Promise<string | null> {
+  const [row] = await db.select({ slug: distros.slug }).from(distros).where(eq(distros.id, id));
+  return row?.slug ?? null;
+}
+
+/** Where an alias comes from: another site's ID for the distro, or one of our old slugs. */
+export type AliasSource = "distrowatch" | "wikidata" | "legacy";
 
 /** Record another name for a distro (idempotent; re-points an existing alias). */
 export async function addAlias(

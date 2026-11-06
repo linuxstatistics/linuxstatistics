@@ -9,7 +9,7 @@ export const SEED_CAPTURE = ".data/ranking-capture.html";
 export const SEED_FALLBACK = "apps/worker/test/fixtures/ranking-full.html";
 export const SEED_CAPTURED_AT = new Date("2026-11-03T00:30:00.000Z");
 
-/** Old seed slugs, kept resolvable after the switch to DistroWatch keys. */
+/** Old seed slugs, kept resolvable after the slug change of 2026-11-03. */
 export const LEGACY_SLUGS: Record<string, string> = {
   "mx-linux": "mx",
   endeavouros: "endeavour",

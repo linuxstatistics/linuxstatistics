@@ -1,4 +1,4 @@
-import { findDistroIdByAlias, replaceGithubRepo, type Database } from "@linux-statistics/db";
+import { findDistroIdBySlug, replaceGithubRepo, type Database } from "@linux-statistics/db";
 import { mapGithubRepo, type GithubRepoResponse } from "./sources/github.js";
 import { politeGet, StopError, type FetchLike } from "./http.js";
 import { GITHUB_REPOS } from "./github-repos.js";
@@ -42,7 +42,7 @@ export async function ingestGithub(
   const result: GithubIngestResult = { written: 0, failed: [] };
   for (const { key, repo } of GITHUB_REPOS) {
     try {
-      const distroId = await findDistroIdByAlias(db, "distrowatch", key);
+      const distroId = await findDistroIdBySlug(db, key);
       if (!distroId) continue; // distro not ingested yet
       const res = await get(`https://api.github.com/repos/${repo}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

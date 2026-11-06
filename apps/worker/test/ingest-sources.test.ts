@@ -4,7 +4,6 @@ import { dirname, resolve } from "node:path";
 import { afterEach, beforeEach, expect, test } from "vitest";
 import type { PGlite } from "@electric-sql/pglite";
 import {
-  addAlias,
   getDistroList,
   getMarketShare,
   initPgliteDb,
@@ -78,9 +77,8 @@ function githubFake(failRepo?: string): FetchLike {
   };
 }
 
-async function addDistro(key: string) {
-  const id = await upsertDistro(db, { slug: key, name: key, family: "other", status: "active" });
-  await addAlias(db, "distrowatch", key, id);
+async function addDistro(slug: string) {
+  await upsertDistro(db, { slug, name: slug, family: "other", status: "active" });
 }
 
 test("GitHub ingest records stars, 30-day commits and contributors; one bad repo doesn't stop the rest", async () => {

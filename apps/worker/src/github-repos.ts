@@ -1,5 +1,5 @@
 /**
- * Curated repository per distro (by DistroWatch key). Pick the repo that best
+ * Curated repository per distro (by our slug). Pick the repo that best
  * stands for the distro's own work (installer, desktop, tooling), not upstream
  * projects it ships. Checked against the GitHub API on 2026-11-03.
  */
