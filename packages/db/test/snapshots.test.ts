@@ -5,7 +5,7 @@ import { setupTestDb } from "./helpers.js";
 import type { Database } from "../src/client.js";
 import {
   distros,
-  distrowatchSnapshots,
+  popularitySnapshots,
   ingestionRuns,
   marketShare,
 } from "../src/schema.js";
@@ -27,8 +27,9 @@ afterAll(async () => {
   await client.close();
 });
 
-test("a distrowatch snapshot links to its distro", async () => {
-  await db.insert(distrowatchSnapshots).values({
+test("a popularity snapshot links to its distro and records its source", async () => {
+  await db.insert(popularitySnapshots).values({
+    source: "distrowatch",
     distroId,
     capturedAt: new Date(),
     rank: 3,
@@ -37,9 +38,10 @@ test("a distrowatch snapshot links to its distro", async () => {
   });
   const rows = await db
     .select()
-    .from(distrowatchSnapshots)
-    .where(eq(distrowatchSnapshots.distroId, distroId));
+    .from(popularitySnapshots)
+    .where(eq(popularitySnapshots.distroId, distroId));
   expect(rows[0]?.rank).toBe(3);
+  expect(rows[0]?.source).toBe("distrowatch");
 });
 
 test("market share stores decimal percentages", async () => {

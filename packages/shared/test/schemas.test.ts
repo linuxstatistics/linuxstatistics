@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import {
   distroSchema,
-  distrowatchSnapshotSchema,
+  popularitySnapshotSchema,
   marketShareSchema,
 } from "../src/schemas.js";
 
@@ -26,9 +26,10 @@ test("distroSchema rejects an invalid family", () => {
   ).toThrow();
 });
 
-test("distrowatchSnapshotSchema requires a positive rank", () => {
+test("popularitySnapshotSchema requires a positive rank", () => {
   expect(() =>
-    distrowatchSnapshotSchema.parse({
+    popularitySnapshotSchema.parse({
+      source: "distrowatch",
       distroSlug: "ubuntu",
       capturedAt: "2026-06-23T00:00:00.000Z",
       rank: 0,

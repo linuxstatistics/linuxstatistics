@@ -43,10 +43,16 @@ export const distros = pgTable(
   (t) => ({ familyIdx: index("distros_family_idx").on(t.family) }),
 );
 
-export const distrowatchSnapshots = pgTable(
-  "distrowatch_snapshots",
+/**
+ * Popularity ranks over time, one row per distro per period per capture.
+ * `source` names where the rank comes from, so several ranking inputs (and
+ * later our own index) can live side by side.
+ */
+export const popularitySnapshots = pgTable(
+  "popularity_snapshots",
   {
     id: serial("id").primaryKey(),
+    source: text("source").notNull(),
     distroId: integer("distro_id")
       .notNull()
       .references(() => distros.id, { onDelete: "cascade" }),
@@ -56,8 +62,8 @@ export const distrowatchSnapshots = pgTable(
     period: text("period").notNull(),
   },
   (t) => ({
-    dwDistroIdx: index("dw_distro_captured_idx").on(t.distroId, t.capturedAt),
-    dwPeriodIdx: index("dw_period_captured_idx").on(t.period, t.capturedAt),
+    popDistroIdx: index("pop_distro_captured_idx").on(t.source, t.distroId, t.capturedAt),
+    popPeriodIdx: index("pop_period_captured_idx").on(t.source, t.period, t.capturedAt),
   }),
 );
 

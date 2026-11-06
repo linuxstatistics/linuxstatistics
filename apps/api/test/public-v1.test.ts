@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, expect, test } from "vitest";
 import type { FastifyInstance } from "fastify";
 import type { PGlite } from "@electric-sql/pglite";
-import { initPgliteDb, upsertDistro, addDistrowatchSnapshot } from "@linux-statistics/db";
+import { initPgliteDb, upsertDistro, addPopularitySnapshot } from "@linux-statistics/db";
 import { buildApp } from "../src/app.js";
 import { loginAs } from "./helpers.js";
 
@@ -14,7 +14,7 @@ beforeAll(async () => {
   const init = await initPgliteDb();
   client = init.client;
   const id = await upsertDistro(init.db, { slug: "mint", name: "Mint", family: "debian", status: "active" });
-  await addDistrowatchSnapshot(init.db, id, { capturedAt: new Date("2026-11-01"), period: "last-12-months", rank: 2, hitsPerDay: 1900 });
+  await addPopularitySnapshot(init.db, id, { source: "distrowatch", capturedAt: new Date("2026-11-01"), period: "last-12-months", rank: 2, hitsPerDay: 1900 });
   app = await buildApp(init.db);
   await app.ready();
 });

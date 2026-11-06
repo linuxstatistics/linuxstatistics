@@ -4,7 +4,7 @@ import { setupTestDb } from "./helpers.js";
 import type { Database } from "../src/client.js";
 import {
   addAlias,
-  addDistrowatchSnapshot,
+  addPopularitySnapshot,
   findDistroIdByAlias,
   upsertDistro,
 } from "../src/repository.js";
@@ -26,9 +26,9 @@ beforeAll(async () => {
   for (const [slug, name, r12, r1] of rows) {
     const id = await upsertDistro(db, { slug, name, family: "other", status: "active" });
     await addAlias(db, "distrowatch", slug, id);
-    await addDistrowatchSnapshot(db, id, { capturedAt: now, rank: r12, hitsPerDay: 1000 - r12, period: "last-12-months" });
-    await addDistrowatchSnapshot(db, id, { capturedAt: now, rank: r1, hitsPerDay: 2000 - r1, period: "last-1-month" });
-    await addDistrowatchSnapshot(db, id, { capturedAt: now, rank: r1, hitsPerDay: 1500 - r1, period: "last-3-months" });
+    await addPopularitySnapshot(db, id, { source: "distrowatch", capturedAt: now, rank: r12, hitsPerDay: 1000 - r12, period: "last-12-months" });
+    await addPopularitySnapshot(db, id, { source: "distrowatch", capturedAt: now, rank: r1, hitsPerDay: 2000 - r1, period: "last-1-month" });
+    await addPopularitySnapshot(db, id, { source: "distrowatch", capturedAt: now, rank: r1, hitsPerDay: 1500 - r1, period: "last-3-months" });
   }
   const mintId = (await findDistroIdByAlias(db, "distrowatch", "mint"))!;
   await addAlias(db, "legacy", "linux-mint", mintId);

@@ -51,7 +51,7 @@ pnpm-workspace monorepo (`packages/*`, `apps/*`), TypeScript, ESM. Data flows on
 
 ## Data layer
 
-`openDb()` picks the driver: Postgres when `DATABASE_URL` is set (production), otherwise local **PGlite**. Tests use in-memory PGlite. Same schema and migrations for both; `Database` is the driver-neutral Drizzle type. Distros are keyed by DistroWatch key (= slug); `distro_aliases` maps DistroWatch keys and legacy slugs. Snapshots carry a `period`; the main rank is `last-12-months`, "rising" uses `last-1-month`.
+`openDb()` picks the driver: Postgres when `DATABASE_URL` is set (production), otherwise local **PGlite**. Tests use in-memory PGlite. Same schema and migrations for both; `Database` is the driver-neutral Drizzle type. Distros are keyed by DistroWatch key (= slug); `distro_aliases` maps DistroWatch keys and legacy slugs. Popularity ranks live in `popularity_snapshots` with a `source` and a `period`; reads use `RANK_SOURCE` (shared) for the main rank (`last-12-months`) and "rising" (`last-1-month`).
 
 - The local PGlite dir is `<root>/.data/pglite` (override `PGLITE_DIR`). Run seed and api from the repo root.
 - Zod 4: use `z.email()`, `z.url()`, `z.iso.datetime()` and `z.flattenError()`.

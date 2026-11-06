@@ -13,14 +13,21 @@ export const distroSchema = z.object({
 });
 export type DistroInput = z.infer<typeof distroSchema>;
 
-export const distrowatchSnapshotSchema = z.object({
+/** Where a popularity rank comes from. */
+export const popularitySourceSchema = z.enum(["distrowatch"]);
+export type PopularitySource = z.infer<typeof popularitySourceSchema>;
+/** The source behind the main rank, "rising" and rank history. */
+export const RANK_SOURCE: PopularitySource = "distrowatch";
+
+export const popularitySnapshotSchema = z.object({
+  source: popularitySourceSchema,
   distroSlug: z.string().min(1),
   capturedAt: z.iso.datetime(),
   rank: z.number().int().positive(),
   hitsPerDay: z.number().int().nonnegative(),
   period: z.string().min(1),
 });
-export type DistrowatchSnapshotInput = z.infer<typeof distrowatchSnapshotSchema>;
+export type PopularitySnapshotInput = z.infer<typeof popularitySnapshotSchema>;
 
 export const githubRepoSchema = z.object({
   distroSlug: z.string().min(1),

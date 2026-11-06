@@ -3,7 +3,7 @@ import type { FastifyInstance } from "fastify";
 import type { PGlite } from "@electric-sql/pglite";
 import {
   addAlias,
-  addDistrowatchSnapshot,
+  addPopularitySnapshot,
   addMarketShare,
   initPgliteDb,
   upsertDistro,
@@ -22,14 +22,16 @@ beforeAll(async () => {
     family: "debian",
     status: "active",
   });
-  await addDistrowatchSnapshot(db, mintId, {
+  await addPopularitySnapshot(db, mintId, {
+    source: "distrowatch",
     capturedAt: new Date(),
     rank: 1,
     hitsPerDay: 2600,
     period: "last-12-months",
   });
   await addAlias(db, "legacy", "linux-mint", mintId);
-  await addDistrowatchSnapshot(db, mintId, {
+  await addPopularitySnapshot(db, mintId, {
+    source: "distrowatch",
     capturedAt: new Date(),
     rank: 3,
     hitsPerDay: 1800,

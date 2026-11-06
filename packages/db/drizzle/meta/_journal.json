@@ -57,6 +57,13 @@
       "when": 1793750580000,
       "tag": "0007_picker_feedback",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793750640000,
+      "tag": "0008_popularity_snapshots",
+      "breakpoints": true
     }
   ]
 }

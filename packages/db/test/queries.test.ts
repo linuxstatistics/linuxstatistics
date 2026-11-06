@@ -3,7 +3,7 @@ import type { PGlite } from "@electric-sql/pglite";
 import { setupTestDb } from "./helpers.js";
 import type { Database } from "../src/client.js";
 import {
-  addDistrowatchSnapshot,
+  addPopularitySnapshot,
   addGithubSnapshot,
   addMarketShare,
   recordIngestionRun,
@@ -35,8 +35,8 @@ beforeAll(async () => {
     family: "debian",
     status: "active",
   });
-  await addDistrowatchSnapshot(db, mintId, { capturedAt: yearAgo, rank: 5, hitsPerDay: 1500, period: "last-12-months" });
-  await addDistrowatchSnapshot(db, mintId, { capturedAt: now, rank: 1, hitsPerDay: 2600, period: "last-12-months" });
+  await addPopularitySnapshot(db, mintId, { source: "distrowatch", capturedAt: yearAgo, rank: 5, hitsPerDay: 1500, period: "last-12-months" });
+  await addPopularitySnapshot(db, mintId, { source: "distrowatch", capturedAt: now, rank: 1, hitsPerDay: 2600, period: "last-12-months" });
   const mintRepo = await upsertGithubRepo(db, mintId, { repoFullName: "linuxmint/cinnamon", stars: 5200, forks: 800, openIssues: 120 });
   await addGithubSnapshot(db, mintRepo, { capturedAt: now, stars: 5200, commitsLast30d: 180, contributors: 90 });
 
@@ -47,8 +47,8 @@ beforeAll(async () => {
     family: "rpm",
     status: "active",
   });
-  await addDistrowatchSnapshot(db, fedoraId, { capturedAt: yearAgo, rank: 2, hitsPerDay: 1900, period: "last-12-months" });
-  await addDistrowatchSnapshot(db, fedoraId, { capturedAt: now, rank: 3, hitsPerDay: 1700, period: "last-12-months" });
+  await addPopularitySnapshot(db, fedoraId, { source: "distrowatch", capturedAt: yearAgo, rank: 2, hitsPerDay: 1900, period: "last-12-months" });
+  await addPopularitySnapshot(db, fedoraId, { source: "distrowatch", capturedAt: now, rank: 3, hitsPerDay: 1700, period: "last-12-months" });
 
   await addMarketShare(db, { capturedAt: yearAgo, region: "global", platform: "linux", sharePct: 3.8 });
   await addMarketShare(db, { capturedAt: now, region: "global", platform: "linux", sharePct: 4.13 });
@@ -112,7 +112,7 @@ test("getMeta reports tracked count and source freshness", async () => {
 test("getDistroList includes smoothed user-rating aggregates", async () => {
   const { db, client } = await initPgliteDb();
   const id = await upsertDistro(db, { slug: "mint", name: "Linux Mint", family: "debian", status: "active" });
-  await addDistrowatchSnapshot(db, id, { capturedAt: new Date(), rank: 1, hitsPerDay: 2600, period: "last-12-months" });
+  await addPopularitySnapshot(db, id, { source: "distrowatch", capturedAt: new Date(), rank: 1, hitsPerDay: 2600, period: "last-12-months" });
   const u = await upsertUser(db, { provider: "github", providerUserId: "1", username: "a", avatarUrl: null, accountCreatedAt: new Date("2015-01-01") });
   await upsertContribution(db, { userId: u.id, distroId: id, rating: 4, usesIt: true, reviewBody: null });
   // A single rating is shown at once (smoothed toward the site mean, which is itself here).

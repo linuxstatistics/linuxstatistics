@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import {
   addAlias,
-  addDistrowatchSnapshot,
+  addPopularitySnapshot,
   addGithubSnapshot,
   addMarketShare,
   findDistroIdByAlias,
@@ -45,7 +45,8 @@ async function main(): Promise<void> {
   for (const r of sixMonth) {
     const id = await findDistroIdByAlias(db, "distrowatch", r.key);
     if (id) {
-      await addDistrowatchSnapshot(db, id, {
+      await addPopularitySnapshot(db, id, {
+        source: "distrowatch",
         capturedAt: YEAR_AGO,
         rank: r.rank,
         hitsPerDay: r.hitsPerDay,

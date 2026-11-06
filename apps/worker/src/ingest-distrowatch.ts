@@ -1,6 +1,6 @@
 import {
   addAlias,
-  addDistrowatchSnapshot,
+  addPopularitySnapshot,
   findDistroIdByAlias,
   setDistroFamily,
   upsertDistro,
@@ -50,7 +50,8 @@ export async function ingestDistrowatchRows(
     }
     if (!curated) uncurated.add(r.key);
     idByKey.set(r.key, id);
-    await addDistrowatchSnapshot(db, id, {
+    await addPopularitySnapshot(db, id, {
+      source: "distrowatch",
       capturedAt,
       rank: r.rank,
       hitsPerDay: r.hitsPerDay,

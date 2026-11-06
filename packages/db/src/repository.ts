@@ -1,10 +1,10 @@
 import { and, eq } from "drizzle-orm";
-import type { DistroInput, IngestionSource, IngestionStatus, Period } from "@linux-statistics/shared";
+import type { DistroInput, IngestionSource, IngestionStatus, Period, PopularitySource } from "@linux-statistics/shared";
 import type { Database } from "./client.js";
 import {
   distroAliases,
   distros,
-  distrowatchSnapshots,
+  popularitySnapshots,
   githubRepos,
   githubSnapshots,
   marketShare,
@@ -31,12 +31,12 @@ export async function upsertDistro(db: Database, input: DistroInput): Promise<nu
   return row!.id;
 }
 
-export async function addDistrowatchSnapshot(
+export async function addPopularitySnapshot(
   db: Database,
   distroId: number,
-  s: { capturedAt: Date; rank: number; hitsPerDay: number; period: Period },
+  s: { source: PopularitySource; capturedAt: Date; rank: number; hitsPerDay: number; period: Period },
 ): Promise<void> {
-  await db.insert(distrowatchSnapshots).values({ distroId, ...s });
+  await db.insert(popularitySnapshots).values({ distroId, ...s });
 }
 
 export async function upsertGithubRepo(

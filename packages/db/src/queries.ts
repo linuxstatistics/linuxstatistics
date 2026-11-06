@@ -1,5 +1,5 @@
 import { and, asc, count, desc, eq, gte, lte } from "drizzle-orm";
-import { MAIN_PERIOD, PERIODS, TRENDING_PERIOD } from "@linux-statistics/shared";
+import { MAIN_PERIOD, PERIODS, RANK_SOURCE, TRENDING_PERIOD } from "@linux-statistics/shared";
 import type {
   DistroDetail,
   DistroListItem,
@@ -15,7 +15,7 @@ import type { Database } from "./client.js";
 import {
   distroAliases,
   distros,
-  distrowatchSnapshots,
+  popularitySnapshots,
   githubRepos,
   githubSnapshots,
   ingestionRuns,
@@ -59,14 +59,14 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
   const allDistros = await db.select().from(distros);
   const dwAll = await db
     .select()
-    .from(distrowatchSnapshots)
-    .where(eq(distrowatchSnapshots.period, MAIN_PERIOD))
-    .orderBy(desc(distrowatchSnapshots.capturedAt));
+    .from(popularitySnapshots)
+    .where(and(eq(popularitySnapshots.source, RANK_SOURCE), eq(popularitySnapshots.period, MAIN_PERIOD)))
+    .orderBy(desc(popularitySnapshots.capturedAt));
   const dw1mAll = await db
     .select()
-    .from(distrowatchSnapshots)
-    .where(eq(distrowatchSnapshots.period, TRENDING_PERIOD))
-    .orderBy(desc(distrowatchSnapshots.capturedAt));
+    .from(popularitySnapshots)
+    .where(and(eq(popularitySnapshots.source, RANK_SOURCE), eq(popularitySnapshots.period, TRENDING_PERIOD)))
+    .orderBy(desc(popularitySnapshots.capturedAt));
   const repos = await db.select().from(githubRepos);
   const ghAll = await db
     .select()
@@ -189,22 +189,22 @@ export async function getDistroDetail(
 
   const snaps = await db
     .select()
-    .from(distrowatchSnapshots)
-    .where(and(eq(distrowatchSnapshots.distroId, d.id), eq(distrowatchSnapshots.period, MAIN_PERIOD)))
-    .orderBy(asc(distrowatchSnapshots.capturedAt));
+    .from(popularitySnapshots)
+    .where(and(eq(popularitySnapshots.source, RANK_SOURCE), eq(popularitySnapshots.distroId, d.id), eq(popularitySnapshots.period, MAIN_PERIOD)))
+    .orderBy(asc(popularitySnapshots.capturedAt));
   const [latest1m] = await db
     .select()
-    .from(distrowatchSnapshots)
-    .where(and(eq(distrowatchSnapshots.distroId, d.id), eq(distrowatchSnapshots.period, TRENDING_PERIOD)))
-    .orderBy(desc(distrowatchSnapshots.capturedAt))
+    .from(popularitySnapshots)
+    .where(and(eq(popularitySnapshots.source, RANK_SOURCE), eq(popularitySnapshots.distroId, d.id), eq(popularitySnapshots.period, TRENDING_PERIOD)))
+    .orderBy(desc(popularitySnapshots.capturedAt))
     .limit(1);
   const rankByPeriod: DistroDetail["rankByPeriod"] = [];
   for (const period of PERIODS) {
     const [snap] = await db
       .select()
-      .from(distrowatchSnapshots)
-      .where(and(eq(distrowatchSnapshots.distroId, d.id), eq(distrowatchSnapshots.period, period)))
-      .orderBy(desc(distrowatchSnapshots.capturedAt))
+      .from(popularitySnapshots)
+      .where(and(eq(popularitySnapshots.source, RANK_SOURCE), eq(popularitySnapshots.distroId, d.id), eq(popularitySnapshots.period, period)))
+      .orderBy(desc(popularitySnapshots.capturedAt))
       .limit(1);
     if (snap) rankByPeriod.push({ period, rank: snap.rank, hitsPerDay: snap.hitsPerDay });
   }
