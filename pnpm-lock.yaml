@@ -73,9 +73,15 @@ importers:
       '@fontsource/ibm-plex-mono':
         specifier: ^5.3.0
         version: 5.3.0
+      '@fontsource/inter':
+        specifier: 5.3.0
+        version: 5.3.0
       '@linux-statistics/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@resvg/resvg-js':
+        specifier: 2.6.2
+        version: 2.6.2
       '@tanstack/react-query':
         specifier: ^5.105.3
         version: 5.105.3(@types/react@18.3.31)(react@18.3.1)
@@ -88,6 +94,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      satori:
+        specifier: 0.63.2
+        version: 0.63.2
     devDependencies:
       '@astrojs/check':
         specifier: ^0.9.12

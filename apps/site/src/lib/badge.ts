@@ -29,8 +29,9 @@ export function badgeSvg(opts: { label?: string; value: string; theme?: BadgeThe
   const dark = (opts.theme ?? "dark") === "dark";
   const labelBg = dark ? "#2b2f38" : "#e6e8ec";
   const labelFg = dark ? "#f2f3f5" : "#1f232b";
-  const valueBg = value === "not ranked" ? "#8a97a6" : "#e8a33c";
-  const valueFg = "#1c1408";
+  // Brand neon green (oklch 0.87 0.27 143) with its dark ink; grey when unranked.
+  const valueBg = value === "not ranked" ? "#8a97a6" : "#3cfe3f";
+  const valueFg = "#03140a";
   const title = esc(opts.title ?? `${label}: ${value}`);
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="20" role="img" aria-label="${title}"><title>${title}</title><rect width="${lw}" height="20" rx="3" fill="${labelBg}"/><rect x="${lw}" width="${vw}" height="20" rx="3" fill="${valueBg}"/><rect x="${lw}" width="4" height="20" fill="${valueBg}"/><g font-family="Verdana,DejaVu Sans,sans-serif" font-size="11" text-anchor="middle"><text x="${lw / 2}" y="14" fill="${labelFg}">${esc(label)}</text><text x="${lw + vw / 2}" y="14" fill="${valueFg}" font-weight="bold">${esc(value)}</text></g></svg>`;
 }

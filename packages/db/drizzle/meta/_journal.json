@@ -50,6 +50,13 @@
       "when": 1793750520000,
       "tag": "0006_suggestions",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793750580000,
+      "tag": "0007_picker_feedback",
+      "breakpoints": true
     }
   ]
 }

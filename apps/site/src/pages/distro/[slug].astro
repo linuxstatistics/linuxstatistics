@@ -11,6 +11,8 @@ import { BadgeEmbed } from "../../components/BadgeEmbed";
 import { RatingSkeleton } from "../../components/Skeleton";
 import { badgeSnippets } from "../../lib/badge";
 import { ProsCons } from "../../components/ProsCons";
+import { UseFitTabs } from "../../components/UseFitTabs";
+import { useFits } from "../../lib/use-fit";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { WhoItSuits } from "../../components/PairVerdict";
 import { notesFor } from "../../lib/distro-notes";
@@ -38,6 +40,8 @@ const compare = compareSuggestions(list, data, staticPairs);
 const family = sameFamily(list, data, new Map(Object.entries(basedOn)));
 const near = neighbours(list, data.slug);
 const notes = notesFor(data.slug);
+const profile = PROFILES.find((p) => p.key === data.slug);
+const fits = profile ? useFits(profile) : null;
 const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "distrowatch");
@@ -88,6 +92,11 @@ const jsonLd = {
         {suits.length > 0 && (
           <section class="dsec">
             <WhoItSuits name={data.name} reasons={suits} />
+            {data.quizFit && (
+              <p class="quiz-fit-line">
+                {Math.round((data.quizFit.up / data.quizFit.total) * 100)}% of {data.quizFit.total} people whose <a href="/pick/">quiz</a> top pick was {data.name} said it fit.
+              </p>
+            )}
           </section>
         )}
         {switchFrom.length > 0 && (
@@ -98,6 +107,7 @@ const jsonLd = {
           </p>
         )}
         {notes && <ProsCons notes={notes} />}
+        {fits && <UseFitTabs client:visible name={data.name} fits={fits} />}
         <RankByPeriod periods={data.rankByPeriod} />
         <TelemetryNote slug={data.slug} />
         <section class="dsec" aria-labelledby="rate-h">

@@ -7,7 +7,7 @@ export function AffiliateBlock({
 }) {
   if (providers.length === 0) return null;
   return (
-    <section className="affiliate-block" aria-label="Try Linux in the cloud">
+    <section className="affiliate-block" id="cloud" aria-label="Try Linux in the cloud">
       <h3>Try Linux in the cloud</h3>
       <p className="affiliate-disclosure">Affiliate links: we may earn a commission.</p>
       <ul className="affiliate-providers">

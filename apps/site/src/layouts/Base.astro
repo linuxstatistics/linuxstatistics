@@ -3,7 +3,6 @@ import "../styles.css";
 // Preload the Latin fonts every page uses first, so text doesn't reflow when they arrive.
 import archivoLatin from "@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2?url";
 import plexSansLatin from "@fontsource-variable/ibm-plex-sans/files/ibm-plex-sans-latin-wght-normal.woff2?url";
-import plexMonoLatin from "@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2?url";
 import { HeaderAuth } from "../components/HeaderAuth";
 import { FooterEmail } from "../components/FooterEmail";
 import { SponsorSlot } from "../components/SponsorSlot";
@@ -19,9 +18,11 @@ interface Props {
   description: string;
   jsonLd?: Record<string, unknown>;
   noindex?: boolean;
+  /** Absolute URL of a 1200×630 share image. */
+  image?: string;
 }
 
-const { title, description, jsonLd, noindex = false } = Astro.props;
+const { title, description, jsonLd, noindex = false, image } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const [allDistros, marketShare, meta] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta()]);
 const jumpItems = allDistros.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
@@ -55,7 +56,6 @@ import { AuthSkeleton } from "../components/Skeleton";
     <meta name="color-scheme" content="dark light" />
     <link rel="preload" href={archivoLatin} as="font" type="font/woff2" crossorigin />
     <link rel="preload" href={plexSansLatin} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={plexMonoLatin} as="font" type="font/woff2" crossorigin />
     <script is:inline>
       // Apply a saved theme before first paint (no flash). "system" = follow the OS.
       try {
@@ -75,7 +75,10 @@ import { AuthSkeleton } from "../components/Skeleton";
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="LinuxStatistics" />
-    <meta name="twitter:card" content="summary" />
+    {image && <meta property="og:image" content={image} />}
+    {image && <meta property="og:image:width" content="1200" />}
+    {image && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
@@ -137,18 +140,18 @@ import { AuthSkeleton } from "../components/Skeleton";
       <footer class="app-footer">
         <div class="footer-cols">
           <div class="footer-about">
-            <a class="brand" href="/" aria-label="LinuxStatistics home">linux<b>stats</b></a>
+            <p class="footer-lede">Every Linux distro, ranked by what people actually look at.</p>
+            <dl class="footer-facts">
+              <div><dt>Tracked</dt><dd>{allDistros.length}</dd></div>
+              {share && <div><dt>Desktop share</dt><dd>{share.value.toFixed(2)}%</dd></div>}
+              {asOfText && <div><dt>Captured</dt><dd><a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">{asOfText}</a></dd></div>}
+            </dl>
             <p class="footer-credit">
               The Linux distro chart: <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page-hit interest over the last 12 months, with last month's movers
               marked. Desktop share from <a href="https://gs.statcounter.com/" target="_blank" rel="noopener noreferrer">StatCounter Global Stats</a>,
               repository activity from <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a>. Page hits measure interest,
               not installs.
             </p>
-            <dl class="footer-facts">
-              <div><dt>Tracked</dt><dd>{allDistros.length}</dd></div>
-              {share && <div><dt>Desktop share</dt><dd>{share.value.toFixed(2)}%</dd></div>}
-              {asOfText && <div><dt>Captured</dt><dd><a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">{asOfText}</a></dd></div>}
-            </dl>
           </div>
           <nav class="footer-links" aria-label="Footer">
             <h2>Explore</h2>

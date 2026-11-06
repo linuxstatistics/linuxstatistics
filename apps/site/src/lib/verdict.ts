@@ -17,6 +17,7 @@ export function reasonsFor(d: Facts, baseName?: string | null): { id: string; te
     if (p.uses.includes("gaming")) out.push({ id: "gaming", text: "you play games on PC" });
     if (p.uses.includes("old-hw")) out.push({ id: "old-hw", text: "your computer is older or low on memory" });
     if (p.uses.includes("dev")) out.push({ id: "dev", text: "you write software" });
+    if (p.uses.includes("ai")) out.push({ id: "ai", text: "you run AI models or LLMs on your own GPU" });
     if (p.uses.includes("privacy")) out.push({ id: "privacy", text: "privacy or security is the priority" });
     out.push(
       p.updates === "rolling"

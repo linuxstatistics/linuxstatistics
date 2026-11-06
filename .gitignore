@@ -12,4 +12,5 @@ dist/
 apps/site/dist.next/
 apps/site/dist.prev/
 .astro/
-monthly/
+/monthly/
+/apps/worker/monthly/

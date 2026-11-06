@@ -98,6 +98,8 @@ export const distroDetailSchema = distroListItemSchema.extend({
     z.object({ period: periodSchema, rank: z.number().int(), hitsPerDay: z.number().int() }),
   ),
   starsHistory: z.array(timeSeriesPointSchema),
+  // anonymous picker "did this fit?" votes when this distro was the top pick; null below 30 votes
+  quizFit: z.object({ up: z.number().int(), total: z.number().int() }).nullable(),
   myContribution: contributionSchema.nullable(),
 });
 export type DistroDetail = z.infer<typeof distroDetailSchema>;
@@ -175,3 +177,13 @@ export interface AdminSuggestion {
   username: string | null;
   provider: string | null;
 }
+
+/** Anonymous quiz vote. `code` is the picker's answers code (digits only). */
+export const pickerFeedbackInputSchema = z.object({
+  topKey: z.string().regex(/^[a-z0-9-]{1,64}$/),
+  code: z.string().regex(/^[0-9]{0,32}$/),
+  fit: z.boolean(),
+  /** Honeypot: must stay empty. */
+  website: z.string().max(0).optional(),
+});
+export type PickerFeedbackInput = z.infer<typeof pickerFeedbackInputSchema>;

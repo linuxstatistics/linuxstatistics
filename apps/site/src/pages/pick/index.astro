@@ -5,22 +5,52 @@ import { SponsorCard } from "../../components/SponsorCard";
 import { DistroPicker } from "../../components/DistroPicker";
 import { loadDistros } from "../../lib/data";
 import { PROFILES } from "../../lib/picker-profiles";
+import { suggest } from "../../lib/picker";
+import { compareSlug, popularPairs } from "../../lib/compare";
 
 const list = await loadDistros();
 const keys = new Set(PROFILES.map((p) => p.key));
-const distros = list.filter((d) => keys.has(d.slug)).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
+const distros = list.filter((d) => keys.has(d.slug)).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank, rankTrend: d.rankTrend }));
+const staticPairs = popularPairs(list).map(([a, b]) => compareSlug(a, b));
+const bySlug = new Map(distros.map((d) => [d.slug, d]));
+const profiles = PROFILES.filter((p) => bySlug.has(p.key));
+const rankOf = (k: string) => bySlug.get(k)?.rank ?? null;
+// Static fallback for visitors without JavaScript (and a quick answer for search engines).
+const QUICK = [
+  { label: "New to Linux, coming from Windows", answers: { level: "new", use: "everyday", from: "windows" } },
+  { label: "Gaming", answers: { level: "some", use: "gaming", gpu: "nvidia" } },
+  { label: "Programming", answers: { level: "some", use: "dev" } },
+  { label: "An older computer (2–4 GB of RAM)", answers: { level: "new", use: "old-hw", ram: 2 } },
+  { label: "Privacy and security", answers: { level: "some", use: "privacy", telemetry: "none" } },
+  { label: "A server or home lab", answers: { level: "some", use: "server" } },
+] as const;
+const quick = QUICK.map((q) => ({ label: q.label, picks: suggest(q.answers, profiles, rankOf).map((s) => bySlug.get(s.key)!) }));
 ---
 
 <Base
   title="Which Linux distro should I use? A quick picker | LinuxStatistics"
-  description="Answer a few questions about where you're coming from, your experience, hardware and taste to get three Linux distro suggestions, each with the reasons it fits."
+  description={`A few quick questions about your computer, experience and taste, matched against ${profiles.length} hand-checked Linux distros. Every suggestion comes with the reasons it fits.`}
 >
   <div class="page">
     <div class="with-side">
       <div class="with-side-main">
         <h1>Which Linux distro should I use?</h1>
-        <p class="lede">A few quick questions. You get three suggestions and why each one fits. Nothing is saved.</p>
-        <DistroPicker client:load distros={distros} />
+        <p class="lede">One question at a time; skip any you're not sure about. You get the best matches, why they fit and what to watch out for. Nothing is saved.</p>
+        <DistroPicker client:load distros={distros} staticPairs={staticPairs} />
+        <noscript>
+          <p>The quiz needs JavaScript. Here are our top picks for common needs:</p>
+        </noscript>
+        <section class="quick-picks" aria-labelledby="quick-h">
+          <h2 id="quick-h">Quick picks</h2>
+          <dl>
+            {quick.map((q) => (
+              <>
+                <dt>{q.label}</dt>
+                <dd>{q.picks.map((d, i) => <>{i > 0 && ", "}<a href={`/distro/${d.slug}/`}>{d.name}</a></>)}</dd>
+              </>
+            ))}
+          </dl>
+        </section>
       </div>
       <aside class="side" aria-label="More">
         <SponsorCard context="people about to install Linux" />

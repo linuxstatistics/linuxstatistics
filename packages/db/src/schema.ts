@@ -221,3 +221,21 @@ export const suggestions = pgTable("suggestions", {
   status: suggestionStatusEnum("status").notNull().default("new"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+/**
+ * Anonymous "did this fit?" votes from the picker quiz. No account, IP or
+ * cookie: only the top pick, the answers code (see the site's
+ * picker-questions.ts), the vote and the day.
+ */
+export const pickerFeedback = pgTable(
+  "picker_feedback",
+  {
+    id: serial("id").primaryKey(),
+    topKey: text("top_key").notNull(),
+    code: text("code").notNull(),
+    fit: boolean("fit").notNull(),
+    day: text("day").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("picker_feedback_top_idx").on(t.topKey)],
+);

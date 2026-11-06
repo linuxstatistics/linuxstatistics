@@ -11,7 +11,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
 >
   <article class="page prose legal">
     <h1>Privacy policy</h1>
-    <p class="lede">Short version: no ads, no tracking scripts, no selling data. We store only what we need to run sign-in, ratings and the monthly email.</p>
+    <p class="lede">Short version: no ads, no tracking scripts, no selling data. We store only what we need to run sign-in, ratings, quiz votes and the monthly email.</p>
     <p class="legal-meta">Last updated {updated}. Operator: {OPERATOR.name}, {OPERATOR.country}. Contact: <a href={`mailto:${CONTACT.privacy}`}>{CONTACT.privacy}</a>.</p>
 
     <h2>If you just browse</h2>
@@ -41,6 +41,13 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
     <p>
       If you subscribe, we store your email address, where you signed up (for example the footer) and when. We use it only to send the
       State of Linux Distros report. Every email has an unsubscribe link, and we delete your address when you unsubscribe or ask us to.
+    </p>
+
+    <h2>The distro quiz</h2>
+    <p>
+      The quiz runs in your browser. Your answers are kept only in the page's link (so you can share it) and aren't sent to us.
+      If you answer "Did this fit?", we store your vote, the top suggestion, your answers as a short code of digits, and the date.
+      We don't store your IP address, an account or a cookie with it. We use these votes, only as totals, to improve the quiz and to publish figures such as "what people switching from Windows pick".
     </p>
 
     <h2>Suggestions</h2>

@@ -26,6 +26,10 @@ import {
   getMyContribution,
   type ContributionAggregate,
 } from "./contributions.js";
+import { getPickerFit } from "./picker-feedback.js";
+
+/** Votes needed before the quiz fit share is shown. */
+export const QUIZ_FIT_MIN_VOTES = 30;
 
 const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
 
@@ -236,6 +240,7 @@ export async function getDistroDetail(
 
   const agg = (await getContributionAggregates(db)).get(d.id) ?? EMPTY_AGG;
   const mine = userId != null ? await getMyContribution(db, userId, d.id) : null;
+  const fit = await getPickerFit(db, d.slug);
 
   return {
     slug: d.slug,
@@ -257,6 +262,7 @@ export async function getDistroDetail(
     rankHistory,
     rankByPeriod,
     starsHistory,
+    quizFit: fit.total >= QUIZ_FIT_MIN_VOTES ? fit : null,
     userRating: ratingOf(agg),
     usesItCount: agg.usesItCount,
     myContribution: mine
