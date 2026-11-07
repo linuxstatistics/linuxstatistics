@@ -133,6 +133,7 @@ export async function ingestWikidataDistros(db: Database, items: WikidataDistro[
     const c = cand.get(it.qid);
     if (c) {
       await addAlias(db, "wikidata", it.qid, c.id);
+      if (it.enwikiTitle) await addAlias(db, "enwiki", it.enwikiTitle, c.id);
       idByQid.set(it.qid, c.id);
       result.matched += 1;
     }
@@ -149,6 +150,7 @@ export async function ingestWikidataDistros(db: Database, items: WikidataDistro[
       "wikidata",
     );
     await addAlias(db, "wikidata", it.qid, id);
+    if (it.enwikiTitle) await addAlias(db, "enwiki", it.enwikiTitle, id);
     idByQid.set(it.qid, id);
     result.discovered.push(slug);
   }

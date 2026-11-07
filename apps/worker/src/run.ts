@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { openDb } from "@linux-statistics/db";
 import { runSources, SOURCES, type Source } from "./sources-run.js";
 
-const USAGE = `Usage: ingest [--source distrowatch|github|statcounter|wikidata|all ...] [--backfill] [--rebuild]
+const USAGE = `Usage: ingest [--source distrowatch|github|statcounter|wikidata|wikipedia|all ...] [--backfill] [--rebuild]
   --source    one or more sources (repeat or comma-separate); default: all
   --backfill  StatCounter: fetch full history from 2009-01
   --rebuild   after at least one source succeeds, run build-site (needs the API running)`;

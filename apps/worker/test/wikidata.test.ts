@@ -27,7 +27,7 @@ test("parser merges rows per item, keeps every DistroWatch ID and skips unlabell
   const mint = all.find((x) => x.qid === "Q102")!;
   expect(mint).toEqual({
     qid: "Q102", name: "Linux Mint", distrowatchKeys: ["mint"], baseQids: ["Q101"],
-    firstReleaseYear: 2006, homepage: "https://linuxmint.com", dissolved: false,
+    firstReleaseYear: 2006, homepage: "https://linuxmint.com", dissolved: false, enwikiTitle: "Linux_Mint",
   });
   expect(all.some((x) => x.qid === "Q106")).toBe(false);
   expect(all.find((x) => x.qid === "Q107")!.distrowatchKeys).toEqual(["twokeys-a", "twokeys-b"]);
@@ -60,6 +60,8 @@ test("matches by alias and slug, fills only blanks, discovers new distros unlist
 
   const detail = (slug: string) => db.select().from(schema.distros).then((x) => x.find((d) => d.slug === slug)!);
   expect(await detail("linux-mint")).toMatchObject({ basedOnSlug: "ubuntu", homepage: "https://linuxmint.com", firstReleaseYear: 2006, discoveredVia: null });
+  const mintAliases = (await db.select().from(schema.distroAliases)).filter((x) => x.distroId === mint).map((x) => `${x.source}:${x.alias}`);
+  expect(mintAliases.sort()).toEqual(["distrowatch:mint", "enwiki:Linux_Mint", "wikidata:Q102"]);
   // Curated distro: its homepage is kept and its base is never taken from Wikidata.
   expect(await detail("ubuntu")).toMatchObject({ homepage: "https://ubuntu.com/desktop", basedOnSlug: null });
   expect(await detail("brand-new-os")).toMatchObject({ family: "other", discoveredVia: "wikidata", basedOnSlug: "debian", firstReleaseYear: 2025 });
@@ -117,7 +119,7 @@ test("a reused DistroWatch ID is not trusted alone: different name and homepage 
 
 test("matchProblem: homepage domain wins; same name needs no contradiction", async () => {
   const { matchProblem, sameName } = await import("../src/ingest-wikidata.js");
-  const it = { qid: "Q1", name: "Aurora", distrowatchKeys: ["aurora"], baseQids: [], firstReleaseYear: 2009, homepage: "http://www.eeebuntu.org/", dissolved: false };
+  const it = { qid: "Q1", name: "Aurora", distrowatchKeys: ["aurora"], baseQids: [], firstReleaseYear: 2009, homepage: "http://www.eeebuntu.org/", dissolved: false, enwikiTitle: null };
   const fedora = { slug: "fedora", family: "rpm" };
   const ubuntu = { slug: "ubuntu", family: "debian" };
   expect(matchProblem("Aurora", "https://getaurora.dev", fedora, it, ubuntu)).toMatch(/homepage differs/);
@@ -139,7 +141,7 @@ test("a pinned Wikidata item matches our distro even when the names differ", asy
   const { WIKIDATA_PINS } = await import("../src/families.js");
   const [slug, qid] = Object.entries(WIKIDATA_PINS)[0]!;
   await upsertDistro(db, { slug, name: "Totally Different", family: "debian", status: "active" });
-  const pinned = { qid, name: "Raspberry Pi OS", distrowatchKeys: [], baseQids: [], firstReleaseYear: 2012, homepage: "https://www.raspberrypi.com/software/", dissolved: false };
+  const pinned = { qid, name: "Raspberry Pi OS", distrowatchKeys: [], baseQids: [], firstReleaseYear: 2012, homepage: "https://www.raspberrypi.com/software/", dissolved: false, enwikiTitle: null };
   const r = await ingestWikidataDistros(db, [pinned]);
   expect(r.matched).toBe(1);
   expect(r.discovered).toEqual([]);

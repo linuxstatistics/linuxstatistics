@@ -71,9 +71,45 @@ export const popularitySnapshots = pgTable(
 );
 
 /**
- * Other names a distro is known by. `source = 'distrowatch'` maps DistroWatch's
- * key to our distro (the key is also our slug); `source = 'legacy'` keeps old
- * slugs resolvable after a rename.
+ * Monthly page views of a distro's article elsewhere (e.g. English
+ * Wikipedia), one row per source, distro and month ("2026-10"). Upserted,
+ * so re-fetching a month replaces it.
+ */
+export const pageviewMonths = pgTable(
+  "pageview_months",
+  {
+    id: serial("id").primaryKey(),
+    source: text("source").notNull(),
+    distroId: integer("distro_id")
+      .notNull()
+      .references(() => distros.id, { onDelete: "cascade" }),
+    month: text("month").notNull(),
+    views: integer("views").notNull(),
+  },
+  (t) => ({ pvUniq: uniqueIndex("pageview_months_uniq").on(t.source, t.distroId, t.month) }),
+);
+
+/**
+ * Views of our own distro pages, one counter per distro per UTC day. No
+ * visitor data: no IP, cookie or user agent is stored.
+ */
+export const pageViewDays = pgTable(
+  "page_view_days",
+  {
+    id: serial("id").primaryKey(),
+    distroId: integer("distro_id")
+      .notNull()
+      .references(() => distros.id, { onDelete: "cascade" }),
+    day: text("day").notNull(),
+    views: integer("views").notNull().default(0),
+  },
+  (t) => ({ pvdUniq: uniqueIndex("page_view_days_uniq").on(t.distroId, t.day) }),
+);
+
+/**
+ * Other names a distro is known by: another site's ID for it (`distrowatch`
+ * key, `wikidata` item, `enwiki` article title), or `legacy` for one of our
+ * old slugs, kept resolvable after a rename.
  */
 export const distroAliases = pgTable(
   "distro_aliases",
@@ -136,6 +172,7 @@ export const ingestionSourceEnum = pgEnum("ingestion_source", [
   "statcounter",
   "github",
   "wikidata",
+  "wikipedia",
 ]);
 export const ingestionStatusEnum = pgEnum("ingestion_status", [
   "running",

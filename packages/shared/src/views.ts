@@ -132,7 +132,7 @@ export const marketSharePointSchema = z.object({
 export type MarketSharePoint = z.infer<typeof marketSharePointSchema>;
 
 export const sourceFreshnessSchema = z.object({
-  source: z.enum(["distrowatch", "statcounter", "github", "wikidata"]),
+  source: z.enum(["distrowatch", "statcounter", "github", "wikidata", "wikipedia"]),
   lastSuccessAt: z.string().nullable(),
   status: z.enum(["running", "success", "failed", "never"]),
 });

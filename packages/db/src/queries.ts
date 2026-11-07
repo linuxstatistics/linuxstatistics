@@ -300,7 +300,7 @@ export async function getMarketShare(
 /** Tracked-distro count + per-source data freshness. */
 export async function getMeta(db: Database): Promise<Meta> {
   const [tracked] = await db.select({ value: count() }).from(distros);
-  const sources: IngestionSource[] = ["distrowatch", "statcounter", "github", "wikidata"];
+  const sources: IngestionSource[] = ["distrowatch", "statcounter", "github", "wikidata", "wikipedia"];
   const freshness: SourceFreshness[] = [];
   for (const source of sources) {
     const [run] = await db

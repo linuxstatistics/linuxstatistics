@@ -29,6 +29,35 @@ export const WIKIDATA_PINS: Record<string, string> = {
 };
 
 /**
+ * English Wikipedia articles for distros Wikidata doesn't list as Linux
+ * distributions (BSDs, ChromeOS, NAS and hypervisor systems) or doesn't link
+ * yet, keyed by our slug. Each title opened and checked to be the same
+ * project on 2026-11-06. Never guessed at run time: plain-name lookups hit
+ * spices, myths and lakes ("Vanilla", "Talos", "Feren").
+ */
+export const ENWIKI_PINS: Record<string, string> = {
+  omarchy: "Omarchy",
+  pikaos: "PikaOS",
+  pearos: "PearOS",
+  kdelinux: "KDE_Linux",
+  winux: "Winux",
+  fydeos: "FydeOS",
+  chromeos: "ChromeOS",
+  mocaccinoos: "MocaccinoOS",
+  freebsd: "FreeBSD",
+  openbsd: "OpenBSD",
+  netbsd: "NetBSD",
+  ghostbsd: "GhostBSD",
+  midnightbsd: "MidnightBSD",
+  smartos: "SmartOS",
+  reactos: "ReactOS",
+  truenas: "TrueNAS",
+  proxmox: "Proxmox_Virtual_Environment",
+  unraid: "Unraid",
+  haiku: "Haiku_(operating_system)",
+};
+
+/**
  * Hand-curated family and lineage for the top distros on DistroWatch's
  * 12-month table (reviewed 2026-11-03), keyed by our slug. Ingest and
  * seed apply these; they are the only values allowed to overwrite a distro's

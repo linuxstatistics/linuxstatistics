@@ -1,0 +1,14 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { AdminRankCompare } from "../../../components/AdminRankCompare";
+import { CardsSkeleton } from "../../../components/Skeleton";
+---
+
+<Base title="Rank comparison | Admin | LinuxStatistics" description="Admin: our index next to the current rank." noindex>
+  <div class="page admin-page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">Admin / Rank comparison</nav>
+    <h1>Our index vs the current rank</h1>
+    <p class="lede">Shadow period: our index is computed but not shown. Switch the main rank once these agree well enough. Only admins can see this page.</p>
+    <AdminRankCompare client:only="react"><CardsSkeleton slot="fallback" label="Loading the comparison" /></AdminRankCompare>
+  </div>
+</Base>

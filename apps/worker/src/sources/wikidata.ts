@@ -1,16 +1,18 @@
 /**
  * Linux distributions on Wikidata (CC0): every item that is an instance of
  * (a subclass of) "Linux distribution", with its DistroWatch ID, base,
- * inception, website and dissolution date when present.
+ * inception, website, dissolution date and English Wikipedia article when
+ * present.
  */
-export const WIKIDATA_SPARQL = `SELECT ?item ?itemLabel ?dw ?base ?inception ?website ?dissolved WHERE {
+export const WIKIDATA_SPARQL = `SELECT ?item ?itemLabel ?dw ?base ?inception ?website ?dissolved ?enwiki WHERE {
   ?item wdt:P31/wdt:P279* wd:Q131669 .
+  OPTIONAL { ?enwiki schema:about ?item ; schema:isPartOf <https://en.wikipedia.org/> . }
   OPTIONAL { ?item wdt:P3112 ?dw . }
   OPTIONAL { ?item wdt:P144 ?base . }
   OPTIONAL { ?item wdt:P571 ?inception . }
   OPTIONAL { ?item wdt:P856 ?website . }
   OPTIONAL { ?item wdt:P576 ?dissolved . }
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "en,mul". }
 }`;
 
 export const WIKIDATA_ENDPOINT = "https://query.wikidata.org/sparql";
@@ -26,6 +28,8 @@ export interface WikidataDistro {
   firstReleaseYear: number | null;
   homepage: string | null;
   dissolved: boolean;
+  /** English Wikipedia article title ("Linux_Mint"), from the sitelink. */
+  enwikiTitle: string | null;
 }
 
 interface Binding {
@@ -43,8 +47,9 @@ function qidOf(uri: string | undefined): string | null {
  * Parse a SPARQL JSON result into one record per item. Items can appear on
  * several rows (several bases or websites); values are merged
  * deterministically: earliest inception year, shortest https website, all
- * bases. Items without an English label (the label service then returns the
- * QID) are skipped. Fails loudly on a malformed or suspiciously small result
+ * bases. Labels come from English, else the language-neutral "mul" label
+ * (many big distros only have "mul", e.g. Linux Mint, Debian, Arch). Items
+ * with neither (the label service then returns the QID) are skipped. Fails loudly on a malformed or suspiciously small result
  * so a partial response never reaches the database.
  */
 export function parseWikidataDistros(json: unknown, opts: { minItems?: number } = {}): WikidataDistro[] {
@@ -52,14 +57,14 @@ export function parseWikidataDistros(json: unknown, opts: { minItems?: number } 
   const bindings = (json as { results?: { bindings?: Binding[] } })?.results?.bindings;
   if (!Array.isArray(bindings)) throw new Error("Wikidata response has no results.bindings");
 
-  type Acc = { name: string; dw: Set<string>; bases: Set<string>; years: number[]; sites: Set<string>; dissolved: boolean };
+  type Acc = { name: string; dw: Set<string>; bases: Set<string>; years: number[]; sites: Set<string>; dissolved: boolean; enwiki: string | null };
   const byQid = new Map<string, Acc>();
   for (const b of bindings) {
     const qid = qidOf(b.item?.value);
     const name = b.itemLabel?.value?.trim();
     if (!qid) throw new Error(`Wikidata row without a valid item: ${JSON.stringify(b).slice(0, 120)}`);
     if (!name || /^Q\d+$/.test(name)) continue;
-    const acc = byQid.get(qid) ?? { name, dw: new Set(), bases: new Set(), years: [], sites: new Set(), dissolved: false };
+    const acc = byQid.get(qid) ?? { name, dw: new Set(), bases: new Set(), years: [], sites: new Set(), dissolved: false, enwiki: null };
     const dw = b.dw?.value?.trim().toLowerCase();
     if (dw && /^[a-z0-9][a-z0-9_-]*$/.test(dw)) acc.dw.add(dw);
     const base = qidOf(b.base?.value);
@@ -69,6 +74,8 @@ export function parseWikidataDistros(json: unknown, opts: { minItems?: number } 
     const site = b.website?.value?.trim();
     if (site && /^https?:\/\//.test(site)) acc.sites.add(site);
     if (b.dissolved?.value) acc.dissolved = true;
+    const title = enwikiTitleOf(b.enwiki?.value);
+    if (title) acc.enwiki = title;
     byQid.set(qid, acc);
   }
 
@@ -88,8 +95,20 @@ export function parseWikidataDistros(json: unknown, opts: { minItems?: number } 
       firstReleaseYear: a.years.length ? Math.min(...a.years) : null,
       homepage: pickSite(a.sites),
       dissolved: a.dissolved,
+      enwikiTitle: a.enwiki,
     }))
     .sort((x, y) => Number(x.qid.slice(1)) - Number(y.qid.slice(1)));
+}
+
+/** "https://en.wikipedia.org/wiki/Linux_Mint" -> "Linux_Mint" (decoded, underscores kept). */
+export function enwikiTitleOf(url: string | undefined): string | null {
+  const m = url ? /^https:\/\/en\.wikipedia\.org\/wiki\/(.+)$/.exec(url) : null;
+  if (!m) return null;
+  try {
+    return decodeURIComponent(m[1]!);
+  } catch {
+    return null;
+  }
 }
 
 /** URL-safe slug from a display name ("Pop!_OS" -> "pop-os"). */

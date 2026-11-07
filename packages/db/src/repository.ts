@@ -200,7 +200,7 @@ export async function findDistroSlugById(db: Database, id: number): Promise<stri
 }
 
 /** Where an alias comes from: another site's ID for the distro, or one of our old slugs. */
-export type AliasSource = "distrowatch" | "wikidata" | "legacy";
+export type AliasSource = "distrowatch" | "wikidata" | "enwiki" | "legacy";
 
 /** Record another name for a distro (idempotent; re-points an existing alias). */
 export async function addAlias(

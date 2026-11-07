@@ -20,6 +20,7 @@ import { registerEmailRoutes } from "./routes/email.js";
 import { registerSuggestionRoutes } from "./routes/suggestions.js";
 import { registerPickerRoutes } from "./routes/picker.js";
 import { registerPublicV1 } from "./routes/public-v1.js";
+import { registerInterestRoutes } from "./routes/interest.js";
 
 /** Tiny in-memory TTL cache for hot, argument-free queries. */
 function ttlCache<T>(ttlMs: number, fn: () => Promise<T>): () => Promise<T> {
@@ -93,6 +94,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   registerSuggestionRoutes(app, db);
   registerPickerRoutes(app, db);
   registerPublicV1(app, db, distrosCached);
+  registerInterestRoutes(app, db);
 
   app.setErrorHandler((err, _req, reply) => {
     if (err instanceof z.ZodError) {

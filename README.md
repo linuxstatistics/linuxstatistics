@@ -54,7 +54,7 @@ pnpm --filter @linux-statistics/worker ingest --source statcounter --backfill   
 pnpm --filter @linux-statistics/worker ingest --source all --rebuild            # then rebuild the site
 ```
 
-Sources: DistroWatch page-hit rankings (daily), GitHub repository activity (weekly; set `GITHUB_TOKEN` for a higher rate limit), StatCounter desktop market share (monthly) and Wikidata distro facts (weekly; CC0: base, first release, homepage, and distros we don't track yet, which stay unlisted until they have a rank, repo or rating). Wikidata only fills empty fields; curated values win. Each source runs on its own: a failure is recorded, the last good data stays, and the other sources still run. The exit code is non-zero if any source failed.
+Sources: DistroWatch page-hit rankings (daily), GitHub repository activity (weekly; set `GITHUB_TOKEN` for a higher rate limit), StatCounter desktop market share (monthly), English Wikipedia page views for our own interest index (monthly; CC0, compared with the current rank on `/admin/rank/` before it's used) and Wikidata distro facts (weekly; CC0: base, first release, homepage, and distros we don't track yet, which stay unlisted until they have a rank, repo or rating). Wikidata only fills empty fields; curated values win. Each source runs on its own: a failure is recorded, the last good data stays, and the other sources still run. The exit code is non-zero if any source failed.
 
 With PGlite, stop the API before ingesting (PGlite allows one connection). With Postgres they can run together.
 

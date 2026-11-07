@@ -76,6 +76,15 @@ const jsonLd = {
 ---
 
 <Base title={title} description={description} jsonLd={jsonLd}>
+  <script is:inline define:vars={{ viewSlug: data.slug }}>
+    // Count one view of this distro page (no cookies or visitor data). Skips
+    // prerender and "Do Not Track"/"Global Privacy Control" browsers.
+    try {
+      if (!navigator.webdriver && navigator.doNotTrack !== "1" && !navigator.globalPrivacyControl && document.visibilityState !== "prerender") {
+        navigator.sendBeacon(`/api/views/${encodeURIComponent(viewSlug)}`);
+      }
+    } catch {}
+  </script>
   <article class="page distro-page">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Rankings</a> / {data.name}</nav>
     <h1>{data.name}</h1>

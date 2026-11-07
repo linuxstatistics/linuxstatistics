@@ -4,10 +4,11 @@ import { ingestDistrowatchRows } from "./ingest-distrowatch.js";
 import { ingestStatcounter } from "./ingest-statcounter.js";
 import { ingestGithub } from "./ingest-github.js";
 import { ingestWikidataDistros } from "./ingest-wikidata.js";
+import { ingestWikipedia } from "./ingest-wikipedia.js";
 import { WIKIDATA_ENDPOINT, WIKIDATA_SPARQL, parseWikidataDistros } from "./sources/wikidata.js";
 import { politeGet, type FetchLike } from "./http.js";
 
-export const SOURCES = ["distrowatch", "github", "statcounter", "wikidata"] as const;
+export const SOURCES = ["distrowatch", "github", "statcounter", "wikidata", "wikipedia"] as const;
 export type Source = (typeof SOURCES)[number];
 
 const DW_URL = "https://distrowatch.com/dwres.php?resource=popularity";
@@ -45,6 +46,12 @@ async function runOne(db: Database, source: Source, opts: RunOptions): Promise<n
       for (const c of r.conflicts) log(`wikidata: kept ours for ${c}`);
       for (const x of r.rejected) log(`wikidata: not matched ${x}`);
       return r.matched + r.discovered.length;
+    }
+    case "wikipedia": {
+      const r = await ingestWikipedia(db, { fetch: opts.fetch, now: opts.now });
+      for (const f of r.failed) log(`wikipedia: ${f.slug} (${f.title}) skipped: ${f.error}`);
+      log(`wikipedia: ${r.written}/${r.articles} articles to ${r.month}; interest index ranks ${r.ranked} distros`);
+      return r.written;
     }
     case "github": {
       const r = await ingestGithub(db, { fetch: opts.fetch, now: opts.now });

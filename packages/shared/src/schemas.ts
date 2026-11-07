@@ -14,7 +14,8 @@ export const distroSchema = z.object({
 export type DistroInput = z.infer<typeof distroSchema>;
 
 /** Where a popularity rank comes from. */
-export const popularitySourceSchema = z.enum(["distrowatch"]);
+/** "interest" is our own index (see the worker's interest.ts). */
+export const popularitySourceSchema = z.enum(["distrowatch", "interest"]);
 export type PopularitySource = z.infer<typeof popularitySourceSchema>;
 /** The source behind the main rank, "rising" and rank history. */
 export const RANK_SOURCE: PopularitySource = "distrowatch";
@@ -55,7 +56,7 @@ export const marketShareSchema = z.object({
 });
 export type MarketShareInput = z.infer<typeof marketShareSchema>;
 
-export const ingestionSourceSchema = z.enum(["distrowatch", "statcounter", "github", "wikidata"]);
+export const ingestionSourceSchema = z.enum(["distrowatch", "statcounter", "github", "wikidata", "wikipedia"]);
 export type IngestionSource = z.infer<typeof ingestionSourceSchema>;
 
 export const ingestionStatusSchema = z.enum(["running", "success", "failed"]);
