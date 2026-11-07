@@ -134,3 +134,15 @@ test("matchProblem: homepage domain wins; same name needs no contradiction", asy
   expect(sameName("Aurora", "Eeebuntu")).toBe(false);
   expect(sameName("RasPiOS", "Raspberry Pi OS")).toBe(false);
 });
+
+test("a pinned Wikidata item matches our distro even when the names differ", async () => {
+  const { WIKIDATA_PINS } = await import("../src/families.js");
+  const [slug, qid] = Object.entries(WIKIDATA_PINS)[0]!;
+  await upsertDistro(db, { slug, name: "Totally Different", family: "debian", status: "active" });
+  const pinned = { qid, name: "Raspberry Pi OS", distrowatchKeys: [], baseQids: [], firstReleaseYear: 2012, homepage: "https://www.raspberrypi.com/software/", dissolved: false };
+  const r = await ingestWikidataDistros(db, [pinned]);
+  expect(r.matched).toBe(1);
+  expect(r.discovered).toEqual([]);
+  const row = (await db.select().from(schema.distros)).find((d) => d.slug === slug)!;
+  expect(row.firstReleaseYear).toBe(2012);
+});

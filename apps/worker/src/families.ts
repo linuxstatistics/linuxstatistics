@@ -9,6 +9,26 @@ export interface CuratedDistro {
 }
 
 /**
+ * Known disagreements with Wikidata, checked by hand against the project's
+ * own sources. Ingest stays quiet about these; anything new is still logged.
+ */
+export const CHECKED_AGAINST_WIKIDATA: Record<string, string> = {
+  "mx.basedOn": "Debian stable, built with antiX (mxlinux.org); Wikidata says antiX",
+  "kodachi.basedOn": "Debian 13 since Kodachi 9; Wikidata still says Xubuntu",
+  "tails.basedOn": "Debian; Incognito was a predecessor, not a base",
+  "antix.firstReleaseYear": "antiX-M6.5 \"Spartacus\", 9 July 2007",
+  "nobara.firstReleaseYear": "first release 10 July 2022",
+};
+
+/**
+ * Wikidata items for distros whose name differs too much for automatic
+ * matching ("RasPiOS" vs "Raspberry Pi OS"), keyed by our slug. Checked by hand.
+ */
+export const WIKIDATA_PINS: Record<string, string> = {
+  raspios: "Q890474",
+};
+
+/**
  * Hand-curated family and lineage for the top distros on DistroWatch's
  * 12-month table (reviewed 2026-11-03), keyed by our slug. Ingest and
  * seed apply these; they are the only values allowed to overwrite a distro's
@@ -99,7 +119,7 @@ export const CURATED: Record<string, CuratedDistro> = {
   redhat: { family: "rpm", basedOn: "fedora", firstReleaseYear: 2002 },
   besgnulinux: { family: "debian", basedOn: "debian" },
   talos: { family: "independent" },
-  commodore: { family: "debian", basedOn: "debian" },
+  commodore: { family: "debian", basedOn: "mx" }, // unofficial MX Linux spin (commodoreos.net, 2026-11-06)
   ultimate: { family: "arch", basedOn: "arch" },
   magos: { family: "rpm" },
   smartos: { family: "independent" },

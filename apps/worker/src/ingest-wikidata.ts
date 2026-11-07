@@ -10,7 +10,7 @@ import {
   type Database,
   type DistroRow,
 } from "@linux-statistics/db";
-import { CURATED } from "./families.js";
+import { CHECKED_AGAINST_WIKIDATA, CURATED, WIKIDATA_PINS } from "./families.js";
 import { slugify, type WikidataDistro } from "./sources/wikidata.js";
 
 export interface WikidataIngestResult {
@@ -54,7 +54,16 @@ export async function ingestWikidataDistros(db: Database, items: WikidataDistro[
   // 1. Candidate matches, in memory.
   const cand = new Map<string, { id: number; via: Via }>();
   const claimed = new Set<number>();
+  // Hand-checked pins count as an existing alias.
+  for (const [slug, qid] of Object.entries(WIKIDATA_PINS)) {
+    const id = await findDistroIdBySlug(db, slug);
+    if (id != null && items.some((x) => x.qid === qid)) {
+      cand.set(qid, { id, via: "alias" });
+      claimed.add(id);
+    }
+  }
   for (const it of items) {
+    if (cand.has(it.qid)) continue;
     let id = await findDistroIdByAlias(db, "wikidata", it.qid);
     let via: Via = "alias";
     for (const k of it.distrowatchKeys) {
@@ -158,10 +167,11 @@ export async function ingestWikidataDistros(db: Database, items: WikidataDistro[
       firstReleaseYear: it.firstReleaseYear,
     });
     for (const f of filled) result.filled.push(`${slug}.${f}`);
-    if (curated?.firstReleaseYear != null && it.firstReleaseYear != null && Math.abs(curated.firstReleaseYear - it.firstReleaseYear) > 1) {
+    const checked = (field: string) => `${slug}.${field}` in CHECKED_AGAINST_WIKIDATA;
+    if (curated?.firstReleaseYear != null && it.firstReleaseYear != null && Math.abs(curated.firstReleaseYear - it.firstReleaseYear) > 1 && !checked("firstReleaseYear")) {
       result.conflicts.push(`${slug}.firstReleaseYear: ${curated.firstReleaseYear} vs ${it.firstReleaseYear}`);
     }
-    if (curated?.basedOn && baseSlug && curated.basedOn !== baseSlug) {
+    if (curated?.basedOn && baseSlug && curated.basedOn !== baseSlug && !checked("basedOn")) {
       result.conflicts.push(`${slug}.basedOn: ${curated.basedOn} vs ${baseSlug}`);
     }
   }
