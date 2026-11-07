@@ -38,6 +38,9 @@ export const distros = pgTable(
     logoUrl: text("logo_url"),
     firstReleaseYear: integer("first_release_year"),
     status: distroStatusEnum("status").notNull().default("active"),
+    // Set when a source found the distro on its own (e.g. "wikidata"). Such
+    // distros stay off public lists until they have a rank, repo or rating.
+    discoveredVia: text("discovered_via"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({ familyIdx: index("distros_family_idx").on(t.family) }),
@@ -132,6 +135,7 @@ export const ingestionSourceEnum = pgEnum("ingestion_source", [
   "distrowatch",
   "statcounter",
   "github",
+  "wikidata",
 ]);
 export const ingestionStatusEnum = pgEnum("ingestion_status", [
   "running",

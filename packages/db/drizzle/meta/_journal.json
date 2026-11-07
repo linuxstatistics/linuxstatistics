@@ -64,6 +64,13 @@
       "when": 1793750640000,
       "tag": "0008_popularity_snapshots",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793750700000,
+      "tag": "0009_wikidata",
+      "breakpoints": true
     }
   ]
 }

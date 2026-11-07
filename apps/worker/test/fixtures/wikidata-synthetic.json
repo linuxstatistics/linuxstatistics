@@ -1,0 +1,183 @@
+{
+ "head": {
+  "vars": [
+   "item",
+   "itemLabel",
+   "dw",
+   "base",
+   "inception",
+   "website",
+   "dissolved"
+  ]
+ },
+ "results": {
+  "bindings": [
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q100"
+    },
+    "itemLabel": {
+     "value": "Debian"
+    },
+    "dw": {
+     "value": "debian"
+    },
+    "inception": {
+     "value": "1993-01-01T00:00:00Z"
+    },
+    "website": {
+     "value": "https://www.debian.org"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q101"
+    },
+    "itemLabel": {
+     "value": "Ubuntu"
+    },
+    "dw": {
+     "value": "ubuntu"
+    },
+    "base": {
+     "value": "http://www.wikidata.org/entity/Q100"
+    },
+    "inception": {
+     "value": "2004-01-01T00:00:00Z"
+    },
+    "website": {
+     "value": "https://ubuntu.com"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q102"
+    },
+    "itemLabel": {
+     "value": "Linux Mint"
+    },
+    "dw": {
+     "value": "mint"
+    },
+    "base": {
+     "value": "http://www.wikidata.org/entity/Q101"
+    },
+    "inception": {
+     "value": "2006-01-01T00:00:00Z"
+    },
+    "website": {
+     "value": "http://linuxmint.com"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q102"
+    },
+    "itemLabel": {
+     "value": "Linux Mint"
+    },
+    "dw": {
+     "value": "mint"
+    },
+    "base": {
+     "value": "http://www.wikidata.org/entity/Q101"
+    },
+    "inception": {
+     "value": "2006-01-01T00:00:00Z"
+    },
+    "website": {
+     "value": "https://linuxmint.com"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q103"
+    },
+    "itemLabel": {
+     "value": "Fedora Linux"
+    },
+    "dw": {
+     "value": "fedora"
+    },
+    "inception": {
+     "value": "2002-01-01T00:00:00Z"
+    },
+    "website": {
+     "value": "https://fedoraproject.org"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q104"
+    },
+    "itemLabel": {
+     "value": "Brand New OS"
+    },
+    "base": {
+     "value": "http://www.wikidata.org/entity/Q100"
+    },
+    "inception": {
+     "value": "2025-01-01T00:00:00Z"
+    },
+    "website": {
+     "value": "https://brandnew.example"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q105"
+    },
+    "itemLabel": {
+     "value": "Old Gone Linux"
+    },
+    "inception": {
+     "value": "1999-01-01T00:00:00Z"
+    },
+    "dissolved": {
+     "value": "2010-01-01T00:00:00Z"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q106"
+    },
+    "itemLabel": {
+     "value": "Q106"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q107"
+    },
+    "itemLabel": {
+     "value": "Two Keys"
+    },
+    "dw": {
+     "value": "twokeys-a"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q107"
+    },
+    "itemLabel": {
+     "value": "Two Keys"
+    },
+    "dw": {
+     "value": "twokeys-b"
+    }
+   },
+   {
+    "item": {
+     "value": "http://www.wikidata.org/entity/Q108"
+    },
+    "itemLabel": {
+     "value": "Debian"
+    },
+    "inception": {
+     "value": "2020-01-01T00:00:00Z"
+    }
+   }
+  ]
+ }
+}

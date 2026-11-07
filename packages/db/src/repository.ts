@@ -124,6 +124,75 @@ export async function findDistroIdBySlug(
   return row?.id ?? null;
 }
 
+export interface DistroRow {
+  id: number;
+  slug: string;
+  name: string;
+  family: DistroInput["family"];
+  basedOnSlug: string | null;
+  homepage: string | null;
+  firstReleaseYear: number | null;
+}
+
+/** The fields a source may fill in, for one distro. */
+export async function getDistroRow(db: Database, id: number): Promise<DistroRow | null> {
+  const [row] = await db
+    .select({
+      id: distros.id,
+      slug: distros.slug,
+      name: distros.name,
+      family: distros.family,
+      basedOnSlug: distros.basedOnSlug,
+      homepage: distros.homepage,
+      firstReleaseYear: distros.firstReleaseYear,
+    })
+    .from(distros)
+    .where(eq(distros.id, id));
+  return row ?? null;
+}
+
+/**
+ * Fill only empty fields; a value that's already set (curated or from an
+ * earlier source) is never overwritten. Returns the fields it filled.
+ */
+export async function fillDistroBlanks(
+  db: Database,
+  id: number,
+  f: { basedOnSlug?: string | null; homepage?: string | null; firstReleaseYear?: number | null },
+): Promise<string[]> {
+  const row = await getDistroRow(db, id);
+  if (!row) return [];
+  const set: Partial<Pick<DistroRow, "basedOnSlug" | "homepage" | "firstReleaseYear">> = {};
+  if (row.basedOnSlug == null && f.basedOnSlug) set.basedOnSlug = f.basedOnSlug;
+  if (row.homepage == null && f.homepage) set.homepage = f.homepage;
+  if (row.firstReleaseYear == null && f.firstReleaseYear != null) set.firstReleaseYear = f.firstReleaseYear;
+  const keys = Object.keys(set);
+  if (keys.length) await db.update(distros).set(set).where(eq(distros.id, id));
+  return keys;
+}
+
+/** Create a distro that a source found on its own; it stays unlisted until it has a signal. */
+export async function insertDiscoveredDistro(
+  db: Database,
+  input: DistroInput,
+  discoveredVia: string,
+): Promise<number> {
+  const [row] = await db
+    .insert(distros)
+    .values({
+      slug: input.slug,
+      name: input.name,
+      family: input.family,
+      basedOnSlug: input.basedOnSlug ?? null,
+      homepage: input.homepage ?? null,
+      firstReleaseYear: input.firstReleaseYear ?? null,
+      status: input.status,
+      discoveredVia,
+    })
+    .returning({ id: distros.id });
+  return row!.id;
+}
+
 /** A distro's slug from its id, if it exists. */
 export async function findDistroSlugById(db: Database, id: number): Promise<string | null> {
   const [row] = await db.select({ slug: distros.slug }).from(distros).where(eq(distros.id, id));
@@ -147,6 +216,14 @@ export async function addAlias(
       target: [distroAliases.source, distroAliases.alias],
       set: { distroId },
     });
+}
+
+/** All aliases recorded for a distro. */
+export async function aliasesFor(db: Database, distroId: number): Promise<{ source: string; alias: string }[]> {
+  return db
+    .select({ source: distroAliases.source, alias: distroAliases.alias })
+    .from(distroAliases)
+    .where(eq(distroAliases.distroId, distroId));
 }
 
 /** Resolve a distro id from an alias, if known. */

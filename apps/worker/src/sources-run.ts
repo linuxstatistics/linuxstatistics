@@ -3,9 +3,11 @@ import { parseDistrowatchRanking } from "./sources/distrowatch.js";
 import { ingestDistrowatchRows } from "./ingest-distrowatch.js";
 import { ingestStatcounter } from "./ingest-statcounter.js";
 import { ingestGithub } from "./ingest-github.js";
+import { ingestWikidataDistros } from "./ingest-wikidata.js";
+import { WIKIDATA_ENDPOINT, WIKIDATA_SPARQL, parseWikidataDistros } from "./sources/wikidata.js";
 import { politeGet, type FetchLike } from "./http.js";
 
-export const SOURCES = ["distrowatch", "github", "statcounter"] as const;
+export const SOURCES = ["distrowatch", "github", "statcounter", "wikidata"] as const;
 export type Source = (typeof SOURCES)[number];
 
 const DW_URL = "https://distrowatch.com/dwres.php?resource=popularity";
@@ -32,6 +34,18 @@ async function runOne(db: Database, source: Source, opts: RunOptions): Promise<n
     }
     case "statcounter":
       return ingestStatcounter(db, { fetch: opts.fetch, now: opts.now, backfill: opts.backfill });
+    case "wikidata": {
+      const url = `${WIKIDATA_ENDPOINT}?query=${encodeURIComponent(WIKIDATA_SPARQL)}`;
+      const res = await politeGet(url, { fetch: opts.fetch, headers: { Accept: "application/sparql-results+json" } });
+      if (!res.ok) throw new Error(`Wikidata HTTP ${res.status}`);
+      // Parse everything before writing anything (C-01).
+      const items = parseWikidataDistros(await res.json());
+      const r = await ingestWikidataDistros(db, items);
+      log(`wikidata: ${items.length} items, ${r.matched} matched, ${r.discovered.length} discovered (unlisted), ${r.filled.length} blanks filled`);
+      for (const c of r.conflicts) log(`wikidata: kept ours for ${c}`);
+      for (const x of r.rejected) log(`wikidata: not matched ${x}`);
+      return r.matched + r.discovered.length;
+    }
     case "github": {
       const r = await ingestGithub(db, { fetch: opts.fetch, now: opts.now });
       for (const f of r.failed) log(`github: ${f.repo} skipped (${f.error})`);

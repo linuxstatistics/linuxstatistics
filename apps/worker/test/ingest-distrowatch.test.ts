@@ -49,7 +49,7 @@ test("ingesting a full page twice creates each distro once with per-period snaps
   expect(new Set(slugs).size).toBe(slugs.length);
   expect(list[0]).toMatchObject({ slug: "cachyos", name: "CachyOS", rank: 1, hitsPerDay: 4000, family: "arch" });
   expect(list.find((d) => d.slug === "mint")).toMatchObject({ rank: 2, family: "debian" });
-});
+}, 30_000); // 2 x 1,800 rows; slow when the whole suite runs in parallel
 
 test("curated families and bases are applied; uncurated distros are logged as other", async () => {
   const rows = parseDistrowatchRanking(full);

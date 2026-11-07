@@ -81,7 +81,11 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
   const ghLatestByRepo = new Map<number, (typeof ghAll)[number]>();
   for (const g of ghAll) if (!ghLatestByRepo.has(g.repoId)) ghLatestByRepo.set(g.repoId, g);
 
-  const items = allDistros.map((d): DistroListItem => {
+  // Discovered distros stay unlisted until something shows they're in use.
+  const visible = allDistros.filter(
+    (d) => d.discoveredVia == null || dwByDistro.has(d.id) || repoByDistro.has(d.id) || (aggByDistro.get(d.id)?.count ?? 0) > 0 || (aggByDistro.get(d.id)?.usesItCount ?? 0) > 0,
+  );
+  const items = visible.map((d): DistroListItem => {
     const snaps = dwByDistro.get(d.id) ?? [];
     const latest = snaps[0];
     let rankTrend: number | null = null;
@@ -296,7 +300,7 @@ export async function getMarketShare(
 /** Tracked-distro count + per-source data freshness. */
 export async function getMeta(db: Database): Promise<Meta> {
   const [tracked] = await db.select({ value: count() }).from(distros);
-  const sources: IngestionSource[] = ["distrowatch", "statcounter", "github"];
+  const sources: IngestionSource[] = ["distrowatch", "statcounter", "github", "wikidata"];
   const freshness: SourceFreshness[] = [];
   for (const source of sources) {
     const [run] = await db

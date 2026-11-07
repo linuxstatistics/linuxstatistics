@@ -30,7 +30,7 @@ test("one source failing never blocks the others, and is recorded as failed", as
     fetch: fake,
     log: (m) => logs.push(m),
   });
-  expect(status).toEqual({ statcounter: "failed", distrowatch: "success", github: "failed" });
+  expect(status).toEqual({ statcounter: "failed", distrowatch: "success", github: "failed", wikidata: "skipped" });
   expect((await getDistroList(db))[0]!.slug).toBe("cachyos");
   const meta = await getMeta(db);
   expect(meta.sources.find((s) => s.source === "distrowatch")!.status).toBe("success");

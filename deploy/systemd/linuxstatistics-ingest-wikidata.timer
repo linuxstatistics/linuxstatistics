@@ -1,0 +1,11 @@
+[Unit]
+Description=LinuxStatistics: Wikidata distro facts and discovery, weekly
+
+[Timer]
+OnCalendar=Sun *-*-* 04:30:00 UTC
+RandomizedDelaySec=30min
+Persistent=true
+Unit=linuxstatistics-ingest@wikidata.service
+
+[Install]
+WantedBy=timers.target
