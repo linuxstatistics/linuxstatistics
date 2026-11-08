@@ -14,7 +14,7 @@ Linux-distro statistics: popularity rankings, desktop market share and project a
 
 ### Database
 
-Local dev and tests use **PGlite** (in-process Postgres), so no database server is needed. The local database lives at `.data/pglite` (override with `PGLITE_DIR`). Set `DATABASE_URL` to use a real Postgres instead (production); the API, worker and seed then share it, and migrations run on start.
+Local dev and tests use **PGlite** (in-process Postgres), so no database server is needed. The local database lives at `.data/pglite` (override with `PGLITE_DIR`). A `.data/pglite` written by PGlite 0.2 does not open under 0.5: delete it and run `pnpm seed` again. Set `DATABASE_URL` to use a real Postgres instead (production); the API, worker and seed then share it, and migrations run on start.
 
 ## Local setup
 
