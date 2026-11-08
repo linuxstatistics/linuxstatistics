@@ -99,6 +99,9 @@ h1, h2, h3 { text-wrap: balance; }
 
 .app { display: flex; flex-direction: column; min-height: 100dvh; }
 .app-main { flex: 1; }
+/* Shown only when a source's last run is older than twice its cadence (spec 004 AC-2). */
+.stale-note { background: var(--panel); border-bottom: 1px solid var(--line); color: var(--ink2); font-size: 13px; padding: 8px 0; }
+.stale-note .wrap::before { content: "●"; color: var(--star); margin-right: 8px; }
 .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
 
 /* ---------- Header ---------- */

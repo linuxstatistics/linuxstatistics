@@ -8,6 +8,7 @@ import { FooterEmail } from "../components/FooterEmail";
 import { SponsorSlot } from "../components/SponsorSlot";
 import { JumpToDistro } from "../components/JumpToDistro";
 import { loadDistros, loadMarketShare, loadMeta, dataDate } from "../lib/data";
+import { staleSources } from "../lib/freshness";
 import { latestLinuxShare } from "../lib/marketShare";
 import { OPERATOR } from "../config/site";
 import { CRYPTO_ADDRESSES, SUPPORT_LINKS, hasSupport } from "../config/support";
@@ -22,14 +23,17 @@ interface Props {
   image?: string;
 }
 
-const { title, description, jsonLd, noindex = false, image } = Astro.props;
+const { title, description, jsonLd, noindex = false, image: pageImage } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+// Every page has a share image: the page's own, else the site card built at /og.png.
+const image = pageImage ?? new URL("/og.png", Astro.site).href;
 const [allDistros, marketShare, meta] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta()]);
 const jumpItems = allDistros.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 // Data facts for the footer, shown on every page.
 const asOf = dataDate(meta, "distrowatch");
 const asOfText = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 const share = latestLinuxShare(marketShare);
+const stale = staleSources(meta);
 const year = new Date().getUTCFullYear();
 
 const NAV = [
@@ -76,10 +80,11 @@ import { AuthSkeleton } from "../components/Skeleton";
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="LinuxStatistics" />
-    {image && <meta property="og:image" content={image} />}
-    {image && <meta property="og:image:width" content="1200" />}
-    {image && <meta property="og:image:height" content="630" />}
-    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={image} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
   </head>
@@ -135,6 +140,11 @@ import { AuthSkeleton } from "../components/Skeleton";
         </div>
       </header>
       <hr class="rule" />
+      {stale.length > 0 && (
+        <div class="stale-note" role="status">
+          <div class="wrap">Some data is older than usual: {stale.map((x) => `${x.label} from ${x.ago}`).join("; ")}. The next update is on its way.</div>
+        </div>
+      )}
       <main class="app-main">
         <slot />
       </main>

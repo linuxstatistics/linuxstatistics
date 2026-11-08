@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
+import { brandMarkDataUri } from "@linux-statistics/shared";
 
 const require = createRequire(import.meta.url);
 const font = (w: 400 | 700) => readFileSync(require.resolve(`@fontsource/inter/files/inter-latin-${w}-normal.woff`));
@@ -24,7 +25,10 @@ export async function renderMatchCard(m: { name: string; blurb: string; rank: nu
       h("div", { fontSize: 32, marginTop: 24, maxWidth: 1000, lineHeight: 1.3 }, m.blurb),
       h("div", { position: "absolute", left: 64, right: 64, bottom: 56, justifyContent: "space-between", fontSize: 26, color: "#7d8794" }, [
         h("div", {}, "Take the quiz"),
-        h("div", { color: "#3cfe3f" }, `${siteHost}/pick`),
+        h("div", { alignItems: "center", gap: 14 }, [
+          { type: "img", props: { src: brandMarkDataUri(), width: 40, height: 40 } },
+          h("div", { color: "#3cfe3f" }, `${siteHost}/pick`),
+        ]),
       ]),
     ],
   );

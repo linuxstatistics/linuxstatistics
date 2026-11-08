@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
+import { brandMarkDataUri } from "@linux-statistics/shared";
 import type { MonthlySummary } from "./summary.js";
 
 const require = createRequire(import.meta.url);
@@ -36,7 +37,10 @@ export async function renderCard(s: MonthlySummary, siteHost: string): Promise<B
       ),
       h("div", { position: "absolute", left: 64, right: 64, bottom: 48, justifyContent: "space-between", fontSize: 26, color: "#7d8794" }, [
         h("div", {}, lead ? `Rising this month: ${lead.name}, up ${lead.climb} places` : `${s.totalTracked} distros tracked`),
-        h("div", { color: "#3cfe3f" }, siteHost),
+        h("div", { alignItems: "center", gap: 14 }, [
+          { type: "img", props: { src: brandMarkDataUri(), width: 40, height: 40 } },
+          h("div", { color: "#3cfe3f" }, siteHost),
+        ]),
       ]),
     ],
   );
