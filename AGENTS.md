@@ -25,6 +25,7 @@ pnpm build:site    # static build from the running API (API_URL), atomic swap in
 pnpm check:site    # bot-view check of the built HTML
 pnpm --filter @linux-statistics/worker ingest --source distrowatch|github|statcounter|wikidata|wikipedia|all [--backfill] [--rebuild]
 pnpm --filter @linux-statistics/worker monthly [--out DIR] [--draft]   # monthly summary + share card from the API
+pnpm --filter @linux-statistics/worker card --kind top|movers|share|stat [--size landscape|square] [--out FILE]   # one social image from the API
 
 pnpm test                         # full vitest suite
 pnpm test -- queries              # files matching "queries"
