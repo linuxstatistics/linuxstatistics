@@ -47,7 +47,8 @@ test("ingesting a full page twice creates each distro once with per-period snaps
   const list = await getDistroList(db);
   const slugs = list.map((d) => d.slug);
   expect(new Set(slugs).size).toBe(slugs.length);
-  expect(list[0]).toMatchObject({ slug: "cachyos", name: "CachyOS", rank: 1, hitsPerDay: 4000, family: "arch" });
+  // The public rank is the composite; with DistroWatch as the only input, #1 scores 0.3 × 1000.
+  expect(list[0]).toMatchObject({ slug: "cachyos", name: "CachyOS", rank: 1, hitsPerDay: 300, family: "arch" });
   expect(list.find((d) => d.slug === "mint")).toMatchObject({ rank: 2, family: "debian" });
 }, 30_000); // 2 x 1,800 rows; slow when the whole suite runs in parallel
 

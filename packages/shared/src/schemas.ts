@@ -17,8 +17,20 @@ export type DistroInput = z.infer<typeof distroSchema>;
 /** "interest" is our own index (see the worker's interest.ts). */
 export const popularitySourceSchema = z.enum(["distrowatch", "interest", "composite"]);
 export type PopularitySource = z.infer<typeof popularitySourceSchema>;
-/** The source behind the main rank, "rising" and rank history. */
-export const RANK_SOURCE: PopularitySource = "distrowatch";
+/**
+ * The source behind the main rank, "rising" and rank history. "composite" is
+ * our own index (see packages/db/src/composite.ts); its `hitsPerDay` column
+ * carries the score ×1000, labelled "Index" on the site, never "hits".
+ */
+export const RANK_SOURCE: PopularitySource = "composite";
+/** Label for the per-distro magnitude behind the main rank, by source. */
+export const RANK_VALUE_LABEL: Record<PopularitySource, string> = { distrowatch: "Hits / day", interest: "Views / day", composite: "Index" };
+/** Short note on what the main rank measures, for credit lines. */
+export const RANK_SOURCE_NOTE: Record<PopularitySource, string> = {
+  distrowatch: "DistroWatch page hits",
+  interest: "English Wikipedia article views",
+  composite: "our composite index: Wikipedia views, DistroWatch page hits, GitHub stars and views on this site",
+};
 
 export const popularitySnapshotSchema = z.object({
   source: popularitySourceSchema,

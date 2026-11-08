@@ -1,4 +1,4 @@
-import type { DistroDetail } from "@linux-statistics/shared";
+import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
 
 const LABEL: Record<string, string> = {
   "last-1-month": "Last month",
@@ -8,8 +8,8 @@ const LABEL: Record<string, string> = {
 };
 
 /**
- * Popularity rank in each period, shortest first. The bar shows hits/day
- * relative to the busiest period. Static HTML.
+ * Popularity rank in each period, shortest first. The bar shows the index
+ * value relative to the strongest period. Static HTML.
  */
 export function RankByPeriod({ periods }: { periods: DistroDetail["rankByPeriod"] | undefined }) {
   if (!periods || periods.length < 2) return null;
@@ -23,7 +23,7 @@ export function RankByPeriod({ periods }: { periods: DistroDetail["rankByPeriod"
           <tr>
             <th>Window</th>
             <th className="num">Rank</th>
-            <th className="num">Hits / day</th>
+            <th className="num">{RANK_VALUE_LABEL[RANK_SOURCE]}</th>
             <th aria-hidden="true"></th>
           </tr>
         </thead>

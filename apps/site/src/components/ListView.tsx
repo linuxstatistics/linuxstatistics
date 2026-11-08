@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import type { DistroListItem, DistroStatus, Family } from "@linux-statistics/shared";
+import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroListItem, type DistroStatus, type Family } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating } from "../lib/rating";
 
@@ -88,7 +88,7 @@ const COLUMNS: ColumnDef[] = [
       </span>
     ),
   },
-  { key: "hitsPerDay", label: "Hits/day", numeric: true, render: (d, ctx) => <HitsCell v={d.hitsPerDay} max={ctx.maxHits} /> },
+  { key: "hitsPerDay", label: RANK_VALUE_LABEL[RANK_SOURCE], numeric: true, render: (d, ctx) => <HitsCell v={d.hitsPerDay} max={ctx.maxHits} /> },
   { key: "rank1mDelta", label: "1 mo", numeric: true, render: (d) => <Trend value={d.rank1mDelta} /> },
   { key: "stars", label: "GitHub", numeric: true, mobileHide: true, render: starsCell },
   {

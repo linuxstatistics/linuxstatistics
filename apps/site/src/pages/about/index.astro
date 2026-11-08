@@ -23,7 +23,7 @@ const count = (await loadDistros()).length;
 
     <h2>Where the numbers come from</h2>
     <ul>
-      <li><strong>Popularity:</strong> <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page-hit rankings over 12, 6 and 3 months and the last month. Page hits measure interest, not installs.</li>
+      <li><strong>Popularity:</strong> our <a href="#ranking">composite index</a>. One of its inputs is <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a>'s page-hit ranking. Everything in it measures interest, not installs.</li>
       <li><strong>Desktop share:</strong> <a href="https://gs.statcounter.com/" target="_blank" rel="noopener noreferrer">StatCounter Global Stats</a>, monthly, worldwide.</li>
       <li><strong>Development activity:</strong> public <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a> repositories (stars, commits).</li>
       <li><strong>Distro facts:</strong> base distribution, first release, website and status from <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer">Wikidata</a> (CC0), checked against our own curated list where the two disagree.</li>
@@ -37,9 +37,9 @@ const count = (await loadDistros()).length;
       last good data rather than show broken numbers. The fetcher identifies itself as <code>linux-statistics-bot</code>; see <a href="/bot/">about our crawler</a>.
     </p>
 
-    <h2>How we rank distros</h2>
+    <h2 id="ranking">How we rank distros</h2>
     <p>
-      No single website should decide the chart, so we are moving to a composite index built from several interest signals. Each signal ranks
+      No single website should decide the chart, so the ranking is a composite index built from several interest signals. Each signal ranks
       the distros it covers; a distro's score for that signal is its position scaled from 1 (first) down toward 0 (last). A distro a signal
       doesn't cover scores 0 for it. The weighted sum is ranked. Current weights:
     </p>

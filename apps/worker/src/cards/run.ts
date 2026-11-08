@@ -46,8 +46,8 @@ async function main() {
   const input: CardInput = { size, siteHost: new URL(site).host, title: arg(args, "title"), caption: arg(args, "caption"), count: count ? Number(count) : undefined };
 
   const meta = await getJson<Meta>(api, "/api/meta");
-  const dw = meta.sources.find((s) => s.source === "distrowatch");
-  const asOf = dw?.lastSuccessAt ?? new Date().toISOString();
+  const idx = meta.sources.find((s) => s.source === "wikipedia");
+  const asOf = idx?.lastSuccessAt ?? new Date().toISOString();
 
   let tree;
   if (kind === "top") tree = topCard(await getJson<DistroListItem[]>(api, "/api/distros"), input, asOf);

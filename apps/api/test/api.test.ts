@@ -1,3 +1,4 @@
+import { RANK_SOURCE } from "@linux-statistics/shared";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import type { FastifyInstance } from "fastify";
 import type { PGlite } from "@electric-sql/pglite";
@@ -23,7 +24,7 @@ beforeAll(async () => {
     status: "active",
   });
   await addPopularitySnapshot(db, mintId, {
-    source: "distrowatch",
+    source: RANK_SOURCE,
     capturedAt: new Date(),
     rank: 1,
     hitsPerDay: 2600,
@@ -31,7 +32,7 @@ beforeAll(async () => {
   });
   await addAlias(db, "legacy", "linux-mint", mintId);
   await addPopularitySnapshot(db, mintId, {
-    source: "distrowatch",
+    source: RANK_SOURCE,
     capturedAt: new Date(),
     rank: 3,
     hitsPerDay: 1800,

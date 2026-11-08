@@ -32,6 +32,7 @@ async function runOne(db: Database, source: Source, opts: RunOptions): Promise<n
       const r = await ingestDistrowatchRows(db, rows, opts.now ?? new Date());
       if (r.created.length) log(`distrowatch: ${r.created.length} new distros: ${r.created.slice(0, 10).join(", ")}`);
       if (r.uncurated.length) log(`distrowatch: ${r.uncurated.length} distros without a curated family`);
+      log(`distrowatch: composite index rebuilt for ${r.composite} distros`);
       return r.written;
     }
     case "statcounter":

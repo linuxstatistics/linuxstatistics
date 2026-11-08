@@ -34,8 +34,9 @@ async function main() {
     getJson<MarketSharePoint[]>(api, "/api/market-share?region=global"),
     getJson<Meta>(api, "/api/meta"),
   ]);
-  const dw = meta.sources.find((s) => s.source === "distrowatch");
-  const capturedAt = dw?.lastSuccessAt ? new Date(dw.lastSuccessAt) : new Date();
+  // The composite index is rebuilt by the wikipedia ingest; its date is the chart date.
+  const idx = meta.sources.find((s) => s.source === "wikipedia");
+  const capturedAt = idx?.lastSuccessAt ? new Date(idx.lastSuccessAt) : new Date();
   const summary = buildSummary(list, rising, share, capturedAt);
 
   const out = resolve(outIdx >= 0 ? args[outIdx + 1]! : `monthly/${summary.capturedAt.slice(0, 7)}`);

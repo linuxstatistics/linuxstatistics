@@ -18,7 +18,7 @@ export interface CardInput {
 
 const monthLabel = (iso: string) => new Date(iso).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 const rows = (i: CardInput) => i.count ?? (i.size === "square" ? 8 : 5);
-const RANK_CREDIT = "Ranking: DistroWatch page hits. Interest, not installs.";
+const RANK_CREDIT = "Ranking: LinuxStatistics composite index. Interest, not installs.";
 
 /** Top N by current rank. Rank positions only, never hit counts (export rule). */
 export function topCard(list: DistroListItem[], i: CardInput, asOf: string): El {

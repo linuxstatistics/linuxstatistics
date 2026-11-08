@@ -6,6 +6,7 @@ import {
   findDistroSlugById,
   setDistroFamily,
   upsertDistro,
+  writeCompositeIndex,
   type Database,
 } from "@linux-statistics/db";
 import { CURATED } from "./families.js";
@@ -16,6 +17,8 @@ export interface IngestResult {
   created: string[];
   /** Keys created without a curated family, for follow-up curation. */
   uncurated: string[];
+  /** Distros ranked by the composite index after this write. */
+  composite: number;
 }
 
 /**
@@ -72,5 +75,7 @@ export async function ingestDistrowatchRows(
       period: r.period,
     });
   }
-  return { written: rows.length, created, uncurated: [...uncurated] };
+  // DistroWatch is an input of the public rank; rebuild the composite at the same capture time.
+  const composite = await writeCompositeIndex(db, capturedAt);
+  return { written: rows.length, created, uncurated: [...uncurated], composite };
 }

@@ -10,6 +10,7 @@ import {
   findDistroIdBySlug,
   openDb,
   recordIngestionRun,
+  writeCompositeIndex,
   schema,
   upsertGithubRepo,
 } from "@linux-statistics/db";
@@ -85,13 +86,15 @@ async function main(): Promise<void> {
     await addMarketShare(db, { capturedAt, region: "global", platform: "macos", sharePct: point.macos });
   }
 
+  // GitHub rows were added after the ranking rows; rebuild the composite so it sees them.
+  const composite = await writeCompositeIndex(db, SEED_CAPTURED_AT);
   await recordIngestionRun(db, "distrowatch", "success", result.written);
   await recordIngestionRun(db, "statcounter", "success", MARKET_SHARE.length * 3);
   await recordIngestionRun(db, "github", "success", SEED_REPOS.length);
 
   await close();
   console.log(
-    `Seeded ${result.created.length} distros (${result.written} ranking rows from ${page === capture ? "local capture" : "synthetic page"}, ${result.uncurated.length} without a curated family) into ${kind}`,
+    `Seeded ${result.created.length} distros (${result.written} ranking rows from ${page === capture ? "local capture" : "synthetic page"}, ${result.uncurated.length} without a curated family, composite index for ${composite}) into ${kind}`,
   );
 }
 

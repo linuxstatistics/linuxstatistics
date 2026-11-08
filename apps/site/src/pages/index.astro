@@ -7,11 +7,12 @@ import { StatsMenu } from "../components/StatsMenu";
 import { SponsorCard } from "../components/SponsorCard";
 import { loadDistros, loadMarketShare, loadMeta, loadRising, dataDate } from "../lib/data";
 import { buildHeadline } from "../lib/headline";
+import { RANK_SOURCE, RANK_VALUE_LABEL } from "@linux-statistics/shared";
 import { latestLinuxShare, linuxYearlySeries } from "../lib/marketShare";
 import { ShareChart } from "../components/ShareChart";
 
 const [items, marketShare, meta, rising] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta(), loadRising()]);
-const asOf = dataDate(meta, "distrowatch");
+const asOf = dataDate(meta, "wikipedia");
 const site = Astro.site!.href.replace(/\/$/, "");
 const headline = buildHeadline(items);
 const share = latestLinuxShare(marketShare);
@@ -30,6 +31,7 @@ const jsonLd = {
   ...(asOf ? { dateModified: asOf } : {}),
   license: "https://www.gnu.org/licenses/agpl-3.0.html",
   isBasedOn: [
+    "https://en.wikipedia.org/",
     "https://distrowatch.com/dwres.php?resource=popularity",
     "https://gs.statcounter.com/os-market-share/desktop/worldwide",
     "https://github.com/",
@@ -56,7 +58,7 @@ const jsonLd = {
       <div class="stats-menu-mobile">
         <StatsMenu client:media="(max-width: 760px)" items={items} marketShare={marketShare} />
       </div>
-      <div class="sec"><h2>The rest of the chart</h2><span>hits per day, last 12 months</span></div>
+      <div class="sec"><h2>The rest of the chart</h2><span>{RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}, last 12 months</span></div>
       <ListView client:load items={restItems} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={47} pageSize={50} offset={items.length - restItems.length} />
     </section>
 

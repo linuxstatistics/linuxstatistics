@@ -89,7 +89,7 @@ export function summaryMarkdown(s: MonthlySummary, site: string): string {
       `Linux desktop share worldwide (StatCounter, ${s.linuxShare.month}): ${s.linuxShare.pct.toFixed(2)}%${ch != null ? ` (${ch >= 0 ? "+" : ""}${ch.toFixed(2)} pts vs the month before)` : ""}.`,
     );
   }
-  lines.push("", `Full rankings: ${site}/ · Rising: ${site}/rising/`, "", "Source: DistroWatch page-hit ranking. Interest, not installs.");
+  lines.push("", `Full rankings: ${site}/ · Rising: ${site}/rising/`, "", "Source: the LinuxStatistics composite index (Wikipedia views, DistroWatch page hits, GitHub stars, site views). Interest, not installs.");
   return lines.join("\n") + "\n";
 }
 
@@ -108,6 +108,6 @@ ${cardUrl ? `<img src="${esc(cardUrl)}" width="560" alt="Top distros for ${esc(s
 ${s.falling.length ? `<h2 style="font-size:16px">Cooling off</h2><ul style="padding-left:20px">${s.falling.map((d) => li(`${a(d.slug, d.name)}: #${d.rank} → #${d.rank1m} <b style="color:#b3263e">▼${d.drop}</b>`)).join("")}</ul>` : ""}
 ${s.linuxShare ? `<p>Linux desktop share worldwide (StatCounter, ${esc(s.linuxShare.month)}): <b>${s.linuxShare.pct.toFixed(2)}%</b>${s.linuxShare.changePts != null ? ` (${s.linuxShare.changePts >= 0 ? "+" : ""}${s.linuxShare.changePts.toFixed(2)} pts)` : ""}.</p>` : ""}
 <p><a href="${esc(site)}/" style="color:#111">Full rankings</a> · <a href="${esc(site)}/rising/" style="color:#111">Rising</a> · <a href="${esc(site)}/pick/" style="color:#111">Which distro should I use?</a></p>
-<p style="color:#777;font-size:12px">Source: DistroWatch page-hit ranking (interest, not installs). You get this because you signed up at LinuxStatistics. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#777">Unsubscribe</a>.</p>
+<p style="color:#777;font-size:12px">Source: the LinuxStatistics composite index (interest, not installs). You get this because you signed up at LinuxStatistics. <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#777">Unsubscribe</a>.</p>
 </body></html>`;
 }

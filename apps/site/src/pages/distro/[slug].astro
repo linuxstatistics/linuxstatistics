@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import RankCredit from "../../components/RankCredit.astro";
 import { DistroStats } from "../../components/DistroStats";
 import { DistroRating } from "../../components/DistroRating";
 import { AffiliateBlock } from "../../components/AffiliateBlock";
@@ -43,7 +44,7 @@ const profile = PROFILES.find((p) => p.key === data.slug);
 const fits = profile ? useFits(profile) : null;
 const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
-const asOf = dataDate(meta, "distrowatch");
+const asOf = dataDate(meta, "wikipedia");
 const site = Astro.site!.href.replace(/\/$/, "");
 const switchFrom = (["windows", "mac"] as const).filter((f) =>
   PROFILES.find((p) => p.key === data.slug)?.desktops.includes(f === "windows" ? "windows-like" : "mac-like"),
@@ -123,10 +124,10 @@ const jsonLd = {
         <AffiliateBlock />
         <EthicalAd placement="distro" />
         <p class="source-note">
-          Ranking from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.{" "}
+          <RankCredit asOf={asOf} noun="Ranking" />{" "}
           {data.repoFullName && <Fragment>Repository activity from <a href={`https://github.com/${data.repoFullName}`} target="_blank" rel="noopener noreferrer">GitHub</a>.{" "}</Fragment>}
           {data.releases.length > 0 && <Fragment>Release dates and support from <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).{" "}</Fragment>}
-          Ratings come from signed-in LinuxStatistics users. Page hits measure interest, not installs.
+          Ratings come from signed-in LinuxStatistics users.
         </p>
       </div>
       <aside class="side" aria-label="Related">

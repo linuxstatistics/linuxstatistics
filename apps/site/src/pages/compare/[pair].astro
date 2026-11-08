@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import RankCredit from "../../components/RankCredit.astro";
 import { FAMILY_LABELS } from "../../lib/families";
 import { loadDistro, loadDistros, loadMeta, mapLimit, dataDate } from "../../lib/data";
 import { compareSlug, popularPairs } from "../../lib/compare";
@@ -15,7 +16,7 @@ import { TELEMETRY_LABEL, telemetryFor } from "../../lib/telemetry";
 import { releaseStats } from "../../components/DistroStats";
 import { pairVerdict } from "../../lib/verdict";
 import { faqJsonLd, pairFaq } from "../../lib/faq";
-import type { DistroDetail } from "@linux-statistics/shared";
+import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
 
 export async function getStaticPaths() {
   const list = await loadDistros();
@@ -42,7 +43,7 @@ const related = [...compareSuggestions(list, a, staticPairs, 5), ...compareSugge
 const options = list
   .sort((x, y) => x.name.localeCompare(y.name))
   .map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
-const asOf = dataDate(meta, "distrowatch");
+const asOf = dataDate(meta, "wikipedia");
 
 type Row = { label: string; a: string; b: string; better?: "a" | "b"; split?: number };
 const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
@@ -69,7 +70,7 @@ const rel = (d: DistroDetail, label: string) => releaseStats(d).find((r) => r[0]
 const rows: Row[] = [
   { label: "Popularity rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true), split: split(a.rank, b.rank, true) },
   { label: "Rank last month", a: num(a.rank1m), b: num(b.rank1m), better: pick(a.rank1m, b.rank1m, true), split: split(a.rank1m, b.rank1m, true) },
-  { label: "Hits per day", a: num(a.hitsPerDay), b: num(b.hitsPerDay), better: pick(a.hitsPerDay, b.hitsPerDay), split: split(a.hitsPerDay, b.hitsPerDay) },
+  { label: RANK_VALUE_LABEL[RANK_SOURCE], a: num(a.hitsPerDay), b: num(b.hitsPerDay), better: pick(a.hitsPerDay, b.hitsPerDay), split: split(a.hitsPerDay, b.hitsPerDay) },
   { label: "Family", a: FAMILY_LABELS[a.family], b: FAMILY_LABELS[b.family] },
   { label: "Based on", a: a.basedOnSlug ? (nameOf.get(a.basedOnSlug) ?? a.basedOnSlug) : "-", b: b.basedOnSlug ? (nameOf.get(b.basedOnSlug) ?? b.basedOnSlug) : "-" },
   { label: "First released", a: a.firstReleaseYear?.toString() ?? "-", b: b.firstReleaseYear?.toString() ?? "-" },
@@ -156,9 +157,9 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
     <Faq items={faq} />
     <EthicalAd placement="compare" />
     <p class="source-note">
-      Rankings from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.
+      <RankCredit asOf={asOf} />
       Repository activity from GitHub. Ratings come from signed-in LinuxStatistics users.
-      Page hits measure interest, not installs. "Pick if", pros and cons are LinuxStatistics editorial notes based on each project's own documentation.
+      "Pick if", pros and cons are LinuxStatistics editorial notes based on each project's own documentation.
       {(a.releases.length > 0 || b.releases.length > 0) && <Fragment>{" "}Release dates and support from <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).</Fragment>}
     </p>
     {related.length > 0 && (

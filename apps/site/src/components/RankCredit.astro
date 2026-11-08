@@ -1,0 +1,16 @@
+---
+/**
+ * The credit line for the main rank. One place to change when RANK_SOURCE
+ * changes. `asOf` is the capture date (YYYY-MM-DD) when known.
+ */
+interface Props {
+  asOf?: string | null;
+  /** "Ranking" (one distro) or "Rankings" (lists). */
+  noun?: string;
+}
+const { asOf = null, noun = "Rankings" } = Astro.props;
+---
+
+{noun} from our <a href="/about/#ranking">composite index</a>: English Wikipedia article views,
+<a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits,
+GitHub stars and views on this site{asOf ? `, built ${asOf}` : ""}. All of these measure interest, not installs.

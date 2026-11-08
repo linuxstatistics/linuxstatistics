@@ -1,4 +1,4 @@
-import type { DistroDetail } from "@linux-statistics/shared";
+import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating, ratingDetail } from "../lib/rating";
 
@@ -23,7 +23,7 @@ export function statItems(data: DistroDetail): Stat[] {
   const n = (v: number | null) => (v == null ? null : v.toLocaleString("en-US"));
   const out: Array<Stat | null> = [
     data.rank != null ? ["Popularity rank", `#${data.rank}`] : null,
-    data.hitsPerDay != null ? ["Hits / day", n(data.hitsPerDay)!] : null,
+    data.hitsPerDay != null ? [RANK_VALUE_LABEL[RANK_SOURCE], n(data.hitsPerDay)!] : null,
     data.stars != null ? ["GitHub stars", n(data.stars)!] : null,
     data.commitsLast30d != null ? ["Commits / mo", n(data.commitsLast30d)!] : null,
     data.firstReleaseYear != null ? ["Released", String(data.firstReleaseYear)] : null,

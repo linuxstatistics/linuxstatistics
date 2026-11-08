@@ -30,7 +30,7 @@ const image = pageImage ?? new URL("/og.png", Astro.site).href;
 const [allDistros, marketShare, meta] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta()]);
 const jumpItems = allDistros.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 // Data facts for the footer, shown on every page.
-const asOf = dataDate(meta, "distrowatch");
+const asOf = dataDate(meta, "wikipedia");
 const asOfText = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 const share = latestLinuxShare(marketShare);
 const stale = staleSources(meta);
@@ -164,13 +164,14 @@ import { AuthSkeleton } from "../components/Skeleton";
             <dl class="footer-facts">
               <div><dt>Tracked</dt><dd>{allDistros.length}</dd></div>
               {share && <div><dt>Desktop share</dt><dd>{share.value.toFixed(2)}%</dd></div>}
-              {asOfText && <div><dt>Captured</dt><dd><a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">{asOfText}</a></dd></div>}
+              {asOfText && <div><dt>Index built</dt><dd><a href="/about/#ranking">{asOfText}</a></dd></div>}
             </dl>
             <p class="footer-credit">
-              The Linux distro chart: <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page-hit interest over the last 12 months, with last month's movers
-              marked. Desktop share from <a href="https://gs.statcounter.com/" target="_blank" rel="noopener noreferrer">StatCounter Global Stats</a>,
+              The Linux distro chart: our <a href="/about/#ranking">composite index</a> of English Wikipedia article views,
+              <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits, GitHub stars and
+              views on this site, over the last 12 months, with last month's movers marked. Desktop share from <a href="https://gs.statcounter.com/" target="_blank" rel="noopener noreferrer">StatCounter Global Stats</a>,
               repository activity from <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a>, distro facts from
-              <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer">Wikidata</a>. Page hits measure interest,
+              <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer">Wikidata</a>. All of it measures interest,
               not installs. <a href="/about/">More on sources</a>.
             </p>
           </div>

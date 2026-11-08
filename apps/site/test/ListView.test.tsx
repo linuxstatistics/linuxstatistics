@@ -93,10 +93,10 @@ test("Rating is off by default and sortable once turned on", async () => {
 
 test("tags secondary columns to be hidden on mobile", () => {
   render(<ListView items={items} />);
-  const hits = screen.getByRole("columnheader", { name: /Hits\/day/ });
+  const hits = screen.getByRole("columnheader", { name: /^Index/ });
   const stars = screen.getByRole("columnheader", { name: /GitHub/ });
   const distro = screen.getByRole("columnheader", { name: /Distro/ });
-  // Hits/day and the 1-month move stay on phones; secondary columns hide.
+  // The index value and the 1-month move stay on phones; secondary columns hide.
   expect(hits).not.toHaveClass("col-hide-mobile");
   expect(screen.getByRole("columnheader", { name: /1 mo/ })).not.toHaveClass("col-hide-mobile");
   expect(stars).toHaveClass("col-hide-mobile");

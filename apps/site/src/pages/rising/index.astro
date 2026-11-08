@@ -1,13 +1,14 @@
 ---
 import SwitchSide from "../../components/SwitchSide.astro";
 import Base from "../../layouts/Base.astro";
+import RankCredit from "../../components/RankCredit.astro";
 import { SponsorCard } from "../../components/SponsorCard";
 import { FAMILY_LABELS } from "../../lib/families";
 import { loadMeta, loadRising, dataDate } from "../../lib/data";
 
 const rising = await loadRising();
 const meta = await loadMeta();
-const asOf = dataDate(meta, "distrowatch");
+const asOf = dataDate(meta, "wikipedia");
 const month = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }) : "this month";
 const site = Astro.site!.href.replace(/\/$/, "");
 
@@ -74,8 +75,7 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
       </div>
     )}
     <p class="source-note">
-      Source: <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page-hit rankings, last-1-month vs last-12-months tables{asOf ? `, captured ${asOf}` : ""}.
-      Page hits measure interest, not installs.
+      <RankCredit asOf={asOf} /> "Rising" compares the last month's index with the 12-month index.
     </p>
     </div>
     <aside class="side" aria-label="More">

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DistroDetail } from "@linux-statistics/shared";
+import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS } from "../lib/families";
 import { CompareSkeleton } from "./Skeleton";
 import { PairVerdict } from "./PairVerdict";
@@ -44,7 +44,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
   const all: [string, string, string][] = [
     ["Popularity rank (12 months)", num(a.rank), num(b.rank)],
     ["Rank last month", num(a.rank1m), num(b.rank1m)],
-    ["Hits per day", num(a.hitsPerDay), num(b.hitsPerDay)],
+    [RANK_VALUE_LABEL[RANK_SOURCE], num(a.hitsPerDay), num(b.hitsPerDay)],
     ["Family", FAMILY_LABELS[a.family], FAMILY_LABELS[b.family]],
     ["Based on", base(a.basedOnSlug), base(b.basedOnSlug)],
     ["First released", a.firstReleaseYear?.toString() ?? "-", b.firstReleaseYear?.toString() ?? "-"],

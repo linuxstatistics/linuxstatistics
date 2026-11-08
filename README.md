@@ -8,7 +8,7 @@ Linux-distro statistics: popularity rankings, desktop market share and project a
 
 - **site**: Astro static site with React islands (leaderboard and a page per distro)
 - **api**: Fastify REST API over the database (read-only data routes, plus auth, contributions and email signup)
-- **worker**: ingestion source parsers (DistroWatch / StatCounter / GitHub) and seed
+- **worker**: ingestion source parsers (DistroWatch / StatCounter / GitHub / Wikidata / Wikipedia / endoflife.date), the composite index rebuild, seed, monthly summary and social cards
 - **packages/db**: Drizzle schema, migrations, queries, repository
 - **packages/shared**: zod domain and API-DTO schemas
 
@@ -54,7 +54,7 @@ pnpm --filter @linux-statistics/worker ingest --source statcounter --backfill   
 pnpm --filter @linux-statistics/worker ingest --source all --rebuild            # then rebuild the site
 ```
 
-Sources: DistroWatch page-hit rankings (daily), GitHub repository activity (weekly; set `GITHUB_TOKEN` for a higher rate limit), StatCounter desktop market share (monthly), English Wikipedia page views for our own interest index (monthly; CC0, compared with the current rank on `/admin/rank/` before it's used) and Wikidata distro facts (weekly; CC0: base, first release, homepage, and distros we don't track yet, which stay unlisted until they have a rank, repo or rating). Wikidata only fills empty fields; curated values win. Each source runs on its own: a failure is recorded, the last good data stays, and the other sources still run. The exit code is non-zero if any source failed.
+The public rank is our composite index (`packages/db/src/composite.ts`): English Wikipedia article views 50%, DistroWatch page-hit rank 30%, GitHub stars 10%, views on this site 10%, each as a rank position scaled 1→0. Sources: DistroWatch page-hit rankings (daily), GitHub repository activity (weekly; set `GITHUB_TOKEN` for a higher rate limit), StatCounter desktop market share (monthly), English Wikipedia page views (monthly; CC0), Wikidata distro facts (weekly; CC0: base, first release, homepage, and distros we don't track yet, which stay unlisted until they have a rank, repo or rating) and endoflife.date release cycles (weekly; CC BY-SA 4.0). `/admin/rank/` compares the composite or the Wikipedia-only index with DistroWatch. Wikidata only fills empty fields; curated values win. Each source runs on its own: a failure is recorded, the last good data stays, and the other sources still run. The exit code is non-zero if any source failed.
 
 With PGlite, stop the API before ingesting (PGlite allows one connection). With Postgres they can run together.
 
@@ -64,7 +64,7 @@ After the monthly StatCounter run, `pnpm --filter @linux-statistics/worker month
 
 ## Attribution
 
-Ranking data comes from DistroWatch, StatCounter Global Stats and GitHub, and is credited on the site.
+Inputs come from Wikipedia, DistroWatch, GitHub, StatCounter Global Stats, Wikidata and endoflife.date, and are credited on the site.
 
 ## License
 
