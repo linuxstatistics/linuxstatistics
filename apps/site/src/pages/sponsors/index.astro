@@ -4,8 +4,12 @@ import { CONTACT } from "../../config/site";
 import { sponsor } from "../../config/sponsor";
 import { affiliateProviders } from "../../config/affiliate";
 import { loadDistros } from "../../lib/data";
+import { mediaKit } from "../../config/media-kit";
 
 const count = (await loadDistros()).length;
+const fmt = (n: number) => n.toLocaleString("en-US");
+const { offer } = mediaKit;
+const hasFigures = mediaKit.period != null && (mediaKit.monthlyVisitors != null || mediaKit.monthlyPageViews != null);
 ---
 
 <Base
@@ -31,6 +35,32 @@ const count = (await loadDistros()).length;
       <li>Placement across {count} distro pages, comparisons, the rising chart and the picker.</li>
       <li>A mention in the monthly State of Linux Distros email.</li>
     </ul>
+
+    <h2>Founding sponsor offer</h2>
+    <ul>
+      <li><strong>Price:</strong> ${offer.priceUsdPerMonth.from}–{offer.priceUsdPerMonth.to} a month, flat, invoiced monthly. The rate depends on term length and traffic at the time; we'll quote a number.</li>
+      <li><strong>Term:</strong> {offer.minimumMonths}-month minimum, then month to month. The card switches off automatically when the term ends unless renewed.</li>
+      <li><strong>Exclusivity:</strong> {offer.slots === 1 ? "one sponsor at a time, site-wide" : `${offer.slots} sponsors at a time`}.</li>
+      <li><strong>Creative:</strong> logo (SVG or PNG), name, one line of up to 60 characters, a link. We set it live within two working days.</li>
+      <li><strong>Reporting:</strong> page views across your term, on request.</li>
+    </ul>
+
+    <h2>Audience and reach</h2>
+    {hasFigures ? (
+      <dl class="footer-facts">
+        {mediaKit.monthlyVisitors != null && <div><dt>Visitors / month</dt><dd>{fmt(mediaKit.monthlyVisitors)}</dd></div>}
+        {mediaKit.monthlyPageViews != null && <div><dt>Page views / month</dt><dd>{fmt(mediaKit.monthlyPageViews)}</dd></div>}
+        {mediaKit.subscribers != null && <div><dt>Email subscribers</dt><dd>{fmt(mediaKit.subscribers)}</dd></div>}
+        <div><dt>Figures from</dt><dd>{mediaKit.period}</dd></div>
+      </dl>
+    ) : (
+      <p>The site is new; we publish visitor and page-view figures here as soon as we have a full month, and send current numbers on request.</p>
+    )}
+    <p>
+      Who visits: people choosing or switching Linux distributions, often from Windows or macOS; developers comparing server and desktop options;
+      people picking a gaming setup. Pages are built for search, so most visitors arrive with a specific question ("Fedora vs Ubuntu", "which distro for an old laptop").
+      {mediaKit.topCountries.length > 0 && ` Top countries: ${mediaKit.topCountries.join(", ")}.`}
+    </p>
 
     <h2>Good fits</h2>
     <p>Hosting and VPS providers, Linux hardware makers, developer tools, backup and privacy services, training and courses. We don't accept gambling, crypto token promotions, malware-adjacent tools or anything misleading.</p>
