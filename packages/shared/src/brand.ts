@@ -26,3 +26,40 @@ export function brandMarkSvg(opts: { ring?: boolean } = {}): string {
 export function brandMarkDataUri(opts?: { ring?: boolean }): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(brandMarkSvg(opts))}`;
 }
+
+/** Brand colours as listed in the press kit. */
+export const BRAND_COLOURS: { name: string; hex: string; use: string }[] = [
+  { name: "Neon", hex: BRAND.neon, use: "accent, bars, 'stats' in the wordmark" },
+  { name: "Paper", hex: BRAND.paper, use: "light lettering on dark" },
+  { name: "Ink", hex: BRAND.ink, use: "mark disc, dark lettering" },
+  { name: "Muted", hex: BRAND.muted, use: "secondary text on dark" },
+];
+
+export const hexToRgb = (hex: string): string => {
+  const n = parseInt(hex.slice(1), 16);
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+};
+
+/** Press boilerplate: from the site's own About copy. */
+export const BOILERPLATE =
+  "LinuxStatistics ranks Linux distributions and helps people pick one. Its composite index blends Wikipedia interest, DistroWatch page hits, GitHub activity and the site's own traffic; a short quiz, side-by-side comparisons and switching guides turn the numbers into a choice. Independent, open source under the AGPL-3.0, run by Chris Hartman in the United States.";
+export const ONE_LINER = "Linux distro rankings and a picker that explains itself.";
+
+/** Files in /press/, relative to that folder. One source for the page, the menu and the zip README. */
+export const PRESS_FILES = {
+  markSvg: "Logos/linuxstats-mark.svg",
+  markPng: "Logos/linuxstats-mark-1200.png",
+  tilePng: "Logos/linuxstats-mark-tile-1024.png",
+  logoDarkSvg: "Logos/linuxstats-logo-dark.svg",
+  logoDarkPng: "Logos/linuxstats-logo-dark-1200.png",
+  logoLightSvg: "Logos/linuxstats-logo-light.svg",
+  logoLightPng: "Logos/linuxstats-logo-light-1200.png",
+  avatar250: "Logos/linuxstats-avatar-250.png",
+  avatar1024: "Logos/linuxstats-avatar-1024.png",
+  avatarWordmark250: "Logos/linuxstats-avatar-wordmark-250.png",
+  avatarWordmark1024: "Logos/linuxstats-avatar-wordmark-1024.png",
+  colours: "colours.txt",
+  boilerplate: "boilerplate.txt",
+  readme: "README.txt",
+  zip: "PressKit.zip",
+} as const;

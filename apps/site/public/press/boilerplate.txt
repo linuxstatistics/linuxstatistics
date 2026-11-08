@@ -1,0 +1,5 @@
+LinuxStatistics ranks Linux distributions and helps people pick one. Its composite index blends Wikipedia interest, DistroWatch page hits, GitHub activity and the site's own traffic; a short quiz, side-by-side comparisons and switching guides turn the numbers into a choice. Independent, open source under the AGPL-3.0, run by Chris Hartman in the United States.
+
+One line: Linux distro rankings and a picker that explains itself.
+
+Name: LinuxStatistics (one word; "linuxstats" in the wordmark). Site: https://linuxstatistics.com. Press contact: hello@linuxstatistics.com.

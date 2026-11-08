@@ -1,0 +1,106 @@
+---
+import Base from "../../layouts/Base.astro";
+import { CONTACT, OPERATOR, SOURCE_URL } from "../../config/site";
+import { BOILERPLATE, BRAND_COLOURS, ONE_LINER, PRESS_FILES, hexToRgb } from "@linux-statistics/shared";
+import { PressCopy } from "../../components/PressCopy";
+
+const P = (f: string) => `/press/${f}`;
+const name = (f: string) => f.split("/").pop()!;
+const logos = [
+  { title: "Logo for dark backgrounds", svg: PRESS_FILES.logoDarkSvg, png: PRESS_FILES.logoDarkPng, bg: "dark", note: "Mark and wordmark, light lettering." },
+  { title: "Logo for light backgrounds", svg: PRESS_FILES.logoLightSvg, png: PRESS_FILES.logoLightPng, bg: "light", note: "Dark lettering with the neon highlight, as on the site in light mode." },
+  { title: "Mark", svg: PRESS_FILES.markSvg, png: PRESS_FILES.markPng, bg: "checker", note: "The disc alone. Transparent outside it." },
+];
+const tiles = [
+  { title: "Round avatar", png: PRESS_FILES.avatar1024, small: PRESS_FILES.avatar250, note: "Social profiles. Faint ring so it reads on dark feeds." },
+  { title: "Round avatar, wordmark", png: PRESS_FILES.avatarWordmark1024, small: PRESS_FILES.avatarWordmark250, note: "Alternative where the mark alone is unclear." },
+  { title: "Square tile", png: PRESS_FILES.tilePng, small: null, note: "App-icon style, for square slots." },
+];
+const colourText = BRAND_COLOURS.map((c) => `${c.name} ${c.hex} rgb(${hexToRgb(c.hex)})`).join("\n");
+---
+
+<Base
+  title="Press kit | LinuxStatistics"
+  description="Logos, colours, boilerplate and contact for writing about LinuxStatistics. Everything here may be used to refer to the site."
+>
+  <article class="page prose legal press">
+    <h1>Press kit</h1>
+    <p class="lede">Logos, colours and a short description for articles, listings, talks and videos. Use any of it to refer to LinuxStatistics; no need to ask.</p>
+    <p>
+      <a class="btn press-zip" href={P(PRESS_FILES.zip)} download>Download everything (.zip)</a>
+      <span class="press-zip-note">Logos as SVG and PNG, colours, boilerplate, README.</span>
+    </p>
+
+    <h2>Logos</h2>
+    <div class="press-logos">
+      {logos.map((l) => (
+        <figure class={`press-logo press-bg-${l.bg}`}>
+          <img src={P(l.svg)} alt={l.title} loading="lazy" />
+          <figcaption>
+            <strong>{l.title}</strong> <span>{l.note}</span>
+            <span class="press-links">
+              <a href={P(l.svg)} download={name(l.svg)}>SVG</a>
+              <a href={P(l.png)} download={name(l.png)}>PNG 1200</a>
+              <PressCopy client:visible url={P(l.svg)} label="Copy SVG" />
+            </span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+
+    <h2>Avatars and tiles</h2>
+    <div class="press-tiles">
+      {tiles.map((t) => (
+        <figure class="press-tile">
+          <img src={P(t.small ?? t.png)} alt={t.title} width="120" height="120" loading="lazy" />
+          <figcaption>
+            <strong>{t.title}</strong> <span>{t.note}</span>
+            <span class="press-links">
+              <a href={P(t.png)} download={name(t.png)}>PNG 1024</a>
+              {t.small && <a href={P(t.small)} download={name(t.small)}>PNG 250</a>}
+            </span>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+
+    <h2>Colours and type</h2>
+    <div class="press-colours">
+      {BRAND_COLOURS.map((c) => (
+        <div class="press-colour">
+          <span class="press-swatch" style={`background:${c.hex}`} aria-hidden="true"></span>
+          <span class="press-colour-name">{c.name}</span>
+          <code>{c.hex}</code>
+          <span class="press-colour-rgb">rgb({hexToRgb(c.hex)})</span>
+          <span class="press-colour-use">{c.use}</span>
+        </div>
+      ))}
+      <p class="press-colours-foot"><PressCopy client:visible text={colourText} label="Copy all as text" /></p>
+    </div>
+    <p>
+      Type on the site: <strong>Archivo</strong> for headings and the wordmark, <strong>IBM Plex Sans</strong> for text. Both are under the SIL Open Font License and self-hosted;
+      the wordmark inside the logo files is outlined, so you don't need the fonts.
+    </p>
+
+    <h2>Boilerplate</h2>
+    <blockquote class="press-boilerplate"><p>{BOILERPLATE}</p></blockquote>
+    <p><PressCopy client:visible text={BOILERPLATE} label="Copy boilerplate" /></p>
+    <p><strong>One line:</strong> {ONE_LINER} <PressCopy client:visible text={ONE_LINER} /></p>
+    <p><strong>Name:</strong> LinuxStatistics, one word, capital L and S. The wordmark reads "linuxstats". <strong>Pronounced</strong> as written.</p>
+
+    <h2>Facts</h2>
+    <ul>
+      <li>Run by {OPERATOR.name}, {OPERATOR.country}. Launched 2026.</li>
+      <li>Open source under the AGPL-3.0: <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">github.com/linuxstatistics/linuxstatistics</a>.</li>
+      <li>Rankings come from a published <a href="/about/#ranking">composite index</a>; rankings and editorial notes are never for sale.</li>
+      <li>Open data under CC BY 4.0 on the <a href="/data/">open data page</a>.</li>
+    </ul>
+
+    <h2>Using the marks</h2>
+    <p>Please don't recolour, outline, stretch, rotate or add effects to the mark or wordmark, and keep clear space of at least one bar's width around them. The neon is part of the mark; on a neon background use the dark-lettering logo on a light panel instead.</p>
+
+    <h2>Contact</h2>
+    <p>Press and partnerships: <a href={`mailto:${CONTACT.general}`}>{CONTACT.general}</a>. Sponsorship: <a href="/sponsors/">sponsors page</a>.</p>
+    <p class="note">Tip: right-click the logo at the top of any page for a quick menu of these files.</p>
+  </article>
+</Base>

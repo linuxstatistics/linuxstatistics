@@ -1,0 +1,6 @@
+Neon   #3cfe3f  rgb(60, 254, 63)  accent, bars, 'stats' in the wordmark
+Paper  #e9eef5  rgb(233, 238, 245)  light lettering on dark
+Ink    #000000  rgb(0, 0, 0)  mark disc, dark lettering
+Muted  #7d8794  rgb(125, 135, 148)  secondary text on dark
+
+Fonts: Archivo (display), IBM Plex Sans (text), both SIL Open Font License, self-hosted. Wordmark in the logo files is outlined (Inter 800); no font files are included.

@@ -7,6 +7,7 @@ import { HeaderAuth } from "../components/HeaderAuth";
 import { FooterEmail } from "../components/FooterEmail";
 import { SponsorSlot } from "../components/SponsorSlot";
 import { JumpToDistro } from "../components/JumpToDistro";
+import { PressMenu } from "../components/PressMenu";
 import { loadDistros, loadMarketShare, loadMeta, dataDate } from "../lib/data";
 import { staleSources } from "../lib/freshness";
 import { latestLinuxShare } from "../lib/marketShare";
@@ -90,6 +91,7 @@ import { AuthSkeleton } from "../components/Skeleton";
   </head>
   <body>
     <div class="app">
+      <PressMenu client:idle />
       <header class="app-header">
         <a class="brand" href="/" aria-label="LinuxStatistics home">
           <svg class="brand-mark" viewBox="0 0 250 250" aria-hidden="true" focusable="false">
@@ -194,6 +196,7 @@ import { AuthSkeleton } from "../components/Skeleton";
               <li><a href="/about/ratings/">How scores work</a></li>
               <li><a href="/data/">Open data</a></li>
               <li><a href="/sponsors/">Sponsors</a></li>
+              <li><a href="/press/">Press kit</a></li>
               <li><a href="/privacy/">Privacy</a></li>
               <li><a href="/terms/">Terms and rules</a></li>
               <li><a href="https://github.com/linuxstatistics/linuxstatistics" target="_blank" rel="noopener noreferrer">Source code (AGPL-3.0)</a></li>

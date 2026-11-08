@@ -51,8 +51,12 @@ same_tab=$(grep -rhoE '<a [^>]*href="https?://[^"]*"[^>]*>' "$DIST" --include=*.
 if [ -n "$same_tab" ]; then echo "FAIL: external links without target=\"_blank\":"; echo "$same_tab"; fail=1; else echo "ok:   external links open in a new tab"; fi
 # Open data never carries third-party ranking data.
 if grep -qiE 'rank_|hits_per_day|hitsPerDay|distrowatch|index_value' "$DIST/data/distros.json" "$DIST/data/distros.csv"; then echo "FAIL: open data carries ranking fields"; fail=1; else echo "ok:   open data has no ranking fields"; fi
+# Press kit: page, zip and every asset it links to.
+if [ -f "$DIST/press/index.html" ] && [ -f "$DIST/press/PressKit.zip" ]; then echo "ok:   press kit page and zip"; else echo "FAIL: press kit page or zip missing"; fail=1; fi
+missing=$(grep -oE 'href="/press/[^"]+"' "$DIST/press/index.html" | sed -E 's/href="\/press\/([^"]+)"/\1/' | sort -u | while read -r f; do [ -f "$DIST/press/$f" ] || echo "$f"; done)
+if [ -n "$missing" ]; then echo "FAIL: press kit links to missing files:"; echo "$missing"; fail=1; else echo "ok:   every press kit link resolves"; fi
 # The public rank is our composite index: no page may still call the value "hits".
-if grep -rlE 'Hits ?/ ?day|Hits per day|page-hit rankings' "$DIST/index.html" "$DIST/distro" "$DIST/compare" "$DIST/rising" >/dev/null 2>&1; then echo "FAIL: a page still labels the index as hits"; fail=1; else echo "ok:   index never labelled as hits"; fi
+if grep -rlE 'Hits ?/ ?day|Hits per day|page-hit rankings|<small>/day</small>' "$DIST/index.html" "$DIST/distro" "$DIST/compare" "$DIST/rising" >/dev/null 2>&1; then echo "FAIL: a page still labels the index as hits"; fail=1; else echo "ok:   index never labelled as hits"; fi
 if grep -q 'composite index' "$DIST/distro/mint/index.html" && grep -q 'id="ranking"' "$DIST/about/index.html"; then echo "ok:   rank credit names the composite index and /about/#ranking exists"; else echo "FAIL: rank credit or /about/#ranking missing"; fail=1; fi
 [ ! -e "$DIST/data/rank-history.csv" ] && [ ! -d "$DIST/badge" ] && echo "ok:   no rank exports or badges" || { echo "FAIL: rank-history.csv or badges still built"; fail=1; }
 echo "distro pages: $(ls "$DIST/distro" | wc -l | tr -d ' ')"

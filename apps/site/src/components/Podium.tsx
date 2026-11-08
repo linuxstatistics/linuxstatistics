@@ -1,4 +1,4 @@
-import type { DistroListItem } from "@linux-statistics/shared";
+import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroListItem } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 
 function Move({ d }: { d: DistroListItem }) {
@@ -24,9 +24,9 @@ export function Podium({ items }: { items: DistroListItem[] }) {
             <span className="fam" style={{ color: familyColor(d.family) }}>
               {FAMILY_LABELS[d.family].toLowerCase()}
             </span>
-            <span>
+            <span title={RANK_VALUE_LABEL[RANK_SOURCE]}>
               {d.hitsPerDay?.toLocaleString("en-US") ?? "-"}
-              <small>/day</small>
+              <small> {RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}</small>
             </span>
             <Move d={d} />
           </span>

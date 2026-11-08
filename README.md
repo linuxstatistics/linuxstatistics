@@ -16,6 +16,10 @@ Linux-distro statistics: popularity rankings, desktop market share and project a
 
 Local dev and tests use **PGlite** (in-process Postgres), so no database server is needed. The local database lives at `.data/pglite` (override with `PGLITE_DIR`). A `.data/pglite` written by PGlite 0.2 does not open under 0.5: delete it and run `pnpm seed` again. Set `DATABASE_URL` to use a real Postgres instead (production); the API, worker and seed then share it, and migrations run on start.
 
+### Press kit
+
+`/press/` and `apps/site/public/press/` (logos, colours, boilerplate, `PressKit.zip`) are generated from `packages/shared/src/brand.ts` by `pnpm --filter @linux-statistics/worker press-kit`. Re-run after any brand change and commit the output; the zip is deterministic (fixed mtimes, `zip -X`).
+
 ## Local setup
 
 ```bash

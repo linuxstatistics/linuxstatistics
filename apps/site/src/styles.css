@@ -664,9 +664,12 @@ h1, h2, h3 { text-wrap: balance; }
 .sponsor-slot p { margin: 0; color: var(--ink2); line-height: 1.5; }
 .sponsor-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
 .sponsor-logo { height: 22px; width: auto; }
-.sponsor-house-ad { color: var(--ink); }
-.app-footer .sponsor-house-ad { justify-self: start; background: var(--on-neon); color: var(--neon); font-weight: 600; text-decoration: none; padding: 10px 18px; border-radius: var(--pill); }
+.sponsor-house-ad { display: inline-grid; gap: 2px; color: var(--ink); text-decoration: none; line-height: 1.3; }
+.sponsor-house-ad strong { font-weight: 600; }
+.sponsor-house-ad span { font-size: 13px; opacity: 0.8; }
+.app-footer .sponsor-house-ad { justify-self: start; background: var(--on-neon); color: var(--neon); padding: 10px 16px; border-radius: var(--radius); }
 .app-footer .sponsor-house-ad:hover { color: var(--neon); text-decoration: none; }
+.app-footer .sponsor-house-ad:hover span { opacity: 1; }
 .email-capture { display: grid; gap: 6px; }
 .email-capture-row { display: flex; gap: 6px; }
 .email-capture input { background: var(--bg); border: 1px solid var(--line); border-radius: var(--pill); padding: 10px 16px; min-width: 280px; }
@@ -741,8 +744,11 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 @media (max-width: 480px) {
   .header-right .jump, .header-right .jump-slot { display: none; }
   .header-right { gap: 8px; }
+  .app-header { gap: 12px; }
+  .auth-slot { min-width: 0; }
+  .brand { font-size: 18px; }
 }
-@media (max-width: 380px) {
+@media (max-width: 420px) {
   .menu-btn { width: 36px; padding: 0; justify-content: center; }
   .menu-btn span { display: none; }
 }
@@ -950,3 +956,42 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 
 /* Numbers that sit in columns use tabular figures (was a monospace font). */
 .leaderboard td.num, .data-table td.num, .data-table th.num, .compare-table td, .rank-periods td, .pod .pm, .side li .from, .side li b, .trend, .quiz .result .match, .footer-facts dd, .sc-yaxis span, .sc-xaxis, .sc-tip, .hud-stat .value, .distro-page .stats dd { font-variant-numeric: tabular-nums; }
+
+/* ---------- Press kit ---------- */
+.press-zip { display: inline-block; padding: 10px 16px; border-radius: var(--pill); background: var(--neon); color: var(--on-neon); font-weight: 600; text-decoration: none; }
+.press-zip-note { margin-left: 12px; color: var(--ink2); font-size: 14px; }
+.press-logos { display: grid; gap: 16px; }
+.press-logo { margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.press-logo img { display: block; width: 100%; max-width: 560px; height: auto; padding: 28px 32px; box-sizing: border-box; }
+.press-bg-dark img { background: #0d0e11; }
+.press-bg-light img { background: #f5f6f8; }
+.press-bg-checker img { max-width: 220px; background: repeating-conic-gradient(#d9dde3 0% 25%, #f4f5f7 0% 50%) 0 0 / 20px 20px; }
+.press-logo figcaption, .press-tile figcaption { padding: 10px 14px; font-size: 14px; color: var(--ink2); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; }
+.press-logo figcaption strong, .press-tile figcaption strong { color: var(--ink); }
+.press-links { display: inline-flex; gap: 10px; align-items: center; margin-left: auto; }
+.press-links a { font-weight: 600; }
+.press-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.press-tile { margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.press-tile img { display: block; margin: 20px auto 12px; width: 120px; height: 120px; }
+.press-tile figcaption { flex-direction: column; align-items: flex-start; }
+.press-tile .press-links { margin-left: 0; }
+.press-colours { border: 1px solid var(--line); border-radius: 12px; padding: 6px 14px; max-width: 640px; }
+.press-colour { display: grid; grid-template-columns: 36px 70px 90px 150px 1fr; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.press-colour:last-of-type { border-bottom: 0; }
+.press-swatch { width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--line); }
+.press-colour-name { font-weight: 600; }
+.press-colour-rgb, .press-colour-use { color: var(--ink2); }
+.press-colours-foot { margin: 8px 0 4px; }
+.press-boilerplate { margin: 0; padding: 14px 18px; border-left: 3px solid var(--neon); background: var(--panel); border-radius: 0 10px 10px 0; }
+@media (max-width: 640px) { .press-colour { grid-template-columns: 36px 1fr; } .press-colour-use { grid-column: 1 / -1; } }
+
+/* Logo context menu */
+.press-menu { position: fixed; z-index: 90; min-width: 232px; padding: 5px; border-radius: 10px; background: color-mix(in oklch, var(--panel) 92%, transparent); backdrop-filter: blur(14px); border: 1px solid var(--line); box-shadow: 0 16px 40px -12px rgb(0 0 0 / 0.45); font-size: 13.5px; animation: press-in 0.12s var(--ease-out); }
+@keyframes press-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+.press-menu-head { display: flex; align-items: center; gap: 8px; padding: 6px 10px 8px; font: 600 11px var(--sans); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink2); }
+.press-menu-item { display: flex; width: 100%; justify-content: space-between; gap: 18px; align-items: center; padding: 7px 10px; border: 0; border-radius: 7px; background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.press-menu-item:hover, .press-menu-item:focus-visible { background: var(--row); outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.press-menu-hint { color: var(--ink2); font-size: 12px; }
+.press-menu-sep { height: 1px; margin: 5px 6px; background: var(--line); }
+.press-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 91; padding: 8px 14px; border-radius: var(--pill); background: var(--ink); color: var(--bg); font-size: 13px; animation: press-in 0.16s var(--ease-out); }
+@media (prefers-reduced-motion: reduce) { .press-menu, .press-toast { animation: none; } }
