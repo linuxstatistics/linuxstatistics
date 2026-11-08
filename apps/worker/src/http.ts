@@ -1,4 +1,4 @@
-export const USER_AGENT = "linux-statistics-bot/0.1 (+https://linuxstatistics.com)";
+export const USER_AGENT = "linux-statistics-bot/0.1 (+https://linuxstatistics.com/bot/)";
 
 export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
 

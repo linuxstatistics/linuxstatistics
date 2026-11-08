@@ -1,0 +1,43 @@
+---
+import Base from "../../layouts/Base.astro";
+import { CONTACT, SOURCE_URL } from "../../config/site";
+
+const UA = "linux-statistics-bot";
+---
+
+<Base
+  title="About our crawler (linux-statistics-bot)"
+  description="What the linux-statistics-bot User-Agent fetches, how often, and how to reach us or block it."
+>
+  <article class="page prose legal">
+    <h1>About our crawler</h1>
+    <p class="lede">If you saw <code>{UA}</code> in your server logs, this page explains what it does.</p>
+
+    <h2>What it fetches</h2>
+    <p>
+      The bot collects a small number of public pages and data files to build the statistics on this site: distribution popularity, desktop
+      market share, repository activity, structured facts about each distribution and article page views. It reads only public URLs and never
+      logs in, submits forms or follows links beyond the specific pages it needs.
+    </p>
+
+    <h2>How it behaves</h2>
+    <ul>
+      <li>One request per source per run; runs are daily, weekly or monthly depending on how often the source changes.</li>
+      <li>Fetches a fixed, hand-maintained list of URLs; it does not discover or follow links. A <code>403</code> or <code>429</code> stops the run at once; it never retries those or changes its User-Agent.</li>
+      <li>Retries server errors a couple of times with backoff, then gives up and keeps the last good data.</li>
+      <li>Fetches from a single, fixed IP address; happy to share it on request.</li>
+    </ul>
+
+    <h2>Blocking it</h2>
+    <p>
+      Return <code>403</code> to the <code>{UA}</code> User-Agent and it stops immediately. Or email us and we'll take your site off the
+      fetch list by hand; the list is short and curated, so this is quick.
+    </p>
+
+    <h2>Contact and source</h2>
+    <ul>
+      <li>Email: <a href={`mailto:${CONTACT.general}`}>{CONTACT.general}</a></li>
+      <li>Source code (the fetcher is <code>apps/worker/src/http.ts</code>): <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">GitHub</a></li>
+    </ul>
+  </article>
+</Base>

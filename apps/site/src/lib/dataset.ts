@@ -16,9 +16,10 @@ export interface DataSource {
 }
 
 /** Third-party sources whose data appears in the exports. Ranking-site data is never exported. */
-export const SOURCES: Record<"statcounter" | "github", DataSource> = {
+export const SOURCES: Record<"statcounter" | "github" | "wikidata", DataSource> = {
   statcounter: { name: "StatCounter Global Stats", url: "https://gs.statcounter.com/os-market-share/desktop/worldwide" },
   github: { name: "GitHub", url: "https://github.com/" },
+  wikidata: { name: "Wikidata", url: "https://www.wikidata.org/", note: "CC0; base, first release, website and status where our curated list has no value" },
 };
 
 export function envelope<T>(generatedAt: string, data: T, sources: (keyof typeof SOURCES)[] = []) {
