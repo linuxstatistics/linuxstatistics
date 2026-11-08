@@ -4,6 +4,20 @@ import { formatRating, ratingDetail } from "../lib/rating";
 
 type Stat = [label: string, value: string, title?: string];
 
+const fmtDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+
+/** Current release line and support end from the newest cycle, when a lifecycle source covers the distro. */
+export function releaseStats(data: DistroDetail, today = new Date().toISOString().slice(0, 10)): Stat[] {
+  const cur = data.releases.find((r) => r.releasedOn != null && r.releasedOn <= today) ?? data.releases[0];
+  if (!cur) return [];
+  const out: Stat[] = [];
+  const version = cur.latest ?? cur.cycle;
+  out.push(["Latest release", version + (cur.lts ? " LTS" : ""), [cur.codename, cur.latestOn ? `released ${fmtDay(cur.latestOn)}` : null].filter(Boolean).join(", ") || undefined]);
+  const end = cur.supportEnds ?? cur.eol;
+  if (end) out.push([end < today ? "Support ended" : "Supported until", fmtDay(end), cur.eol && cur.eol !== end ? `extended support to ${fmtDay(cur.eol)}` : undefined]);
+  return out;
+}
+
 /** The headline numbers, leaving out any the distro doesn't have. */
 export function statItems(data: DistroDetail): Stat[] {
   const n = (v: number | null) => (v == null ? null : v.toLocaleString("en-US"));
@@ -13,6 +27,7 @@ export function statItems(data: DistroDetail): Stat[] {
     data.stars != null ? ["GitHub stars", n(data.stars)!] : null,
     data.commitsLast30d != null ? ["Commits / mo", n(data.commitsLast30d)!] : null,
     data.firstReleaseYear != null ? ["Released", String(data.firstReleaseYear)] : null,
+    ...releaseStats(data),
     data.userRating.count > 0 ? ["Community rating", formatRating(data.userRating), ratingDetail(data.userRating)] : null,
     data.usesItCount > 0 ? ["Users", n(data.usesItCount)!] : null,
   ];

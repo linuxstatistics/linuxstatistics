@@ -1,5 +1,6 @@
 import { and, asc, count, desc, eq, gte, lte } from "drizzle-orm";
 import { MAIN_PERIOD, PERIODS, RANK_SOURCE, TRENDING_PERIOD } from "@linux-statistics/shared";
+import { getDistroReleases } from "./releases.js";
 import type {
   DistroDetail,
   DistroListItem,
@@ -245,6 +246,7 @@ export async function getDistroDetail(
   const agg = (await getContributionAggregates(db)).get(d.id) ?? EMPTY_AGG;
   const mine = userId != null ? await getMyContribution(db, userId, d.id) : null;
   const fit = await getPickerFit(db, d.slug);
+  const releases = await getDistroReleases(db, d.id);
 
   return {
     slug: d.slug,
@@ -266,6 +268,7 @@ export async function getDistroDetail(
     rankHistory,
     rankByPeriod,
     starsHistory,
+    releases,
     quizFit: fit.total >= QUIZ_FIT_MIN_VOTES ? fit : null,
     userRating: ratingOf(agg),
     usesItCount: agg.usesItCount,
@@ -300,7 +303,7 @@ export async function getMarketShare(
 /** Tracked-distro count + per-source data freshness. */
 export async function getMeta(db: Database): Promise<Meta> {
   const [tracked] = await db.select({ value: count() }).from(distros);
-  const sources: IngestionSource[] = ["distrowatch", "statcounter", "github", "wikidata", "wikipedia"];
+  const sources: IngestionSource[] = ["distrowatch", "statcounter", "github", "wikidata", "wikipedia", "endoflife"];
   const freshness: SourceFreshness[] = [];
   for (const source of sources) {
     const [run] = await db

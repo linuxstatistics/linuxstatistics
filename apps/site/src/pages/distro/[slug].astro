@@ -125,6 +125,7 @@ const jsonLd = {
         <p class="source-note">
           Ranking from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.{" "}
           {data.repoFullName && <Fragment>Repository activity from <a href={`https://github.com/${data.repoFullName}`} target="_blank" rel="noopener noreferrer">GitHub</a>.{" "}</Fragment>}
+          {data.releases.length > 0 && <Fragment>Release dates and support from <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).{" "}</Fragment>}
           Ratings come from signed-in LinuxStatistics users. Page hits measure interest, not installs.
         </p>
       </div>

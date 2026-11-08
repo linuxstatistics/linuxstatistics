@@ -86,6 +86,18 @@ export const timeSeriesPointSchema = z.object({
 });
 export type TimeSeriesPoint = z.infer<typeof timeSeriesPointSchema>;
 
+export const releaseCycleSchema = z.object({
+  cycle: z.string(),
+  codename: z.string().nullable(),
+  releasedOn: z.string().nullable(),
+  latest: z.string().nullable(),
+  latestOn: z.string().nullable(),
+  supportEnds: z.string().nullable(),
+  eol: z.string().nullable(),
+  lts: z.boolean(),
+});
+export type ReleaseCycle = z.infer<typeof releaseCycleSchema>;
+
 export const distroDetailSchema = distroListItemSchema.extend({
   basedOnSlug: z.string().nullable(),
   homepage: z.string().nullable(),
@@ -98,6 +110,8 @@ export const distroDetailSchema = distroListItemSchema.extend({
     z.object({ period: periodSchema, rank: z.number().int(), hitsPerDay: z.number().int() }),
   ),
   starsHistory: z.array(timeSeriesPointSchema),
+  // release cycles from a lifecycle source, newest first; empty when unknown
+  releases: z.array(releaseCycleSchema),
   // anonymous picker "did this fit?" votes when this distro was the top pick; null below 30 votes
   quizFit: z.object({ up: z.number().int(), total: z.number().int() }).nullable(),
   myContribution: contributionSchema.nullable(),
@@ -132,7 +146,7 @@ export const marketSharePointSchema = z.object({
 export type MarketSharePoint = z.infer<typeof marketSharePointSchema>;
 
 export const sourceFreshnessSchema = z.object({
-  source: z.enum(["distrowatch", "statcounter", "github", "wikidata", "wikipedia"]),
+  source: z.enum(["distrowatch", "statcounter", "github", "wikidata", "wikipedia", "endoflife"]),
   lastSuccessAt: z.string().nullable(),
   status: z.enum(["running", "success", "failed", "never"]),
 });

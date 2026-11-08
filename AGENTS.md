@@ -23,7 +23,7 @@ pnpm dev:api       # Fastify API on http://localhost:3001
 pnpm dev:site      # Astro dev server on http://localhost:4380, proxies /api (separate terminal)
 pnpm build:site    # static build from the running API (API_URL), atomic swap into apps/site/dist
 pnpm check:site    # bot-view check of the built HTML
-pnpm --filter @linux-statistics/worker ingest --source distrowatch|github|statcounter|wikidata|wikipedia|all [--backfill] [--rebuild]
+pnpm --filter @linux-statistics/worker ingest --source distrowatch|github|statcounter|wikidata|wikipedia|endoflife|all [--backfill] [--rebuild]
 pnpm --filter @linux-statistics/worker monthly [--out DIR] [--draft]   # monthly summary + share card from the API
 pnpm --filter @linux-statistics/worker card --kind top|movers|share|stat [--size landscape|square] [--out FILE]   # one social image from the API
 

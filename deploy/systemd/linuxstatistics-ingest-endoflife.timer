@@ -1,0 +1,11 @@
+[Unit]
+Description=LinuxStatistics: endoflife.date release cycles, weekly
+
+[Timer]
+OnCalendar=Tue *-*-* 04:30:00 UTC
+RandomizedDelaySec=30min
+Persistent=true
+Unit=linuxstatistics-ingest@endoflife.service
+
+[Install]
+WantedBy=timers.target

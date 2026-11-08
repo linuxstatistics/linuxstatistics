@@ -107,6 +107,35 @@ export const pageViewDays = pgTable(
 );
 
 /**
+ * Release cycles per distro from a lifecycle source (endoflife.date today).
+ * One row per (distro, cycle); re-ingest replaces the distro's rows.
+ */
+export const distroReleases = pgTable(
+  "distro_releases",
+  {
+    id: serial("id").primaryKey(),
+    distroId: integer("distro_id")
+      .notNull()
+      .references(() => distros.id, { onDelete: "cascade" }),
+    source: text("source").notNull(),
+    /** Cycle name, e.g. "26.04", "13", "rolling". */
+    cycle: text("cycle").notNull(),
+    codename: text("codename"),
+    /** First release of the cycle, YYYY-MM-DD. */
+    releasedOn: text("released_on"),
+    /** Latest point release in the cycle and its date. */
+    latest: text("latest"),
+    latestOn: text("latest_on"),
+    /** End of standard support, YYYY-MM-DD; null = not announced or rolling. */
+    supportEnds: text("support_ends"),
+    /** End of all (extended) support, YYYY-MM-DD. */
+    eol: text("eol"),
+    lts: boolean("lts").notNull().default(false),
+  },
+  (t) => ({ relUniq: uniqueIndex("distro_releases_uniq").on(t.distroId, t.source, t.cycle) }),
+);
+
+/**
  * Clicks on `/go/<partner>` affiliate redirects, one counter per partner per UTC
  * day. Nothing about the visitor is stored.
  */
@@ -188,6 +217,7 @@ export const ingestionSourceEnum = pgEnum("ingestion_source", [
   "github",
   "wikidata",
   "wikipedia",
+  "endoflife",
 ]);
 export const ingestionStatusEnum = pgEnum("ingestion_status", [
   "running",
