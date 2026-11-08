@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, sql } from "drizzle-orm";
 import type { Database } from "./client.js";
-import { distroAliases, distros, pageViewDays, pageviewMonths, popularitySnapshots } from "./schema.js";
+import { affiliateClickDays, distroAliases, distros, pageViewDays, pageviewMonths, popularitySnapshots } from "./schema.js";
 import { getDistroList } from "./queries.js";
 
 /** Distros with an English Wikipedia article: [distroId, title]. */
@@ -263,4 +263,35 @@ export async function writeInterestIndex(db: Database, to: string): Promise<numb
     }
   }
   return ranked12;
+}
+
+/** Count one click on an affiliate redirect: one counter per partner per UTC day. */
+export async function countAffiliateClick(db: Database, partner: string, day: string): Promise<void> {
+  await db
+    .insert(affiliateClickDays)
+    .values({ partner, day, clicks: 1 })
+    .onConflictDoUpdate({
+      target: [affiliateClickDays.partner, affiliateClickDays.day],
+      set: { clicks: sql`${affiliateClickDays.clicks} + 1` },
+    });
+}
+
+export type AffiliateClickTotals = { partner: string; last7: number; last30: number; allTime: number }[];
+
+/** Click totals per partner for the admin page. */
+export async function affiliateClickTotals(db: Database, today: string = new Date().toISOString().slice(0, 10)): Promise<AffiliateClickTotals> {
+  const dayMinus = (n: number) => new Date(new Date(`${today}T00:00:00Z`).getTime() - n * 86_400_000).toISOString().slice(0, 10);
+  const d7 = dayMinus(6);
+  const d30 = dayMinus(29);
+  const rows = await db
+    .select({
+      partner: affiliateClickDays.partner,
+      last7: sql<number>`coalesce(sum(case when ${affiliateClickDays.day} >= ${d7} then ${affiliateClickDays.clicks} else 0 end), 0)::int`,
+      last30: sql<number>`coalesce(sum(case when ${affiliateClickDays.day} >= ${d30} then ${affiliateClickDays.clicks} else 0 end), 0)::int`,
+      allTime: sql<number>`coalesce(sum(${affiliateClickDays.clicks}), 0)::int`,
+    })
+    .from(affiliateClickDays)
+    .groupBy(affiliateClickDays.partner)
+    .orderBy(affiliateClickDays.partner);
+  return rows;
 }

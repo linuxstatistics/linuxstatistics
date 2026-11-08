@@ -123,9 +123,17 @@ function AccountMenu({
             <b>{me.username}</b>
           </div>
           {me.role === "admin" && (
-            <a role="menuitem" className="signin-option" href="/admin/suggestions/">
-              Admin: suggestions
-            </a>
+            <>
+              <a role="menuitem" className="signin-option" href="/admin/suggestions/">
+                Admin: suggestions
+              </a>
+              <a role="menuitem" className="signin-option" href="/admin/rank/">
+                Admin: rank comparison
+              </a>
+              <a role="menuitem" className="signin-option" href="/admin/affiliates/">
+                Admin: affiliate clicks
+              </a>
+            </>
           )}
           <button
             ref={firstItem}

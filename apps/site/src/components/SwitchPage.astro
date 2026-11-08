@@ -6,6 +6,7 @@ import { loadDistros } from "../lib/data";
 import { PROFILES } from "../lib/picker-profiles";
 import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
 import { END_OF_10, WHAT_CHANGES, picksFor, switchFaq, type From } from "../lib/switch";
+import { affiliateProviders } from "../config/affiliate";
 
 interface Props {
   from: From;
@@ -64,6 +65,18 @@ const label = from === "windows" ? "Windows" : "a Mac";
     <a href={END_OF_10} target="_blank" rel="noopener noreferrer">End of 10</a> lists repair cafés, install events and local helpers
     worldwide, run by volunteers. Each distro's own site has install guides; start with a live USB so you can try it first.
   </p>
+  {affiliateProviders.length > 0 && (
+    <p class="cloud-line">
+      Want to try Linux without touching your computer? Rent a small server for an hour:{" "}
+      {affiliateProviders.map((p, i) => (
+        <>
+          {i > 0 && " or "}
+          <a href={p.href} target="_blank" rel="nofollow sponsored noopener">{p.name}</a>
+        </>
+      ))}
+      . <span class="affiliate-disclosure">Affiliate links: we may earn a commission.</span>
+    </p>
+  )}
 </section>
 
 <Faq items={faq} />

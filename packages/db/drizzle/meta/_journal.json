@@ -78,6 +78,13 @@
       "when": 1793750760000,
       "tag": "0010_interest",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1794161977195,
+      "tag": "0011_affiliate_clicks",
+      "breakpoints": true
     }
   ]
 }

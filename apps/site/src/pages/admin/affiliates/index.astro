@@ -1,0 +1,14 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { AdminAffiliateClicks } from "../../../components/AdminAffiliateClicks";
+import { CardsSkeleton } from "../../../components/Skeleton";
+---
+
+<Base title="Affiliate clicks | Admin | LinuxStatistics" description="Admin: clicks on affiliate links." noindex>
+  <div class="page admin-page">
+    <nav class="breadcrumb" aria-label="Breadcrumb">Admin / Affiliate clicks</nav>
+    <h1>Affiliate clicks</h1>
+    <p class="lede">Clicks on the "Try Linux in the cloud" links, counted by the redirect. Only admins can see this page.</p>
+    <AdminAffiliateClicks client:only="react"><CardsSkeleton slot="fallback" label="Loading click counts" /></AdminAffiliateClicks>
+  </div>
+</Base>

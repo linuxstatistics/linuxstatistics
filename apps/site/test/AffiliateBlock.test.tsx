@@ -16,3 +16,15 @@ test("renders nothing when no providers are configured", () => {
   const { container } = render(<AffiliateBlock providers={[]} />);
   expect(container.firstChild).toBeNull();
 });
+
+test("links go through our counted redirect with sponsored rel and no Linode", () => {
+  render(<AffiliateBlock />);
+  const links = screen.getAllByRole("link");
+  expect(links.map((l) => l.getAttribute("href"))).toEqual(["/api/go/digitalocean", "/api/go/vultr"]);
+  for (const l of links) {
+    expect(l).toHaveAttribute("target", "_blank");
+    expect(l.getAttribute("rel")).toMatch(/sponsored/);
+    expect(l.getAttribute("rel")).toMatch(/nofollow/);
+  }
+  expect(screen.queryByText(/Linode/)).toBeNull();
+});

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { compareRankSources, countPageView, findDistroIdBySlug, type Database } from "@linux-statistics/db";
+import { affiliateClickTotals, compareRankSources, countAffiliateClick, countPageView, findDistroIdBySlug, type Database } from "@linux-statistics/db";
+import { affiliatePartner } from "@linux-statistics/shared";
 import { requireAdmin } from "../lib/session.js";
 
 /** Crawlers, link previews and monitoring: their views don't count. */
@@ -24,6 +25,24 @@ export function registerInterestRoutes(app: FastifyInstance, db: Database): void
       if (id != null) await countPageView(db, id, new Date().toISOString().slice(0, 10));
     },
   );
+
+  // Affiliate redirect: count the click (partner + UTC day only, nothing about
+  // the visitor), then send the browser to the partner's referral URL.
+  app.get(
+    "/api/go/:partner",
+    { config: { rateLimit: { max: 60, timeWindow: "1 minute" } } },
+    async (req, reply) => {
+      const { partner } = z.object({ partner: z.string().min(1).max(40) }).parse(req.params);
+      const p = affiliatePartner(partner);
+      if (!p) return reply.code(404).send({ error: "unknown partner" });
+      if (!isBotUserAgent(req.headers["user-agent"])) await countAffiliateClick(db, p.slug, new Date().toISOString().slice(0, 10));
+      reply.header("Cache-Control", "no-store");
+      reply.header("Referrer-Policy", "no-referrer");
+      return reply.redirect(p.href, 302);
+    },
+  );
+
+  app.get("/api/admin/affiliate-clicks", { preHandler: requireAdmin(db) }, async () => affiliateClickTotals(db));
 
   // Shadow period: our index next to the current main rank.
   app.get("/api/admin/rank-compare", { preHandler: requireAdmin(db) }, async () => compareRankSources(db, "distrowatch", "interest"));

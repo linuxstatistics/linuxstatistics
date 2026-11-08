@@ -107,6 +107,21 @@ export const pageViewDays = pgTable(
 );
 
 /**
+ * Clicks on `/go/<partner>` affiliate redirects, one counter per partner per UTC
+ * day. Nothing about the visitor is stored.
+ */
+export const affiliateClickDays = pgTable(
+  "affiliate_click_days",
+  {
+    id: serial("id").primaryKey(),
+    partner: text("partner").notNull(),
+    day: text("day").notNull(),
+    clicks: integer("clicks").notNull().default(0),
+  },
+  (t) => ({ acdUniq: uniqueIndex("affiliate_click_days_uniq").on(t.partner, t.day) }),
+);
+
+/**
  * Other names a distro is known by: another site's ID for it (`distrowatch`
  * key, `wikidata` item, `enwiki` article title), or `legacy` for one of our
  * old slugs, kept resolvable after a rename.

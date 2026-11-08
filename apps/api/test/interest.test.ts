@@ -52,3 +52,25 @@ test("rank comparison is admin-only", async () => {
   expect(res.statusCode).toBe(200);
   expect(res.json()).toMatchObject({ a: "distrowatch", b: "interest", both: 0, capturedB: null });
 });
+
+test("affiliate redirect counts browser clicks per partner per day and redirects", async () => {
+  const go = (ua: string, partner = "vultr") => app.inject({ method: "GET", url: `/api/go/${partner}`, headers: { "user-agent": ua } });
+  const r1 = await go(BROWSER);
+  expect(r1.statusCode).toBe(302);
+  expect(r1.headers.location).toBe("https://www.vultr.com/");
+  expect(r1.headers["cache-control"]).toBe("no-store");
+  expect(r1.headers["set-cookie"]).toBeUndefined();
+  expect((await go(BROWSER)).statusCode).toBe(302);
+  expect((await go("curl/8.4.0")).statusCode).toBe(302);
+  expect((await go(BROWSER, "digitalocean")).statusCode).toBe(302);
+  expect((await go(BROWSER, "nope")).statusCode).toBe(404);
+
+  expect((await app.inject({ method: "GET", url: "/api/admin/affiliate-clicks" })).statusCode).toBe(401);
+  const cookie = await loginAs(app, { providerUserId: "91", username: "boss2", role: "admin" });
+  const res = await app.inject({ method: "GET", url: "/api/admin/affiliate-clicks", headers: { cookie } });
+  expect(res.statusCode).toBe(200);
+  expect(res.json()).toEqual([
+    { partner: "digitalocean", last7: 1, last30: 1, allTime: 1 },
+    { partner: "vultr", last7: 2, last30: 2, allTime: 2 },
+  ]);
+});

@@ -1,17 +1,18 @@
+import { AFFILIATE_PARTNERS, affiliateGoPath, type AffiliatePartner } from "@linux-statistics/shared";
+
 export interface AffiliateProvider {
   name: string;
+  /** Our own `/api/go/<partner>` link: the API counts the click and redirects. */
   href: string;
   blurb: string;
 }
 
+const toProvider = (p: AffiliatePartner): AffiliateProvider => ({ name: p.name, href: affiliateGoPath(p.slug), blurb: p.blurb });
+
 /**
- * VPS referral links shown on distro pages. The owner replaces `href` with real
- * referral URLs (these are public; referral codes appear in the browser anyway).
- * Copy stays generic/honest; we never claim a specific distro is offered by a
- * provider. An empty array hides the block.
+ * VPS referral links shown on distro pages and the switch pages. The list and the
+ * referral URLs live in `packages/shared/src/affiliates.ts` so the API redirect
+ * and the site agree. Copy stays generic and honest; we never claim a specific
+ * distro is offered by a provider. An empty list hides the block.
  */
-export const affiliateProviders: AffiliateProvider[] = [
-  { name: "DigitalOcean", href: "https://www.digitalocean.com/", blurb: "from $4/mo" },
-  { name: "Linode", href: "https://www.linode.com/", blurb: "from $5/mo" },
-  { name: "Vultr", href: "https://www.vultr.com/", blurb: "from $2.50/mo" },
-];
+export const affiliateProviders: AffiliateProvider[] = AFFILIATE_PARTNERS.map(toProvider);
