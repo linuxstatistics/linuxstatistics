@@ -10,4 +10,4 @@ export const CONTACT = {
 export const SOURCE_URL = "https://github.com/linuxstatistics/linuxstatistics";
 
 /** Date the legal pages last changed (YYYY-MM-DD). Update when the text changes. */
-export const POLICIES_UPDATED = "2026-11-06";
+export const POLICIES_UPDATED = "2026-11-08";

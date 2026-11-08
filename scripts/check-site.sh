@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Bot-view check: the built HTML must carry the data without JavaScript.
 set -euo pipefail
-DIST="$(cd "$(dirname "$0")/.." && pwd)/apps/site/dist"
+DIST="${DIST:-$(cd "$(dirname "$0")/.." && pwd)/apps/site/dist}"
+echo "checking: $DIST ($(date -r "$DIST/index.html" "+%Y-%m-%d %H:%M" 2>/dev/null || echo "no index.html"))"
 fail=0
 check() { # file, pattern, label
   if grep -q -- "$2" "$DIST/$1"; then echo "ok:   $3"; else echo "FAIL: $3 ($1 lacks '$2')"; fail=1; fi
@@ -49,7 +50,10 @@ check index.html 'href="/desktop-share/"' "home links to the desktop share page"
 same_tab=$(grep -rhoE '<a [^>]*href="https?://[^"]*"[^>]*>' "$DIST" --include=*.html | grep -v 'target="_blank"' | grep -v 'href="https://linuxstatistics.com' | sort -u | head -5 || true)
 if [ -n "$same_tab" ]; then echo "FAIL: external links without target=\"_blank\":"; echo "$same_tab"; fail=1; else echo "ok:   external links open in a new tab"; fi
 # Open data never carries third-party ranking data.
-if grep -qiE 'rank_|hits_per_day|hitsPerDay|distrowatch' "$DIST/data/distros.json" "$DIST/data/distros.csv"; then echo "FAIL: open data carries ranking fields"; fail=1; else echo "ok:   open data has no ranking fields"; fi
+if grep -qiE 'rank_|hits_per_day|hitsPerDay|distrowatch|index_value' "$DIST/data/distros.json" "$DIST/data/distros.csv"; then echo "FAIL: open data carries ranking fields"; fail=1; else echo "ok:   open data has no ranking fields"; fi
+# The public rank is our composite index: no page may still call the value "hits".
+if grep -rlE 'Hits ?/ ?day|Hits per day|page-hit rankings' "$DIST/index.html" "$DIST/distro" "$DIST/compare" "$DIST/rising" >/dev/null 2>&1; then echo "FAIL: a page still labels the index as hits"; fail=1; else echo "ok:   index never labelled as hits"; fi
+if grep -q 'composite index' "$DIST/distro/mint/index.html" && grep -q 'id="ranking"' "$DIST/about/index.html"; then echo "ok:   rank credit names the composite index and /about/#ranking exists"; else echo "FAIL: rank credit or /about/#ranking missing"; fail=1; fi
 [ ! -e "$DIST/data/rank-history.csv" ] && [ ! -d "$DIST/badge" ] && echo "ok:   no rank exports or badges" || { echo "FAIL: rank-history.csv or badges still built"; fail=1; }
 echo "distro pages: $(ls "$DIST/distro" | wc -l | tr -d ' ')"
 exit $fail
