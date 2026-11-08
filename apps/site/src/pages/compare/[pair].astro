@@ -12,6 +12,7 @@ import { Faq } from "../../components/Faq";
 import { EthicalAd } from "../../components/EthicalAd";
 import { notesFor } from "../../lib/distro-notes";
 import { TELEMETRY_LABEL, telemetryFor } from "../../lib/telemetry";
+import { releaseStats } from "../../components/DistroStats";
 import { pairVerdict } from "../../lib/verdict";
 import { faqJsonLd, pairFaq } from "../../lib/faq";
 import type { DistroDetail } from "@linux-statistics/shared";
@@ -63,6 +64,8 @@ function split(x: number | null, y: number | null, lowerIsBetter = false): numbe
   return px / (px + py);
 }
 
+const rel = (d: DistroDetail, label: string) => releaseStats(d).find((r) => r[0] === label)?.[1] ?? "-";
+
 const rows: Row[] = [
   { label: "Popularity rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true), split: split(a.rank, b.rank, true) },
   { label: "Rank last month", a: num(a.rank1m), b: num(b.rank1m), better: pick(a.rank1m, b.rank1m, true), split: split(a.rank1m, b.rank1m, true) },
@@ -70,6 +73,8 @@ const rows: Row[] = [
   { label: "Family", a: FAMILY_LABELS[a.family], b: FAMILY_LABELS[b.family] },
   { label: "Based on", a: a.basedOnSlug ? (nameOf.get(a.basedOnSlug) ?? a.basedOnSlug) : "-", b: b.basedOnSlug ? (nameOf.get(b.basedOnSlug) ?? b.basedOnSlug) : "-" },
   { label: "First released", a: a.firstReleaseYear?.toString() ?? "-", b: b.firstReleaseYear?.toString() ?? "-" },
+  { label: "Latest release", a: rel(a, "Latest release"), b: rel(b, "Latest release") },
+  { label: "Supported until", a: rel(a, "Supported until"), b: rel(b, "Supported until") },
   { label: "GitHub stars", a: num(a.stars), b: num(b.stars), better: pick(a.stars, b.stars), split: split(a.stars, b.stars) },
   { label: "Commits, last 30 days", a: num(a.commitsLast30d), b: num(b.commitsLast30d), better: pick(a.commitsLast30d, b.commitsLast30d), split: split(a.commitsLast30d, b.commitsLast30d) },
   { label: "Telemetry (OS default)", a: tm(a.slug), b: tm(b.slug) },
@@ -154,6 +159,7 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
       Rankings from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.
       Repository activity from GitHub. Ratings come from signed-in LinuxStatistics users.
       Page hits measure interest, not installs. "Pick if", pros and cons are LinuxStatistics editorial notes based on each project's own documentation.
+      {(a.releases.length > 0 || b.releases.length > 0) && <Fragment>{" "}Release dates and support from <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).</Fragment>}
     </p>
     {related.length > 0 && (
       <section>
