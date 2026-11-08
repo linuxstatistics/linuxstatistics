@@ -103,8 +103,18 @@ h1, h2, h3 { text-wrap: balance; }
 
 /* ---------- Header ---------- */
 .app-header { max-width: var(--wrap); margin: 0 auto; width: 100%; display: flex; align-items: center; gap: 24px; padding: 14px var(--gutter); }
-.brand { display: inline-flex; align-items: baseline; font: 700 20px/1 var(--display); letter-spacing: -0.03em; text-decoration: none; color: var(--ink); }
+.brand { display: inline-flex; align-items: center; gap: 9px; font: 700 20px/1 var(--display); letter-spacing: -0.03em; text-decoration: none; color: var(--ink); }
+.brand-text { display: inline-flex; align-items: baseline; }
 .brand b { color: var(--accent); font-weight: 700; }
+/* Mark: same geometry as the social avatar (black disc, light axis, neon bars). Fixed colours in both themes. */
+.brand-mark { width: 28px; height: 28px; flex: none; }
+.brand-mark-disc { fill: #000; stroke: #2a2d33; stroke-width: 2; }
+.brand-mark-axis { stroke: #e9eef5; }
+.brand-mark-bar { fill: var(--neon); }
+:root[data-theme="light"] .brand-mark-disc { stroke: #000; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .brand-mark-disc { stroke: #000; }
+}
 /* Light mode with the neon brand: neon text is unreadable on white, so text/bars use --accent (deep green),
    and the logo gets a neon highlighter instead. */
 :root[data-theme="light"] .brand b { color: var(--on-neon); background: var(--neon); padding: 0 0.12em; border-radius: 3px; }

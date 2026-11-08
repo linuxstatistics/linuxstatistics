@@ -69,6 +69,7 @@ import { AuthSkeleton } from "../components/Skeleton";
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     {noindex && <meta name="robots" content="noindex" />}
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
@@ -85,7 +86,16 @@ import { AuthSkeleton } from "../components/Skeleton";
   <body>
     <div class="app">
       <header class="app-header">
-        <a class="brand" href="/" aria-label="LinuxStatistics home">linux<b>stats</b></a>
+        <a class="brand" href="/" aria-label="LinuxStatistics home">
+          <svg class="brand-mark" viewBox="0 0 250 250" aria-hidden="true" focusable="false">
+            <circle cx="125" cy="125" r="123" class="brand-mark-disc" />
+            <path d="M72 60 V190 H192" fill="none" class="brand-mark-axis" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" />
+            <rect x="100" y="132" width="22" height="40" rx="4" class="brand-mark-bar" />
+            <rect x="133" y="106" width="22" height="66" rx="4" class="brand-mark-bar" />
+            <rect x="166" y="74" width="22" height="98" rx="4" class="brand-mark-bar" />
+          </svg>
+          <span class="brand-text">linux<b>stats</b></span>
+        </a>
         <nav class="site-nav" aria-label="Main">
           {NAV.map((n) => (
             <a href={n.href} aria-current={isCurrent(n.href) ? "page" : undefined}>{n.label}</a>
