@@ -45,5 +45,8 @@ export function registerInterestRoutes(app: FastifyInstance, db: Database): void
   app.get("/api/admin/affiliate-clicks", { preHandler: requireAdmin(db) }, async () => affiliateClickTotals(db));
 
   // Shadow period: our index next to the current main rank.
-  app.get("/api/admin/rank-compare", { preHandler: requireAdmin(db) }, async () => compareRankSources(db, "distrowatch", "interest"));
+  app.get("/api/admin/rank-compare", { preHandler: requireAdmin(db) }, async (req) => {
+    const { b } = z.object({ b: z.enum(["interest", "composite"]).default("composite") }).parse(req.query);
+    return compareRankSources(db, "distrowatch", b);
+  });
 }

@@ -50,7 +50,10 @@ test("rank comparison is admin-only", async () => {
   const cookie = await loginAs(app, { providerUserId: "90", username: "boss", role: "admin" });
   const res = await app.inject({ method: "GET", url: "/api/admin/rank-compare", headers: { cookie } });
   expect(res.statusCode).toBe(200);
-  expect(res.json()).toMatchObject({ a: "distrowatch", b: "interest", both: 0, capturedB: null });
+  expect(res.json()).toMatchObject({ a: "distrowatch", b: "composite", both: 0, capturedB: null });
+  const res2 = await app.inject({ method: "GET", url: "/api/admin/rank-compare?b=interest", headers: { cookie } });
+  expect(res2.json()).toMatchObject({ a: "distrowatch", b: "interest" });
+  expect((await app.inject({ method: "GET", url: "/api/admin/rank-compare?b=nope", headers: { cookie } })).statusCode).toBe(400);
 });
 
 test("affiliate redirect counts browser clicks per partner per day and redirects", async () => {

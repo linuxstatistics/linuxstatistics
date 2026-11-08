@@ -7,3 +7,4 @@ export * from "./email.js";
 export * from "./suggestions.js";
 export * from "./picker-feedback.js";
 export * from "./interest.js";
+export * from "./composite.js";

@@ -36,6 +36,24 @@ const count = (await loadDistros()).length;
       last good data rather than show broken numbers. The fetcher identifies itself as <code>linux-statistics-bot</code>; see <a href="/bot/">about our crawler</a>.
     </p>
 
+    <h2>How we rank distros</h2>
+    <p>
+      No single website should decide the chart, so we are moving to a composite index built from several interest signals. Each signal ranks
+      the distros it covers; a distro's score for that signal is its position scaled from 1 (first) down toward 0 (last). A distro a signal
+      doesn't cover scores 0 for it. The weighted sum is ranked. Current weights:
+    </p>
+    <ul>
+      <li><strong>50%</strong> daily views of the distro's English Wikipedia article over the last 12 months.</li>
+      <li><strong>30%</strong> DistroWatch's 12-month page-hit rank, a credited input while our own signals grow.</li>
+      <li><strong>10%</strong> GitHub stars on the distro's main repository, for distros that have one.</li>
+      <li><strong>10%</strong> views of the distro's page on this site over the last 90 days.</li>
+    </ul>
+    <p>
+      The weights live in one place in the <a href={`${SOURCE_URL}/blob/main/packages/db/src/composite.ts`} target="_blank" rel="noopener noreferrer">source code</a>
+      and change only in a reviewed commit. All of these measure attention, not installs; nobody has install numbers for Linux. The index is
+      rebuilt monthly. "Rising" uses the same inputs over the last month.
+    </p>
+
     <h2>Independence</h2>
     <p>
       Rankings, scores and editorial notes are never for sale. Sponsors and affiliate links pay for hosting; they don't change where a distro

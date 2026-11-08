@@ -50,7 +50,7 @@ async function runOne(db: Database, source: Source, opts: RunOptions): Promise<n
     case "wikipedia": {
       const r = await ingestWikipedia(db, { fetch: opts.fetch, now: opts.now });
       for (const f of r.failed) log(`wikipedia: ${f.slug} (${f.title}) skipped: ${f.error}`);
-      log(`wikipedia: ${r.written}/${r.articles} articles to ${r.month}; interest index ranks ${r.ranked} distros`);
+      log(`wikipedia: ${r.written}/${r.articles} articles to ${r.month}; interest index ranks ${r.ranked} distros, composite ${r.composite}`);
       return r.written;
     }
     case "github": {

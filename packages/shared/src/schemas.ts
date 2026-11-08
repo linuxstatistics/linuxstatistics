@@ -15,7 +15,7 @@ export type DistroInput = z.infer<typeof distroSchema>;
 
 /** Where a popularity rank comes from. */
 /** "interest" is our own index (see the worker's interest.ts). */
-export const popularitySourceSchema = z.enum(["distrowatch", "interest"]);
+export const popularitySourceSchema = z.enum(["distrowatch", "interest", "composite"]);
 export type PopularitySource = z.infer<typeof popularitySourceSchema>;
 /** The source behind the main rank, "rising" and rank history. */
 export const RANK_SOURCE: PopularitySource = "distrowatch";

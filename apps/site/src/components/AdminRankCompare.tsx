@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { CardsSkeleton } from "./Skeleton";
 import { useMe } from "../api";
@@ -24,7 +25,7 @@ export interface RankCompare {
   topB: Row[];
 }
 
-const LABEL: Record<string, string> = { distrowatch: "Current rank", interest: "Our index" };
+const LABEL: Record<string, string> = { distrowatch: "Current rank", interest: "Interest (Wikipedia views)", composite: "Composite index" };
 const label = (s: string) => LABEL[s] ?? s;
 const num = (n: number | null) => (n == null ? "–" : `#${n}`);
 
@@ -59,10 +60,11 @@ function Table({ title, rows, a, b }: { title: string; rows: Row[]; a: string; b
 export function AdminRankCompareInner() {
   const { data: me, isLoading: meLoading } = useMe();
   const isAdmin = me?.role === "admin";
+  const [b, setB] = useState<"composite" | "interest">("composite");
   const q = useQuery({
-    queryKey: ["admin-rank-compare"],
+    queryKey: ["admin-rank-compare", b],
     queryFn: async () => {
-      const res = await fetch("/api/admin/rank-compare", { credentials: "include" });
+      const res = await fetch(`/api/admin/rank-compare?b=${b}`, { credentials: "include" });
       if (!res.ok) throw new Error(String(res.status));
       return (await res.json()) as RankCompare;
     },
@@ -72,13 +74,25 @@ export function AdminRankCompareInner() {
   if (meLoading) return <CardsSkeleton label="Checking your account" />;
   if (!me) return <p className="adm-gate">Sign in with an admin account to see this page.</p>;
   if (!isAdmin) return <p className="adm-gate">Your account isn't an admin. Ask the site owner to add it to ADMIN_USERS.</p>;
-  if (q.isError) return <p className="error">Couldn't load the comparison. Try reloading.</p>;
-  if (q.isLoading || !q.data) return <CardsSkeleton label="Loading the comparison" />;
+  const picker = (
+    <p className="adm-pick">
+      <span className="seg" role="group" aria-label="Compare against">
+        {(["composite", "interest"] as const).map((k) => (
+          <button key={k} type="button" aria-pressed={b === k} onClick={() => setB(k)}>
+            {label(k)}
+          </button>
+        ))}
+      </span>
+    </p>
+  );
+  if (q.isError) return <div className="adm">{picker}<p className="error">Couldn't load the comparison. Try reloading.</p></div>;
+  if (q.isLoading || !q.data) return <div className="adm">{picker}<CardsSkeleton label="Loading the comparison" /></div>;
   const c = q.data;
-  if (!c.capturedB) return <p className="adm-empty">Our index hasn't been built yet. Run the wikipedia ingest.</p>;
+  if (!c.capturedB) return <div className="adm">{picker}<p className="adm-empty">{label(b)} hasn't been built yet. Run the wikipedia ingest.</p></div>;
 
   return (
     <div className="adm">
+      {picker}
       <dl className="stats">
         <div><dt>Ranked by both</dt><dd>{c.both}</dd></div>
         <div><dt>Only {label(c.a).toLowerCase()}</dt><dd>{c.onlyA}</dd></div>

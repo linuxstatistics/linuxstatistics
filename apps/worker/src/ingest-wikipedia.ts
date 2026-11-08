@@ -4,6 +4,7 @@ import {
   listEnwikiTitles,
   monthMinus,
   upsertPageviewMonths,
+  writeCompositeIndex,
   writeInterestIndex,
   type Database,
 } from "@linux-statistics/db";
@@ -21,6 +22,8 @@ export interface WikipediaIngestResult {
   month: string;
   /** Distros ranked over 12 months. */
   ranked: number;
+  /** Distros ranked by the composite index over 12 months. */
+  composite: number;
 }
 
 /**
@@ -44,7 +47,7 @@ export async function ingestWikipedia(
   const to = lastFullMonth(opts.now ?? new Date());
   const from = monthMinus(to, (opts.months ?? 12) - 1);
   const titles = await listEnwikiTitles(db);
-  const result: WikipediaIngestResult = { articles: titles.length, written: 0, failed: [], month: to, ranked: 0 };
+  const result: WikipediaIngestResult = { articles: titles.length, written: 0, failed: [], month: to, ranked: 0, composite: 0 };
 
   for (const [i, t] of titles.entries()) {
     if (i > 0 && delayMs > 0) await new Promise((r) => setTimeout(r, delayMs));
@@ -65,5 +68,8 @@ export async function ingestWikipedia(
     throw new Error(`only ${result.written} of ${titles.length} articles fetched; index not rebuilt`);
   }
   result.ranked = await writeInterestIndex(db, to);
+  // The composite rank combines interest with the other inputs; rebuild it on the same capture date.
+  const [y, m] = to.split("-").map(Number) as [number, number];
+  result.composite = await writeCompositeIndex(db, new Date(Date.UTC(y, m, 1)));
   return result;
 }
