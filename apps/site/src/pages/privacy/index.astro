@@ -1,22 +1,30 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { CONTACT, OPERATOR, POLICIES_UPDATED } from "../../config/site";
+import { ethicalAds } from "../../config/ads";
 
 const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 ---
 
 <Base
   title="Privacy policy | LinuxStatistics"
-  description="What LinuxStatistics collects, why, how long we keep it and how to get it deleted. No ads, no tracking scripts, no selling data."
+  description={`What LinuxStatistics collects, why, how long we keep it and how to get it deleted. ${ethicalAds.enabled ? "Contextual ads without tracking" : "No ads"}, no tracking scripts, no selling data.`}
 >
   <article class="page prose legal">
     <h1>Privacy policy</h1>
-    <p class="lede">Short version: no ads, no tracking scripts, no selling data. We store only what we need to run sign-in, ratings, quiz votes and the monthly email.</p>
+    <p class="lede">Short version: {ethicalAds.enabled ? "contextual ads with no tracking" : "no ads"}, no tracking scripts, no selling data. We store only what we need to run sign-in, ratings, quiz votes and the monthly email.</p>
     <p class="legal-meta">Last updated {updated}. Operator: {OPERATOR.name}, {OPERATOR.country}. Contact: <a href={`mailto:${CONTACT.privacy}`}>{CONTACT.privacy}</a>.</p>
 
     <h2>If you just browse</h2>
     <ul>
-      <li>No account, no cookies set by us, no analytics or advertising scripts, no third-party trackers.</li>
+      <li>No account, no cookies set by us, no analytics scripts, no third-party trackers.{!ethicalAds.enabled && " No advertising scripts either."}</li>
+      {ethicalAds.enabled && (
+        <li>
+          Distro and comparison pages show one text ad from <a href="https://www.ethicalads.io/" target="_blank" rel="noopener noreferrer">EthicalAds</a>, always labelled "Ad".
+          The ad is picked from the page's topic, not from you: EthicalAds sets no cookies, doesn't track you across sites and doesn't build a profile.
+          Their script receives the page URL and your IP address to serve the ad, as any web request does; see their <a href="https://www.ethicalads.io/privacy-policy/" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+        </li>
+      )}
       <li>Fonts and all page files are served from our own domain, so browsing doesn't contact Google Fonts or similar services.</li>
       <li>Our hosting and network provider (Cloudflare) handles each request and briefly processes your IP address and browser details to deliver the page and block attacks. We don't use these to identify you.</li>
       <li>Your light/dark choice is saved in your own browser (local storage) and never sent to us.</li>

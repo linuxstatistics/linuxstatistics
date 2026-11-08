@@ -9,6 +9,7 @@ import { ComparePicker } from "../../components/ComparePicker";
 import { PairVerdict } from "../../components/PairVerdict";
 import { NotEnoughData, ProsConsPair } from "../../components/ProsCons";
 import { Faq } from "../../components/Faq";
+import { EthicalAd } from "../../components/EthicalAd";
 import { notesFor } from "../../lib/distro-notes";
 import { TELEMETRY_LABEL, telemetryFor } from "../../lib/telemetry";
 import { pairVerdict } from "../../lib/verdict";
@@ -148,6 +149,7 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
       </section>
     )}
     <Faq items={faq} />
+    <EthicalAd placement="compare" />
     <p class="source-note">
       Rankings from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.
       Repository activity from GitHub. Ratings come from signed-in LinuxStatistics users.

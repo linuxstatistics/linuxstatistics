@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import { DistroStats } from "../../components/DistroStats";
 import { DistroRating } from "../../components/DistroRating";
 import { AffiliateBlock } from "../../components/AffiliateBlock";
+import { EthicalAd } from "../../components/EthicalAd";
 import { RankByPeriod } from "../../components/RankByPeriod";
 import { RelatedLinks } from "../../components/RelatedLinks";
 import { CompareWith } from "../../components/CompareWith";
@@ -120,6 +121,7 @@ const jsonLd = {
           <DistroRating client:only="react" slug={data.slug}><RatingSkeleton slot="fallback" /></DistroRating>
         </section>
         <AffiliateBlock />
+        <EthicalAd placement="distro" />
         <p class="source-note">
           Ranking from <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits{asOf ? `, captured ${asOf}` : ""}.{" "}
           {data.repoFullName && <Fragment>Repository activity from <a href={`https://github.com/${data.repoFullName}`} target="_blank" rel="noopener noreferrer">GitHub</a>.{" "}</Fragment>}

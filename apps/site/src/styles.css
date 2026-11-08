@@ -448,6 +448,9 @@ h1, h2, h3 { text-wrap: balance; }
 .affiliate-block { margin-top: 28px; padding-top: 16px; border-top: 1px solid var(--line); max-width: 640px; }
 .affiliate-block h3 { font: 700 17px var(--display); margin: 0 0 2px; }
 .affiliate-block .affiliate-disclosure { font: 12px var(--sans); color: var(--ink2); margin: 0 0 10px; }
+/* EthicalAds slot (off by default; see config/ads.ts). Labelled, content column only. */
+.ethical-ad { margin-top: 28px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius, 10px); max-width: 640px; }
+.ethical-ad-label { display: block; font: 600 11px var(--sans); text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink2); margin-bottom: 6px; }
 .cloud-line { margin-top: 14px; color: var(--ink2); font-size: 14px; }
 .cloud-line .affiliate-disclosure { font-size: 12px; }
 .affiliate-block .affiliate-providers { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
