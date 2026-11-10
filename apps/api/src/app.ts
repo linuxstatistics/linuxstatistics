@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyRequest } from "fastify";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import { z } from "zod";
@@ -41,11 +41,23 @@ const marketQuerySchema = z.object({
   to: z.string().optional(),
 });
 
+/**
+ * Real client IP for rate limits. On Vercel (VERCEL=1) the platform sets
+ * x-real-ip and overwrites any client-sent value; elsewhere use the socket.
+ */
+export function clientIp(req: FastifyRequest, env: NodeJS.ProcessEnv = process.env): string {
+  if (env.VERCEL === "1") {
+    const ip = req.headers["x-real-ip"];
+    if (typeof ip === "string" && ip) return ip;
+  }
+  return req.ip;
+}
+
 export async function buildApp(db: Database): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   app.register(cors, { origin: process.env.WEB_ORIGIN ?? true, credentials: true });
   await registerSession(app);
-  await app.register(rateLimit, { global: false });
+  await app.register(rateLimit, { global: false, keyGenerator: (req) => clientIp(req) });
 
   const TTL = Number(process.env.API_CACHE_TTL_MS ?? 15_000);
   const distrosCached = ttlCache(TTL, () => getDistroList(db));
@@ -101,7 +113,13 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
       reply.code(400);
       return reply.send({ error: "bad_request", details: z.flattenError(err) });
     }
-    app.log.error(err);
+    // Client errors (rate limit 429, bad JSON 400, …) keep their status; only unexpected failures become 503.
+    const status = (err as { statusCode?: number }).statusCode;
+    if (status && status >= 400 && status < 500) {
+      reply.code(status);
+      return reply.send({ error: status === 429 ? "rate_limited" : "bad_request", message: (err as Error).message });
+    }
+    console.error(err);
     reply.code(503);
     return reply.send({ error: "unavailable", message: "data temporarily unavailable" });
   });

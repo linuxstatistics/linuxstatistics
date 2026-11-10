@@ -2,22 +2,33 @@
 import Base from "../../layouts/Base.astro";
 import { CONTACT, OPERATOR, POLICIES_UPDATED } from "../../config/site";
 import { ethicalAds } from "../../config/ads";
+import { analytics } from "../../config/analytics";
 
 const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
 ---
 
 <Base
   title="Privacy policy | LinuxStatistics"
-  description={`What LinuxStatistics collects, why, how long we keep it and how to get it deleted. ${ethicalAds.enabled ? "Contextual ads without tracking" : "No ads"}, no tracking scripts, no selling data.`}
+  description={`What LinuxStatistics collects, why, how long we keep it and how to get it deleted. ${ethicalAds.enabled ? "Contextual ads without tracking" : "No ads"}, no tracking cookies, no selling data.`}
 >
   <article class="page prose legal">
     <h1>Privacy policy</h1>
-    <p class="lede">Short version: {ethicalAds.enabled ? "contextual ads with no tracking" : "no ads"}, no tracking scripts, no selling data. We store only what we need to run sign-in, ratings, quiz votes and the monthly email.</p>
+    <p class="lede">Short version: {ethicalAds.enabled ? "contextual ads with no tracking" : "no ads"}, no tracking cookies, no selling data. We store only what we need to run sign-in, ratings, quiz votes and the monthly email.</p>
     <p class="legal-meta">Last updated {updated}. Operator: {OPERATOR.name}, {OPERATOR.country}. Contact: <a href={`mailto:${CONTACT.privacy}`}>{CONTACT.privacy}</a>.</p>
 
     <h2>If you just browse</h2>
     <ul>
-      <li>No account, no cookies set by us, no analytics scripts, no third-party trackers.{!ethicalAds.enabled && " No advertising scripts either."}</li>
+      <li>
+        No account, no cookies set by us, no third-party trackers.{!analytics.enabled && " No analytics scripts."}{!ethicalAds.enabled && " No advertising scripts either."}
+      </li>
+      {analytics.enabled && (
+        <li>
+          We count page views with <a href="https://umami.is/" target="_blank" rel="noopener noreferrer">Umami</a>, a privacy-focused analytics service.
+          It sets no cookies and doesn't follow you across sites. It records the page, the referring site, and your browser, operating system,
+          device type and country. Umami uses your IP address only to work out the country and doesn't store it.
+          If your browser sends "Do Not Track", nothing is counted.
+        </li>
+      )}
       {ethicalAds.enabled && (
         <li>
           Distro and comparison pages show one text ad from <a href="https://www.ethicalads.io/" target="_blank" rel="noopener noreferrer">EthicalAds</a>, always labelled "Ad".
@@ -26,7 +37,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
         </li>
       )}
       <li>Fonts and all page files are served from our own domain, so browsing doesn't contact Google Fonts or similar services.</li>
-      <li>Our hosting and network provider (Cloudflare) handles each request and briefly processes your IP address and browser details to deliver the page and block attacks. We don't use these to identify you.</li>
+      <li>Our hosting provider (Vercel) handles each request and briefly processes your IP address and browser details to deliver the page and block attacks. We don't use these to identify you.</li>
       <li>Your light/dark choice is saved in your own browser (local storage) and never sent to us.</li>
       <li>When you open a distro's page, a counter for that distro and day goes up by one. That's all that's stored: no IP address, cookie, browser details or anything else about you. We use the totals to see which distros people look at.</li>
     </ul>
@@ -74,8 +85,9 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
 
     <h2>Who else handles it</h2>
     <ul>
-      <li><strong>Cloudflare</strong> (network, security and backup storage).</li>
-      <li><strong>Our server host</strong>, where the site and database run.</li>
+      <li><strong>Vercel</strong>, which hosts the site.</li>
+      <li><strong>Neon</strong>, which hosts the database.</li>
+      {analytics.enabled && <li><strong>Umami</strong>, for cookieless page-view counts.</li>}
       <li><strong>An email delivery service</strong>, only for subscribers and only to send the report.</li>
       <li><strong>GitHub, GitLab or Codeberg</strong>, only when you choose to sign in with them.</li>
     </ul>
@@ -85,7 +97,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
     <ul>
       <li>Account and contributions: until you ask us to delete them.</li>
       <li>Email address: until you unsubscribe.</li>
-      <li>Server logs: up to 30 days. Encrypted database backups: up to 30 days.</li>
+      <li>Server logs: up to 30 days. Database backups: up to 30 days.</li>
     </ul>
 
     <h2>Your rights</h2>

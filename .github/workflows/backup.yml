@@ -1,0 +1,46 @@
+# Nightly database backup: pg_dump, compressed, encrypted with age to the
+# owner's public key (BACKUP_AGE_RECIPIENT), kept as a workflow artifact for
+# 30 days. The repo is public: only the encrypted file is ever uploaded.
+name: backup
+
+on:
+  schedule:
+    - cron: "45 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - name: Tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq age postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-18
+
+      - name: Dump and encrypt
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AGE_RECIPIENT: ${{ vars.BACKUP_AGE_RECIPIENT }}
+        run: |
+          set -euo pipefail
+          case "$AGE_RECIPIENT" in age1*) ;; *) echo "::error::Set the repo variable BACKUP_AGE_RECIPIENT to your age public key (age1…)"; exit 1;; esac
+          f="linuxstatistics-$(date -u +%Y-%m-%d).sql.gz.age"
+          /usr/lib/postgresql/18/bin/pg_dump --no-owner --no-privileges "$DATABASE_URL" | gzip -9 | age -r "$AGE_RECIPIENT" > "$f"
+          [ "$(stat -c %s "$f")" -gt 10000 ] || { echo "::error::Backup is suspiciously small"; exit 1; }
+          echo "FILE=$f" >> "$GITHUB_ENV"
+          ls -l "$f"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ${{ env.FILE }}
+          path: ${{ env.FILE }}
+          retention-days: 30
+          if-no-files-found: error

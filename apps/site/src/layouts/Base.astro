@@ -14,6 +14,7 @@ import { latestLinuxShare } from "../lib/marketShare";
 import { OPERATOR } from "../config/site";
 import { CRYPTO_ADDRESSES, SUPPORT_LINKS, hasSupport } from "../config/support";
 import { SupportBlock } from "../components/SupportBlock";
+import { analytics } from "../config/analytics";
 
 interface Props {
   title: string;
@@ -88,6 +89,16 @@ import { AuthSkeleton } from "../components/Skeleton";
     <meta name="twitter:image" content={image} />
     <link rel="sitemap" href="/sitemap-index.xml" />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {analytics.enabled && !noindex && (
+      <script
+        is:inline
+        defer
+        src={analytics.scriptUrl}
+        data-website-id={analytics.websiteId}
+        data-domains={analytics.domains}
+        data-do-not-track="true"
+      />
+    )}
   </head>
   <body>
     <div class="app">

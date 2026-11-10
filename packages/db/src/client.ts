@@ -58,11 +58,23 @@ export async function initPgliteDb(dataDir?: string) {
   return { db, client };
 }
 
-/** Production driver: postgres-js over a real Postgres server. */
+/**
+ * Production driver: postgres-js over a real Postgres server. A pooled URL
+ * (PgBouncer in transaction mode, e.g. Neon's "-pooler" host) can't keep
+ * prepared statements between transactions, so they're turned off there.
+ */
 export function createPostgresDb(connectionString: string, max = 10) {
-  const sql = postgres(connectionString, { max, onnotice: () => {} });
+  const sql = postgres(connectionString, { max, prepare: !isPooledUrl(connectionString), onnotice: () => {} });
   const db = drizzlePostgres(sql, { schema });
   return { db, sql };
+}
+
+export function isPooledUrl(connectionString: string): boolean {
+  try {
+    return new URL(connectionString).hostname.includes("-pooler");
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -79,9 +91,10 @@ export function databaseUrlFor(env: NodeJS.ProcessEnv): string | undefined {
 /**
  * Open the app database: Postgres when DATABASE_URL is set (production; many
  * processes can share it), otherwise the local PGlite dir. Migrations run on
- * open. `close()` releases the connection.
+ * open unless `migrate: false` (serverless functions, where the build and the
+ * data job migrate instead). `close()` releases the connection.
  */
-export async function openDb(opts: { max?: number } = {}): Promise<{
+export async function openDb(opts: { max?: number; migrate?: boolean } = {}): Promise<{
   db: Database;
   close: () => Promise<void>;
   kind: "postgres" | "pglite";
@@ -89,7 +102,7 @@ export async function openDb(opts: { max?: number } = {}): Promise<{
   const url = databaseUrlFor(process.env);
   if (url) {
     const { db, sql } = createPostgresDb(url, opts.max);
-    await migratePostgres(db, { migrationsFolder: MIGRATIONS_FOLDER });
+    if (opts.migrate !== false) await migratePostgres(db, { migrationsFolder: MIGRATIONS_FOLDER });
     return { db, close: () => sql.end(), kind: "postgres" };
   }
   const { db, client } = await initPgliteDb(defaultPgliteDir());

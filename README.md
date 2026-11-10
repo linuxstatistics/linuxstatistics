@@ -64,7 +64,15 @@ With PGlite, stop the API before ingesting (PGlite allows one connection). With 
 
 After the monthly StatCounter run, `pnpm --filter @linux-statistics/worker monthly` writes the month's summary (Markdown, HTML email, 1200×630 share card) from the API; `--draft` also creates a Resend Broadcast draft for review (nothing is sent automatically).
 
-`deploy/` has example systemd units and timers for a server (`deploy/worker.env.example` lists the settings).
+## Hosting
+
+Production runs on Vercel with a hosted Postgres. `vercel.json` runs `scripts/vercel-build.mjs`, which migrates the database, starts the API locally to build the static site, bundles the API as one Vercel Function for `/api/*`, and writes `.vercel/output`. To try it locally against any Postgres: `DATABASE_URL=… NODE_ENV=production SESSION_SECRET=… node scripts/vercel-build.mjs`.
+
+Build and function settings: `DATABASE_URL` (pooled URL; the build migrates over the direct host), `SESSION_SECRET`, `API_PUBLIC_URL` and `WEB_ORIGIN` (the site's origin), `ADMIN_USERS`, OAuth client ids/secrets, and optionally `PUBLIC_UMAMI_WEBSITE_ID` (analytics are off without it). The function runs in the Vercel region nearest a Neon host, or `VERCEL_FUNCTION_REGION`.
+
+`.github/workflows/ingest.yml` ingests daily on GitHub Actions (production environment secrets `DATABASE_URL`, repo secrets `GH_INGEST_TOKEN` and `VERCEL_DEPLOY_HOOK`), then triggers a Vercel rebuild. `.github/workflows/backup.yml` dumps the database nightly, encrypted with `age` to the `BACKUP_AGE_RECIPIENT` repo variable, kept 30 days as a workflow artifact.
+
+`deploy/` has example systemd units and timers for a self-hosted server.
 
 ## Attribution
 

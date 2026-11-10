@@ -1,0 +1,88 @@
+# Daily data refresh: ingest into Postgres, then rebuild the site on Vercel.
+# Runs only on a schedule or by hand from main; never on pull requests.
+name: ingest
+
+on:
+  schedule:
+    - cron: "15 2 * * *"
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: "Sources (comma-separated, or 'all'). Empty = today's schedule."
+        required: false
+        default: ""
+      backfill:
+        description: "StatCounter: fetch the full history (first run)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+
+      - name: Install
+        run: npx --yes pnpm@12.14.0 install --frozen-lockfile
+
+      - name: Pick sources
+        id: pick
+        env:
+          INPUT_SOURCES: ${{ inputs.sources }}
+        run: |
+          if [ -n "$INPUT_SOURCES" ]; then
+            s="$INPUT_SOURCES"
+          else
+            # Same cadence as the server timers: DistroWatch daily, GitHub Mondays,
+            # endoflife Tuesdays, Wikidata Sundays, StatCounter and Wikipedia on the 3rd.
+            s="distrowatch"
+            [ "$(date -u +%u)" = 1 ] && s="$s,github"
+            [ "$(date -u +%u)" = 2 ] && s="$s,endoflife"
+            [ "$(date -u +%u)" = 7 ] && s="$s,wikidata"
+            [ "$(date -u +%d)" = 03 ] && s="$s,statcounter,wikipedia"
+          fi
+          case "$s" in *[!a-z,]*) echo "bad sources: $s"; exit 1;; esac
+          echo "sources=$s" >> "$GITHUB_OUTPUT"
+          echo "Sources: $s"
+
+      - name: Ingest
+        id: ingest
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GITHUB_TOKEN: ${{ secrets.GH_INGEST_TOKEN }}
+          SOURCES: ${{ steps.pick.outputs.sources }}
+          BACKFILL: ${{ inputs.backfill && '--backfill' || '' }}
+        # Exit 1 = some sources failed (the rest are saved); 2 = nothing ran.
+        run: |
+          set +e
+          npx --yes pnpm@12.14.0 --filter @linux-statistics/worker ingest --source "$SOURCES" $BACKFILL
+          code=$?
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          [ "$code" -le 1 ] || exit "$code"
+
+      - name: Rebuild the site
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: curl -fsS -X POST "$HOOK" > /dev/null && echo "Vercel rebuild triggered"
+
+      - name: Report failed sources
+        if: steps.ingest.outputs.code == '1'
+        run: |
+          echo "::error::At least one source failed; its last good data was kept. See the Ingest step."
+          exit 1
