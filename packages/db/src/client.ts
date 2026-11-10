@@ -66,6 +66,17 @@ export function createPostgresDb(connectionString: string, max = 10) {
 }
 
 /**
+ * The Postgres URL to use, or undefined for local PGlite. Production must use
+ * Postgres: a PGlite folder on a server or serverless host is lost on redeploy,
+ * and with it every vote, rating and signup.
+ */
+export function databaseUrlFor(env: NodeJS.ProcessEnv): string | undefined {
+  const url = env.DATABASE_URL || undefined;
+  if (!url && env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+  return url;
+}
+
+/**
  * Open the app database: Postgres when DATABASE_URL is set (production; many
  * processes can share it), otherwise the local PGlite dir. Migrations run on
  * open. `close()` releases the connection.
@@ -75,7 +86,7 @@ export async function openDb(opts: { max?: number } = {}): Promise<{
   close: () => Promise<void>;
   kind: "postgres" | "pglite";
 }> {
-  const url = process.env.DATABASE_URL;
+  const url = databaseUrlFor(process.env);
   if (url) {
     const { db, sql } = createPostgresDb(url, opts.max);
     await migratePostgres(db, { migrationsFolder: MIGRATIONS_FOLDER });

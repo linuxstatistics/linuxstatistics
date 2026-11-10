@@ -327,7 +327,6 @@ export const pickerFeedback = pgTable(
     code: text("code").notNull(),
     fit: boolean("fit").notNull(),
     day: text("day").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index("picker_feedback_top_idx").on(t.topKey)],
 );

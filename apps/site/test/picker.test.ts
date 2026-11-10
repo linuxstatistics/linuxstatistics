@@ -217,6 +217,17 @@ test("answer codes round-trip and ignore junk", () => {
   expect(decodeAnswers("99999")).toEqual({});
 });
 
+test("share codes from launch keep their meaning (append options and questions, never reorder)", () => {
+  // Stored with every quiz vote and in shared links. If this fails, an existing option or question moved.
+  expect(decodeAnswers("1221421141")).toEqual({
+    from: "windows", use: "gaming", level: "some", device: "pc", ram: 8, gpu: "amd", updates: "stable", undo: "yes", desktop: "kde", telemetry: "none",
+  });
+  expect(decodeAnswers("4433302022223")).toEqual({
+    from: "chromeos", use: "dev", level: "expert", device: "arm", ram: 4, updates: "rolling",
+    desktop: "mac-like", telemetry: "any", init: "any", foss: "any", pkg: "pacman",
+  });
+});
+
 test("no question has more than 9 options (one digit each in the code)", () => {
   for (const q of QUESTIONS) expect(q.options.length, q.id).toBeLessThanOrEqual(9);
 });

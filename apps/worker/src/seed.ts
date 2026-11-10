@@ -28,7 +28,15 @@ import {
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const YEAR_AGO = new Date(SEED_CAPTURED_AT.getTime() - 365 * 24 * 3600 * 1000);
 
+/** The seed wipes distros (and with them ratings), so it runs on the local PGlite only. */
+export function assertSeedAllowed(env: NodeJS.ProcessEnv): void {
+  if (env.NODE_ENV === "production" || (env.DATABASE_URL && env.ALLOW_SEED_POSTGRES !== "1")) {
+    throw new Error("pnpm seed is for the local PGlite database only; it deletes distros and their ratings. Unset DATABASE_URL (or set ALLOW_SEED_POSTGRES=1 for a throwaway local Postgres).");
+  }
+}
+
 async function main(): Promise<void> {
+  assertSeedAllowed(process.env);
   const { db, close, kind } = await openDb({ max: 2 });
 
   // Reset for a clean, repeatable seed (cascade clears snapshots, repos, aliases).
@@ -98,7 +106,9 @@ async function main(): Promise<void> {
   );
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}

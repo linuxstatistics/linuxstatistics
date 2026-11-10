@@ -92,6 +92,13 @@
       "when": 1794170000000,
       "tag": "0012_releases",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1794333047358,
+      "tag": "0013_picker_feedback_day_only",
+      "breakpoints": true
     }
   ]
 }
