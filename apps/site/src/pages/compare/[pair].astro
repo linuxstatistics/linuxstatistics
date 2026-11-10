@@ -109,8 +109,10 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
     {thin.length > 0 && (
       <p class="no-data-note" role="note">
         <span class="no-data-label">Limited data</span>
-        {thin.join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond popularity, so some rows below are empty.
-        <a href="/suggest/?kind=correction">Help fill it in</a>.
+        <span>
+          {thin.join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond popularity, so some rows below are empty.
+          <a href="/suggest/?kind=correction">Help fill it in</a>.
+        </span>
       </p>
     )}
     <div class="table-scroll">

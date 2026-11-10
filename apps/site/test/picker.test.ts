@@ -91,6 +91,26 @@ test("free-software-only puts FSF-style distros first", () => {
   expect(prof(s[0]!.key).fossOnly).toBe(true);
 });
 
+test("no package preference scores the same as skipping the question", () => {
+  const base = { level: "expert", use: "dev" } as const;
+  expect(suggest({ ...base, pkg: "any" }, PROFILES, rankOf)).toEqual(suggest(base, PROFILES, rankOf));
+});
+
+test("not sure about memory rules nothing out", () => {
+  const base = { level: "new", use: "everyday" } as const;
+  expect(rankAll({ ...base, ram: "any" }, PROFILES, rankOf).length).toBe(rankAll(base, PROFILES, rankOf).length);
+});
+
+test("no desktop preference falls back to the familiar one, like skipping", () => {
+  const base = { level: "new", use: "everyday", from: "windows" } as const;
+  expect(suggest({ ...base, desktop: "any" }, PROFILES, rankOf)).toEqual(suggest(base, PROFILES, rankOf));
+});
+
+test("not sure about updates scores like stable", () => {
+  const base = { level: "some", use: "everyday" } as const;
+  expect(suggest({ ...base, updates: "any" }, PROFILES, rankOf).map((s) => s.key)).toEqual(suggest({ ...base, updates: "stable" }, PROFILES, rankOf).map((s) => s.key));
+});
+
 test("wanting undoable updates puts rollback systems first", () => {
   const s = suggest({ level: "some", use: "everyday", undo: "yes" }, PROFILES, rankOf);
   expect(prof(s[0]!.key).undo).toBe("rollback");

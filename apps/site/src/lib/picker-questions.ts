@@ -8,17 +8,19 @@ export interface Answers {
   level?: Level;
   device?: "pc" | "pi" | "arm" | "pc32";
   /** Roughly how much memory, in GB: 1 = under 2, 2 = 2–4, 4 = 4–8, 8 = 8 or more. */
-  ram?: 1 | 2 | 4 | 8;
+  ram?: 1 | 2 | 4 | 8 | "any";
   gpu?: "nvidia" | "amd" | "intel" | "unsure";
-  updates?: Updates;
+  /** "any": not sure, so we go with the safer fixed releases. */
+  updates?: Updates | "any";
   /** Wants updates that can be undone (image-based rollback or snapshots). */
   undo?: "yes" | "no";
-  desktop?: Desktop;
+  /** "any": no preference; we lean toward what feels familiar (see `from`). */
+  desktop?: Desktop | "any";
   /** "none": nothing sent unless I agree. */
   telemetry?: "none" | "any";
   init?: "no-systemd" | "any";
   foss?: "yes" | "any";
-  pkg?: Pkg;
+  pkg?: Pkg | "any";
 }
 
 export type QuestionId = keyof Answers;
@@ -28,8 +30,8 @@ export interface Question<K extends QuestionId = QuestionId> {
   legend: string;
   /** Shown behind "Why we ask". */
   why: string;
-  /** Order is part of the share-link format: once launched, append new options, never reorder. */
-  options: [NonNullable<Answers[K]>, string][];
+  /** [value, label, plain-language hint]. Order is part of the share-link format: once launched, append new options, never reorder. */
+  options: [NonNullable<Answers[K]>, string, string?][];
   /** Whether to ask, given the answers so far. Missing = always. */
   show?: (a: Answers) => boolean;
 }
@@ -77,7 +79,7 @@ export const QUESTIONS: Question[] = [
     id: "ram",
     legend: "How much memory (RAM) does it have?",
     why: "Heavier desktops feel slow below about 4 GB. On Windows: Settings → System → About. On a Mac: Apple menu → About This Mac.",
-    options: [[1, "Under 2 GB"], [2, "2 to 4 GB"], [4, "4 to 8 GB"], [8, "8 GB or more"]],
+    options: [[1, "Under 2 GB"], [2, "2 to 4 GB"], [4, "4 to 8 GB"], [8, "8 GB or more"], ["any", "Not sure", "We won't rule anything out by memory"]],
   },
   {
     id: "gpu",
@@ -90,7 +92,11 @@ export const QUESTIONS: Question[] = [
     id: "updates",
     legend: "How do you like updates?",
     why: "Fixed releases change little between versions. Rolling releases get new software as soon as it's out, with more chance of surprises.",
-    options: [["stable", "Stable: tested releases, fewer surprises"], ["rolling", "Rolling: always the newest software"]],
+    options: [
+      ["stable", "Stable: tested releases, fewer surprises", "What most people want"],
+      ["rolling", "Rolling: always the newest software", "New versions sooner, with the odd hiccup"],
+      ["any", "Not sure: you decide", "We'll go with stable"],
+    ],
     show: (a) => a.level !== "new",
   },
   {
@@ -104,7 +110,14 @@ export const QUESTIONS: Question[] = [
     id: "desktop",
     legend: "Which desktop would you like?",
     why: "The desktop is what you see and click. Most distros offer one main desktop; a few offer several.",
-    options: [["windows-like", "Like Windows"], ["mac-like", "Like macOS"], ["gnome", "GNOME"], ["kde", "KDE Plasma"], ["light", "Light and simple"]],
+    options: [
+      ["windows-like", "Like Windows", "Taskbar and start menu along the bottom"],
+      ["mac-like", "Like macOS", "Dock at the bottom, menu bar at the top"],
+      ["gnome", "GNOME", "Clean and modern; open apps from a full-screen overview"],
+      ["kde", "KDE Plasma", "Windows-style layout with lots of settings to tweak"],
+      ["light", "Light and simple", "Plain and fast, good for older computers"],
+      ["any", "No preference", "We'll lean toward what you're used to"],
+    ],
     show: notServer,
   },
   {
@@ -132,7 +145,12 @@ export const QUESTIONS: Question[] = [
     id: "pkg",
     legend: "Preferred package format?",
     why: "If you know apt, dnf or pacman already, staying with it saves relearning.",
-    options: [["deb", "deb (apt)"], ["rpm", "rpm (dnf, zypper)"], ["pacman", "pacman (Arch)"]],
+    options: [
+      ["deb", "deb (apt)", "Debian, Ubuntu, Mint"],
+      ["rpm", "rpm (dnf, zypper)", "Fedora, openSUSE"],
+      ["pacman", "pacman (Arch)", "Arch, EndeavourOS, CachyOS"],
+      ["any", "No preference"],
+    ],
     show: expert,
   },
 ];

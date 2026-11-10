@@ -244,7 +244,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
           <h2 ref={headingRef} tabIndex={-1}>{q.legend}</h2>
         </legend>
         <div className="quiz-options">
-          {q.options.map(([value, label]) => (
+          {q.options.map(([value, label, hint]) => (
             <button
               key={String(value)}
               type="button"
@@ -260,18 +260,17 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
               }}
             >
               {label}
+              {hint && <span className="quiz-option-hint">{hint}</span>}
             </button>
           ))}
         </div>
       </fieldset>
-      <p className="quiz-why">
-        <button type="button" className="link-button" aria-expanded={why} onClick={() => setWhy((w) => !w)}>Why we ask</button>
-        {why && <span className="quiz-why-text"> {q.why}</span>}
-      </p>
-      <p className="quiz-nav">
-        {step > 0 && <button type="button" onClick={back}>← Back</button>}{" "}
-        <button type="button" onClick={skip}>Skip this question</button>
-      </p>
+      <div className="quiz-foot">
+        {step > 0 && <button type="button" onClick={back}>← Back</button>}
+        <button type="button" aria-expanded={why} onClick={() => setWhy((w) => !w)}>Why we ask</button>
+        <button type="button" className="quiz-skip" onClick={skip}>Skip this question</button>
+      </div>
+      {why && <p className="quiz-why-text">{q.why}</p>}
       <p className="quiz-keys">Arrow keys move, Enter chooses, Esc goes back.</p>
     </div>
   );

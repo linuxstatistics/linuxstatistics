@@ -9,6 +9,8 @@ export default defineConfig({
   site,
   trailingSlash: "ignore",
   build: { format: "directory" },
+  // Astro 7 defaults to "jsx", which drops the space where a line break sits between text and an inline tag.
+  compressHTML: true,
   // Fetch a page when the pointer rests on its link, so the click feels instant.
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },
   integrations: [react(), sitemap({ filter: (page) => !page.includes("/admin/") && !page.includes("/pick/match/") })],

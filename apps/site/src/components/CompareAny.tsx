@@ -69,8 +69,10 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
       {thin.length > 0 && (
         <p className="no-data-note" role="note">
           <span className="no-data-label">Limited data</span>
-          {thin.map((d) => d.name).join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond popularity, so some rows below are empty.{" "}
-          <a href="/suggest/?kind=correction">Help fill it in</a>.
+          <span>
+            {thin.map((d) => d.name).join(" and ")} {thin.length > 1 ? "have" : "has"} little data beyond popularity, so some rows below are empty.{" "}
+            <a href="/suggest/?kind=correction">Help fill it in</a>.
+          </span>
         </p>
       )}
       <div className="table-scroll">

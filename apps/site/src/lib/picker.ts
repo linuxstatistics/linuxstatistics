@@ -50,7 +50,7 @@ const PKG_TEXT = { deb: "deb packages (apt)", rpm: "rpm packages", pacman: "pacm
 /** Distros that can't work for these answers at all: wrong hardware, too little memory, expert-only for a beginner. */
 export function fits(p: PickerProfile, a: Answers): boolean {
   if (a.device && !p.platforms.includes(a.device)) return false;
-  if (a.ram !== undefined && p.minRamGb > a.ram) return false;
+  if (typeof a.ram === "number" && p.minRamGb > a.ram) return false;
   if (a.level === "new" && !p.levels.includes("new") && !p.levels.includes("some")) return false;
   return true;
 }
@@ -79,7 +79,7 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
   if (a.device === "pi" || a.device === "arm") {
     crit(2, p.madeFor === a.device ? 2 : 0, a.device === "pi" ? "Made for Raspberry Pi" : "Made for ARM boards");
   }
-  const lowMem = a.ram !== undefined && a.ram <= 2;
+  const lowMem = typeof a.ram === "number" && a.ram <= 2;
   if (lowMem || a.use === "old-hw") {
     const light = p.uses.includes("old-hw") || p.desktops.includes("light") || p.minRamGb <= 1;
     crit(2, light ? 2 : -2, a.use === "old-hw" ? undefined : "Light enough for older hardware", "Heavier than the light options");
@@ -94,12 +94,14 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
     crit(3, p.rocm ? 3 : -2, "AMD ROCm supported or packaged", "ROCm not officially supported");
   }
   if (a.updates) {
-    crit(2, p.updates === a.updates ? 2 : 0, a.updates === "stable" ? "Fixed releases with tested updates" : "Rolling updates with the newest software", p.updates === "rolling" ? "Rolling updates, not fixed releases" : "Fixed releases, not rolling");
+    // "Not sure" gets the safer default.
+    const want = a.updates === "any" ? "stable" : a.updates;
+    crit(2, p.updates === want ? 2 : 0, want === "stable" ? "Fixed releases with tested updates" : "Rolling updates with the newest software", p.updates === "rolling" ? "Rolling updates, not fixed releases" : "Fixed releases, not rolling");
   }
   if (a.undo === "yes") {
     crit(3, p.undo === "rollback" ? 3 : p.undo === "snapshots" ? 2 : 0, p.undo === "rollback" ? "Updates you can roll back" : "Snapshots let you undo updates", "No built-in way to undo updates");
   }
-  if (a.desktop) {
+  if (a.desktop && a.desktop !== "any") {
     crit(2, p.desktops.includes(a.desktop) ? 2 : 0, `Offers ${DESKTOP_TEXT[a.desktop]}`, `Doesn't offer ${DESKTOP_TEXT[a.desktop]} by default`);
   } else {
     const fam = a.from ? FAMILIAR[a.from] : undefined;
@@ -107,7 +109,7 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
   }
   if (a.init === "no-systemd") crit(4, p.init === "other" ? 4 : -4, "Doesn't use systemd", "Uses systemd");
   if (a.foss === "yes") crit(4, p.fossOnly ? 4 : -1, "Free software only", "Includes non-free drivers or firmware");
-  if (a.pkg) crit(2, p.pkg === a.pkg ? 2 : 0, `Uses ${PKG_TEXT[a.pkg]}`, `Uses ${PKG_TEXT[p.pkg]}`);
+  if (a.pkg && a.pkg !== "any") crit(2, p.pkg === a.pkg ? 2 : 0, `Uses ${PKG_TEXT[a.pkg]}`, `Uses ${PKG_TEXT[p.pkg]}`);
 
   // Telemetry: only distros we've checked count as "sends nothing by default".
   // The fact is always shown; the answer only changes the score.

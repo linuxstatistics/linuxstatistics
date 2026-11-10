@@ -513,10 +513,15 @@ h1, h2, h3 { text-wrap: balance; }
 .quiz-options { display: grid; gap: 8px; }
 .quiz-option { text-align: left; font: inherit; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; cursor: pointer; transition: border-color 0.12s var(--ease-out), transform 0.12s var(--ease-out); }
 .quiz-option:hover, .quiz-option:focus-visible { border-color: var(--ink2); }
+.quiz-option-hint { display: block; margin-top: 2px; font-size: 13px; color: var(--ink2); }
 .quiz-option:active { transform: scale(0.99); }
 .quiz-option[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in oklch, var(--neon) 16%, transparent); }
-.quiz-why { margin: 14px 0 0; font-size: 14px; }
-.quiz-why-text { color: var(--ink2); }
+.quiz-foot { display: flex; align-items: center; gap: 4px 18px; flex-wrap: wrap; margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--line); }
+.quiz-foot button { font: inherit; font-size: 14px; color: var(--ink2); background: none; border: 0; padding: 4px 0; cursor: pointer; transition: color 0.12s var(--ease-out); }
+.quiz-foot button:hover, .quiz-foot button:focus-visible, .quiz-foot button[aria-expanded="true"] { color: var(--accent); }
+.quiz-foot .quiz-skip { margin-left: auto; color: inherit; border: 1px solid var(--line); border-radius: var(--pill); padding: 6px 14px; transition: border-color 0.12s var(--ease-out); }
+.quiz-foot .quiz-skip:hover, .quiz-foot .quiz-skip:focus-visible { color: inherit; border-color: var(--ink2); }
+.quiz-why-text { margin: 10px 0 0; font-size: 14px; color: var(--ink2); }
 .quiz-nav { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0 0; }
 .quiz-nav button, .quiz-actions button, .quiz-fit button { font: inherit; font-size: 14px; color: inherit; background: transparent; border: 1px solid var(--line); border-radius: var(--pill); padding: 6px 14px; cursor: pointer; }
 .quiz-nav button:hover, .quiz-actions button:hover:not(:disabled) { border-color: var(--ink2); }
