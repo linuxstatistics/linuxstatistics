@@ -90,14 +90,10 @@ import { AuthSkeleton } from "../components/Skeleton";
     <link rel="sitemap" href="/sitemap-index.xml" />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     {analytics.enabled && !noindex && (
-      <script
-        is:inline
-        defer
-        src={analytics.scriptUrl}
-        data-website-id={analytics.websiteId}
-        data-domains={analytics.domains}
-        data-do-not-track="true"
-      />
+      <>
+        <script is:inline>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+        <script is:inline defer src={analytics.scriptSrc} data-endpoint={analytics.endpoint} />
+      </>
     )}
   </head>
   <body>

@@ -1,21 +1,23 @@
 /**
- * Umami (cookieless page-view counts). Off unless PUBLIC_UMAMI_WEBSITE_ID is
- * set at build time; the privacy page text follows the same switch. The
- * website id is public (it ends up in the page), not a secret.
+ * Vercel Web Analytics (cookieless page-view counts). On only in Vercel
+ * production builds, so local, preview and self-hosted builds load nothing;
+ * the privacy page text follows the same switch. Vercel serves the script
+ * from the site's own origin once Analytics is enabled for the project.
  */
 export interface AnalyticsConfig {
   enabled: boolean;
-  websiteId: string;
-  scriptUrl: string;
-  /** Only these hosts send data, so previews and local builds don't count. */
-  domains: string;
+  scriptSrc: string;
+  /** Data endpoint, set only when Vercel gives the project a custom base path. */
+  endpoint?: string;
 }
 
-const websiteId = (import.meta.env.PUBLIC_UMAMI_WEBSITE_ID ?? "").trim();
+export function analyticsFor(env: Record<string, string | undefined>): AnalyticsConfig {
+  const base = (env.PUBLIC_VERCEL_OBSERVABILITY_BASEPATH || env.VERCEL_OBSERVABILITY_BASEPATH || "").replace(/\/$/, "");
+  return {
+    enabled: env.VERCEL_ENV === "production" || env.ANALYTICS === "1",
+    scriptSrc: base ? `${base}/insights/script.js` : "/_vercel/insights/script.js",
+    endpoint: base ? `${base}/insights` : undefined,
+  };
+}
 
-export const analytics: AnalyticsConfig = {
-  enabled: websiteId !== "",
-  websiteId,
-  scriptUrl: import.meta.env.PUBLIC_UMAMI_SCRIPT_URL ?? "https://cloud.umami.is/script.js",
-  domains: "linuxstatistics.com",
-};
+export const analytics = analyticsFor(process.env);

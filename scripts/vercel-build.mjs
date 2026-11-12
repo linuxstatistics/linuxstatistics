@@ -168,7 +168,7 @@ async function main() {
       { src: "^/_astro/(.*)$", headers: { "Cache-Control": "public, max-age=31536000, immutable" }, continue: true },
       { src: "^/api/(.*)$", headers: { "Cache-Control": "no-store" }, continue: true },
       { handle: "filesystem" },
-      { src: "^/(api/.*|health)$", dest: "/api" },
+      { src: "^/api/.*$", dest: "/api" },
       // Directory pages without a trailing slash (e.g. /rising) serve their index.html.
       { src: "^/(.*[^/])$", dest: "/$1/index.html", check: true },
       { handle: "error" },

@@ -23,10 +23,10 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
       </li>
       {analytics.enabled && (
         <li>
-          We count page views with <a href="https://umami.is/" target="_blank" rel="noopener noreferrer">Umami</a>, a privacy-focused analytics service.
-          It sets no cookies and doesn't follow you across sites. It records the page, the referring site, and your browser, operating system,
-          device type and country. Umami uses your IP address only to work out the country and doesn't store it.
-          If your browser sends "Do Not Track", nothing is counted.
+          We count page views with <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel Web Analytics</a>.
+          It sets no cookies and doesn't follow you across sites. Each view records the page, the referring site, your browser, operating system,
+          device type and rough location (country, region, city). Visits are counted with a short-lived hash of the request that is discarded
+          after 24 hours; your IP address isn't stored with the data. We only see totals.
         </li>
       )}
       {ethicalAds.enabled && (
@@ -81,13 +81,13 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
       <li><strong>Sign-in, ratings and reviews:</strong> to provide the service you asked for.</li>
       <li><strong>Email:</strong> your consent, which you can withdraw at any time.</li>
       <li><strong>Security logs and abuse prevention:</strong> our legitimate interest in keeping the site working and fair.</li>
+      {analytics.enabled && <li><strong>Page-view counts:</strong> our legitimate interest in knowing which pages people use, so we can improve the site.</li>}
     </ul>
 
     <h2>Who else handles it</h2>
     <ul>
-      <li><strong>Vercel</strong>, which hosts the site.</li>
+      <li><strong>Vercel</strong>, which hosts the site{analytics.enabled && " and counts page views"}.</li>
       <li><strong>Neon</strong>, which hosts the database.</li>
-      {analytics.enabled && <li><strong>Umami</strong>, for cookieless page-view counts.</li>}
       <li><strong>An email delivery service</strong>, only for subscribers and only to send the report.</li>
       <li><strong>GitHub, GitLab or Codeberg</strong>, only when you choose to sign in with them.</li>
     </ul>
