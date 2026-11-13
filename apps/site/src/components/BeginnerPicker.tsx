@@ -73,7 +73,7 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
           </fieldset>
           {error && <p id="beginner-error" role="alert">Choose an answer. “Not sure” is fine.</p>}
           <div className="beginner-actions">
-            {step > 0 && <button type="button" className="beginner-back" onClick={() => navigate(step - 1)}><span aria-hidden="true">←</span> Back</button>}
+            {step > 0 && <button type="button" className="beginner-back" onClick={() => navigate(step - 1)}><span className="icon-arrow icon-arrow-left" aria-hidden="true" /> Back</button>}
             <button className="cta" type="submit">{step === questions.length - 1 ? "See my starting point" : "Continue"}</button>
           </div>
         </form>
@@ -96,7 +96,7 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
           <span className="beginner-advanced-title">Advanced quiz</span>
           <span className="beginner-advanced-sub">Already know your preferences? Choose desktop, updates, package manager and more.</span>
         </span>
-        <span className="beginner-advanced-arrow" aria-hidden="true">→</span>
+        <span className="beginner-advanced-arrow" aria-hidden="true"><span className="icon-arrow" /></span>
       </a>
     </div>
   );

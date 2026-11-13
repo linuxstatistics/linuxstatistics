@@ -14,7 +14,7 @@ export function AffiliateBlock({
         {providers.map((p) => (
           <li key={p.name}>
             <a href={p.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="nofollow sponsored noopener">
-              Deploy a server on {p.name} →
+              Deploy a server on {p.name} <span className="icon-arrow" aria-hidden="true" />
             </a>
             <span className="affiliate-blurb">{p.blurb}</span>
           </li>

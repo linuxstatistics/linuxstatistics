@@ -17,7 +17,7 @@ export function SponsorSlot({
         <p>Reach people choosing their next Linux distro.</p>
         <a href={contactHref} className="sponsor-house-ad">
           <strong>Sponsorships available</strong>
-          <span>Get in touch →</span>
+          <span>Get in touch <span className="icon-arrow" aria-hidden="true" /></span>
         </a>
       </div>
     );

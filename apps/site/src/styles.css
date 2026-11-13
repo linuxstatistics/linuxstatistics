@@ -1029,7 +1029,10 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .beginner-advanced-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
 .beginner-advanced-title { font-weight: 600; font-size: 15px; }
 .beginner-advanced-sub { font-size: 14px; color: var(--ink2); line-height: 1.45; }
-.beginner-advanced-arrow { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink2); transition: transform 0.15s var(--ease-out), color 0.15s var(--ease-out); }
+/* Arrow icon: an SVG mask in currentColor, centred in its box (text arrows sit low in most fonts). */
+.icon-arrow { display: inline-block; flex: none; width: 1em; height: 1em; vertical-align: -0.14em; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 8h11M9 3.5 13.5 8 9 12.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 8h11M9 3.5 13.5 8 9 12.5'/%3E%3C/svg%3E") center / contain no-repeat; }
+.icon-arrow-left { transform: scaleX(-1); }
+.beginner-advanced-arrow { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink2); font-size: 14px; transition: transform 0.15s var(--ease-out), color 0.15s var(--ease-out); }
 @media (hover: hover) {
   .beginner-advanced:hover { border-color: var(--ink2); }
   .beginner-advanced:hover .beginner-advanced-arrow { color: var(--ink); transform: translateX(2px); }

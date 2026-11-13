@@ -171,7 +171,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
             {top.length >= 2 && (
               <p className="quiz-compare">
                 <a href={compareHref(top[0]!.key, top[1]!.key, staticPairs)}>
-                  Compare {bySlug.get(top[0]!.key)!.name} and {bySlug.get(top[1]!.key)!.name} side by side →
+                  Compare {bySlug.get(top[0]!.key)!.name} and {bySlug.get(top[1]!.key)!.name} side by side <span className="icon-arrow" aria-hidden="true" />
                 </a>
               </p>
             )}
@@ -220,7 +220,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
           </p>
         )}
         <p className="quiz-nav">
-          <button type="button" onClick={back}>← Change answers</button>{" "}
+          <button type="button" onClick={back}><span className="icon-arrow icon-arrow-left" aria-hidden="true" /> Change answers</button>{" "}
           <button type="button" onClick={restart}>Start over</button>
         </p>
         <p className="source-note">
@@ -266,7 +266,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
         </div>
       </fieldset>
       <div className="quiz-foot">
-        {step > 0 && <button type="button" onClick={back}>← Back</button>}
+        {step > 0 && <button type="button" onClick={back}><span className="icon-arrow icon-arrow-left" aria-hidden="true" /> Back</button>}
         <button type="button" aria-expanded={why} onClick={() => setWhy((w) => !w)}>Why we ask</button>
         <button type="button" className="quiz-skip" onClick={skip}>Skip this question</button>
       </div>
