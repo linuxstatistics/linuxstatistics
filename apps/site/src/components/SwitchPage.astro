@@ -5,7 +5,7 @@ import { CATEGORIES, appsFor } from "../lib/app-alternatives";
 import { loadDistros } from "../lib/data";
 import { PROFILES } from "../lib/picker-profiles";
 import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
-import { END_OF_10, WHAT_CHANGES, picksFor, switchFaq, type From } from "../lib/switch";
+import { END_OF_10, OLDER_PC_PICKS, WHAT_CHANGES, picksFor, switchFaq, type From } from "../lib/switch";
 import { affiliateProviders } from "../config/affiliate";
 
 interface Props {
@@ -15,38 +15,86 @@ const { from } = Astro.props;
 const list = await loadDistros();
 const bySlug = new Map(list.map((d) => [d.slug, d]));
 const picks = picksFor(from, PROFILES).filter((p) => bySlug.has(p.key));
+const light = OLDER_PC_PICKS.filter((k) => k !== "mint" && bySlug.has(k));
 const apps = appsFor(from);
 const faq = switchFaq(from);
 const label = from === "windows" ? "Windows" : "a Mac";
+const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
 ---
 
-<section class="switch-sec" aria-labelledby="picks-h">
-  <h2 id="picks-h">{from === "windows" ? "A starting point for an everyday PC" : "Start with your Mac's hardware"}</h2>
-  {from === "windows" ? <><p><strong>Linux Mint</strong> is our editorial starting point for everyday use on a compatible 64-bit PC. Its familiar desktop and graphical tools keep the first steps approachable. It is not a guarantee that your hardware, games or work apps will run.</p><a class="cta" href="/switch/getting-started/?distro=mint">Getting started with Linux</a></> : <><p>Apple Silicon needs the Asahi installation route for your exact model. Intel Macs can need extra driver work. A familiar-looking desktop is not proof of hardware support.</p><a class="cta" href="/pick/?v=1&origin=mac">Help me choose for my computer</a></>}
-  <details class="switch-other-picks"><summary>Other options and when they fit</summary>
-  <ol class="switch-picks">
-    {picks.map((p) => {
-      const d = bySlug.get(p.key)!;
-      const t = telemetryFor(p.key);
-      return (
-        <li>
-          <h3><a href={`/distro/${d.slug}/`}>{d.name}</a>{d.rank != null && <span class="sub"> · #{d.rank} in popularity</span>}</h3>
-          <p class="switch-why">{p.why}</p>
-          <p>{p.profile.blurb}</p>
-          <p class="telemetry-line">Telemetry: {t ? TELEMETRY_LABEL[t.level] : "not checked yet"}</p>
-        </li>
-      );
-    })}
-  </ol>
-  </details>
-  <p>Not sure? <a href="/pick/">Answer three plain questions</a> for a starting point and compatibility guidance.</p>
-</section>
+<ol class="switch-path">
+  {from === "mac" && (
+    <li>
+      <h2 id="mac-h">Check your Mac's hardware</h2>
+      <p>
+        <strong>Intel Macs</strong> run most distros, though some need extra Wi-Fi or camera drivers.
+        <strong>Apple Silicon Macs</strong> need a model-specific route such as <a href="https://asahilinux.org/fedora/" {...ext}>Fedora Asahi Remix</a>.
+        Check the <a href="https://asahilinux.org/docs/platform/feature-support/overview/" {...ext}>Asahi feature list</a> for your model.
+      </p>
+    </li>
+  )}
+  <li>
+    <h2 id="check-h">Check your apps{from === "windows" && " and games"}</h2>
+    <p>
+      Most everyday apps run on Linux or in the browser.
+      {from === "windows" ? "Games with kernel anti-cheat and some professional apps don't." : "Some creative and professional apps don't."}
+    </p>
+    <a href="#apps-h">See your apps on Linux</a>
+  </li>
+  <li>
+    <h2 id="picks-h">Pick a starting point</h2>
+    {from === "windows" ? (
+      <>
+        <p>For an everyday 64-bit PC, start here. It's an editorial pick, not a guarantee for your hardware, games or work apps.</p>
+        <div class="switch-pick">
+          <a class="switch-pick-name" href="/distro/mint/">Linux Mint</a>
+          <span class="switch-pick-why">Start menu, taskbar and system tray where you expect them. Very little setup.</span>
+        </div>
+        {light.length > 0 && (
+          <p class="switch-path-note">
+            Older or slower PC? Try{" "}
+            {light.map((k, i) => (
+              <>{i > 0 && (i === light.length - 1 ? " or " : ", ")}<a href={`/distro/${k}/`}>{bySlug.get(k)!.name}</a></>
+            ))}.
+          </p>
+        )}
+      </>
+    ) : (
+      <p>Your hardware decides most of this. Three plain questions give you a starting point and what to check for your model.</p>
+    )}
+    <details class="switch-other-picks">
+      <summary>Other options and when they fit</summary>
+      <ol class="switch-picks">
+        {picks.map((p) => {
+          const d = bySlug.get(p.key)!;
+          const t = telemetryFor(p.key);
+          return (
+            <li>
+              <h3><a href={`/distro/${d.slug}/`}>{d.name}</a>{d.rank != null && <span class="sub"> · #{d.rank} in popularity</span>}</h3>
+              <p class="switch-why">{p.why}</p>
+              <p>{p.profile.blurb}</p>
+              <p class="telemetry-line">Telemetry: {t ? TELEMETRY_LABEL[t.level] : "not checked yet"}</p>
+            </li>
+          );
+        })}
+      </ol>
+    </details>
+    {from === "windows" && <p class="switch-path-note">Not sure? <a href="/pick/">Answer three plain questions</a>.</p>}
+  </li>
+  <li>
+    <h2 id="start-h">Try it, then install</h2>
+    <p>Back up first, then try Linux from a USB stick before installing. You can keep {from === "windows" ? "Windows" : "macOS"} alongside it.</p>
+    {from === "windows"
+      ? <a class="cta" href="/switch/getting-started/?distro=mint">Getting started with Mint</a>
+      : <a class="cta" href="/pick/?v=1&origin=mac">Help me choose for my Mac</a>}
+  </li>
+</ol>
 
 <slot />
 
-<section class="switch-sec" aria-labelledby="changes-h">
+<section class="switch-sec switch-ref" aria-labelledby="changes-h">
   <h2 id="changes-h">What changes day to day</h2>
-  <dl class="switch-changes">
+  <dl>
     {WHAT_CHANGES[from].map((c) => (
       <div>
         <dt>{c.title}</dt>
@@ -65,7 +113,7 @@ const label = from === "windows" ? "Windows" : "a Mac";
 <section class="switch-sec" aria-labelledby="help-h">
   <h2 id="help-h">Get help installing</h2>
   <p>
-    <a href={END_OF_10} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">End of 10</a> lists repair cafés, install events and local helpers
+    <a href={END_OF_10} {...ext}>End of 10</a> lists repair cafés, install events and local helpers
     worldwide, run by volunteers. Each distro's own site has install guides; start with a live USB so you can try it first.
   </p>
   {affiliateProviders.length > 0 && (
