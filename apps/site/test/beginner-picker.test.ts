@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { BEGINNER_QUESTIONS, beginnerOptions, beginnerFlow, beginnerQuery, beginnerRecommendation, parseBeginner, pickerMode, pruneBeginner } from "../src/lib/beginner-picker";
+import { BEGINNER_QUESTIONS, beginnerHint, beginnerOptions, beginnerFlow, beginnerQuery, beginnerRecommendation, parseBeginner, pickerMode, pruneBeginner } from "../src/lib/beginner-picker";
 
 test("uncertain choices are always last and blocked hardware skips irrelevant follow-ups", () => {
   for (const q of BEGINNER_QUESTIONS) expect(["other", "unsure"]).toContain(beginnerOptions(q).at(-1)?.[0]);
@@ -48,4 +48,14 @@ test("Chromebooks, unknown memory and missing catalogue candidates get guidance"
   expect(beginnerRecommendation({ ...everyday, purpose: "older", ram: "unsure" }, known).kind).toBe("compatibility-check");
   expect(beginnerRecommendation({ ...everyday, purpose: "older", ram: "1" }, known).kind).toBe("compatibility-check");
   expect(beginnerRecommendation(everyday, new Set()).kind).toBe("compatibility-check");
+});
+
+test("the machine tip matches the computer the person uses now", () => {
+  const machine = BEGINNER_QUESTIONS.find((q) => q.id === "machine")!;
+  expect(beginnerHint(machine, { origin: "mac" })).toContain("About This Mac");
+  expect(beginnerHint(machine, { origin: "windows" })).toContain("Settings → System → About");
+  expect(beginnerHint(machine, { origin: "linux" })).toContain("`uname -m`");
+  expect(beginnerHint(machine, { origin: "unsure" })).toMatch(/Settings → System → About.*About This Mac/);
+  expect(beginnerHint(machine, { origin: "chromeos" })).toBeUndefined();
+  expect(beginnerHint(machine, {})).toBeUndefined();
 });

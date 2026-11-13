@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { DistroPicker, type PickerDistro } from "./DistroPicker";
-import { beginnerFlow, beginnerOptions, beginnerQuery, beginnerRecommendation, parseBeginner, pickerMode, pruneBeginner, type BeginnerAnswers } from "../lib/beginner-picker";
+import { beginnerFlow, beginnerHint, beginnerOptions, beginnerQuery, beginnerRecommendation, parseBeginner, pickerMode, pruneBeginner, type BeginnerAnswers } from "../lib/beginner-picker";
 import { PROFILES } from "../lib/picker-profiles";
 
 /** Short flow is independent of the detailed quiz's append-only share codes. */
@@ -36,6 +36,7 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
   const q = questions[Math.min(step, questions.length - 1)]!;
   const tracked = new Set(distros.map((d) => d.slug));
   const result = beginnerRecommendation(answers, tracked);
+  const hint = beginnerHint(q, answers);
   const navigate = (next: number, complete = false, nextAnswers = answers) => {
     interacted.current = true;
     setError(false);
@@ -52,7 +53,7 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
         <form onSubmit={(event) => { event.preventDefault(); if (!answers[q.id]) { setError(true); return; } navigate(step + 1, step >= questions.length - 1); }}>
           <p className="beginner-progress">{step < 3 ? `Core question ${step + 1} of 3` : "One useful follow-up"}</p>
           <h2 ref={heading} tabIndex={-1}>{q.title}</h2>
-          {"hint" in q && <p className="beginner-hint">{q.hint}</p>}
+          {hint && <p className="tip"><span>{hint.split("`").map((part, i) => i % 2 ? <code key={i}>{part}</code> : part)}</span></p>}
           <p className="beginner-hint">Click or tap an answer to continue. With a keyboard, select an answer, then use Continue.</p>
           <fieldset aria-describedby={error ? "beginner-error" : undefined}>
             <legend className="visually-hidden">{q.title}</legend>
@@ -90,7 +91,13 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
           <button type="button" className="chip" onClick={() => navigate(0)}>Edit answers</button>
         </section>
       )}
-      <p className="beginner-advanced">Already know your preferences? <a href="/pick/?mode=advanced">Use the detailed quiz</a>.</p>
+      <a className="beginner-advanced" href="/pick/?mode=advanced">
+        <span className="beginner-advanced-text">
+          <span className="beginner-advanced-title">Advanced quiz</span>
+          <span className="beginner-advanced-sub">Already know your preferences? Choose desktop, updates, package manager and more.</span>
+        </span>
+        <span className="beginner-advanced-arrow" aria-hidden="true">→</span>
+      </a>
     </div>
   );
 }

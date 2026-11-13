@@ -270,7 +270,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
         <button type="button" aria-expanded={why} onClick={() => setWhy((w) => !w)}>Why we ask</button>
         <button type="button" className="quiz-skip" onClick={skip}>Skip this question</button>
       </div>
-      {why && <p className="quiz-why-text">{q.why}</p>}
+      {why && <p className="tip quiz-why-text">{q.why}</p>}
       <p className="quiz-keys">Arrow keys move, Enter chooses, Esc goes back.</p>
     </div>
   );

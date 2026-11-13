@@ -653,7 +653,11 @@ h1, h2, h3 { text-wrap: balance; }
 .quiz-foot button:hover, .quiz-foot button:focus-visible, .quiz-foot button[aria-expanded="true"] { color: var(--accent); }
 .quiz-foot .quiz-skip { margin-left: auto; color: inherit; border: 1px solid var(--line); border-radius: var(--pill); padding: 6px 14px; transition: border-color 0.12s var(--ease-out); }
 .quiz-foot .quiz-skip:hover, .quiz-foot .quiz-skip:focus-visible { color: inherit; border-color: var(--ink2); }
-.quiz-why-text { margin: 10px 0 0; font-size: 14px; color: var(--ink2); }
+/* Tip: a practical how-to note (where to find a setting, what to check). Bordered so it stands apart from body text. */
+.tip { display: flex; gap: 10px; align-items: flex-start; max-width: 62ch; margin: 12px 0; padding: 12px 14px; border: 1px solid color-mix(in oklab, var(--accent) 35%, var(--line)); border-radius: var(--radius); background: color-mix(in oklab, var(--accent) 7%, var(--panel)); color: var(--ink); font-size: 15px; line-height: 1.5; }
+.tip::before { content: "i" / ""; flex: none; display: grid; place-items: center; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%; background: var(--accent); color: var(--bg); font: 700 12px/1 var(--display); }
+.quiz-why-text { margin: 12px 0 0; font-size: 14px; }
+.tip code { padding: 1px 5px; border-radius: 4px; background: color-mix(in oklab, var(--ink) 9%, transparent); font: 0.92em var(--mono); white-space: nowrap; }
 .quiz-nav { display: flex; gap: 10px; flex-wrap: wrap; margin: 18px 0 0; }
 .quiz-nav button, .quiz-actions button, .quiz-fit button { font: inherit; font-size: 14px; color: inherit; background: transparent; border: 1px solid var(--line); border-radius: var(--pill); padding: 6px 14px; cursor: pointer; }
 .quiz-nav button:hover, .quiz-actions button:hover:not(:disabled) { border-color: var(--ink2); }
@@ -1006,7 +1010,7 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .switch-link { font-size: 15px; margin: 0 0 20px; }
 .beginner-picker { max-width: 660px; margin: 24px 0; }
 .beginner-picker h2 { font: 700 26px/1.2 var(--display); margin: 8px 0 16px; }
-.beginner-progress, .beginner-hint, .beginner-advanced { color: var(--ink2); }
+.beginner-progress, .beginner-hint { color: var(--ink2); }
 .beginner-progress { font-size: 13px; }
 .beginner-picker fieldset { border: 0; padding: 0; margin: 16px 0; display: grid; gap: 8px; min-width: 0; }
 .beginner-option { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; cursor: pointer; background: var(--panel); }
@@ -1015,12 +1019,24 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .beginner-option:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .beginner-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin: 20px 0; }
 .beginner-actions .cta { border: 0; cursor: pointer; min-height: 44px; margin-top: 0; }
-.beginner-back { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 12px; border: 0; border-radius: 8px; background: transparent; color: var(--ink2); font-weight: 500; cursor: pointer; }
-@media (hover: hover) { .beginner-back:hover { color: var(--ink); background: var(--panel); } }
-.beginner-back:active { color: var(--ink); background: var(--row); }
+.beginner-back { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border: 1px solid var(--line); border-radius: var(--pill); background: transparent; color: var(--ink); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: border-color 0.15s var(--ease-out), transform 0.12s var(--ease-out); }
+@media (hover: hover) { .beginner-back:hover { border-color: var(--ink2); background: var(--panel); } }
+.beginner-back:active { transform: scale(0.97); }
+.beginner-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .beginner-caveat { padding: 16px 0; border-block: 1px solid var(--line); }
 .beginner-alternatives { margin: 28px 0; }
-.beginner-advanced { margin-top: 24px; font-size: 14px; }
+.beginner-advanced { display: flex; align-items: center; gap: 16px; margin-top: 32px; max-width: 660px; padding: 14px 18px; min-height: 44px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--ink); text-decoration: none; transition: border-color 0.15s var(--ease-out), transform 0.12s var(--ease-out); }
+.beginner-advanced-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.beginner-advanced-title { font-weight: 600; font-size: 15px; }
+.beginner-advanced-sub { font-size: 14px; color: var(--ink2); line-height: 1.45; }
+.beginner-advanced-arrow { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink2); transition: transform 0.15s var(--ease-out), color 0.15s var(--ease-out); }
+@media (hover: hover) {
+  .beginner-advanced:hover { border-color: var(--ink2); }
+  .beginner-advanced:hover .beginner-advanced-arrow { color: var(--ink); transform: translateX(2px); }
+}
+.beginner-advanced:active { transform: scale(0.99); }
+.beginner-advanced:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .beginner-advanced, .beginner-advanced-arrow { transition: none; } .beginner-advanced:hover .beginner-advanced-arrow { transform: none; } }
 .beginner-guide { max-width: 800px; }
 .guide-next { margin: 16px 0 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
 .guide-next h3 { margin: 0 0 6px; font: 700 18px/1.25 var(--display); }
@@ -1031,7 +1047,7 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 @media (hover: hover) { .guide-download:not(.cta):hover { border-color: var(--ink2); } }
 .guide-download.cta { margin-top: 0; border-color: transparent; }
 .guide-unsure { margin-top: 14px; color: var(--ink2); }
-@media (max-width: 480px) { .beginner-actions .cta { width: 100%; text-align: center; } }
+@media (max-width: 480px) { .beginner-actions { gap: 10px; } .beginner-actions .cta, .beginner-actions .beginner-back { width: 100%; text-align: center; } .beginner-actions .beginner-back { order: 1; } }
 .apps-filters { display: grid; gap: 10px; margin: 0 0 8px; }
 .apps-search { width: 100%; max-width: 420px; padding: 9px 14px; border: 1px solid var(--line); border-radius: var(--pill); background: var(--panel); color: var(--ink); font: inherit; }
 .apps-cats { display: flex; flex-wrap: wrap; gap: 6px; }

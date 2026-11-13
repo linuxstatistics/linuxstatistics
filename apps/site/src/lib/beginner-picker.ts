@@ -1,8 +1,8 @@
 import { PROFILES } from "./picker-profiles";
 
 export const BEGINNER_QUESTIONS = [
-  { id: "origin", title: "What do you use now?", options: [["windows", "Windows"], ["mac", "Mac"], ["chromeos", "ChromeOS"], ["linux", "Linux"], ["unsure", "Not sure"]] },
-  { id: "machine", title: "Which computer will run Linux?", hint: "On a Mac, open Apple menu → About This Mac. Look for Intel or an Apple M-series chip.", options: [["pc", "A regular 64-bit PC"], ["intel-mac", "An Intel Mac"], ["apple", "An Apple Silicon Mac"], ["arm", "Raspberry Pi or another ARM board"], ["pc32", "A very old 32-bit PC"], ["unsure", "Not sure"]] },
+  { id: "origin", title: "What do you use now?", options: [["windows", "Windows"], ["mac", "Mac"], ["linux", "Linux"], ["chromeos", "ChromeOS"], ["unsure", "Not sure"]] },
+  { id: "machine", title: "Which computer will run Linux?", hintFor: { mac: "On a Mac, open Apple menu → About This Mac. Look for Intel or an Apple M-series chip.", windows: "On Windows, open Settings → System → About. \"64-bit operating system\" means a regular 64-bit PC.", linux: "On Linux, run `uname -m` in a terminal. `x86_64` means a regular 64-bit PC, `aarch64` means ARM, `i686` means 32‑bit.", unsure: "On Windows, open Settings → System → About and look for \"64-bit operating system\". On a Mac, open Apple menu → About This Mac and look for Intel or an Apple M-series chip." }, options: [["pc", "A regular 64-bit PC"], ["intel-mac", "An Intel Mac"], ["apple", "An Apple Silicon Mac"], ["arm", "Raspberry Pi or another ARM board"], ["pc32", "A very old 32-bit PC"], ["unsure", "Not sure"]] },
   { id: "purpose", title: "What will you mainly use it for?", options: [["everyday", "Web, email and everyday tasks"], ["gaming", "Games"], ["older", "Bringing an older computer back to life"], ["programming", "Programming"], ["work", "Creative work or specialist apps"], ["other", "Something else / not sure"], ["ai", "AI and local LLMs"]] },
   { id: "ram", title: "How much memory does it have?", options: [["1", "Under 2 GB"], ["2", "2–4 GB"], ["4", "4–8 GB"], ["8", "8 GB or more"], ["unsure", "Not sure"]] },
   { id: "gpu", title: "Which graphics does it use?", hint: "Graphics hardware affects gaming images and AI acceleration. The exact model matters, not just the brand.", options: [["amd", "AMD"], ["intel", "Intel"], ["nvidia", "NVIDIA"], ["unsure", "Not sure"]] },
@@ -12,6 +12,12 @@ export type BeginnerAnswers = Partial<Record<BeginnerKey, string>>;
 export function beginnerFlow(a: BeginnerAnswers) {
   const blocked = Boolean(a.machine && !["pc", "intel-mac"].includes(a.machine)) || a.origin === "chromeos";
   return BEGINNER_QUESTIONS.filter((q) => q.id === "ram" ? !blocked && a.purpose === "older" : q.id === "gpu" ? !blocked && (a.purpose === "gaming" || a.purpose === "ai") : true);
+}
+/** The tip under a question: fixed, or chosen by the earlier "What do you use now?" answer. Text in backticks is shown as code. */
+export function beginnerHint(q: typeof BEGINNER_QUESTIONS[number], a: BeginnerAnswers): string | undefined {
+  if ("hint" in q) return q.hint;
+  if ("hintFor" in q && a.origin && a.origin in q.hintFor) return q.hintFor[a.origin as keyof typeof q.hintFor];
+  return undefined;
 }
 /** Stable display partition; legacy detailed-quiz encoded option positions are untouched. */
 export function beginnerOptions(q: typeof BEGINNER_QUESTIONS[number]) {
