@@ -39,7 +39,7 @@ export function SupportBlock({ links, crypto }: { links: SupportLink[]; crypto: 
         <ul className="support-links">
           {links.map((l) => (
             <li key={l.name}>
-              <a href={l.href} target="_blank" rel="noopener noreferrer">
+              <a href={l.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">
                 {l.name}
               </a>
               <span>{l.note}</span>

@@ -23,7 +23,7 @@ const hasFigures = mediaKit.period != null && (mediaKit.monthlyVisitors != null 
     <h2>Current sponsor</h2>
     {sponsor ? (
       <p>
-        <a href={sponsor.href} target="_blank" rel="sponsored nofollow noopener">{sponsor.name}</a>: {sponsor.tagline}
+        <a href={sponsor.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="sponsored nofollow noopener">{sponsor.name}</a>: {sponsor.tagline}
       </p>
     ) : (
       <p>The sponsor slot is open. Thanks for considering it.</p>

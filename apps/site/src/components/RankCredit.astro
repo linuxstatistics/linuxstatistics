@@ -12,5 +12,5 @@ const { asOf = null, noun = "Rankings" } = Astro.props;
 ---
 
 {noun} from our <a href="/about/#ranking">composite index</a>: English Wikipedia article views,
-<a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a> page hits,
+<a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">DistroWatch</a> page hits,
 GitHub stars and views on this site{asOf ? `, built ${asOf}` : ""}. All of these measure interest, not installs.

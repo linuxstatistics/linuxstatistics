@@ -23,12 +23,12 @@ const count = (await loadDistros()).length;
 
     <h2>Where the numbers come from</h2>
     <ul>
-      <li><strong>Popularity:</strong> our <a href="#ranking">composite index</a>. One of its inputs is <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" rel="noopener noreferrer">DistroWatch</a>'s page-hit ranking. Everything in it measures interest, not installs.</li>
-      <li><strong>Desktop share:</strong> <a href="https://gs.statcounter.com/" target="_blank" rel="noopener noreferrer">StatCounter Global Stats</a>, monthly, worldwide.</li>
-      <li><strong>Development activity:</strong> public <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a> repositories (stars, commits).</li>
-      <li><strong>Distro facts:</strong> base distribution, first release, website and status from <a href="https://www.wikidata.org/" target="_blank" rel="noopener noreferrer">Wikidata</a> (CC0), checked against our own curated list where the two disagree.</li>
-      <li><strong>Release dates and support:</strong> current release, release date and end of support from <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0), for the distros it tracks.</li>
-      <li><strong>Interest index:</strong> daily views of each distro's English <a href="https://en.wikipedia.org/" target="_blank" rel="noopener noreferrer">Wikipedia</a> article, from the <a href="https://wikimedia.org/api/rest_v1/" target="_blank" rel="noopener noreferrer">Wikimedia REST API</a>.</li>
+      <li><strong>Popularity:</strong> our <a href="#ranking">composite index</a>. One of its inputs is <a href="https://distrowatch.com/dwres.php?resource=popularity" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">DistroWatch</a>'s page-hit ranking. Everything in it measures interest, not installs.</li>
+      <li><strong>Desktop share:</strong> <a href="https://gs.statcounter.com/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">StatCounter Global Stats</a>, monthly, worldwide.</li>
+      <li><strong>Development activity:</strong> public <a href="https://github.com/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GitHub</a> repositories (stars, commits).</li>
+      <li><strong>Distro facts:</strong> base distribution, first release, website and status from <a href="https://www.wikidata.org/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Wikidata</a> (CC0), checked against our own curated list where the two disagree.</li>
+      <li><strong>Release dates and support:</strong> current release, release date and end of support from <a href="https://endoflife.date/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0), for the distros it tracks.</li>
+      <li><strong>Interest index:</strong> daily views of each distro's English <a href="https://en.wikipedia.org/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Wikipedia</a> article, from the <a href="https://wikimedia.org/api/rest_v1/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Wikimedia REST API</a>.</li>
       <li><strong>Community scores:</strong> ratings from signed-in visitors. <a href="/about/ratings/">How scores work</a>.</li>
       <li><strong>Editorial notes:</strong> "Pick if", pros and cons and telemetry details are written by us from each project's own documentation, with sources linked.</li>
     </ul>
@@ -50,7 +50,7 @@ const count = (await loadDistros()).length;
       <li><strong>10%</strong> views of the distro's page on this site over the last 90 days.</li>
     </ul>
     <p>
-      The weights live in one place in the <a href={`${SOURCE_URL}/blob/main/packages/db/src/composite.ts`} target="_blank" rel="noopener noreferrer">source code</a>
+      The weights live in one place in the <a href={`${SOURCE_URL}/blob/main/packages/db/src/composite.ts`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">source code</a>
       and change only in a reviewed commit. All of these measure attention, not installs; nobody has install numbers for Linux. The index is
       rebuilt monthly. "Rising" uses the same inputs over the last month.
     </p>
@@ -64,7 +64,7 @@ const count = (await loadDistros()).length;
     <h2>Open source</h2>
     <p>
       The whole site is open source under the AGPL-3.0 licence. You can read how every number is calculated, report a mistake or suggest a change
-      on <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">GitHub</a>.
+      on <a href={SOURCE_URL} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GitHub</a>.
     </p>
 
     <h2>Who runs it</h2>

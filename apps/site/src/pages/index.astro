@@ -54,10 +54,16 @@ const jsonLd = {
   <div class="home">
     <section aria-label="Rankings">
       <Podium items={items} />
-      <p class="rank-difference-note">Interest score combines Wikipedia interest, DistroWatch rankings, GitHub stars and views on this site. Higher means more interest, not more installs or better quality. <a href="/about/#ranking">How it works</a>.</p>
-      <p class="rank-difference-note">Arrows compare the last-month ranking with the 12-month ranking. “Same rank” means the position matches in both.</p>
-      <div class="sec"><h2>The rest of the chart</h2><span>{RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}, last 12 months</span></div>
+      <div class="sec"><h2>The rest of the chart</h2><span class="sec-sub">{RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}, last 12 months<button type="button" class="rank-explainer-btn" popovertarget="rank-explainer" aria-label="What do these numbers mean?" title="What do these numbers mean?"></button></span></div>
       <ListView client:load items={restItems} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={47} pageSize={50} offset={items.length - restItems.length} />
+      <div id="rank-explainer" class="rank-explainer" popover role="dialog" aria-labelledby="rank-explainer-h">
+        <div class="rank-explainer-head">
+          <h2 id="rank-explainer-h">What these numbers mean</h2>
+          <button type="button" class="rank-explainer-close" popovertarget="rank-explainer" popovertargetaction="hide" aria-label="Close">×</button>
+        </div>
+        <p><strong>Interest score</strong> combines Wikipedia interest, DistroWatch rankings, GitHub stars and views on this site. Higher means more interest, not more installs or better quality. <a href="/about/#ranking">How it works</a>.</p>
+        <p><strong>Arrows</strong> compare the last-month ranking with the 12-month ranking. “– 0” means the position matches in both.</p>
+      </div>
     </section>
 
     <aside class="side" aria-label="Highlights">
@@ -89,7 +95,7 @@ const jsonLd = {
       <SponsorCard />
       <section>
         <h2>Not sure where to start?</h2>
-        <p>A few questions, three matches, and why each one fits.</p>
+        <p>Three plain questions, one starting point, and what to check next.</p>
         <a class="cta" href="/pick/">Find my distro</a>
       </section>
       <SwitchSide />

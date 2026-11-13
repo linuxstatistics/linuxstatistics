@@ -18,7 +18,7 @@ export function SponsorCard({
     return (
       <aside className="sponsor-card" aria-label="Sponsor">
         <span className="sponsor-card-label">Sponsor</span>
-        <a href={sponsor.href} target="_blank" rel="sponsored nofollow noopener" className="sponsor-card-link">
+        <a href={sponsor.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="sponsored nofollow noopener" className="sponsor-card-link">
           <img src={sponsor.logoUrl} alt={sponsor.name} className="sponsor-card-logo" />
           <span className="sponsor-card-tagline">{sponsor.tagline}</span>
         </a>

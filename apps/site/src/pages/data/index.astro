@@ -36,7 +36,7 @@ const files = [
     <p>Fields that come from other sources keep their own terms and credits:</p>
     <ul>
       {Object.values(SOURCES).map((s) => (
-        <li><a href={s.url} target="_blank" rel="noopener noreferrer">{s.name}</a>{s.note ? ` (${s.note})` : ""}</li>
+        <li><a href={s.url} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{s.name}</a>{s.note ? ` (${s.note})` : ""}</li>
       ))}
     </ul>
 
@@ -63,6 +63,6 @@ const files = [
       <li><strong>1.0.0</strong> (2026-11): first release.</li>
     </ul>
 
-    <p class="source-note">Code that builds these files is open source: <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">GitHub</a> (AGPL-3.0).</p>
+    <p class="source-note">Code that builds these files is open source: <a href={SOURCE_URL} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GitHub</a> (AGPL-3.0).</p>
   </article>
 </Base>

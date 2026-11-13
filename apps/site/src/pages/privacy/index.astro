@@ -23,7 +23,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
       </li>
       {analytics.enabled && (
         <li>
-          We count page views with <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" rel="noopener noreferrer">Vercel Web Analytics</a>.
+          We count page views with <a href="https://vercel.com/docs/analytics/privacy-policy" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Vercel Web Analytics</a>.
           It sets no cookies and doesn't follow you across sites. Each view records the page, the referring site, your browser, operating system,
           device type and rough location (country, region, city). Visits are counted with a short-lived hash of the request that is discarded
           after 24 hours; your IP address isn't stored with the data. We only see totals.
@@ -31,9 +31,9 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
       )}
       {ethicalAds.enabled && (
         <li>
-          Distro and comparison pages show one text ad from <a href="https://www.ethicalads.io/" target="_blank" rel="noopener noreferrer">EthicalAds</a>, always labelled "Ad".
+          Distro and comparison pages show one text ad from <a href="https://www.ethicalads.io/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">EthicalAds</a>, always labelled "Ad".
           The ad is picked from the page's topic, not from you: EthicalAds sets no cookies, doesn't track you across sites and doesn't build a profile.
-          Their script receives the page URL and your IP address to serve the ad, as any web request does; see their <a href="https://www.ethicalads.io/privacy-policy/" target="_blank" rel="noopener noreferrer">privacy policy</a>.
+          Their script receives the page URL and your IP address to serve the ad, as any web request does; see their <a href="https://www.ethicalads.io/privacy-policy/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">privacy policy</a>.
         </li>
       )}
       <li>Fonts and all page files are served from our own domain, so browsing doesn't contact Google Fonts or similar services.</li>

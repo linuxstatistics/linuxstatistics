@@ -315,11 +315,11 @@ function ResultCard({ r, i, d, p, server, forUse }: { r: Suggestion; i: number; 
       )}
       <p className="telemetry-line">Telemetry: {t ? TELEMETRY_LABEL[t.level] : "not checked yet"}</p>
       <p className="result-links">
-        <a href={p.downloadUrl} target="_blank" rel="noopener noreferrer">Official download</a>
+        <a href={p.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Official download</a>
         {p.distrosea && (
           <>
             {" · "}
-            <a href={`https://distrosea.com/select/${p.distrosea}/`} target="_blank" rel="noopener noreferrer">Try it in your browser</a>
+            <a href={`https://distrosea.com/select/${p.distrosea}/`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Try it in your browser</a>
           </>
         )}
         {" · "}

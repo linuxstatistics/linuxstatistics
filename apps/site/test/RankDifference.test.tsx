@@ -7,7 +7,7 @@ afterEach(cleanup);
 
 test("zero means same rank, not missing data", () => {
   render(<RankDifference value={0} />);
-  expect(screen.getByText("Same rank")).toHaveAttribute("title", "Same position in the last-month and 12-month rankings");
+  expect(screen.getByText("– 0")).toHaveAttribute("title", "Same position in the last-month and 12-month rankings");
 });
 
 test("missing comparison is labelled separately", () => {
