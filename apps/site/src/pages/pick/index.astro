@@ -2,10 +2,10 @@
 import SwitchSide from "../../components/SwitchSide.astro";
 import Base from "../../layouts/Base.astro";
 import { SponsorCard } from "../../components/SponsorCard";
-import { DistroPicker } from "../../components/DistroPicker";
+import { BeginnerPicker } from "../../components/BeginnerPicker";
 import { loadDistros } from "../../lib/data";
 import { PROFILES } from "../../lib/picker-profiles";
-import { suggest } from "../../lib/picker";
+import { beginnerRecommendation } from "../../lib/beginner-picker";
 import { compareSlug, popularPairs } from "../../lib/compare";
 
 const list = await loadDistros();
@@ -14,17 +14,14 @@ const distros = list.filter((d) => keys.has(d.slug)).map((d) => ({ slug: d.slug,
 const staticPairs = popularPairs(list).map(([a, b]) => compareSlug(a, b));
 const bySlug = new Map(distros.map((d) => [d.slug, d]));
 const profiles = PROFILES.filter((p) => bySlug.has(p.key));
-const rankOf = (k: string) => bySlug.get(k)?.rank ?? null;
 // Static fallback for visitors without JavaScript (and a quick answer for search engines).
 const QUICK = [
-  { label: "New to Linux, coming from Windows", answers: { level: "new", use: "everyday", from: "windows" } },
-  { label: "Gaming", answers: { level: "some", use: "gaming", gpu: "nvidia" } },
-  { label: "Programming", answers: { level: "some", use: "dev" } },
-  { label: "An older computer (2–4 GB of RAM)", answers: { level: "new", use: "old-hw", ram: 2 } },
-  { label: "Privacy and security", answers: { level: "some", use: "privacy", telemetry: "none" } },
-  { label: "A server or home lab", answers: { level: "some", use: "server" } },
+  { label: "Everyday use on a compatible 64-bit PC", purpose: "everyday" },
+  { label: "Gaming on a compatible 64-bit PC (check GPU and games)", purpose: "gaming" },
+  { label: "Programming on a compatible 64-bit PC", purpose: "programming" },
+  { label: "AI / local LLMs (check GPU, memory and framework)", purpose: "ai" },
 ] as const;
-const quick = QUICK.map((q) => ({ label: q.label, picks: suggest(q.answers, profiles, rankOf).map((s) => bySlug.get(s.key)!) }));
+const quick = QUICK.map((q) => ({ label: q.label, result: beginnerRecommendation({ origin: "unsure", machine: "pc", purpose: q.purpose, gpu: "unsure" }, new Set(bySlug.keys())) }));
 ---
 
 <Base
@@ -35,22 +32,22 @@ const quick = QUICK.map((q) => ({ label: q.label, picks: suggest(q.answers, prof
     <div class="with-side">
       <div class="with-side-main">
         <h1>Which Linux distro should I use?</h1>
-        <p class="lede">One question at a time; skip any you're not sure about. You get the best matches, why they fit and what to watch out for. Nothing is saved.</p>
-        <DistroPicker client:load distros={distros} staticPairs={staticPairs} />
+        <p class="lede">Three plain questions to find a starting point, with extra checks only when they matter. Your answers stay in this page's URL, not in an account.</p>
+        <BeginnerPicker client:load distros={distros} staticPairs={staticPairs} />
         <noscript>
           <p>The quiz needs JavaScript. Here are our top picks for common needs:</p>
         </noscript>
-        <section class="quick-picks" aria-labelledby="quick-h">
-          <h2 id="quick-h">Quick picks</h2>
+        <details class="quick-picks">
+          <summary>Quick picks and other starting points</summary>
           <dl>
             {quick.map((q) => (
               <>
                 <dt>{q.label}</dt>
-                <dd>{q.picks.map((d, i) => <>{i > 0 && ", "}<a href={`/distro/${d.slug}/`}>{d.name}</a></>)}</dd>
+                <dd>{q.result.kind === "recommendation" ? <a href={`/distro/${q.result.slug}/`}>{bySlug.get(q.result.slug)?.name}</a> : <a href={q.result.href}>Check compatibility first</a>}</dd>
               </>
             ))}
           </dl>
-        </section>
+        </details>
       </div>
       <aside class="side" aria-label="More">
         <SponsorCard context="people about to install Linux" />

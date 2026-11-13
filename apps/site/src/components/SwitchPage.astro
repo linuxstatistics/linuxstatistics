@@ -21,7 +21,9 @@ const label = from === "windows" ? "Windows" : "a Mac";
 ---
 
 <section class="switch-sec" aria-labelledby="picks-h">
-  <h2 id="picks-h">Good places to start</h2>
+  <h2 id="picks-h">{from === "windows" ? "A starting point for an everyday PC" : "Start with your Mac's hardware"}</h2>
+  {from === "windows" ? <><p><strong>Linux Mint</strong> is our editorial starting point for everyday use on a compatible 64-bit PC. Its familiar desktop and graphical tools keep the first steps approachable. It is not a guarantee that your hardware, games or work apps will run.</p><a class="cta" href="/switch/getting-started/?distro=mint">Getting started with Linux</a></> : <><p>Apple Silicon needs the Asahi installation route for your exact model. Intel Macs can need extra driver work. A familiar-looking desktop is not proof of hardware support.</p><a class="cta" href="/pick/?v=1&origin=mac">Help me choose for my computer</a></>}
+  <details class="switch-other-picks"><summary>Other options and when they fit</summary>
   <ol class="switch-picks">
     {picks.map((p) => {
       const d = bySlug.get(p.key)!;
@@ -36,7 +38,8 @@ const label = from === "windows" ? "Windows" : "a Mac";
       );
     })}
   </ol>
-  <p>Not sure? <a href="/pick/">Answer a few questions</a> for three matches with reasons.</p>
+  </details>
+  <p>Not sure? <a href="/pick/">Answer three plain questions</a> for a starting point and compatibility guidance.</p>
 </section>
 
 <slot />
@@ -62,7 +65,7 @@ const label = from === "windows" ? "Windows" : "a Mac";
 <section class="switch-sec" aria-labelledby="help-h">
   <h2 id="help-h">Get help installing</h2>
   <p>
-    <a href={END_OF_10} target="_blank" rel="noopener noreferrer">End of 10</a> lists repair cafés, install events and local helpers
+    <a href={END_OF_10} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">End of 10</a> lists repair cafés, install events and local helpers
     worldwide, run by volunteers. Each distro's own site has install guides; start with a live USB so you can try it first.
   </p>
   {affiliateProviders.length > 0 && (
@@ -71,7 +74,7 @@ const label = from === "windows" ? "Windows" : "a Mac";
       {affiliateProviders.map((p, i) => (
         <>
           {i > 0 && " or "}
-          <a href={p.href} target="_blank" rel="nofollow sponsored noopener">{p.name}</a>
+          <a href={p.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="nofollow sponsored noopener">{p.name}</a>
         </>
       ))}
       . <span class="affiliate-disclosure">Affiliate links: we may earn a commission.</span>

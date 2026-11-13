@@ -62,7 +62,7 @@ export const WHAT_CHANGES: Record<From, ChangeItem[]> = {
     { title: "Updates", body: "Updates cover the whole system and your apps at once, and you choose when to install them. Most don't need a restart." },
   ],
   mac: [
-    { title: "Which Macs", body: "Intel Macs run most distros. Apple Silicon (M1 and M2) Macs run Fedora Asahi Remix; newer chips and some hardware (like Thunderbolt) aren't fully supported yet. Check the Asahi Linux feature list for your model." },
+    { title: "Which Macs", body: "Intel Macs can run Linux, but drivers vary by model. Apple Silicon needs a model-specific route such as Fedora Asahi Remix. Check the current Asahi feature list for your exact model and the hardware you need." },
     { title: "Keyboard shortcuts", body: "Copy and paste use Ctrl instead of Cmd. GNOME and KDE let you remap keys if you'd rather keep your Mac habits." },
     { title: "Apple services", body: "iMessage and starting FaceTime calls aren't available. iCloud Drive, Photos, Notes and Mail work through icloud.com in the browser. AirDrop can be replaced by LocalSend, which also runs on iPhone." },
     { title: "Installing apps", body: "Apps come from an app store, like the Mac App Store. Homebrew also works on Linux if you use it." },
@@ -80,7 +80,7 @@ export function switchFaq(from: From): QA[] {
       { q: "Will my games work?", a: "Most Steam games do, through Proton. Games with kernel-level anti-cheat, like Valorant and Fortnite, don't. ProtonDB lists reports for each game." },
     ];
   return [
-    { q: "Can I run Linux on an Apple Silicon Mac?", a: "Yes, on M1 and M2 Macs, with Fedora Asahi Remix. Support for newer chips is still in progress; check the Asahi Linux site for your model." },
+    { q: "Can I run Linux on an Apple Silicon Mac?", a: "Some Apple Silicon Macs can run Fedora Asahi Remix. Support varies by exact model and feature; check the current Asahi support list before installing. Ordinary Fedora or Mint PC images are not suitable." },
     { q: "Which Linux looks most like macOS?", a: "elementary OS is the closest. Zorin OS has a macOS-style layout, and GNOME (Ubuntu, Fedora) has a dock and an app overview." },
     { q: "Can I use iMessage or FaceTime on Linux?", a: "No. Apple doesn't offer iMessage outside its devices. You can join a FaceTime call from a link in the browser, but not start one." },
     { q: "Do Adobe apps run on Linux?", a: "Adobe's desktop creative apps have no official Linux versions. GIMP, Krita, Inkscape, darktable and DaVinci Resolve cover many similar tasks, and Photopea edits PSD files in the browser. PhotoCraft, LightCraft, VectorCraft, DesignCraft, FilmCraft, EffectCraft and PdfCraft are newer Linux alternatives, but are early alpha or still in development. They aren't proven drop-in replacements: test copies of your files and check the features you need before switching." },
