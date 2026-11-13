@@ -37,6 +37,7 @@
   /* z-index scale */
   --z-sticky: 10;
   --z-dropdown: 30;
+  --z-modal: 50;
 }
 /* Light tokens: when the system asks for light and no manual choice is set, or when light is chosen. */
 @media (prefers-color-scheme: light) {
@@ -113,7 +114,20 @@ h1, h2, h3 { text-wrap: balance; }
 .brand-mark { width: 28px; height: 28px; flex: none; }
 .brand-mark-disc { fill: #000; stroke: #2a2d33; stroke-width: 2; }
 .brand-mark-axis { stroke: #e9eef5; }
-.brand-mark-bar { fill: var(--neon); }
+.brand-mark-bar { fill: var(--neon); transform-box: fill-box; transform-origin: 50% 100%; }
+/* Hovering the logo: the bars bounce like an equaliser but always stay a rising chart (left < middle < right).
+   Bar heights at rest are 40/66/98 units. Every keyframe keeps that order, and all three bars share the
+   same stops and easing, so each in-between frame is the same blend of two ordered sets and stays ordered.
+   Heights per stop: 0% 40/66/98, 20% 22/50/72, 40% 34/44/90, 60% 18/58/64, 80% 30/38/84. */
+@keyframes brand-bar-1 { 0%, 100% { transform: scaleY(1); } 20% { transform: scaleY(0.55); } 40% { transform: scaleY(0.85); } 60% { transform: scaleY(0.45); } 80% { transform: scaleY(0.75); } }
+@keyframes brand-bar-2 { 0%, 100% { transform: scaleY(1); } 20% { transform: scaleY(0.758); } 40% { transform: scaleY(0.667); } 60% { transform: scaleY(0.879); } 80% { transform: scaleY(0.576); } }
+@keyframes brand-bar-3 { 0%, 100% { transform: scaleY(1); } 20% { transform: scaleY(0.735); } 40% { transform: scaleY(0.918); } 60% { transform: scaleY(0.653); } 80% { transform: scaleY(0.857); } }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .brand:hover .brand-mark-bar { animation: 1200ms ease-in-out infinite; }
+  .brand:hover .brand-mark-bar:nth-of-type(1) { animation-name: brand-bar-1; }
+  .brand:hover .brand-mark-bar:nth-of-type(2) { animation-name: brand-bar-2; }
+  .brand:hover .brand-mark-bar:nth-of-type(3) { animation-name: brand-bar-3; }
+}
 :root[data-theme="light"] .brand-mark-disc { stroke: #000; }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) .brand-mark-disc { stroke: #000; }
@@ -150,6 +164,31 @@ h1, h2, h3 { text-wrap: balance; }
 .jump li a { display: flex; justify-content: space-between; gap: 10px; padding: 7px 10px; border-radius: 8px; text-decoration: none; font-size: 14px; }
 .jump li a span { font: 12px var(--sans); color: var(--ink2); }
 .jump li a:hover, .jump li a[aria-selected="true"] { background: var(--row); }
+
+/* Command menu (Cmd/Ctrl+K). The trigger button shows only where the header search box is hidden. */
+.cmdk-slot { display: contents; }
+.cmdk-trigger { display: none; place-items: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: transparent; color: var(--ink2); cursor: pointer; }
+.cmdk-trigger:hover { color: var(--ink); border-color: var(--ink2); }
+.cmdk-trigger:active { transform: scale(0.94); }
+.cmdk-trigger svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+.cmdk { padding: 0; margin: 12vh auto auto; width: min(560px, calc(100vw - 24px)); max-height: 70vh; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--ink); z-index: var(--z-modal); }
+.cmdk[open] { animation: cmdk-in 160ms var(--ease-out); }
+.cmdk::backdrop { background: color-mix(in oklch, var(--bg) 70%, transparent); backdrop-filter: blur(2px); }
+@keyframes cmdk-in { from { opacity: 0; transform: scale(0.97); } }
+.cmdk-panel { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; max-height: 70vh; }
+.cmdk-input { width: 100%; padding: 16px 18px; border: 0; border-bottom: 1px solid var(--line); background: transparent; font-size: 16px; outline: none; }
+.cmdk-input::placeholder { color: var(--ink2); }
+.cmdk-input::-webkit-search-cancel-button { display: none; }
+.cmdk-list { list-style: none; margin: 0; padding: 6px; overflow: auto; }
+.cmdk-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-size: 15px; }
+.cmdk-list li[aria-selected="true"] { background: var(--row); }
+.cmdk-list li[aria-selected="true"] .cmdk-label { color: var(--accent); }
+.cmdk-kind { flex: none; font: 12px var(--sans); color: var(--ink2); }
+.cmdk-empty { margin: 0; padding: 18px; color: var(--ink2); font-size: 14px; }
+.cmdk-help { margin: 0; padding: 8px 14px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink2); display: flex; gap: 6px; align-items: center; }
+.cmdk-help kbd { font: 11px var(--mono); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+.cmdk-help kbd + kbd { margin-left: -2px; }
+@media (prefers-reduced-motion: reduce) { .cmdk[open] { animation: none; } }
 
 .compare-with input { width: 100%; font-size: 14px; padding: 9px 14px; }
 .side .compare-box ul { list-style: none; }
@@ -315,7 +354,7 @@ h1, h2, h3 { text-wrap: balance; }
 .auth-control .avatar { border-radius: 50%; }
 .auth-control .login { font-weight: 500; }
 .auth-control .signout, .auth-control .signin-trigger {
-  background: transparent; border: 1px solid var(--line); border-radius: var(--pill); padding: 6px 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; border: 1px solid var(--line); border-radius: var(--pill); padding: 6px 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
 }
 .auth-control .signout:hover, .auth-control .signin-trigger:hover { border-color: var(--ink2); }
 .signin-menu { position: relative; }
@@ -756,9 +795,11 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 }
 @media (max-width: 480px) {
   .header-right .jump, .header-right .jump-slot { display: none; }
+  .cmdk-trigger { display: inline-grid; place-items: center; }
   .header-right { gap: 8px; }
   .app-header { gap: 12px; }
   .auth-slot { min-width: 0; }
+  .auth-control .signin-trigger { padding: 6px 10px; }
   .brand { font-size: 18px; }
 }
 @media (max-width: 420px) {

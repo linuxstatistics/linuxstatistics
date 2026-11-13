@@ -1,6 +1,25 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { WINDOWS_10, fmt } from "../../lib/switch";
+import { SponsorCard } from "../../components/SponsorCard";
+import { WINDOWS_10, SWITCH_PICKS, fmt } from "../../lib/switch";
+import { loadDistros, loadMarketShare } from "../../lib/data";
+import { latestLinuxShare } from "../../lib/marketShare";
+import { compareSlug, popularPairs } from "../../lib/compare";
+
+const [list, marketShare] = await Promise.all([loadDistros(), loadMarketShare()]);
+const bySlug = new Map(list.map((d) => [d.slug, d]));
+const share = latestLinuxShare(marketShare);
+// Distros recommended to both Windows and Mac switchers, then the rest, most popular first.
+const starters = [...new Set([...SWITCH_PICKS.windows, ...SWITCH_PICKS.mac].map((p) => p.key))]
+  .map((k) => bySlug.get(k))
+  .filter((d) => d != null)
+  .sort((a, b) => (a.rank ?? 9999) - (b.rank ?? 9999))
+  .slice(0, 5);
+// Prerendered comparisons between two starter distros.
+const starterSet = new Set(starters.map((d) => d.slug));
+const pairs = popularPairs(list)
+  .filter(([a, b]) => starterSet.has(a) && starterSet.has(b))
+  .slice(0, 4);
 ---
 
 <Base
@@ -8,18 +27,61 @@ import { WINDOWS_10, fmt } from "../../lib/switch";
   description="Leaving Windows or macOS? Pick a Linux distro with reasons, see what changes, and find Linux alternatives to your apps."
 >
   <div class="page switch-page">
-    <h1>Switch to Linux</h1>
-    <p class="lede">Pick a distro with reasons, see what changes, and find what to use instead of your apps.</p>
-    <div class="switch-choose">
-      <a class="switch-card" href="/switch/windows/">
-        <h2>From Windows</h2>
-        <p>Windows 10 home updates end {fmt(WINDOWS_10.consumerEsuEnds)}. Distros that feel familiar, gaming, dual boot and your apps.</p>
-      </a>
-      <a class="switch-card" href="/switch/mac/">
-        <h2>From a Mac</h2>
-        <p>Intel and Apple Silicon, Mac-like desktops, iCloud and AirDrop, and your apps.</p>
-      </a>
+    <div class="with-side">
+      <div class="with-side-main">
+        <h1>Switch to Linux</h1>
+        <p class="lede">Pick a distro with reasons, see what changes, and find what to use instead of your apps.</p>
+        <div class="switch-choose">
+          <a class="switch-card" href="/switch/windows/">
+            <h2>From Windows</h2>
+            <p>Windows 10 home updates end {fmt(WINDOWS_10.consumerEsuEnds)}. Distros that feel familiar, gaming, dual boot and your apps.</p>
+          </a>
+          <a class="switch-card" href="/switch/mac/">
+            <h2>From a Mac</h2>
+            <p>Intel and Apple Silicon, Mac-like desktops, iCloud and AirDrop, and your apps.</p>
+          </a>
+        </div>
+        <p>Already know what you want? <a href="/pick/">Answer a few questions</a> or browse the <a href="/">rankings</a>.</p>
+      </div>
+      <aside class="side" aria-label="More">
+        <SponsorCard context="people leaving Windows and macOS for Linux" />
+        <section>
+          <h2>Not sure where to start?</h2>
+          <p>A few questions, three matches, and why each one fits.</p>
+          <a class="cta" href="/pick/">Find my distro</a>
+        </section>
+        {starters.length > 0 && (
+          <section>
+            <h2>Popular with switchers</h2>
+            <ul>
+              {starters.map((d) => (
+                <li>
+                  <a href={`/distro/${d.slug}/`}>{d.name}</a>
+                  {d.rank != null && <span class="from">#{d.rank}</span>}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {pairs.length > 0 && (
+          <section>
+            <h2>Compare before you choose</h2>
+            <ul>
+              {pairs.map(([a, b]) => (
+                <li><a href={`/compare/${compareSlug(a, b)}/`}>{bySlug.get(a)!.name} vs {bySlug.get(b)!.name}</a></li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {share && (
+          <section>
+            <h2>You won't be alone</h2>
+            <div class="share-big">{share.value.toFixed(2)}%</div>
+            <p>of desktops worldwide ran Linux in {share.label} (StatCounter).</p>
+            <p><a href="/desktop-share/">Desktop share over time</a></p>
+          </section>
+        )}
+      </aside>
     </div>
-    <p>Already know what you want? <a href="/pick/">Answer a few questions</a> or browse the <a href="/">rankings</a>.</p>
   </div>
 </Base>
