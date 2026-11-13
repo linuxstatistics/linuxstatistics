@@ -107,6 +107,7 @@ export function useFit(p: PickerProfile, use: Use): UseFit {
       if (t?.level === "none") pros.push("Sends no usage data");
       else if (t?.level === "opt-in") pros.push("Sends no usage data unless you agree");
       if (t?.level === "counting") cons.push("Counts installs by default (can be turned off)");
+      else if (t?.level === "usage") cons.push("Sends usage data by default");
       else if (!t) cons.push("Usage data not checked by us yet");
       if (!tagged) cons.push("Privacy tools like Tor or sandboxing are up to you");
       break;

@@ -71,7 +71,7 @@ export function pairFaq(a: Facts, b: Facts): QA[] {
   const tb = telemetryFor(b.slug);
   if (ta && tb) {
     const line = (name: string, t: NonNullable<typeof ta>) =>
-      t.level === "counting" ? `${name} sends an anonymous count by default (you can turn it off).` : `${name}: ${TELEMETRY_LABEL[t.level].toLowerCase()}.`;
+      t.level === "counting" ? `${name} sends an anonymous count by default (you can turn it off).` : t.level === "usage" ? `${name} sends usage data by default (you can turn it off or reduce it).` : `${name}: ${TELEMETRY_LABEL[t.level].toLowerCase()}.`;
     out.push({
       q: `Does ${a.name} or ${b.name} collect telemetry?`,
       a: `${line(a.name, ta)} ${line(b.name, tb)} Apps you install have their own settings.`,

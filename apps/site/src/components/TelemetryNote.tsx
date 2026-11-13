@@ -1,5 +1,12 @@
 import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
 
+/** Commands and file paths in an instruction are shown as code; the words around them stay plain. */
+function turnOffParts(text: string) {
+  const m = /^(.*?\bRun: |.*?\brun: )(.+)$/.exec(text);
+  if (m) return <>{m[1]}<code>{m[2]}</code></>;
+  return text.split(/(\S*\/\S+|countme=0)/).map((part, i) => (i % 2 ? <code key={i}>{part.replace(/\.$/, "")}</code> : part));
+}
+
 /** "Telemetry" block on a distro page. Says nothing for distros we haven't checked. */
 export function TelemetryNote({ slug }: { slug: string }) {
   const t = telemetryFor(slug);
@@ -12,7 +19,7 @@ export function TelemetryNote({ slug }: { slug: string }) {
           <p className="tm-detail">{t.detail}</p>
           {t.turnOff && (
             <p className="tm-off">
-              To turn it off: <code>{t.turnOff}</code>
+              To turn it off: {turnOffParts(t.turnOff)}
             </p>
           )}
           <p className="note">
@@ -24,7 +31,10 @@ export function TelemetryNote({ slug }: { slug: string }) {
           </p>
         </>
       ) : (
-        <p className="note">Not checked yet. We only list what we've confirmed in the project's own documentation.</p>
+        <p className="note">
+          Not checked yet. We only list what we've confirmed in the project's own documentation.{" "}
+          <a href={`/suggest/?kind=correction&subject=${encodeURIComponent(`${slug} telemetry`)}`}>Know where it's documented? Help check this</a>.
+        </p>
       )}
     </section>
   );

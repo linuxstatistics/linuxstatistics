@@ -1,6 +1,6 @@
 import type { Desktop, Level, PickerProfile, Use } from "./picker-profiles";
 import type { Answers } from "./picker-questions";
-import { telemetryFor } from "./telemetry";
+import { sendsNothingByDefault, telemetryFor } from "./telemetry";
 
 export type { Answers } from "./picker-questions";
 
@@ -115,12 +115,12 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
   // The fact is always shown; the answer only changes the score.
   const t = telemetryFor(p.key);
   const strict = a.telemetry === "none";
-  if (t && t.level !== "counting") reasons.push(t.level === "none" ? "Sends no usage data" : "Sends no usage data unless you agree");
+  if (t && sendsNothingByDefault(t)) reasons.push(t.level === "none" ? "Sends no usage data" : "Sends no usage data unless you agree");
   if (strict || a.use === "privacy") {
     const best = strict ? 3 : 1;
     // Not checked: no points and no penalty; the card says "not checked yet".
-    const got = t && t.level !== "counting" ? best : t?.level === "counting" ? (strict ? -6 : -2) : 0;
-    crit(best, got, undefined, t?.level === "counting" ? "Counts installs by default (can be turned off)" : strict ? "Usage data not checked yet" : undefined);
+    const got = sendsNothingByDefault(t) ? best : t?.level === "usage" ? (strict ? -8 : -4) : t?.level === "counting" ? (strict ? -6 : -2) : 0;
+    crit(best, got, undefined, t?.level === "usage" ? "Sends usage data by default" : t?.level === "counting" ? "Counts installs by default (can be turned off)" : strict ? "Usage data not checked yet" : undefined);
   }
   return { key: p.key, score, max, reasons, misses };
 }

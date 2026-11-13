@@ -552,6 +552,7 @@ h1, h2, h3 { text-wrap: balance; }
 .tm-badge { display: inline-block; font: 600 12px var(--sans); padding: 2px 8px; border-radius: var(--pill); border: 1px solid currentColor; margin-right: 6px; }
 .tm-none, .tm-opt-in { color: var(--up); }
 .tm-counting { color: var(--accent); }
+.tm-usage { color: var(--down); }
 .quiz .telemetry-line { font: 12px var(--sans); color: var(--ink2); }
 
 /* Rating widget */

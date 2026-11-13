@@ -53,7 +53,7 @@ test("telemetry entries are sourced, and the FAQ compares them", async () => {
   const { TELEMETRY } = await import("../src/lib/telemetry");
   for (const t of TELEMETRY) {
     expect(t.source, t.key).toMatch(/^https:\/\//);
-    if (t.level === "counting") expect(t.turnOff, t.key).toBeTruthy();
+    if (t.level === "counting" || t.level === "usage") expect(t.turnOff, t.key).toBeTruthy();
   }
   const faq = pairFaq(d("mint", "Mint", 2), d("zorin", "Zorin", 6));
   const q = faq.find((x) => x.q.includes("telemetry"))!;
