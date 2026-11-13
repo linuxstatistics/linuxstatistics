@@ -681,7 +681,14 @@ h1, h2, h3 { text-wrap: balance; }
 .email-capture input { background: var(--bg); border: 1px solid var(--line); border-radius: var(--pill); padding: 10px 16px; min-width: 280px; }
 .email-capture button { background: var(--neon); color: var(--on-neon); border: 0; border-radius: var(--pill); padding: 10px 20px; font-weight: 600; cursor: pointer; }
 .email-capture-error { color: var(--danger); font-size: 13px; margin: 0; }
-.email-capture-done { font-size: 14px; color: var(--up); margin: 0; }
+.email-capture-done { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 10px 18px 10px 12px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); animation: email-done-in 220ms var(--ease-out); }
+.email-capture-check { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--pill); background: var(--neon); }
+.email-capture-check svg { width: 16px; height: 16px; fill: none; stroke: var(--on-neon); stroke-width: 2.25; stroke-linecap: round; stroke-linejoin: round; }
+.email-capture-done-text { display: grid; gap: 1px; font-size: 14px; line-height: 1.35; }
+.email-capture-done-text strong { font-weight: 600; color: var(--ink); }
+.email-capture-done-text span { color: var(--ink2); font-size: 13px; }
+@keyframes email-done-in { from { opacity: 0; transform: scale(0.97); } }
+@media (prefers-reduced-motion: reduce) { .email-capture-done { animation: none; } }
 
 .loading, .error { color: var(--ink2); font-size: 14px; }
 .error { color: var(--danger); }

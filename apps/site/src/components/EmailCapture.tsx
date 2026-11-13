@@ -7,7 +7,17 @@ export function EmailCapture() {
   const signup = useEmailSignup();
 
   if (signup.isSuccess) {
-    return <p className="email-capture-done">Thanks, you're on the list.</p>;
+    return (
+      <div className="email-capture-done" role="status">
+        <span className="email-capture-check" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" /></svg>
+        </span>
+        <span className="email-capture-done-text">
+          <strong>You're on the list.</strong>
+          <span>The first report arrives early next month. Unsubscribe any time.</span>
+        </span>
+      </div>
+    );
   }
 
   const onSubmit = (e: React.FormEvent) => {
