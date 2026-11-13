@@ -62,8 +62,24 @@ test("Ctrl+K opens the menu with focus in the search box; arrows move the select
 test("the header button opens the menu and shows a way out when nothing matches", async () => {
   const user = userEvent.setup();
   render(<CommandMenu items={items} />);
-  await user.click(screen.getByRole("button", { name: /search the site/i }));
+  await user.click(screen.getByRole("button", { name: /search distros and pages/i }));
   await user.type(screen.getByRole("combobox"), "qwertyuiop");
   expect(screen.getByText(/nothing matches/i)).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /suggest a distro/i })).toHaveAttribute("href", "/suggest/?kind=distro");
+});
+
+test("slash opens it; results are grouped with titles in display order", async () => {
+  const user = userEvent.setup();
+  render(<CommandMenu items={items} />);
+  await user.keyboard("/");
+  const box = screen.getByRole("combobox");
+  expect(box).toHaveFocus();
+  expect(box).toBeInTheDocument();
+  // Empty query: distros first, then pages, then actions, each under its own title.
+  const groups = screen.getAllByRole("group");
+  expect(groups.map((g) => g.getAttribute("aria-labelledby") && document.getElementById(g.getAttribute("aria-labelledby")!)?.textContent)).toEqual(["Distros", "Pages", "Actions"]);
+  // Arrow order follows the visual order: the first option is the first distro.
+  expect(screen.getAllByRole("option")[0]).toHaveTextContent("Mint");
+  await user.type(box, "mint vs fedora");
+  expect(screen.getAllByRole("group")[0]).toHaveTextContent("Compare");
 });

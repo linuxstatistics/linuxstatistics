@@ -1,36 +1,45 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { SearchItem } from "./DistroSearch";
-import { searchCommands, type Command } from "../lib/command-menu";
-
-const KIND_LABEL: Record<Command["kind"], string> = { page: "Page", distro: "Distro", compare: "Compare", action: "Action" };
+import { GROUP_LABEL, groupCommands, searchCommands, type Command } from "../lib/command-menu";
 
 function run(cmd: Command) {
   if (cmd.kind === "action") {
-    document.getElementById("theme-toggle")?.click();
+    window.dispatchEvent(new Event("cycle-theme"));
     return;
   }
   window.location.href = cmd.href;
 }
 
 /**
- * Cmd+K / Ctrl+K menu: jump to a distro, a page, a comparison ("mint vs fedora")
- * or switch theme. On narrow screens a search button in the header opens it.
+ * The site's one search: distros, pages, comparisons ("mint vs fedora") and
+ * theme. Opened from the header search button, Cmd/Ctrl+K or "/".
  */
 export function CommandMenu({ items, staticPairs = [] }: { items: SearchItem[]; staticPairs?: string[] }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
+  const [mac, setMac] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const listId = useId();
   const pairs = useMemo(() => new Set(staticPairs), [staticPairs]);
-  const results = useMemo(() => searchCommands(q, items, pairs), [q, items, pairs]);
+  const groups = useMemo(() => groupCommands(searchCommands(q, items, pairs)), [q, items, pairs]);
+  // Flattened in display order, so arrow keys follow what the eye sees.
+  const results = useMemo(() => groups.flatMap((g) => g.items), [groups]);
 
   useEffect(() => {
+    setMac(/Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent));
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((o) => !o);
+        return;
+      }
+      const t = e.target as HTMLElement | null;
+      const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable);
+      if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        e.preventDefault();
+        setOpen(true);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -61,8 +70,10 @@ export function CommandMenu({ items, staticPairs = [] }: { items: SearchItem[]; 
 
   return (
     <>
-      <button type="button" className="cmdk-trigger" aria-label="Search the site" onClick={() => setOpen(true)}>
+      <button type="button" className="cmdk-trigger" aria-label="Search distros and pages" aria-keyshortcuts={mac ? "Meta+K" : "Control+K"} onClick={() => setOpen(true)}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg>
+        <span className="cmdk-trigger-label">Search distros and pages</span>
+        <kbd className="cmdk-trigger-kbd" aria-hidden="true">{mac ? "⌘K" : "Ctrl K"}</kbd>
       </button>
       <dialog
         ref={dialog}
@@ -104,21 +115,33 @@ export function CommandMenu({ items, staticPairs = [] }: { items: SearchItem[]; 
               }}
             />
             {results.length > 0 ? (
-              <ul id={listId} role="listbox" className="cmdk-list" aria-label="Results">
-                {results.map((r, i) => (
-                  <li
-                    key={r.id}
-                    id={`${listId}-${i}`}
-                    role="option"
-                    aria-selected={i === active}
-                    onMouseMove={() => setActive(i)}
-                    onClick={() => choose(r)}
-                  >
-                    <span className="cmdk-label">{r.label}</span>
-                    <span className="cmdk-kind">{r.kind === "distro" && r.rank != null ? `#${r.rank}` : KIND_LABEL[r.kind]}</span>
-                  </li>
-                ))}
-              </ul>
+              <div id={listId} role="listbox" className="cmdk-list" aria-label="Results">
+                {groups.map((g) => {
+                  const headingId = `${listId}-${g.kind}`;
+                  return (
+                    <div key={g.kind} role="group" aria-labelledby={headingId} className="cmdk-group">
+                      <div id={headingId} className="cmdk-group-title" role="presentation">{GROUP_LABEL[g.kind]}</div>
+                      {g.items.map((r) => {
+                        const i = results.indexOf(r);
+                        return (
+                          <div
+                            key={r.id}
+                            id={`${listId}-${i}`}
+                            role="option"
+                            aria-selected={i === active}
+                            className="cmdk-item"
+                            onMouseMove={() => setActive(i)}
+                            onClick={() => choose(r)}
+                          >
+                            <span className="cmdk-label">{r.label}</span>
+                            {r.kind === "distro" && r.rank != null && <span className="cmdk-kind">#{r.rank}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
               <p className="cmdk-empty">Nothing matches “{q}”. <a href={`/suggest/?kind=distro`}>Suggest a distro</a></p>
             )}

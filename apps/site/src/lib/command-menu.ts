@@ -87,3 +87,12 @@ export function searchCommands(
   out.push(...ACTIONS.filter((a) => a.label.toLowerCase().includes(q)));
   return out.slice(0, limit);
 }
+
+/** Display order of result groups; results are always contiguous per group. */
+export const GROUP_ORDER: Command["kind"][] = ["compare", "distro", "page", "action"];
+export const GROUP_LABEL: Record<Command["kind"], string> = { compare: "Compare", distro: "Distros", page: "Pages", action: "Actions" };
+
+/** Results grouped for display, keeping each group's internal order. */
+export function groupCommands(results: Command[]): { kind: Command["kind"]; items: Command[] }[] {
+  return GROUP_ORDER.map((kind) => ({ kind, items: results.filter((r) => r.kind === kind) })).filter((g) => g.items.length > 0);
+}
