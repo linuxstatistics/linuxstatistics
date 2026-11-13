@@ -30,6 +30,7 @@ export function reasonsFor(d: Facts, baseName?: string | null): { id: string; te
   }
   // No curated profile: fall back to facts we know.
   if (baseName) out.push({ id: `base-${d.basedOnSlug}`, text: `you like ${baseName} but want a different take on it` });
+  else if (d.family === "independent") out.push({ id: "fam-independent", text: "you want a system built from scratch, not based on another distro" });
   else if (d.family !== "other") out.push({ id: `fam-${d.family}`, text: `you want a ${FAMILY_LABELS[d.family]}-family system` });
   if (d.rank != null && d.rank <= 20) out.push({ id: "popular", text: "you want a widely used distro with plenty of help online" });
   return out;

@@ -15,9 +15,16 @@ test("logged-out users see a sign-in prompt with a link per provider", () => {
       providers={[{ slug: "github", displayName: "GitHub" }, { slug: "gitlab", displayName: "GitLab" }]}
     />,
   );
-  expect(screen.getByText(/Sign in to rate/i)).toBeInTheDocument();
-  expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute("href", "/api/auth/github");
-  expect(screen.getByRole("link", { name: "GitLab" })).toBeInTheDocument();
+  expect(screen.getByText(/Sign in to rate, review/i)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Sign in with GitHub" })).toHaveAttribute("href", "/api/auth/github");
+  expect(screen.getByRole("link", { name: "Sign in with GitLab" })).toBeInTheDocument();
+});
+
+test("with no sign-in providers configured, shows a disabled button that says sign-in is coming", () => {
+  render(<RatingWidget me={null} mine={null} onSave={vi.fn()} onDelete={vi.fn()} providers={[]} />);
+  const button = screen.getByRole("button", { name: "Sign in to rate" });
+  expect(button).toBeDisabled();
+  expect(button).toHaveAccessibleDescription(/coming soon/i);
 });
 
 test("logged-in users see the star controls", () => {

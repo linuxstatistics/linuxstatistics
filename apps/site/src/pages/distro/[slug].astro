@@ -89,11 +89,33 @@ const jsonLd = {
   </script>
   <article class="page distro-page">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Rankings</a> / {data.name}</nav>
-    <h1>{data.name}</h1>
-    <p class="lede">{data.family === "independent" ? "Independent" : `${familyName} family`}{baseName ? `, based on ${baseName}` : ""}{data.firstReleaseYear ? ` · first released ${data.firstReleaseYear}` : ""}</p>
+    <div class="distro-head">
+      <div class="distro-head-text">
+        <h1>{data.name}</h1>
+      </div>
+      {(profile || data.homepage || data.repoFullName) && (
+        <div class="distro-head-actions">
+          {data.homepage && <a class="distro-head-secondary" href={data.homepage} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{profile ? "Website" : "Website and downloads"}</a>}
+          {data.repoFullName && <a class="distro-head-secondary" href={`https://github.com/${data.repoFullName}`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GitHub</a>}
+          {profile && <a class="cta" href={profile.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" aria-label={`Official ${data.name} download`}><span class="label-long">Official download</span><span class="label-short" aria-hidden="true">Download</span></a>}
+        </div>
+      )}
+    </div>
     <div class="distro-grid">
       <div class="distro-main">
         <section class="dsec dsec-overview" aria-label="Overview">
+          {(profile?.blurb || data.description) && (
+            <div class="distro-description">
+              <h2 class="visually-hidden">About {data.name}</h2>
+              {profile?.blurb ? <p>{profile.blurb}</p> : data.description && (
+                <>
+                  <p>{data.description.text.split(/\n\s*\n/).filter(Boolean)[0]}</p>
+                  {data.description.text.split(/\n\s*\n/).filter(Boolean).length > 1 && <details><summary>Read the full introduction</summary>{data.description.text.split(/\n\s*\n/).filter(Boolean).slice(1).map((paragraph) => <p>{paragraph}</p>)}</details>}
+                  <p class="source-note">From <a href={`https://en.wikipedia.org/w/index.php?title=${encodeURIComponent(data.description.title)}&oldid=${data.description.revisionId}`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Wikipedia contributors</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">CC BY-SA 4.0</a>. Introduction reproduced as plain text; retrieved {data.description.fetchedAt.slice(0, 10)}. <a href={`https://en.wikipedia.org/w/index.php?title=${encodeURIComponent(data.description.title)}&action=history`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Article history</a>.</p>
+                </>
+              )}
+            </div>
+          )}
           <DistroStats data={data} baseName={baseName} />
         </section>
         {suits.length > 0 && (
@@ -125,8 +147,8 @@ const jsonLd = {
         <EthicalAd placement="distro" />
         <p class="source-note">
           <RankCredit asOf={asOf} noun="Ranking" />{" "}
-          {data.repoFullName && <Fragment>Repository activity from <a href={`https://github.com/${data.repoFullName}`} target="_blank" rel="noopener noreferrer">GitHub</a>.{" "}</Fragment>}
-          {data.releases.length > 0 && <Fragment>Release dates and support from <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).{" "}</Fragment>}
+          {data.repoFullName && <Fragment>Repository activity from <a href={`https://github.com/${data.repoFullName}`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GitHub</a>.{" "}</Fragment>}
+          {data.releases.length > 0 && <Fragment>Release dates and support from <a href="https://endoflife.date/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).{" "}</Fragment>}
           Ratings come from signed-in LinuxStatistics users.
         </p>
       </div>

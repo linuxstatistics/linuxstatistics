@@ -29,22 +29,28 @@ export function RatingWidget({
   const [dirty, setDirty] = useState(false);
 
   if (!me) {
+    const usable = providers.filter((p) => p.slug !== "dev" || onDevLogin);
     return (
       <div className="rating-widget">
+        <p className="signin-lead">Sign in to rate, review or mark that you use it. Your forge account only identifies you; we never post anything.</p>
         <div className="signin-prompt">
-          <b>Sign in to rate</b>
-          {providers.map((p) =>
-            p.slug === "dev" ? (
-              onDevLogin && (
-                <button key="dev" type="button" onClick={onDevLogin}>
-                  {p.displayName}
+          {usable.length === 0 ? (
+            <>
+              <button type="button" className="signin-cta" disabled aria-describedby="signin-soon">Sign in to rate</button>
+              <span id="signin-soon" className="signin-soon">Coming soon with GitHub, GitLab or Codeberg</span>
+            </>
+          ) : (
+            usable.map((p) =>
+              p.slug === "dev" ? (
+                <button key="dev" type="button" className="signin-cta" onClick={onDevLogin}>
+                  Sign in with {p.displayName}
                 </button>
-              )
-            ) : (
-              <a key={p.slug} href={loginHref(p.slug)}>
-                {p.displayName}
-              </a>
-            ),
+              ) : (
+                <a key={p.slug} className="signin-cta" href={loginHref(p.slug)}>
+                  Sign in with {p.displayName}
+                </a>
+              ),
+            )
           )}
         </div>
       </div>
