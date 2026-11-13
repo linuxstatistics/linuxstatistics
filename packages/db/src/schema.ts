@@ -2,6 +2,7 @@ import {
   pgTable,
   serial,
   text,
+  jsonb,
   integer,
   smallint,
   boolean,
@@ -35,6 +36,7 @@ export const distros = pgTable(
     family: familyEnum("family").notNull(),
     basedOnSlug: text("based_on_slug"),
     homepage: text("homepage"),
+    description: jsonb("description").$type<{ text: string; title: string; revisionId: number; fetchedAt: string }>(),
     logoUrl: text("logo_url"),
     firstReleaseYear: integer("first_release_year"),
     status: distroStatusEnum("status").notNull().default("active"),
@@ -218,6 +220,7 @@ export const ingestionSourceEnum = pgEnum("ingestion_source", [
   "wikidata",
   "wikipedia",
   "endoflife",
+  "descriptions",
 ]);
 export const ingestionStatusEnum = pgEnum("ingestion_status", [
   "running",

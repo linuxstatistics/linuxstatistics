@@ -10,6 +10,7 @@ export const CADENCE_DAYS: Record<SourceFreshness["source"], number> = {
   statcounter: 31,
   wikipedia: 31,
   endoflife: 7,
+  descriptions: 7,
 };
 
 const LABEL: Record<SourceFreshness["source"], string> = {
@@ -19,6 +20,7 @@ const LABEL: Record<SourceFreshness["source"], string> = {
   statcounter: "Desktop share",
   wikipedia: "Interest index",
   endoflife: "Release dates",
+  descriptions: "Distro descriptions",
 };
 
 export type StaleSource = { source: SourceFreshness["source"]; label: string; days: number; ago: string };

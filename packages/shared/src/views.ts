@@ -101,6 +101,7 @@ export type ReleaseCycle = z.infer<typeof releaseCycleSchema>;
 export const distroDetailSchema = distroListItemSchema.extend({
   basedOnSlug: z.string().nullable(),
   homepage: z.string().nullable(),
+  description: z.object({ text: z.string(), title: z.string(), revisionId: z.number().int(), fetchedAt: z.string() }).nullable().optional(),
   logoUrl: z.string().nullable(),
   firstReleaseYear: z.number().int().nullable(),
   repoFullName: z.string().nullable(),
@@ -146,7 +147,7 @@ export const marketSharePointSchema = z.object({
 export type MarketSharePoint = z.infer<typeof marketSharePointSchema>;
 
 export const sourceFreshnessSchema = z.object({
-  source: z.enum(["distrowatch", "statcounter", "github", "wikidata", "wikipedia", "endoflife"]),
+  source: z.enum(["distrowatch", "statcounter", "github", "wikidata", "wikipedia", "endoflife", "descriptions"]),
   lastSuccessAt: z.string().nullable(),
   status: z.enum(["running", "success", "failed", "never"]),
 });

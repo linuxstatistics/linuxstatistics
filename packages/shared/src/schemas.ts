@@ -68,7 +68,7 @@ export const marketShareSchema = z.object({
 });
 export type MarketShareInput = z.infer<typeof marketShareSchema>;
 
-export const ingestionSourceSchema = z.enum(["distrowatch", "statcounter", "github", "wikidata", "wikipedia", "endoflife"]);
+export const ingestionSourceSchema = z.enum(["distrowatch", "statcounter", "github", "wikidata", "wikipedia", "endoflife", "descriptions"]);
 export type IngestionSource = z.infer<typeof ingestionSourceSchema>;
 
 export const ingestionStatusSchema = z.enum(["running", "success", "failed"]);

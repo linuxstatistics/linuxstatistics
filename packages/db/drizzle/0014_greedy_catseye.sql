@@ -1,0 +1,1 @@
+ALTER TABLE "distros" ADD COLUMN "description" jsonb;

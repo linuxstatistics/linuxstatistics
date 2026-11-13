@@ -6,10 +6,11 @@ import { ingestGithub } from "./ingest-github.js";
 import { ingestWikidataDistros } from "./ingest-wikidata.js";
 import { ingestWikipedia } from "./ingest-wikipedia.js";
 import { ingestEndoflife } from "./ingest-endoflife.js";
+import { ingestDescriptions } from "./ingest-descriptions.js";
 import { WIKIDATA_ENDPOINT, WIKIDATA_SPARQL, parseWikidataDistros } from "./sources/wikidata.js";
 import { politeGet, type FetchLike } from "./http.js";
 
-export const SOURCES = ["distrowatch", "github", "statcounter", "wikidata", "wikipedia", "endoflife"] as const;
+export const SOURCES = ["distrowatch", "github", "statcounter", "wikidata", "wikipedia", "endoflife", "descriptions"] as const;
 export type Source = (typeof SOURCES)[number];
 
 const DW_URL = "https://distrowatch.com/dwres.php?resource=popularity";
@@ -24,6 +25,7 @@ export interface RunOptions {
 async function runOne(db: Database, source: Source, opts: RunOptions): Promise<number> {
   const log = opts.log ?? console.log;
   switch (source) {
+    case "descriptions": return ingestDescriptions(db, { fetch: opts.fetch, now: opts.now, log });
     case "distrowatch": {
       const res = await politeGet(DW_URL, { fetch: opts.fetch });
       if (!res.ok) throw new Error(`DistroWatch HTTP ${res.status}`);

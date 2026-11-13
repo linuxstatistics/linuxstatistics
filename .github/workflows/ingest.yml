@@ -54,7 +54,7 @@ jobs:
             s="distrowatch"
             [ "$(date -u +%u)" = 1 ] && s="$s,github"
             [ "$(date -u +%u)" = 2 ] && s="$s,endoflife"
-            [ "$(date -u +%u)" = 7 ] && s="$s,wikidata"
+            [ "$(date -u +%u)" = 7 ] && s="$s,wikidata,descriptions"
             [ "$(date -u +%d)" = 03 ] && s="$s,statcounter,wikipedia"
           fi
           case "$s" in *[!a-z,]*) echo "bad sources: $s"; exit 1;; esac

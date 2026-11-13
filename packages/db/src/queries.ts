@@ -262,6 +262,7 @@ export async function getDistroDetail(
     rank1mDelta: latest && latest1m ? latest.rank - latest1m.rank : null,
     basedOnSlug: d.basedOnSlug,
     homepage: d.homepage,
+    description: d.description,
     logoUrl: d.logoUrl,
     firstReleaseYear: d.firstReleaseYear,
     repoFullName: repo?.repoFullName ?? null,
@@ -303,7 +304,7 @@ export async function getMarketShare(
 /** Tracked-distro count + per-source data freshness. */
 export async function getMeta(db: Database): Promise<Meta> {
   const [tracked] = await db.select({ value: count() }).from(distros);
-  const sources: IngestionSource[] = ["distrowatch", "statcounter", "github", "wikidata", "wikipedia", "endoflife"];
+  const sources: IngestionSource[] = ["distrowatch", "statcounter", "github", "wikidata", "wikipedia", "endoflife", "descriptions"];
   const freshness: SourceFreshness[] = [];
   for (const source of sources) {
     const [run] = await db
