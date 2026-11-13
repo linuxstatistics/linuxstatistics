@@ -128,14 +128,14 @@ const jsonLd = {
                 {Math.round((data.quizFit.up / data.quizFit.total) * 100)}% of {data.quizFit.total} people whose <a href="/pick/">quiz</a> top pick was {data.name} said it fit.
               </p>
             )}
+            {switchFrom.length > 0 && (
+              <p class="switch-link">
+                {switchFrom.map((f, i) => (
+                  <>{i > 0 && " · "}<a href={`/switch/${f}/`}>Switching from {f === "windows" ? "Windows" : "a Mac"}? What changes and which apps to use</a></>
+                ))}
+              </p>
+            )}
           </section>
-        )}
-        {switchFrom.length > 0 && (
-          <p class="switch-link">
-            {switchFrom.map((f, i) => (
-              <>{i > 0 && " · "}<a href={`/switch/${f}/`}>Switching from {f === "windows" ? "Windows" : "a Mac"}? What changes and which apps to use</a></>
-            ))}
-          </p>
         )}
         {notes && <ProsCons notes={notes} />}
         {fits && <UseFitTabs client:visible name={data.name} fits={fits} />}

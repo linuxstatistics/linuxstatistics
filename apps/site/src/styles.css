@@ -442,7 +442,7 @@ h1, h2, h3 { text-wrap: balance; }
 }
 @media (min-width: 761px) { .distro-head-actions .label-short { display: none; } }
 .distro-description { max-width: 65ch; margin-bottom: 24px; }
-.distro-description > p:first-of-type { margin-top: 0; font-size: 17px; line-height: 1.55; color: var(--ink); }
+.distro-description > p:first-of-type { margin-top: 0; font-size: 18px; line-height: 1.55; color: var(--ink); }
 .distro-description h2 { margin: 0 0 12px; }
 .distro-description p { line-height: 1.6; }
 .distro-description .source-note { font-size: 12px; color: var(--ink2); }
@@ -460,7 +460,7 @@ h1, h2, h3 { text-wrap: balance; }
 .dstats-facts > div { display: contents; }
 .dstats-facts dt, .dstats-facts dd { padding: 10px 0; border-bottom: 1px solid var(--row); }
 .dstats-facts dt { display: flex; align-items: center; padding-right: 24px; font: 13px var(--sans); color: var(--ink2); }
-.dstats-facts dd { margin: 0; display: flex; align-items: center; gap: 8px; min-width: 0; font: 500 15px var(--sans); color: var(--ink); overflow-wrap: anywhere; }
+.dstats-facts dd { margin: 0; display: flex; align-items: center; gap: 8px; min-width: 0; font: 600 15px var(--sans); color: var(--ink); overflow-wrap: anywhere; }
 .dstats-facts dd .family-chip { width: 10px; height: 10px; margin: 0; flex: none; }
 .dstats-facts dd a { text-decoration: none; border-bottom: 1px solid var(--line); }
 @media (hover: hover) { .dstats-facts dd a:hover { color: var(--accent); border-color: currentColor; } }
@@ -486,19 +486,20 @@ h1, h2, h3 { text-wrap: balance; }
 /* Distro page rhythm: one column of clearly separated sections */
 .distro-main { display: flex; flex-direction: column; }
 .distro-page .distro-main > * { margin: 0; max-width: 720px; }
-.distro-page .distro-main > * + * { margin-top: 40px; padding-top: 40px; border-top: 1px solid var(--line); }
+.distro-page .distro-main > * + * { margin-top: 36px; padding-top: 36px; border-top: 1px solid var(--line); }
 /* The stats end in their own rule, so whatever section follows needs no second divider. */
 .distro-page .distro-main > .dsec-overview + * { border-top: 0; padding-top: 0; margin-top: 40px; }
 .distro-page .distro-main h2 { font: 700 22px/1.2 var(--display); letter-spacing: -0.02em; margin: 0 0 16px; }
 .distro-main p { line-height: 1.6; }
 .distro-page .distro-main > .source-note { margin-top: 48px; padding-top: 24px; }
 /* Islands sit inside <astro-island> (display: contents), so the sibling rule above misses them. */
-.distro-page .distro-main > astro-island > .use-fit { margin-top: 40px; padding-top: 40px; border-top: 1px solid var(--line); }
+.distro-page .distro-main > astro-island > .use-fit { margin-top: 36px; padding-top: 36px; border-top: 1px solid var(--line); }
 .dsec-overview .dstats { margin: 20px 0 0; }
 .dsec-overview .rating-detail { margin: 12px 0 0; }
 .distro-page .distro-main .verdict.single { margin-bottom: 0; max-width: none; }
 .distro-page .distro-main .verdict-card { padding: 18px 22px; }
-.distro-page .distro-main .verdict-card p { margin-top: 8px; font-size: 17px; line-height: 1.5; }
+.distro-page .distro-main .verdict-card p { margin-top: 4px; font-size: 17px; line-height: 1.5; }
+.distro-page .dsec .switch-link, .distro-page .dsec .quiz-fit-line { margin: 14px 0 0; }
 .distro-page .distro-main .pros-cons, .distro-page .distro-main .rank-periods, .distro-page .distro-main .telemetry { margin-bottom: 0; max-width: 720px; }
 .distro-main .pc-grid { gap: 40px; max-width: none; }
 .distro-main .pc-col h3 { margin: 0 0 12px; }
@@ -524,15 +525,16 @@ h1, h2, h3 { text-wrap: balance; }
 /* Verdict, pros and cons, FAQ */
 .verdict { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 24px; }
 .verdict.single { grid-template-columns: 1fr; max-width: 640px; margin: 16px 0 8px; }
-.verdict-card { padding: 14px 18px; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--radius); }
-.verdict-label { font: 600 12px var(--sans); color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+.verdict-card { padding: 14px 18px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.verdict-card:not(.no-data) { border-color: color-mix(in oklab, var(--accent) 35%, var(--line)); background: color-mix(in oklab, var(--accent) 7%, var(--panel)); }
+.verdict-label { display: block; font: 700 15px var(--display); color: var(--ink); }
 .verdict-card p { margin: 6px 0 0; font-size: 16px; line-height: 1.45; }
 .pros-cons { margin: 8px 0 8px; }
 .pros-cons h2, .faq h2 { font: 700 21px/1.15 var(--display); letter-spacing: -0.02em; margin: 24px 0 10px; }
 .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 760px; }
 .pc-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
 .pc-pair .pc-name { font: 700 19px var(--display); margin: 0 0 6px; }
-.pc-col h3 { font: 600 12px var(--sans); color: var(--ink2); text-transform: uppercase; letter-spacing: 0.06em; margin: 10px 0 6px; }
+.pc-col h3 { font: 600 13px var(--sans); color: var(--ink2); margin: 10px 0 6px; }
 .pc-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .pc-col li { position: relative; padding-left: 22px; font-size: 15px; line-height: 1.4; }
 .pc-pro li::before { content: "+"; position: absolute; left: 0; font: 600 15px var(--sans); color: var(--up); }
@@ -900,7 +902,7 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 @media (max-width: 760px) {
   :root { --gutter: 16px; }
   .verdict, .pc-grid, .pc-pair { grid-template-columns: 1fr; }
-  .distro-page .distro-main > * + * { margin-top: 32px; padding-top: 32px; }
+  .distro-page .distro-main > * + * { margin-top: 28px; padding-top: 28px; }
   .distro-main .pc-grid { gap: 28px; }
   .cmdk-trigger { width: auto; min-width: 0; flex: 0 1 200px; }
   .col-hide-mobile { display: none; }
