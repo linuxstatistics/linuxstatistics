@@ -79,7 +79,7 @@ const jsonLd = {
 };
 ---
 
-<Base title={title} description={description} jsonLd={jsonLd}>
+<Base title={title} description={description} jsonLd={jsonLd} feed={data.releases.length > 0 ? { href: `/distro/${data.slug}/feed.xml`, title: `${data.name} releases` } : undefined}>
   <script is:inline define:vars={{ viewSlug: data.slug }}>
     // Count one view of this distro page (no cookies or visitor data). Skips
     // prerender and "Do Not Track"/"Global Privacy Control" browsers.
@@ -150,7 +150,7 @@ const jsonLd = {
         <p class="source-note">
           <RankCredit asOf={asOf} noun="Ranking" />{" "}
           {data.repoFullName && <Fragment>Repository activity from <a href={`https://github.com/${data.repoFullName}`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GitHub</a>.{" "}</Fragment>}
-          {data.releases.length > 0 && <Fragment>Release dates and support from <a href="https://endoflife.date/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).{" "}</Fragment>}
+          {data.releases.length > 0 && <Fragment>Release dates and support from <a href="https://endoflife.date/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0); <a href={`/distro/${data.slug}/feed.xml`}>follow {data.name} releases</a> (Atom feed).{" "}</Fragment>}
           Ratings come from signed-in LinuxStatistics users.
         </p>
       </div>

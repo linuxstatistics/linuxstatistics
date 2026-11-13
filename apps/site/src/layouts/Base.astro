@@ -24,9 +24,11 @@ interface Props {
   noindex?: boolean;
   /** Absolute URL of a 1200×630 share image. */
   image?: string;
+  /** An extra Atom feed for this page, e.g. one distro's releases. */
+  feed?: { href: string; title: string };
 }
 
-const { title, description, jsonLd, noindex = false, image: pageImage } = Astro.props;
+const { title, description, jsonLd, noindex = false, image: pageImage, feed } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 // Every page has a share image: the page's own, else the site card built at /og.png.
 const image = pageImage ?? new URL("/og.png", Astro.site).href;
@@ -90,6 +92,8 @@ import { AuthSkeleton } from "../components/Skeleton";
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content={image} />
     <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="alternate" type="application/atom+xml" title="LinuxStatistics: releases and monthly movers" href="/feed.xml" />
+    {feed && <link rel="alternate" type="application/atom+xml" title={feed.title} href={feed.href} />}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     {analytics.enabled && !noindex && (
       <>
@@ -192,6 +196,7 @@ import { AuthSkeleton } from "../components/Skeleton";
               <li><a href="/pick/">Which distro?</a></li>
               <li><a href="/switch/">Switch from Windows or Mac</a></li>
               <li><a href="/suggest/">Suggest a distro or fix</a></li>
+              <li><a href="/feed.xml">Feed (Atom)</a></li>
             </ul>
           </nav>
           <nav class="footer-links" aria-label="About">

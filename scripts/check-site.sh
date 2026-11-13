@@ -64,5 +64,9 @@ if [ -n "$missing" ]; then echo "FAIL: press kit links to missing files:"; echo 
 if grep -rlE 'Hits ?/ ?day|Hits per day|page-hit rankings|<small>/day</small>' "$DIST/index.html" "$DIST/distro" "$DIST/compare" "$DIST/rising" >/dev/null 2>&1; then echo "FAIL: a page still labels the index as hits"; fail=1; else echo "ok:   index never labelled as hits"; fi
 if grep -q 'composite index' "$DIST/distro/mint/index.html" && grep -q 'id="ranking"' "$DIST/about/index.html"; then echo "ok:   rank credit names the composite index and /about/#ranking exists"; else echo "FAIL: rank credit or /about/#ranking missing"; fail=1; fi
 [ ! -e "$DIST/data/rank-history.csv" ] && [ ! -d "$DIST/badge" ] && echo "ok:   no rank exports or badges" || { echo "FAIL: rank-history.csv or badges still built"; fail=1; }
+check feed.xml '<feed xmlns="http://www.w3.org/2005/Atom">' "site Atom feed is built"
+check distro/mint/feed.xml 'endoflife.date' "per-distro release feed credits its source"
+# Feeds are an export: no rank numbers, scores or hits.
+if grep -rliE '#[0-9]|rank_|hits|interest score|index_value' "$DIST/feed.xml" "$DIST"/distro/*/feed.xml >/dev/null 2>&1; then echo "FAIL: a feed carries ranking data"; fail=1; else echo "ok:   feeds carry no ranking data"; fi
 echo "distro pages: $(ls "$DIST/distro" | wc -l | tr -d ' ')"
 exit $fail
