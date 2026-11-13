@@ -16,6 +16,7 @@ import { useFits } from "../../lib/use-fit";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { WhoItSuits } from "../../components/PairVerdict";
 import { notesFor } from "../../lib/distro-notes";
+import { DISTRO_BLURBS } from "../../lib/distro-blurbs";
 import { PROFILES } from "../../lib/picker-profiles";
 import { reasonsFor } from "../../lib/verdict";
 import { compareSlug, popularPairs } from "../../lib/compare";
@@ -41,6 +42,7 @@ const family = sameFamily(list, data, new Map(Object.entries(basedOn)));
 const near = neighbours(list, data.slug);
 const notes = notesFor(data.slug);
 const profile = PROFILES.find((p) => p.key === data.slug);
+const blurb = DISTRO_BLURBS[data.slug];
 const fits = profile ? useFits(profile) : null;
 const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
@@ -104,10 +106,10 @@ const jsonLd = {
     <div class="distro-grid">
       <div class="distro-main">
         <section class="dsec dsec-overview" aria-label="Overview">
-          {(profile?.blurb || data.description) && (
+          {(profile?.blurb || blurb || data.description) && (
             <div class="distro-description">
               <h2 class="visually-hidden">About {data.name}</h2>
-              {profile?.blurb ? <p>{profile.blurb}</p> : data.description && (
+              {profile?.blurb ? <p>{profile.blurb}</p> : blurb ? <><p>{blurb.text}</p><p class="source-note">LinuxStatistics summary of <a href={blurb.source} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">the project's own website</a>. <a href={`/suggest/?kind=correction&subject=${data.slug}`}>Suggest a correction</a>.</p></> : data.description && (
                 <>
                   <p>{data.description.text.split(/\n\s*\n/).filter(Boolean)[0]}</p>
                   {data.description.text.split(/\n\s*\n/).filter(Boolean).length > 1 && <details><summary>Read the full introduction</summary>{data.description.text.split(/\n\s*\n/).filter(Boolean).slice(1).map((paragraph) => <p>{paragraph}</p>)}</details>}
