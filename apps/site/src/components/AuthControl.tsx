@@ -35,11 +35,13 @@ export function AuthControl() {
       <button
         type="button"
         className="signin signin-trigger"
+        aria-label="Sign in"
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((o) => !o)}
       >
-        Sign in
+        <svg className="signin-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path d="M5 21v-2a7 7 0 0 1 14 0v2" /></svg>
+        <span className="signin-label">Sign in</span>
         <span className="t-acc-chevron" aria-hidden>
           <svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5" /></svg>
         </span>

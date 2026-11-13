@@ -61,7 +61,7 @@ export function AppAlternatives({ apps, categories }: { apps: AppAlternative[]; 
                   <ul className="app-opts">
                     {a.options.map((o) => (
                       <li key={o.name}>
-                        <span className="app-name">{o.name}</span> <SupportChip s={o.support} />
+                        {o.href ? <a className="app-name" href={o.href} target="_blank" rel="noopener noreferrer">{o.name}</a> : <span className="app-name">{o.name}</span>} <SupportChip s={o.support} />
                         {o.note && <span className="app-note">{o.note}</span>}
                       </li>
                     ))}

@@ -1,13 +1,18 @@
 import type { Family } from "@linux-statistics/shared";
 
+/**
+ * Family colours are CSS variables (`--fam-<family>` in styles.css), with a lighter
+ * shade for the dark theme and a darker one for light, so labels pass WCAG AA
+ * (4.5:1) on the page background in both themes.
+ */
 export const FAMILY_COLORS: Record<Family, string> = {
-  debian: "#d70a53",
-  arch: "#1793d1",
-  rpm: "#ee8800",
-  independent: "#9b8cff",
-  gentoo: "#b39ddb",
-  slackware: "#6aa0ff",
-  other: "#8a97a6",
+  debian: "var(--fam-debian)",
+  arch: "var(--fam-arch)",
+  rpm: "var(--fam-rpm)",
+  independent: "var(--fam-independent)",
+  gentoo: "var(--fam-gentoo)",
+  slackware: "var(--fam-slackware)",
+  other: "var(--fam-other)",
 };
 
 export const FAMILY_LABELS: Record<Family, string> = {

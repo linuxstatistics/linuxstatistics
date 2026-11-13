@@ -3,7 +3,6 @@ import SwitchSide from "../components/SwitchSide.astro";
 import Base from "../layouts/Base.astro";
 import { ListView } from "../components/ListView";
 import { Podium } from "../components/Podium";
-import { StatsMenu } from "../components/StatsMenu";
 import { SponsorCard } from "../components/SponsorCard";
 import { loadDistros, loadMarketShare, loadMeta, loadRising, dataDate } from "../lib/data";
 import { buildHeadline } from "../lib/headline";
@@ -55,9 +54,8 @@ const jsonLd = {
   <div class="home">
     <section aria-label="Rankings">
       <Podium items={items} />
-      <div class="stats-menu-mobile">
-        <StatsMenu client:media="(max-width: 760px)" items={items} marketShare={marketShare} />
-      </div>
+      <p class="rank-difference-note">Interest score combines Wikipedia interest, DistroWatch rankings, GitHub stars and views on this site. Higher means more interest, not more installs or better quality. <a href="/about/#ranking">How it works</a>.</p>
+      <p class="rank-difference-note">Arrows compare the last-month ranking with the 12-month ranking. “Same rank” means the position matches in both.</p>
       <div class="sec"><h2>The rest of the chart</h2><span>{RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}, last 12 months</span></div>
       <ListView client:load items={restItems} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={47} pageSize={50} offset={items.length - restItems.length} />
     </section>
@@ -79,7 +77,7 @@ const jsonLd = {
         </section>
       )}
       {share && (
-        <section>
+        <section class="side-share">
           <h2>Desktop share</h2>
           <div class="share-big">{share.value.toFixed(2)}%</div>
           <p>Linux on desktops worldwide, {share.label} (StatCounter).</p>

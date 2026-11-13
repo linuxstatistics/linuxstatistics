@@ -13,6 +13,7 @@ const toProvider = (p: AffiliatePartner): AffiliateProvider => ({ name: p.name, 
  * VPS referral links shown on distro pages and the switch pages. The list and the
  * referral URLs live in `packages/shared/src/affiliates.ts` so the API redirect
  * and the site agree. Copy stays generic and honest; we never claim a specific
- * distro is offered by a provider. An empty list hides the block.
+ * distro is offered by a provider. Only partners marked `live` (real referral
+ * link) are shown; none live hides the block.
  */
-export const affiliateProviders: AffiliateProvider[] = AFFILIATE_PARTNERS.map(toProvider);
+export const affiliateProviders: AffiliateProvider[] = AFFILIATE_PARTNERS.filter((p) => p.live).map(toProvider);

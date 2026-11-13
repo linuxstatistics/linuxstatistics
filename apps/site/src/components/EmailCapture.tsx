@@ -39,13 +39,17 @@ export function EmailCapture() {
           type="email"
           placeholder="you@example.com"
           value={email}
+          aria-invalid={invalid || undefined}
+          aria-describedby={invalid || signup.isError ? "email-capture-msg" : undefined}
           onChange={(e) => { setEmail(e.target.value); setInvalid(false); }}
         />
         <button type="submit" disabled={signup.isPending}>Subscribe</button>
       </div>
-      {invalid && <p className="email-capture-error" role="alert">Enter a valid email.</p>}
-      {signup.isError && (
-        <p className="email-capture-error" role="alert">Something went wrong. Try again.</p>
+      {(invalid || signup.isError) && (
+        <p id="email-capture-msg" className="email-capture-error" role="alert">
+          <span className="email-capture-error-icon" aria-hidden="true">!</span>
+          {invalid ? "That doesn't look like an email address. Check it and try again." : "Something went wrong on our side. Try again in a moment."}
+        </p>
       )}
     </form>
   );

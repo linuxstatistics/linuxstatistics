@@ -14,7 +14,7 @@ check index.html 'rel="canonical"' "home has a canonical link"
 first=$(ls "$DIST/distro" | head -1)
 check "distro/$first/index.html" '<dl class="stats">' "distro page /distro/$first/ has stats"
 check "distro/$first/index.html" 'class="source-note"' "distro page credits its sources"
-check rising/index.html '<table class="data-table"' "rising page has its table"
+check rising/index.html '<table class="leaderboard rising-table"' "rising page has its table"
 check compare/index.html 'class="pair-list"' "compare page lists popular pairs"
 pair=$(ls "$DIST/compare" | grep -- -vs- | head -1)
 check "compare/$pair/index.html" 'compare-table' "compare pair /compare/$pair/ has the table"

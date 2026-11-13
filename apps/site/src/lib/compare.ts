@@ -20,8 +20,31 @@ export function parseCompareSlug(slug: string, known: ReadonlySet<string>): [str
 }
 
 /**
- * The pairs we prerender: every pair among the 12-month top N (N=10 gives 45),
- * plus each top-N distro paired with its parent when the parent is tracked.
+ * The comparisons beginners actually ask about, in display order. Listed on
+ * /compare/ and always prerendered; pairs whose distros aren't tracked are skipped.
+ */
+export const FEATURED_PAIRS: readonly [string, string][] = [
+  ["mint", "ubuntu"],
+  ["fedora", "ubuntu"],
+  ["mint", "popos"],
+  ["debian", "ubuntu"],
+  ["mint", "zorin"],
+  ["fedora", "mint"],
+  ["kubuntu", "ubuntu"],
+  ["arch", "manjaro"],
+  ["bazzite", "popos"],
+  ["fedora", "opensuse"],
+];
+
+/** Featured pairs whose two distros are tracked, in display order (use compareSlug for the URL). */
+export function featuredPairs(items: Pick<DistroListItem, "slug">[]): [string, string][] {
+  const known = new Set(items.map((d) => d.slug));
+  return FEATURED_PAIRS.filter(([a, b]) => known.has(a) && known.has(b)).map(([a, b]) => [a, b]);
+}
+
+/**
+ * The pairs we prerender: the featured pairs, then every pair among the
+ * 12-month top N (N=10 gives 45). Only the featured ones are listed on /compare/.
  */
 export function popularPairs(items: DistroListItem[], topN = 10): [string, string][] {
   const ranked = items
@@ -37,6 +60,7 @@ export function popularPairs(items: DistroListItem[], topN = 10): [string, strin
     seen.add(key);
     out.push([a, b].sort() as [string, string]);
   };
+  for (const [a, b] of featuredPairs(items)) add(a, b);
   for (let i = 0; i < ranked.length; i++) {
     for (let j = i + 1; j < ranked.length; j++) add(ranked[i]!.slug, ranked[j]!.slug);
   }

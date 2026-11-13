@@ -3,11 +3,13 @@ import Base from "../../layouts/Base.astro";
 import { ComparePicker } from "../../components/ComparePicker";
 import { CompareAny } from "../../components/CompareAny";
 import { loadDistros } from "../../lib/data";
-import { compareSlug, popularPairs } from "../../lib/compare";
+import { compareSlug, featuredPairs, popularPairs } from "../../lib/compare";
 
 const list = await loadDistros();
 const names = new Map(list.map((d) => [d.slug, d.name]));
-const pairs = popularPairs(list);
+// Every prerendered pair is reachable from the picker; only the common beginner questions are listed.
+const staticPairs = popularPairs(list);
+const pairs = featuredPairs(list);
 const options = list
   .sort((x, y) => x.name.localeCompare(y.name))
   .map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
@@ -20,7 +22,7 @@ const options = list
   <div class="page">
     <h1>Compare Linux distros</h1>
     <p class="lede">Pick two distros to see their rankings, family, activity and ratings side by side.</p>
-    <ComparePicker client:load options={options} staticPairs={pairs.map(([a, b]) => compareSlug(a, b))} />
+    <ComparePicker client:load options={options} staticPairs={staticPairs.map(([a, b]) => compareSlug(a, b))} />
     <CompareAny client:only="react" names={Object.fromEntries(names)} />
     <h2>Popular comparisons</h2>
     <ul class="pair-list">

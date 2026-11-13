@@ -49,7 +49,7 @@ export function ComparePicker({
   return (
     <form className="picker-form" onSubmit={go}>
       <DistroCombo items={options} value={a} onChange={setA} label="First distro" />
-      <span>vs</span>
+      <span className="vs-badge" aria-hidden="true">vs</span>
       <DistroCombo items={options.filter((o) => o.slug !== a)} value={b} onChange={setB} label="Second distro" />
       <button type="submit" disabled={!ready}>
         Compare

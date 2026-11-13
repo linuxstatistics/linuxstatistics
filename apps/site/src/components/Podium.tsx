@@ -1,11 +1,6 @@
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroListItem } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
-
-function Move({ d }: { d: DistroListItem }) {
-  const v = d.rank1mDelta;
-  if (v == null || v === 0) return <span className="trend flat">=</span>;
-  return v > 0 ? <span className="trend up">▲ {v}</span> : <span className="trend down">▼ {-v}</span>;
-}
+import { RankDifference } from "./RankDifference";
 
 /** Top three distros as big cards; static HTML, no client JS. */
 export function Podium({ items }: { items: DistroListItem[] }) {
@@ -28,7 +23,7 @@ export function Podium({ items }: { items: DistroListItem[] }) {
               {d.hitsPerDay?.toLocaleString("en-US") ?? "-"}
               <small> {RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}</small>
             </span>
-            <Move d={d} />
+            <RankDifference value={d.rank1mDelta} />
           </span>
           <i className="pb" style={{ width: `${(((d.hitsPerDay ?? 0) / max) * 100).toFixed(0)}%` }} />
         </a>

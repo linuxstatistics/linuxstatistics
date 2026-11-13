@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import type { DistroListItem } from "@linux-statistics/shared";
-import { compareSlug, parseCompareSlug, popularPairs } from "../src/lib/compare";
+import { FEATURED_PAIRS, compareSlug, featuredPairs, parseCompareSlug, popularPairs } from "../src/lib/compare";
 
 const item = (slug: string, rank: number | null) =>
   ({ slug, rank }) as unknown as DistroListItem;
@@ -26,4 +26,12 @@ test("popular pairs are all pairs among the top N, unranked excluded", () => {
     ["b", "c"],
   ]);
   expect(popularPairs(Array.from({ length: 20 }, (_, i) => item(`d${i}`, i + 1)), 10)).toHaveLength(45);
+});
+
+test("featured pairs keep their order, skip untracked distros, and are always prerendered", () => {
+  const items = [item("mint", 1), item("ubuntu", 2), item("fedora", 3), item("zorin", 40)];
+  expect(featuredPairs(items)).toEqual([["mint", "ubuntu"], ["fedora", "ubuntu"], ["mint", "zorin"], ["fedora", "mint"]]);
+  const pre = new Set(popularPairs(items, 2).map(([a, b]) => compareSlug(a, b)));
+  expect(pre.has("mint-vs-zorin")).toBe(true);
+  expect(FEATURED_PAIRS.length).toBeLessThanOrEqual(12);
 });

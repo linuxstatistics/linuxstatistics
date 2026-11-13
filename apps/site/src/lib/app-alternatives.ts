@@ -11,7 +11,7 @@ export type Support =
   | "web"
   /** The Windows version through Wine or Proton; may break with updates. */
   | "wine"
-  /** No good option on Linux. */
+  /** This app or feature is not available directly on Linux. Alternatives may exist. */
   | "none";
 
 export type Platform = "windows" | "mac" | "both";
@@ -32,6 +32,7 @@ export interface AppOption {
   name: string;
   support: Support;
   note?: string;
+  href?: string;
 }
 
 export interface AppAlternative {
@@ -41,12 +42,28 @@ export interface AppAlternative {
   options: AppOption[];
 }
 
+/** Early-stage alternatives retain their maturity notes alongside established options. */
+const CRAFT_APPS = [
+  { name: "PhotoCraft", replaces: "Photoshop", platform: "both" as Platform, stage: "Early alpha", href: "https://getartcraft.com/apps/photocraft", note: "Native Linux builds. PSD compatibility still has gaps; test copies, not your only files. Not yet a daily professional replacement." },
+  { name: "LightCraft", replaces: "Lightroom", platform: "both" as Platform, stage: "In development", href: "https://getartcraft.com/apps/lightcraft", note: "Photo library and RAW developer. Check your camera files and workflow before relying on it." },
+  { name: "VectorCraft", replaces: "Illustrator", platform: "both" as Platform, stage: "In development", href: "https://getartcraft.com/apps/vectorcraft", note: "Vector illustration. Installer availability does not establish file compatibility or feature parity." },
+  { name: "DesignCraft", replaces: "InDesign", platform: "both" as Platform, stage: "In development", href: "https://getartcraft.com/apps/designcraft", note: "Page layout and publishing. Do not assume existing InDesign projects transfer intact." },
+  { name: "FilmCraft", replaces: "Premiere Pro / Final Cut Pro", platform: "both" as Platform, stage: "In development", href: "https://getartcraft.com/apps/filmcraft", note: "Video editing. Test media formats, project features and exports before switching." },
+  { name: "EffectCraft", replaces: "After Effects", platform: "both" as Platform, stage: "In development", href: "https://getartcraft.com/apps/effectcraft", note: "Motion graphics and effects. Not a promise of After Effects project or plug-in compatibility." },
+  { name: "PdfCraft", replaces: "Acrobat", platform: "both" as Platform, stage: "Early alpha", href: "https://getartcraft.com/apps/pdfcraft", note: "PDF workbench. Test document editing, forms and signatures before relying on it." },
+];
+
+const craft = (name: string): AppOption => {
+  const app = CRAFT_APPS.find((a) => a.name === name)!;
+  return { name: app.name, support: "native", href: app.href, note: `${app.stage}. ${app.note}` };
+};
+
 export const SUPPORT_LABEL: Record<Support, string> = {
   native: "Linux app",
   flatpak: "Community package",
   web: "In the browser",
   wine: "Through Wine",
-  none: "No good option",
+  none: "Not available on Linux",
 };
 
 export const SUPPORT_HELP: Record<Support, string> = {
@@ -54,7 +71,7 @@ export const SUPPORT_HELP: Record<Support, string> = {
   flatpak: "Packaged by volunteers on Flathub; the maker doesn't support it.",
   web: "Use the website or web app in Firefox or Chrome.",
   wine: "Runs the Windows version through a compatibility layer. Often works, sometimes breaks after updates.",
-  none: "Nothing on Linux does this job well yet.",
+  none: "This specific app or feature isn't available directly on Linux. Other apps may cover part of the job; check the notes.",
 };
 
 const o = (name: string, support: Support, note?: string): AppOption => (note ? { name, support, note } : { name, support });
@@ -79,8 +96,8 @@ export const APP_ALTERNATIVES: AppAlternative[] = [
   { app: "Adobe Photoshop", platform: "both", category: "Photo and design", options: [o("GIMP", "native"), o("Krita", "native", "Strong for painting."), o("Photopea", "web", "Opens PSD files in the browser."), o("Photoshop", "none", "No Linux version; Wine results are poor.")] },
   { app: "Adobe Lightroom", platform: "both", category: "Photo and design", options: [o("darktable", "native"), o("RawTherapee", "native"), o("digiKam", "native", "Library and tagging.")] },
   { app: "Adobe Illustrator", platform: "both", category: "Photo and design", options: [o("Inkscape", "native"), o("Illustrator", "none")] },
-  { app: "Adobe InDesign", platform: "both", category: "Photo and design", options: [o("Scribus", "native", "Can't open InDesign files.")] },
-  { app: "Affinity Photo, Designer, Publisher", platform: "both", category: "Photo and design", options: [o("Krita, Inkscape, Scribus", "native"), o("Affinity", "none", "No Linux version.")] },
+  { app: "Adobe InDesign", platform: "both", category: "Photo and design", options: [o("Scribus", "native", "Imports IDML exchange files, not native INDD. Layout may need repairs; not a reliable round-trip workflow.")] },
+  { app: "Affinity Photo, Designer, Publisher", platform: "both", category: "Photo and design", options: [o("Krita, Inkscape, Scribus", "native"), o("Affinity through community Wine tools", "wine", "No native Linux version. Unofficial setup; sign-in, graphics and updates can break. Test your version before relying on it.")] },
   { app: "Figma", platform: "both", category: "Photo and design", options: [o("Figma in the browser", "web", "Full app; there's no official desktop app for Linux."), o("Penpot", "web", "Open source; can be self-hosted.")] },
   { app: "Canva", platform: "both", category: "Photo and design", options: [o("Canva on the web", "web")] },
   { app: "Paint", platform: "windows", category: "Photo and design", options: [o("Pinta", "native"), o("KolourPaint", "native")] },
@@ -130,7 +147,7 @@ export const APP_ALTERNATIVES: AppAlternative[] = [
   { app: "WhatsApp", platform: "both", category: "Chat and calls", options: [o("WhatsApp Web", "web")] },
   { app: "Signal", platform: "both", category: "Chat and calls", options: [o("Signal Desktop", "native")] },
   { app: "Telegram", platform: "both", category: "Chat and calls", options: [o("Telegram Desktop", "native")] },
-  { app: "iMessage", platform: "mac", category: "Apple services", options: [o("iMessage", "none", "Apple doesn't offer it outside its devices.")] },
+  { app: "iMessage", platform: "mac", category: "Apple services", options: [o("BlueBubbles", "native", "Linux client needs a Mac running the server and Messages, kept online. Not standalone Linux iMessage."), o("Apple Messages", "none", "No official Linux app.")] },
   { app: "FaceTime", platform: "mac", category: "Apple services", options: [o("FaceTime links", "web", "You can join a call from a link, not start one.")] },
 
   // Files and cloud
@@ -178,8 +195,28 @@ export const APP_ALTERNATIVES: AppAlternative[] = [
   { app: "QuickBooks Desktop", platform: "windows", category: "Money and other", options: [o("QuickBooks Online", "web")] },
   { app: "TurboTax, H&R Block", platform: "both", category: "Money and other", options: [o("Online versions", "web")] },
   { app: "Kindle", platform: "both", category: "Money and other", options: [o("Kindle Cloud Reader", "web"), o("Calibre", "native", "For DRM-free ebooks.")] },
-  { app: "iTunes device sync, Finder iPhone sync", platform: "both", category: "Apple services", options: [o("iPhone backup and sync", "none", "Photos can be copied over USB; full backups need a Mac or Windows PC or iCloud.")] },
+  { app: "iTunes device sync, Finder iPhone sync", platform: "both", category: "Apple services", options: [o("libimobiledevice / idevicebackup2", "native", "Command-line backup and restore tools. Compatibility depends on iOS and device; verify a recoverable backup before relying on it. Not a full Finder or iTunes replacement.")] },
 ];
+
+// Keep project metadata and cautionary notes consistent wherever a Craft app is listed.
+const CRAFT_BY_APP: Record<string, string> = {
+  "Adobe Photoshop": "PhotoCraft",
+  "Adobe Lightroom": "LightCraft",
+  "Adobe Illustrator": "VectorCraft",
+  "Adobe InDesign": "DesignCraft",
+  "Adobe Premiere Pro": "FilmCraft",
+  "Final Cut Pro": "FilmCraft",
+  "Adobe After Effects": "EffectCraft",
+  "Adobe Acrobat": "PdfCraft",
+};
+for (const app of APP_ALTERNATIVES) {
+  const name = CRAFT_BY_APP[app.app];
+  if (name) app.options.push(craft(name));
+  // Usable apps and browser options first, compatibility workarounds next,
+  // unavailable originals last. Preserve editorial order within each group.
+  const priority = (support: Support) => support === "none" ? 2 : support === "wine" ? 1 : 0;
+  app.options.sort((a, b) => priority(a.support) - priority(b.support));
+}
 
 export const CATEGORIES: Category[] = [
   "Office and email",

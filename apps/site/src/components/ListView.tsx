@@ -2,6 +2,14 @@ import { useMemo, useState, type ReactNode } from "react";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroListItem, type DistroStatus, type Family } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating } from "../lib/rating";
+import { RankDifference } from "./RankDifference";
+
+/** Historical change in this ranking window, distinct from the 1-month comparison. */
+function Trend({ value }: { value: number | null }) {
+  if (value == null) return <span className="trend flat">No data</span>;
+  if (value === 0) return <span className="trend flat">No change</span>;
+  return <span className={`trend ${value > 0 ? "up" : "down"}`}>{value > 0 ? "▲" : "▼"} {Math.abs(value)}</span>;
+}
 
 type SortKey =
   | "rank"
@@ -14,15 +22,6 @@ type SortKey =
   | "rankTrend"
   | "rank1mDelta"
   | "rating";
-
-function Trend({ value }: { value: number | null }) {
-  if (value === null || value === 0) return <span className="trend flat">=</span>;
-  return value > 0 ? (
-    <span className="trend up">▲ {value}</span>
-  ) : (
-    <span className="trend down">▼ {Math.abs(value)}</span>
-  );
-}
 
 export function distroHref(slug: string): string {
   return `/distro/${slug}/`;
@@ -89,7 +88,7 @@ const COLUMNS: ColumnDef[] = [
     ),
   },
   { key: "hitsPerDay", label: RANK_VALUE_LABEL[RANK_SOURCE], numeric: true, render: (d, ctx) => <HitsCell v={d.hitsPerDay} max={ctx.maxHits} /> },
-  { key: "rank1mDelta", label: "1 mo", numeric: true, render: (d) => <Trend value={d.rank1mDelta} /> },
+  { key: "rank1mDelta", label: "1 mo", numeric: true, render: (d) => <RankDifference value={d.rank1mDelta} /> },
   { key: "stars", label: "GitHub", numeric: true, mobileHide: true, render: starsCell },
   {
     key: "rating",

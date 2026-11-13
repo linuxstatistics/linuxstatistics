@@ -83,7 +83,7 @@ export function switchFaq(from: From): QA[] {
     { q: "Can I run Linux on an Apple Silicon Mac?", a: "Yes, on M1 and M2 Macs, with Fedora Asahi Remix. Support for newer chips is still in progress; check the Asahi Linux site for your model." },
     { q: "Which Linux looks most like macOS?", a: "elementary OS is the closest. Zorin OS has a macOS-style layout, and GNOME (Ubuntu, Fedora) has a dock and an app overview." },
     { q: "Can I use iMessage or FaceTime on Linux?", a: "No. Apple doesn't offer iMessage outside its devices. You can join a FaceTime call from a link in the browser, but not start one." },
-    { q: "Do Adobe apps run on Linux?", a: "No. GIMP, Krita, Inkscape, darktable and DaVinci Resolve cover most of the same work, and Photopea opens PSD files in the browser." },
+    { q: "Do Adobe apps run on Linux?", a: "Adobe's desktop creative apps have no official Linux versions. GIMP, Krita, Inkscape, darktable and DaVinci Resolve cover many similar tasks, and Photopea edits PSD files in the browser. PhotoCraft, LightCraft, VectorCraft, DesignCraft, FilmCraft, EffectCraft and PdfCraft are newer Linux alternatives, but are early alpha or still in development. They aren't proven drop-in replacements: test copies of your files and check the features you need before switching." },
   ];
 }
 

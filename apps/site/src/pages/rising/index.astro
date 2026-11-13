@@ -3,7 +3,7 @@ import SwitchSide from "../../components/SwitchSide.astro";
 import Base from "../../layouts/Base.astro";
 import RankCredit from "../../components/RankCredit.astro";
 import { SponsorCard } from "../../components/SponsorCard";
-import { FAMILY_LABELS } from "../../lib/families";
+import { FAMILY_LABELS, familyColor } from "../../lib/families";
 import { loadMeta, loadRising, dataDate } from "../../lib/data";
 
 const rising = await loadRising();
@@ -45,7 +45,7 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
       <p>No distro in the top 100 climbed this month.</p>
     ) : (
       <div class="table-scroll">
-        <table class="data-table">
+        <table class="leaderboard rising-table">
           <thead>
             <tr>
               <th>#</th>
@@ -59,9 +59,9 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
           <tbody>
             {rising.map((d, i) => (
               <tr>
-                <td>{i + 1}</td>
-                <td><a href={`/distro/${d.slug}/`}>{d.name}</a></td>
-                <td>{FAMILY_LABELS[d.family]}</td>
+                <td class="rank">{i + 1}</td>
+                <td class="distro-name-cell"><a href={`/distro/${d.slug}/`}>{d.name}</a></td>
+                <td class="fam-cell"><span class={`fam f-${d.family}`} style={{ color: familyColor(d.family) }}>{FAMILY_LABELS[d.family].toLowerCase()}</span></td>
                 <td class="num">{d.rank}</td>
                 <td class="num">{d.rank1m}</td>
                 <td class="num climb-cell">
@@ -75,7 +75,7 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
       </div>
     )}
     <p class="source-note">
-      <RankCredit asOf={asOf} /> "Rising" compares the last month's index with the 12-month index.
+      <RankCredit asOf={asOf} /> "Rising" compares positions in the last-month and 12-month rankings, not movement since yesterday.
     </p>
     </div>
     <aside class="side" aria-label="More">

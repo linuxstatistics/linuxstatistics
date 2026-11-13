@@ -33,6 +33,9 @@ test("an invalid email shows an error and sends no request", async () => {
   render(withClient(<EmailCapture />));
   await user.type(screen.getByLabelText(/State of Linux Distros/i), "nope");
   await user.click(screen.getByRole("button", { name: /subscribe/i }));
-  expect(screen.getByRole("alert")).toHaveTextContent(/valid email/i);
+  expect(screen.getByRole("alert")).toHaveTextContent(/doesn't look like an email address/i);
+  const input = screen.getByLabelText(/State of Linux Distros/i);
+  expect(input).toHaveAttribute("aria-invalid", "true");
+  expect(input).toHaveAttribute("aria-describedby", screen.getByRole("alert").id);
   expect(fetchMock).not.toHaveBeenCalled();
 });

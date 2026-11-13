@@ -20,11 +20,11 @@ export type PopularitySource = z.infer<typeof popularitySourceSchema>;
 /**
  * The source behind the main rank, "rising" and rank history. "composite" is
  * our own index (see packages/db/src/composite.ts); its `hitsPerDay` column
- * carries the score ×1000, labelled "Index" on the site, never "hits".
+ * carries the score ×1000, labelled "Interest score" on the site, never "hits".
  */
 export const RANK_SOURCE: PopularitySource = "composite";
 /** Label for the per-distro magnitude behind the main rank, by source. */
-export const RANK_VALUE_LABEL: Record<PopularitySource, string> = { distrowatch: "Hits / day", interest: "Views / day", composite: "Index" };
+export const RANK_VALUE_LABEL: Record<PopularitySource, string> = { distrowatch: "Hits / day", interest: "Views / day", composite: "Interest score" };
 /** Short note on what the main rank measures, for credit lines. */
 export const RANK_SOURCE_NOTE: Record<PopularitySource, string> = {
   distrowatch: "DistroWatch page hits",
