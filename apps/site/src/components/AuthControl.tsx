@@ -23,7 +23,6 @@ export function AuthControl() {
   }
 
   const list = providers ?? [];
-  if (list.length === 0) return null;
 
   const handleDev = async () => {
     await devLogin();
@@ -48,6 +47,11 @@ export function AuthControl() {
       {open && <button type="button" className="signin-backdrop" aria-label="Close menu" onClick={() => setOpen(false)} />}
       {open && (
         <div className="signin-popover" role="menu">
+          {list.length === 0 && (
+            <p className="signin-note" role="note">
+              Sign-in is coming soon: rate distros and mark the ones you use with your GitHub, GitLab or Codeberg account.
+            </p>
+          )}
           {list.map((p) =>
             p.slug === "dev" ? (
               <button key="dev" type="button" role="menuitem" className="signin-option" onClick={handleDev}>

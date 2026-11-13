@@ -30,6 +30,19 @@ test("signed out: renders a sign-in trigger and provider options", async () => {
   expect(screen.getByText("Sign in with GitLab")).toBeInTheDocument();
 });
 
+test("signed out with no providers yet: the button still shows and says sign-in is coming", async () => {
+  global.fetch = vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url.includes("/api/me")) return new Response("{}", { status: 401 });
+    return new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+  }) as unknown as typeof fetch;
+  renderControl();
+  const trigger = await screen.findByRole("button", { name: /sign in/i });
+  trigger.click();
+  expect(await screen.findByText(/Sign-in is coming soon/)).toBeInTheDocument();
+  expect(screen.queryByRole("menuitem")).not.toBeInTheDocument();
+});
+
 test("signed in: username opens an account menu with sign out", async () => {
   global.fetch = vi.fn(async (input: RequestInfo | URL) => {
     const url = String(input);
