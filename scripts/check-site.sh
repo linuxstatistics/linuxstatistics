@@ -31,6 +31,8 @@ check data/distros.json '"license": "CC-BY-4.0"' "distros.json carries its licen
 check data/distros.csv 'slug,name,family' "distros.csv has its header"
 check data/notes.json '"pros"' "notes.json has editorial data"
 check data/market-share.csv 'month,region,platform' "market-share.csv has its header"
+monthly=$(ls "$DIST/monthly" 2>/dev/null | grep -E '^[0-9]{4}-[0-9]{2}\.png$' | head -1)
+if [ -n "$monthly" ]; then echo "ok:   monthly card /monthly/$monthly"; else echo "FAIL: no /monthly/YYYY-MM.png card"; fail=1; fi
 check switch/index.html 'href="/switch/windows/"' "switch chooser links both pages"
 check switch/windows/index.html '12 October 2027' "Windows switch page has the ESU date"
 check switch/windows/index.html 'apps-table' "Windows switch page has the app table"

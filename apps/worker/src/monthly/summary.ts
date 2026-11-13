@@ -1,4 +1,4 @@
-import type { DistroListItem, MarketSharePoint } from "@linux-statistics/shared";
+import type { DistroListItem, MarketSharePoint, Meta } from "@linux-statistics/shared";
 
 export interface MonthlySummary {
   month: string; // "November 2026"
@@ -9,6 +9,15 @@ export interface MonthlySummary {
   linuxShare: { month: string; pct: number; changePts: number | null } | null;
   totalTracked: number;
 }
+
+/** The month's date: when the composite index was last rebuilt (by the wikipedia ingest). Same rule for the email and the site's card. */
+export function summaryDate(meta: Meta, now: Date = new Date()): Date {
+  const idx = meta.sources.find((s) => s.source === "wikipedia");
+  return idx?.lastSuccessAt ? new Date(idx.lastSuccessAt) : now;
+}
+
+/** Path of the month's share card on the site, e.g. "/monthly/2026-11.png". */
+export const cardPath = (s: MonthlySummary) => `/monthly/${s.capturedAt.slice(0, 7)}.png`;
 
 const monthName = (d: Date) => d.toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 

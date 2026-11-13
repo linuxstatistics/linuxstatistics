@@ -82,6 +82,9 @@ importers:
       '@linux-statistics/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@linux-statistics/worker':
+        specifier: workspace:*
+        version: link:../worker
       '@resvg/resvg-js':
         specifier: 2.6.2
         version: 2.6.2

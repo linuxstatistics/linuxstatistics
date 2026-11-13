@@ -21,4 +21,18 @@ export function registerEmailRoutes(app: FastifyInstance, db: Database): void {
     { preHandler: requireAdmin(db) },
     async () => listEmailSignups(db),
   );
+
+  // Same list as a CSV for Resend's contact import (Audience → Contacts → Import).
+  app.get("/api/admin/email-signups.csv", { preHandler: requireAdmin(db) }, async (_req, reply) => {
+    const rows = await listEmailSignups(db);
+    reply.header("Content-Type", "text/csv; charset=utf-8");
+    reply.header("Content-Disposition", 'attachment; filename="email-signups.csv"');
+    return ["email,created_at", ...rows.map((r) => `${csvField(r.email)},${new Date(r.createdAt).toISOString()}`)].join("\n") + "\n";
+  });
+}
+
+/** Quote a CSV field; neutralise leading =+-@ so spreadsheet apps don't run it as a formula. */
+function csvField(v: string): string {
+  const safe = /^[=+\-@]/.test(v) ? `'${v}` : v;
+  return /[",\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
 }

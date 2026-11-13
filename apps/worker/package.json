@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
+  "exports": {
+    "./monthly": "./src/monthly/index.ts"
+  },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "seed": "tsx src/seed.ts",

@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import type { DistroListItem, MarketSharePoint } from "@linux-statistics/shared";
-import { buildSummary, summaryEmailHtml, summaryMarkdown } from "../src/monthly/summary.js";
+import { buildSummary, cardPath, summaryDate, summaryEmailHtml, summaryMarkdown } from "../src/monthly/summary.js";
 import { renderCard } from "../src/monthly/card.js";
 import { createBroadcastDraft } from "../src/monthly/resend.js";
 
@@ -34,6 +34,12 @@ test("markdown and email carry the data; email escapes names and has an unsubscr
   expect(html).toContain("X&lt;Y");
   expect(html).not.toContain("X<Y");
   expect(html).toContain("{{{RESEND_UNSUBSCRIBE_URL}}}");
+});
+
+test("the month's date and card path follow the composite index rebuild", () => {
+  const meta = { trackedDistros: 1, sources: [{ source: "wikipedia", lastSuccessAt: "2026-11-03T05:40:00.000Z", status: "success" }] } as unknown as Parameters<typeof summaryDate>[0];
+  expect(summaryDate(meta).toISOString()).toBe("2026-11-03T05:40:00.000Z");
+  expect(cardPath(s)).toBe("/monthly/2026-11.png");
 });
 
 test("share card renders a 1200x630 PNG", async () => {

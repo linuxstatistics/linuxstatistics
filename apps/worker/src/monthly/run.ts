@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { DistroListItem, MarketSharePoint, Meta } from "@linux-statistics/shared";
-import { buildSummary, summaryEmailHtml, summaryMarkdown } from "./summary.js";
+import { buildSummary, cardPath, summaryDate, summaryEmailHtml, summaryMarkdown } from "./summary.js";
 import { renderCard } from "./card.js";
 import { createBroadcastDraft } from "./resend.js";
 
@@ -9,7 +9,8 @@ const USAGE = `Usage: monthly [--out DIR] [--draft]
   Reads from the API (API_URL, default http://localhost:3001) and writes
   summary.json, summary.md, email.html and card.png to DIR
   (default ./monthly/<YYYY-MM>). --draft also creates a Resend Broadcast
-  draft (needs RESEND_API_KEY, RESEND_SEGMENT_ID, MONTHLY_FROM). Nothing is sent.`;
+  draft (needs RESEND_API_KEY, RESEND_SEGMENT_ID, MONTHLY_FROM). Nothing is sent.
+  The site build publishes the same card at /monthly/<YYYY-MM>.png.`;
 
 async function getJson<T>(api: string, path: string): Promise<T> {
   const res = await fetch(`${api}${path}`);
@@ -34,22 +35,20 @@ async function main() {
     getJson<MarketSharePoint[]>(api, "/api/market-share?region=global"),
     getJson<Meta>(api, "/api/meta"),
   ]);
-  // The composite index is rebuilt by the wikipedia ingest; its date is the chart date.
-  const idx = meta.sources.find((s) => s.source === "wikipedia");
-  const capturedAt = idx?.lastSuccessAt ? new Date(idx.lastSuccessAt) : new Date();
-  const summary = buildSummary(list, rising, share, capturedAt);
+  const summary = buildSummary(list, rising, share, summaryDate(meta));
 
   const out = resolve(outIdx >= 0 ? args[outIdx + 1]! : `monthly/${summary.capturedAt.slice(0, 7)}`);
   mkdirSync(out, { recursive: true });
   const md = summaryMarkdown(summary, site);
-  const cardUrl = `${site}/monthly/${summary.capturedAt.slice(0, 7)}.png`;
+  // The site build publishes the same card at this path (apps/site/src/pages/monthly/).
+  const cardUrl = `${site}${cardPath(summary)}`;
   const html = summaryEmailHtml(summary, site, cardUrl);
   writeFileSync(resolve(out, "summary.json"), JSON.stringify(summary, null, 2));
   writeFileSync(resolve(out, "summary.md"), md);
   writeFileSync(resolve(out, "email.html"), html);
   writeFileSync(resolve(out, "card.png"), await renderCard(summary, new URL(site).host));
   console.log(`monthly: wrote summary.json, summary.md, email.html, card.png to ${out}`);
-  console.log(`monthly: upload card.png to ${cardUrl} before sending the email`);
+  console.log(`monthly: the email shows ${cardUrl}; check it loads before sending`);
 
   if (draft) {
     const key = process.env.RESEND_API_KEY;

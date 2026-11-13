@@ -47,6 +47,18 @@ test("a duplicate still returns ok and does not create a second row", async () =
   expect(dupRows).toHaveLength(1);
 });
 
+test("admin CSV export lists addresses for Resend import and needs an admin", async () => {
+  await app.inject({ method: "POST", url: "/api/email-signups", payload: { email: "csv@example.com" } });
+  expect((await app.inject({ method: "GET", url: "/api/admin/email-signups.csv" })).statusCode).toBe(401);
+  const adminCookie = await loginAs(app, { providerUserId: "902", username: "boss2", role: "admin" });
+  const res = await app.inject({ method: "GET", url: "/api/admin/email-signups.csv", headers: { cookie: adminCookie } });
+  expect(res.statusCode).toBe(200);
+  expect(res.headers["content-type"]).toContain("text/csv");
+  const lines = res.body.trim().split("\n");
+  expect(lines[0]).toBe("email,created_at");
+  expect(lines.some((l) => l.startsWith("csv@example.com,"))).toBe(true);
+});
+
 test("admin export requires admin", async () => {
   const res = await app.inject({ method: "GET", url: "/api/admin/email-signups" });
   expect(res.statusCode).toBe(401);
