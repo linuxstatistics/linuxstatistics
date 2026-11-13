@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { DistroPicker, type PickerDistro } from "./DistroPicker";
 import { beginnerFlow, beginnerHint, beginnerOptions, beginnerQuery, beginnerRecommendation, parseBeginner, pickerMode, pruneBeginner, type BeginnerAnswers } from "../lib/beginner-picker";
 import { PROFILES } from "../lib/picker-profiles";
+import { revealPicker } from "../lib/pick-restore";
 
 /** Short flow is independent of the detailed quiz's append-only share codes. */
 export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro[]; staticPairs: string[] }) {
@@ -12,6 +13,7 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
   const [error, setError] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const interacted = useRef(false);
+  const [restored, setRestored] = useState(false);
   useEffect(() => {
     const restore = () => {
       const params = new URLSearchParams(location.search);
@@ -28,9 +30,12 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
       }
     };
     restore();
+    setRestored(true);
     window.addEventListener("popstate", restore);
     return () => window.removeEventListener("popstate", restore);
   }, []);
+  // The advanced quiz reveals itself once it has restored its own answers.
+  useEffect(() => { if (restored && mode === "beginner") revealPicker(); }, [restored, mode]);
   useEffect(() => { if (interacted.current) heading.current?.focus(); }, [step, done]);
   const questions = beginnerFlow(answers);
   const q = questions[Math.min(step, questions.length - 1)]!;

@@ -1,0 +1,16 @@
+---
+// Static HTML always shows the quiz's first screen. When the URL holds saved answers, hide the
+// picker until its island restores them (revealPicker), so the first screen doesn't flash.
+// The timeout keeps it from staying hidden if the island's JavaScript never runs.
+---
+
+<script is:inline>
+  (function () {
+    var p = new URLSearchParams(location.search);
+    var saved = p.has("a") || p.get("mode") === "advanced" || (p.get("v") === "1" && ["origin", "machine", "purpose", "ram", "gpu"].some(function (k) { return p.has(k); }));
+    if (!saved) return;
+    var root = document.documentElement;
+    root.setAttribute("data-pick-restore", "");
+    setTimeout(function () { root.removeAttribute("data-pick-restore"); }, 3000);
+  })();
+</script>

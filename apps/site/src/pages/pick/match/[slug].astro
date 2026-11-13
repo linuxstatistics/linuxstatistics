@@ -1,5 +1,6 @@
 ---
 import Base from "../../../layouts/Base.astro";
+import PickRestore from "../../../components/PickRestore.astro";
 import { DistroPicker } from "../../../components/DistroPicker";
 import { loadDistros } from "../../../lib/data";
 import { PROFILES } from "../../../lib/picker-profiles";
@@ -29,6 +30,7 @@ const image = new URL(`/pick/match/${slug}.png`, Astro.site).href;
   <div class="page">
     <h1>Matched with {name}</h1>
     <p class="lede">These are someone's quiz results. <a href="/pick/">Take the quiz yourself</a> to get your own.</p>
+    <PickRestore />
     <DistroPicker client:load distros={distros} staticPairs={staticPairs} />
   </div>
 </Base>

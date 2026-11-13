@@ -4,6 +4,7 @@ import { PROFILES, type PickerProfile } from "../lib/picker-profiles";
 import { decodeAnswers, encodeAnswers, flow, prune, type Answers, type Question } from "../lib/picker-questions";
 import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
 import { compareSlug } from "../lib/compare";
+import { revealPicker } from "../lib/pick-restore";
 
 export interface PickerDistro {
   slug: string;
@@ -35,9 +36,11 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
   const [fit, setFit] = useState<Fit>("idle");
   const [copied, setCopied] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const [restored, setRestored] = useState(false);
 
   // Restore from a shared link.
   useEffect(() => {
+    setRestored(true);
     const code = new URLSearchParams(window.location.search).get("a") ?? initialCode;
     if (code == null) return;
     const a = decodeAnswers(code);
@@ -45,6 +48,10 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
     setSkipped(new Set(flow(a).filter((q) => a[q.id] === undefined).map((q) => q.id)));
     setDone(true);
   }, [initialCode]);
+
+  useEffect(() => {
+    if (restored) revealPicker();
+  }, [restored]);
 
   const questions = flow(answers);
   const q: Question | undefined = questions[step];
