@@ -27,6 +27,8 @@ check about/index.html 'Where the numbers come from' "about page renders"
 check privacy/index.html 'Your rights' "privacy page renders"
 check terms/index.html 'Ratings and reviews' "terms page renders"
 check sponsors/index.html "doesn't buy" "sponsors page renders"
+# Sponsor rates are quoted by email, never published.
+if sed -e 's/<script[^>]*>.*<\/script>//g' "$DIST/sponsors/index.html" | grep -qE '\$[0-9]'; then echo "FAIL: sponsors page shows a price"; fail=1; else echo "ok:   sponsors page shows no prices"; fi
 check suggest/index.html 'Suggestions' "suggest page renders"
 check data/index.html 'CC BY 4.0' "open data page renders"
 check data/index.html '/api/v1/distros' "open data page documents the v1 API"

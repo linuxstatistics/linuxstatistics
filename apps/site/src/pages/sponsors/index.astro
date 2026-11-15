@@ -3,53 +3,68 @@ import Base from "../../layouts/Base.astro";
 import { CONTACT } from "../../config/site";
 import { sponsors } from "../../config/sponsor";
 import { affiliateProviders } from "../../config/affiliate";
-import { loadDistros } from "../../lib/data";
-import { mediaKit } from "../../config/media-kit";
+import { mediaKit, type SponsorTierInfo } from "../../config/media-kit";
 
-const count = (await loadDistros()).length;
 const fmt = (n: number) => n.toLocaleString("en-US");
 const { offer } = mediaKit;
-const usd = (r: { from: number; to: number }) => `$${r.from}–${r.to}`;
-/** "Available", "Taken: Acme", "2 of 6 taken" or "Opens at 10,000 visitors a month". */
-const status = (t: (typeof offer.tiers)[number]) => {
+const [headline, ...others] = offer.tiers as SponsorTierInfo[];
+
+/** Status pill text and tone for a tier. */
+function status(t: SponsorTierInfo): { text: string; tone: "open" | "later" | "taken" } {
   const opensAt = t.opensAtMonthlyVisitors;
-  if (opensAt != null && (mediaKit.monthlyVisitors ?? 0) < opensAt) return `Opens at ${fmt(opensAt)} visitors a month`;
-  if (t.id === "supporter") return sponsors.supporters.length ? `${sponsors.supporters.length} of ${t.slots} taken` : "Available";
+  if (opensAt != null && (mediaKit.monthlyVisitors ?? 0) < opensAt) return { text: "Opening later", tone: "later" };
+  if (t.id === "supporter") {
+    const n = sponsors.supporters.length;
+    if (n >= t.slots) return { text: "Full", tone: "taken" };
+    return { text: n ? `${t.slots - n} of ${t.slots} open` : "Available", tone: "open" };
+  }
   const booked = t.id === "headline" ? sponsors.headline : sponsors.guide;
-  return booked ? `Taken: ${booked.name}` : "Available";
-};
+  return booked ? { text: "Taken", tone: "taken" } : { text: "Available", tone: "open" };
+}
+const slotsText = (t: SponsorTierInfo) => (t.slots === 1 ? "One sponsor at a time" : `Up to ${t.slots} sponsors`);
 const hasFigures = mediaKit.period != null && (mediaKit.monthlyVisitors != null || mediaKit.monthlyPageViews != null);
+const mail = `mailto:${CONTACT.sponsor}?subject=${encodeURIComponent("Sponsoring LinuxStatistics")}`;
 ---
 
 <Base
   title="Sponsor LinuxStatistics"
-  description="Reach people choosing their next Linux distribution. Three clearly labelled sponsor tiers; rankings and editorial notes are never for sale."
+  description="Reach people choosing their next Linux distribution. Clearly labelled sponsor placements; rankings and editorial notes are never for sale."
 >
-  <article class="page prose legal">
+  <article class="page prose legal sponsors-page">
     <h1>Sponsors</h1>
     <p class="lede">Reach people at the moment they're choosing a Linux distribution: switching from Windows, picking a gaming setup or comparing two options.</p>
 
-    <h2>Sponsor tiers</h2>
-    <p>Founding prices for the first sponsors, flat and invoiced monthly, {offer.minimumMonths}-month minimum then month to month. Each placement switches off automatically when the term ends unless renewed. Prices rise with traffic; founding sponsors keep their rate while they renew.</p>
-    <div class="table-wrap">
-      <table class="data-table sponsor-tiers">
-        <thead><tr><th scope="col">Tier</th><th scope="col">What you get</th><th scope="col">Per month</th><th scope="col">Status</th></tr></thead>
-        <tbody>
-          {offer.tiers.map((t) => (
-            <tr>
-              <th scope="row">{t.name}<span class="sub">{t.slots === 1 ? "one sponsor" : `up to ${t.slots}`}</span></th>
-              <td>{t.placement}</td>
-              <td class="num">{usd(t.priceUsdPerMonth)}</td>
-              <td>{status(t)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <h2>Ways to sponsor</h2>
+    <div class="tiers">
+      {[headline!, ...others].map((t) => {
+        const s = status(t);
+        return (
+          <section class:list={["tier", { "tier-main": t.id === "headline" }]} aria-labelledby={`tier-${t.id}`}>
+            <div class="tier-head">
+              <h3 id={`tier-${t.id}`}>{t.name}</h3>
+              <span class={`tier-status tier-status-${s.tone}`}>{s.text}</span>
+            </div>
+            <p class="tier-summary">{t.summary} <span class="tier-slots">{slotsText(t)}.</span></p>
+            <ul class="tier-includes">
+              {t.includes.map((i) => <li>{i}</li>)}
+            </ul>
+            {s.tone === "later" && t.opensAtMonthlyVisitors != null && (
+              <p class="tier-note">Opens once the site reaches about {fmt(t.opensAtMonthlyVisitors)} visitors a month. Ask to be told when it does.</p>
+            )}
+          </section>
+        );
+      })}
     </div>
+    <p class="tiers-cta">
+      <a class="cta" href={mail}>Email for rates</a>
+      <span>We reply with current traffic figures and a quote, usually within two working days.</span>
+    </p>
+
+    <h2>How it works</h2>
     <ul>
-      <li><strong>Creative:</strong> logo (SVG or PNG), name, one line of up to 60 characters, a link. Supporters: logo and link. We set it live within two working days.</li>
-      <li><strong>Exclusivity:</strong> one Headline and one Guide sponsor at a time, so neither is lost among others.</li>
-      <li><strong>Reporting:</strong> page views for your placement across your term, on request.</li>
+      <li>{offer.minimumMonths}-month minimum, then month to month. Placements switch off by themselves when a term ends unless renewed.</li>
+      <li>Send a logo (SVG or PNG), your name, one line of up to 60 characters and a link. Supporters need only a logo and link. We set it live within two working days.</li>
+      <li>Page views for your placement across your term, on request.</li>
     </ul>
 
     <h2>Audience and reach</h2>
@@ -90,6 +105,6 @@ const hasFigures = mediaKit.period != null && (mediaKit.monthlyVisitors != null 
     <p>Logos, colours and boilerplate for mentioning us are in the <a href="/press/">press kit</a>; sponsors may use them in their own announcements.</p>
 
     <h2>Get in touch</h2>
-    <p>Email <a href={`mailto:${CONTACT.sponsor}`}>{CONTACT.sponsor}</a> with your company, what you'd like to promote and for how long. We'll send traffic figures and rates.</p>
+    <p>Email <a href={`mailto:${CONTACT.sponsor}`}>{CONTACT.sponsor}</a> with your company, the tier you're interested in and when you'd like to start. We'll send traffic figures and rates.</p>
   </article>
 </Base>
