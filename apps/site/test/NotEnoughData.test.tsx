@@ -15,7 +15,7 @@ test("a side without notes shows a not-enough-data card instead of nothing", () 
 
 test("a verdict side with no reasons says so", () => {
   render(<PairVerdict v={{ a: { name: "Mint", reasons: ["you're new to Linux"] }, b: { name: "Winux", reasons: [], empty: "unknown" } }} />);
-  expect(screen.getByText(/Not enough data to say who Winux suits/)).toBeInTheDocument();
+  expect(screen.getByText(/We haven't profiled Winux yet/)).toBeInTheDocument();
 });
 
 test("a profiled side with nothing distinct shows its summary, not a no-data card", () => {
@@ -35,4 +35,21 @@ test("verdict cards link to the distro page, and to the install guide when there
   expect(screen.getByRole("link", { name: "Getting started with Mint" })).toHaveAttribute("href", "/switch/getting-started/?distro=mint");
   expect(screen.getByRole("link", { name: "Arch in detail" })).toBeInTheDocument();
   expect(screen.queryByRole("link", { name: "Getting started with Arch" })).not.toBeInTheDocument();
+});
+
+test("an unprofiled side still shows what we know and where to go", () => {
+  render(
+    <PairVerdict
+      v={{ a: { name: "Bluefin", reasons: ["you're new to Linux"] }, b: { name: "openmamba", reasons: [], empty: "unknown" } }}
+      links={{
+        a: { href: "/distro/bluefin/" },
+        b: { href: "/distro/openmamba/", summary: "openmamba is an Italian Linux distribution.", family: "Independent distro, first released 2004.", website: "https://openmamba.org/", slug: "openmamba" },
+      }}
+    />,
+  );
+  expect(screen.getByText("openmamba is an Italian Linux distribution.")).toBeInTheDocument();
+  expect(screen.getByText("Independent distro, first released 2004.")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "openmamba in detail" })).toHaveAttribute("href", "/distro/openmamba/");
+  expect(screen.getByRole("link", { name: /Website/ })).toHaveAttribute("href", "https://openmamba.org/");
+  expect(screen.getByRole("link", { name: /Tell us who it suits/ })).toHaveAttribute("href", "/suggest/?kind=correction&subject=openmamba");
 });

@@ -1,6 +1,8 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { ComparePicker } from "../../components/ComparePicker";
+import { SponsorCard } from "../../components/SponsorCard";
+import SwitchSide from "../../components/SwitchSide.astro";
 import { CompareAny } from "../../components/CompareAny";
 import { loadDistros } from "../../lib/data";
 import { compareSlug, featuredPairs, popularPairs } from "../../lib/compare";
@@ -20,6 +22,8 @@ const options = list
   description="Compare any two Linux distributions: who each suits, popularity, family, GitHub activity and community ratings."
 >
   <div class="page">
+    <div class="with-side">
+    <div class="with-side-main">
     <h1>Compare Linux distros</h1>
     <p class="lede">Pick two distros to see their rankings, family, activity and ratings side by side.</p>
     <ComparePicker client:load options={options} staticPairs={staticPairs.map(([a, b]) => compareSlug(a, b))} />
@@ -30,5 +34,16 @@ const options = list
         <li><a href={`/compare/${compareSlug(a, b)}/`}>{names.get(a)} vs {names.get(b)}</a></li>
       ))}
     </ul>
+    </div>
+    <aside class="side" aria-label="More">
+      <SponsorCard context="people comparing Linux distros" />
+      <section>
+        <h2>Still deciding?</h2>
+        <p>Three plain questions, one starting point, and what to check next.</p>
+        <a class="cta" href="/pick/">Find my distro</a>
+      </section>
+      <SwitchSide />
+    </aside>
+    </div>
   </div>
 </Base>

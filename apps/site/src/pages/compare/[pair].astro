@@ -16,7 +16,8 @@ import { notesFor } from "../../lib/distro-notes";
 import { TELEMETRY_LABEL, telemetryFor } from "../../lib/telemetry";
 import { releaseStats } from "../../components/DistroStats";
 import { pairVerdict } from "../../lib/verdict";
-import { GUIDE_SLUGS } from "../../lib/beginner-picker";
+import { nextSteps } from "../../lib/compare-links";
+import SwitchSide from "../../components/SwitchSide.astro";
 import { faqJsonLd, pairFaq } from "../../lib/faq";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
 
@@ -86,8 +87,7 @@ const rows: Row[] = [
 ].filter((r) => r.a !== "-" || r.b !== "-");
 
 const verdict = pairVerdict(a, b, nameOf);
-/** Where to go from a verdict card: the distro page, plus the install guide where we have one. */
-const nextSteps = (d: DistroDetail) => ({ href: `/distro/${d.slug}/`, guide: GUIDE_SLUGS.has(d.slug) ? `/switch/getting-started/?distro=${d.slug}` : undefined });
+const steps = (d: DistroDetail) => nextSteps(d, (s) => nameOf.get(s));
 /** Distros missing most optional facts (repo, release year, profile notes, ratings). */
 const thin = [a, b]
   .filter((d) => [d.firstReleaseYear, d.stars, d.commitsLast30d, d.basedOnSlug, notesFor(d.slug), d.userRating.count || null].filter((v) => v != null).length <= 1)
@@ -107,9 +107,11 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
 <Base title={title} description={description} jsonLd={jsonLd}>
   <div class="page">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/compare/">Compare</a> / {a.name} vs {b.name}</nav>
+    <div class="with-side">
+    <div class="with-side-main">
     <h1>{a.name} vs {b.name}</h1>
     {lead && <p class="lede">{lead}</p>}
-    <PairVerdict v={verdict ?? { a: { name: a.name, reasons: [], empty: "unknown" }, b: { name: b.name, reasons: [], empty: "unknown" } }} links={{ a: nextSteps(a), b: nextSteps(b) }} />
+    <PairVerdict v={verdict ?? { a: { name: a.name, reasons: [], empty: "unknown" }, b: { name: b.name, reasons: [], empty: "unknown" } }} links={{ a: steps(a), b: steps(b) }} />
     {thin.length > 0 && (
       <p class="no-data-note" role="note">
         <span class="no-data-label">Limited data</span>
@@ -149,7 +151,6 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
         </tbody>
       </table>
     </div>
-    <div class="compare-sponsor"><SponsorCard context="people comparing Linux distros" /></div>
     {(na || nb) ? (
       <ProsConsPair a={{ name: a.name, notes: na }} b={{ name: b.name, notes: nb }} />
     ) : (
@@ -179,5 +180,16 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
     )}
     <h2>Compare other distros</h2>
     <ComparePicker client:visible options={options} staticPairs={[...staticPairs]} initialA={a.slug} />
+    </div>
+    <aside class="side" aria-label="More">
+      <SponsorCard context="people comparing Linux distros" />
+      <section>
+        <h2>Still deciding?</h2>
+        <p>Three plain questions, one starting point, and what to check next.</p>
+        <a class="cta" href="/pick/">Find my distro</a>
+      </section>
+      <SwitchSide />
+    </aside>
+    </div>
   </div>
 </Base>

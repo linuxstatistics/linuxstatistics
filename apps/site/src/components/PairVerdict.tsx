@@ -15,6 +15,12 @@ function Reasons({ items }: { items: string[] }) {
 export interface NextSteps {
   href: string;
   guide?: string;
+  /** For cards with nothing to recommend: what we do know. */
+  summary?: string;
+  family?: string;
+  website?: string;
+  repo?: string;
+  slug?: string;
 }
 
 function Next({ name, to }: { name: string; to?: NextSteps }) {
@@ -44,10 +50,7 @@ export function PairVerdict({ v, links }: { v: Verdict; links?: { a: NextSteps; 
             <Next name={side.name} to={links?.[i === 0 ? "a" : "b"]} />
           </div>
         ) : (
-          <div key={side.name} className="verdict-card no-data">
-            <span className="no-data-label">Pick {side.name} if:</span>
-            <p>Not enough data to say who {side.name} suits. Compare the numbers below.</p>
-          </div>
+          <UnknownCard key={side.name} name={side.name} to={links?.[i === 0 ? "a" : "b"]} />
         ),
       )}
     </section>
@@ -64,5 +67,24 @@ export function WhoItSuits({ name, reasons }: { name: string; reasons: string[] 
         <Reasons items={reasons} />
       </div>
     </section>
+  );
+}
+
+/** A side we can't recommend for anyone yet: say so, then show what we do know and where to look. */
+function UnknownCard({ name, to }: { name: string; to?: NextSteps }) {
+  return (
+    <div className="verdict-card no-data">
+      <span className="no-data-label">About {name}</span>
+      {to?.summary ? <p>{to.summary}</p> : <p>We haven't profiled {name} yet, so we can't say who it suits.</p>}
+      {to?.family && <p className="verdict-family">{to.family}</p>}
+      {to && (
+        <p className="verdict-next">
+          <a href={to.href}>{name} in detail</a>
+          {to.website && <a href={to.website} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Website</a>}
+          {to.repo && <a href={`https://github.com/${to.repo}`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GitHub</a>}
+          {to.slug && <a href={`/suggest/?kind=correction&subject=${to.slug}`}>Know {name}? Tell us who it suits</a>}
+        </p>
+      )}
+    </div>
   );
 }
