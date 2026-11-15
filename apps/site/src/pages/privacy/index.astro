@@ -29,6 +29,12 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
           after 24 hours; your IP address isn't stored with the data. We only see totals.
         </li>
       )}
+      {analytics.enabled && (
+        <li>
+          We measure how fast pages load with <a href="https://vercel.com/docs/speed-insights/privacy-policy" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Vercel Speed Insights</a>:
+          load and response timings, the page, and your device type and browser. It sets no cookies and stores no IP address.
+        </li>
+      )}
       {ethicalAds.enabled && (
         <li>
           Distro and comparison pages show one text ad from <a href="https://www.ethicalads.io/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">EthicalAds</a>, always labelled "Ad".
@@ -81,12 +87,12 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
       <li><strong>Sign-in, ratings and reviews:</strong> to provide the service you asked for.</li>
       <li><strong>Email:</strong> your consent, which you can withdraw at any time.</li>
       <li><strong>Security logs and abuse prevention:</strong> our legitimate interest in keeping the site working and fair.</li>
-      {analytics.enabled && <li><strong>Page-view counts:</strong> our legitimate interest in knowing which pages people use, so we can improve the site.</li>}
+      {analytics.enabled && <li><strong>Page-view counts and load timings:</strong> our legitimate interest in knowing which pages people use and how fast they load, so we can improve the site.</li>}
     </ul>
 
     <h2>Who else handles it</h2>
     <ul>
-      <li><strong>Vercel</strong>, which hosts the site{analytics.enabled && " and counts page views"}.</li>
+      <li><strong>Vercel</strong>, which hosts the site{analytics.enabled && ", counts page views and measures load times"}.</li>
       <li><strong>Neon</strong>, which hosts the database.</li>
       <li><strong>An email delivery service</strong>, only for subscribers and only to send the report.</li>
       <li><strong>GitHub, GitLab or Codeberg</strong>, only when you choose to sign in with them.</li>

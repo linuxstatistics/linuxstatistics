@@ -17,6 +17,8 @@ import { OPERATOR, SEARCH_VERIFY, SOCIAL } from "../config/site";
 import { CRYPTO_ADDRESSES, SUPPORT_LINKS, hasSupport } from "../config/support";
 import { SupportBlock } from "../components/SupportBlock";
 import { analytics } from "../config/analytics";
+import Analytics from "@vercel/analytics/astro";
+import SpeedInsights from "@vercel/speed-insights/astro";
 
 interface Props {
   title: string;
@@ -92,10 +94,11 @@ import { AuthSkeleton } from "../components/Skeleton";
     <link rel="alternate" type="application/atom+xml" title="LinuxStatistics: releases and monthly movers" href="/feed.xml" />
     {feed && <link rel="alternate" type="application/atom+xml" title={feed.title} href={feed.href} />}
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {/* Page views and load timings, tagged with the route pattern (e.g. /distro/[slug]); same-origin scripts. */}
     {analytics.enabled && !noindex && (
       <>
-        <script is:inline>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
-        <script is:inline defer src={analytics.scriptSrc} data-endpoint={analytics.endpoint} />
+        <Analytics scriptSrc={analytics.scriptSrc} endpoint={analytics.endpoint} />
+        <SpeedInsights scriptSrc={analytics.speedScriptSrc} endpoint={analytics.speedEndpoint} />
       </>
     )}
   </head>
