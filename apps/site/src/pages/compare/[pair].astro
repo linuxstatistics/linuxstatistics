@@ -87,7 +87,7 @@ const rows: Row[] = [
 ].filter((r) => r.a !== "-" || r.b !== "-");
 
 const verdict = pairVerdict(a, b, nameOf);
-const steps = (d: DistroDetail) => nextSteps(d, (s) => nameOf.get(s));
+const steps = (d: DistroDetail) => nextSteps(d);
 /** Distros missing most optional facts (repo, release year, profile notes, ratings). */
 const thin = [a, b]
   .filter((d) => [d.firstReleaseYear, d.stars, d.commitsLast30d, d.basedOnSlug, notesFor(d.slug), d.userRating.count || null].filter((v) => v != null).length <= 1)

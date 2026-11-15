@@ -17,7 +17,6 @@ export interface NextSteps {
   guide?: string;
   /** For cards with nothing to recommend: what we do know. */
   summary?: string;
-  family?: string;
   website?: string;
   repo?: string;
   slug?: string;
@@ -76,7 +75,6 @@ function UnknownCard({ name, to }: { name: string; to?: NextSteps }) {
     <div className="verdict-card no-data">
       <span className="no-data-label">About {name}</span>
       {to?.summary ? <p>{to.summary}</p> : <p>We haven't profiled {name} yet, so we can't say who it suits.</p>}
-      {to?.family && <p className="verdict-family">{to.family}</p>}
       {to && (
         <p className="verdict-next">
           <a href={to.href}>{name} in detail</a>

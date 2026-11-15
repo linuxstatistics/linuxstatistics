@@ -43,12 +43,12 @@ test("an unprofiled side still shows what we know and where to go", () => {
       v={{ a: { name: "Bluefin", reasons: ["you're new to Linux"] }, b: { name: "openmamba", reasons: [], empty: "unknown" } }}
       links={{
         a: { href: "/distro/bluefin/" },
-        b: { href: "/distro/openmamba/", summary: "openmamba is an Italian Linux distribution.", family: "Independent distro, first released 2004.", website: "https://openmamba.org/", slug: "openmamba" },
+        b: { href: "/distro/openmamba/", summary: "openmamba is an Italian Linux distribution.", website: "https://openmamba.org/", slug: "openmamba" },
       }}
     />,
   );
   expect(screen.getByText("openmamba is an Italian Linux distribution.")).toBeInTheDocument();
-  expect(screen.getByText("Independent distro, first released 2004.")).toBeInTheDocument();
+  expect(screen.queryByText(/first released/i)).not.toBeInTheDocument();
   expect(screen.getByRole("link", { name: "openmamba in detail" })).toHaveAttribute("href", "/distro/openmamba/");
   expect(screen.getByRole("link", { name: /Website/ })).toHaveAttribute("href", "https://openmamba.org/");
   expect(screen.getByRole("link", { name: /Tell us who it suits/ })).toHaveAttribute("href", "/suggest/?kind=correction&subject=openmamba");

@@ -66,7 +66,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
       <h2>
         {a.name} vs {b.name}
       </h2>
-      <PairVerdict v={verdict} links={{ a: nextSteps(a, (s) => names[s]), b: nextSteps(b, (s) => names[s]) }} />
+      <PairVerdict v={verdict} links={{ a: nextSteps(a), b: nextSteps(b) }} />
       {thin.length > 0 && (
         <p className="no-data-note" role="note">
           <span className="no-data-label">Limited data</span>
