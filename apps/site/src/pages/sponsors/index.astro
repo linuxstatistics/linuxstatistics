@@ -4,6 +4,7 @@ import { CONTACT } from "../../config/site";
 import { sponsors } from "../../config/sponsor";
 import { affiliateProviders } from "../../config/affiliate";
 import { mediaKit, type SponsorTierInfo } from "../../config/media-kit";
+import { SponsorCard } from "../../components/SponsorCard";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 const { offer } = mediaKit;
@@ -30,7 +31,9 @@ const mail = `mailto:${CONTACT.sponsor}?subject=${encodeURIComponent("Sponsoring
   title="Sponsor LinuxStatistics"
   description="Reach people choosing their next Linux distribution. Clearly labelled sponsor placements; rankings and editorial notes are never for sale."
 >
-  <article class="page prose legal sponsors-page">
+  <div class="page">
+  <div class="with-side">
+  <article class="with-side-main prose legal sponsors-page">
     <h1>Sponsors</h1>
     <p class="lede">Reach people at the moment they're choosing a Linux distribution: switching from Windows, picking a gaming setup or comparing two options.</p>
 
@@ -49,7 +52,7 @@ const mail = `mailto:${CONTACT.sponsor}?subject=${encodeURIComponent("Sponsoring
               {t.includes.map((i) => <li>{i}</li>)}
             </ul>
             {s.tone === "later" && t.opensAtMonthlyVisitors != null && (
-              <p class="tier-note">Opens once the site reaches about {fmt(t.opensAtMonthlyVisitors)} visitors a month. Ask to be told when it does.</p>
+              <p class="tier-note">On sale once the site reaches about {fmt(t.opensAtMonthlyVisitors)} visitors a month. Ask and we'll tell you when it opens.</p>
             )}
           </section>
         );
@@ -107,4 +110,30 @@ const mail = `mailto:${CONTACT.sponsor}?subject=${encodeURIComponent("Sponsoring
     <h2>Get in touch</h2>
     <p>Email <a href={`mailto:${CONTACT.sponsor}`}>{CONTACT.sponsor}</a> with your company, the tier you're interested in and when you'd like to start. We'll send traffic figures and rates.</p>
   </article>
+  <aside class="side sponsors-side" aria-label="Sponsors on this site">
+    <SponsorCard context="people choosing a Linux distro" contactHref={mail} />
+    <section aria-labelledby="supported-by-h">
+      <h2 id="supported-by-h">Supported by</h2>
+      {sponsors.supporters.length > 0 ? (
+        <ul class="supporter-logos">
+          {sponsors.supporters.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" aria-describedby="new-tab-description" title={`${s.name} (opens in a new tab)`} rel="sponsored nofollow noopener">
+                <img src={s.logoUrl} alt={s.name} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p>No supporters yet. Your logo could be the first one here and in the footer of every page.</p>
+      )}
+    </section>
+    <section aria-labelledby="sponsor-contact-h">
+      <h2 id="sponsor-contact-h">Talk to us</h2>
+      <p>Tell us what you'd like to promote and when. We reply with current traffic and a quote.</p>
+      <p><a href={mail}>{CONTACT.sponsor}</a></p>
+    </section>
+  </aside>
+  </div>
+  </div>
 </Base>

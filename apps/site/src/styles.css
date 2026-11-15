@@ -828,6 +828,11 @@ h1, h2, h3 { text-wrap: balance; }
 .supporter-row ul { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin: 0; padding: 0; list-style: none; }
 .supporter-row img { display: block; height: 24px; width: auto; }
 .sponsors-page .tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 760px; margin: 0 0 16px; }
+.sponsors-side .supporter-logos { display: flex; flex-wrap: wrap; gap: 12px 16px; margin-top: 4px; }
+.sponsors-side .supporter-logos li { display: block; padding: 0; border: 0; }
+.sponsors-side .supporter-logos img { display: block; height: 28px; width: auto; }
+.sponsors-side .cta { margin-top: 12px; }
+@media (min-width: 961px) { .sponsors-side { position: sticky; top: 24px; } }
 .sponsors-page .tier { display: grid; align-content: start; gap: 8px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
 .sponsors-page .tier-main { grid-column: 1 / -1; padding: 22px 24px; border-color: color-mix(in oklab, var(--accent) 40%, var(--line)); }
 .sponsors-page .tier-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

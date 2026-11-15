@@ -47,8 +47,11 @@ export const mediaKit = {
         id: "guide",
         name: "Guide",
         slots: 1,
-        summary: "Reach people at the moment they're about to install Linux.",
-        includes: ["Sidebar card on the quiz, Switch and Getting started pages"],
+        summary: "Reach people at the moment they're picking and installing Linux.",
+        includes: [
+          "Your card replaces the Headline card on the quiz, Switch and Getting started pages",
+          "Seen by people switching from Windows or a Mac, right before they download",
+        ],
         opensAtMonthlyVisitors: 10_000,
       },
       {
