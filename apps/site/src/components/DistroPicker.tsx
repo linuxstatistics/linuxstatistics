@@ -5,6 +5,7 @@ import { decodeAnswers, encodeAnswers, flow, prune, type Answers, type Question 
 import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
 import { compareSlug } from "../lib/compare";
 import { revealPicker } from "../lib/pick-restore";
+import { HardwareNotes } from "./HardwareNotes";
 
 export interface PickerDistro {
   slug: string;
@@ -198,6 +199,11 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
                 )}
               </div>
             )}
+            <HardwareNotes
+              oldNvidia={answers.gpu === "nvidia-old"}
+              bazzite={top.some((r) => r.key === "bazzite")}
+              wifi={answers.wifi === "broadcom" || answers.wifi === "realtek" ? "risky" : answers.wifi === "intel" ? "fine" : "check"}
+            />
             {hidden > 0 && (
               <p className="quiz-hidden">
                 {hidden} other {hidden === 1 ? "distro matches" : "distros match"} less than half of your answers, so we've left {hidden === 1 ? "it" : "them"} out.

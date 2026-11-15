@@ -3,7 +3,7 @@ import { afterEach, expect, test } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CommandMenu } from "../src/components/CommandMenu";
-import { PAGE_COMMANDS, compareHref, searchCommands } from "../src/lib/command-menu";
+import { PAGE_COMMANDS, compareHref, groupCommands, searchCommands } from "../src/lib/command-menu";
 
 afterEach(cleanup);
 
@@ -14,11 +14,19 @@ const items = [
   { slug: "zzz", name: "Zzz OS", rank: null },
 ];
 
-test("empty query: pages first, then the top distros by rank, then actions", () => {
+test("empty query is the menu: every page, then the top distros by rank, actions and accounts", () => {
   const r = searchCommands("", items);
   expect(r[0]).toMatchObject({ kind: "page", href: "/" });
+  expect(r.filter((c) => c.kind === "page")).toHaveLength(PAGE_COMMANDS.length);
   expect(r.filter((c) => c.kind === "distro").map((c) => c.label)).toEqual(["Mint", "MX Linux", "Fedora"]);
-  expect(r.at(-1)).toMatchObject({ kind: "action", action: "theme" });
+  expect(groupCommands(r).map((g) => g.kind)).toEqual(["page", "distro", "action", "link"]);
+  expect(r.at(-1)).toMatchObject({ kind: "link", href: "https://mastodon.social/@linuxstatistics" });
+});
+
+test("typing puts the best-matching group first", () => {
+  expect(groupCommands(searchCommands("mint", items))[0]!.kind).toBe("distro");
+  expect(groupCommands(searchCommands("rising", items))[0]!.kind).toBe("page");
+  expect(searchCommands("bluesky", items)[0]).toMatchObject({ kind: "link", label: "Follow on Bluesky" });
 });
 
 test("typing a name finds distros and pages by keyword", () => {
@@ -62,7 +70,7 @@ test("Ctrl+K opens the menu with focus in the search box; arrows move the select
 test("the header button opens the menu and shows a way out when nothing matches", async () => {
   const user = userEvent.setup();
   render(<CommandMenu items={items} />);
-  await user.click(screen.getByRole("button", { name: /search distros and pages/i }));
+  await user.click(screen.getByRole("button", { name: /menu and search/i }));
   await user.type(screen.getByRole("combobox"), "qwertyuiop");
   expect(screen.getByText(/nothing matches/i)).toBeInTheDocument();
   expect(screen.getByRole("link", { name: /suggest a distro/i })).toHaveAttribute("href", "/suggest/?kind=distro");
@@ -75,11 +83,11 @@ test("slash opens it; results are grouped with titles in display order", async (
   const box = screen.getByRole("combobox");
   expect(box).toHaveFocus();
   expect(box).toBeInTheDocument();
-  // Empty query: distros first, then pages, then actions, each under its own title.
+  // Empty query: pages first, then distros, actions and accounts, each under its own title.
   const groups = screen.getAllByRole("group");
-  expect(groups.map((g) => g.getAttribute("aria-labelledby") && document.getElementById(g.getAttribute("aria-labelledby")!)?.textContent)).toEqual(["Distros", "Pages", "Actions"]);
-  // Arrow order follows the visual order: the first option is the first distro.
-  expect(screen.getAllByRole("option")[0]).toHaveTextContent("Mint");
+  expect(groups.map((g) => g.getAttribute("aria-labelledby") && document.getElementById(g.getAttribute("aria-labelledby")!)?.textContent)).toEqual(["Pages", "Distros", "Actions", "Follow"]);
+  // Arrow order follows the visual order: the first option is the first page.
+  expect(screen.getAllByRole("option")[0]).toHaveTextContent("Rankings");
   await user.type(box, "mint vs fedora");
   expect(screen.getAllByRole("group")[0]).toHaveTextContent("Compare");
 });

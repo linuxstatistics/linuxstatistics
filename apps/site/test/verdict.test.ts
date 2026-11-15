@@ -1,6 +1,6 @@
 import { expect, test } from "vitest";
 import type { DistroListItem } from "@linux-statistics/shared";
-import { orList, pairVerdict, reasonsFor } from "../src/lib/verdict";
+import { capitalize, orList, pairVerdict, reasonsFor } from "../src/lib/verdict";
 import { faqJsonLd, pairFaq } from "../src/lib/faq";
 import { NOTES } from "../src/lib/distro-notes";
 import { PROFILES } from "../src/lib/picker-profiles";
@@ -67,4 +67,9 @@ test("a side whose reasons are all shared falls back to desktops, then to its su
   expect(v.a.empty).not.toBe("unknown");
   const u = pairVerdict({ slug: "x1", name: "X1", family: "other", rank: null }, { slug: "mint", name: "Mint", family: "debian", rank: 2 })!;
   expect(u.a.empty).toBe("unknown");
+});
+
+test("capitalize starts a clause with a capital and leaves the rest", () => {
+  expect(capitalize("you're new to Linux")).toBe("You're new to Linux");
+  expect(capitalize("")).toBe("");
 });

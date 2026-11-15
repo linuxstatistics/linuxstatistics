@@ -1,5 +1,6 @@
 import { compareSlug } from "./compare";
 import { matchDistros, type SearchItem } from "../components/DistroSearch";
+import { SOCIAL } from "../config/site";
 
 export interface PageCommand {
   href: string;
@@ -12,7 +13,8 @@ export type Command =
   | { kind: "page"; id: string; label: string; href: string }
   | { kind: "distro"; id: string; label: string; href: string; rank: number | null }
   | { kind: "compare"; id: string; label: string; href: string }
-  | { kind: "action"; id: string; label: string; action: "theme" };
+  | { kind: "action"; id: string; label: string; action: "theme" }
+  | { kind: "link"; id: string; label: string; href: string; hint: string };
 
 /** Every page the menu can open, in the order shown when nothing is typed. */
 export const PAGE_COMMANDS: PageCommand[] = [
@@ -36,6 +38,8 @@ export const PAGE_COMMANDS: PageCommand[] = [
 
 const ACTIONS: Command[] = [{ kind: "action", id: "action:theme", label: "Switch theme (light / dark / system)", action: "theme" }];
 
+const FOLLOW: Command[] = SOCIAL.map((s) => ({ kind: "link", id: `link:${s.name}`, label: `Follow on ${s.name}`, href: s.href, hint: s.handle }));
+
 const pageCmd = (p: PageCommand): Command => ({ kind: "page", id: `page:${p.href}`, label: p.label, href: p.href });
 const distroCmd = (d: SearchItem): Command => ({
   kind: "distro",
@@ -51,9 +55,19 @@ export function compareHref(a: string, b: string, staticPairs: ReadonlySet<strin
   return staticPairs.has(slug) ? `/compare/${slug}/` : `/compare/?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`;
 }
 
+/** How well a label matches: 3 exact, 2 prefix, 1 word prefix, 0 anything else. */
+function matchStrength(label: string, q: string): number {
+  const l = label.toLowerCase();
+  if (l === q) return 3;
+  if (l.startsWith(q)) return 2;
+  return l.split(/[\s/()?-]+/).some((w) => w.startsWith(q)) ? 1 : 0;
+}
+
 /**
- * Results for what's typed. Nothing typed: pages, then the top distros.
- * "mint vs fedora" (or "mint fedora" with "vs"/"versus") becomes a comparison.
+ * The menu and search in one list, already in display order (see groupCommands).
+ * Nothing typed: every page, then the top distros, actions and the site's accounts.
+ * Typing: a "mint vs fedora" comparison first, then the group with the best match
+ * (pages win ties), then the rest.
  */
 export function searchCommands(
   query: string,
@@ -64,7 +78,7 @@ export function searchCommands(
   const q = query.trim().toLowerCase();
   if (!q) {
     const top = [...distros].filter((d) => d.rank != null).sort((a, b) => a.rank! - b.rank!).slice(0, 5);
-    return [...PAGE_COMMANDS.slice(0, 7).map(pageCmd), ...top.map(distroCmd), ...ACTIONS];
+    return [...PAGE_COMMANDS.map(pageCmd), ...top.map(distroCmd), ...ACTIONS, ...FOLLOW];
   }
 
   const out: Command[] = [];
@@ -77,22 +91,27 @@ export function searchCommands(
     }
   }
 
-  out.push(...matchDistros(distros, q, limit).map(distroCmd));
   const words = q.split(/\s+/);
-  const pages = PAGE_COMMANDS.filter((p) => {
-    const hay = `${p.label} ${p.keywords ?? ""}`.toLowerCase();
-    return words.every((w) => hay.includes(w));
-  });
-  out.push(...pages.map(pageCmd));
-  out.push(...ACTIONS.filter((a) => a.label.toLowerCase().includes(q)));
+  const hit = (text: string) => words.every((w) => text.toLowerCase().includes(w));
+  const pages = PAGE_COMMANDS.filter((p) => hit(`${p.label} ${p.keywords ?? ""}`)).map(pageCmd);
+  const found = matchDistros(distros, q, limit).map(distroCmd);
+  const best = (list: Command[]) => Math.max(-1, ...list.map((c) => matchStrength(c.label, q)));
+  const groups = best(found) > best(pages) ? [found, pages] : [pages, found];
+  for (const g of groups) out.push(...g);
+  out.push(...ACTIONS.filter((a) => hit(a.label)));
+  out.push(...FOLLOW.filter((f) => f.kind === "link" && hit(`${f.label} ${f.hint}`)));
   return out.slice(0, limit);
 }
 
-/** Display order of result groups; results are always contiguous per group. */
-export const GROUP_ORDER: Command["kind"][] = ["compare", "distro", "page", "action"];
-export const GROUP_LABEL: Record<Command["kind"], string> = { compare: "Compare", distro: "Distros", page: "Pages", action: "Actions" };
+export const GROUP_LABEL: Record<Command["kind"], string> = { compare: "Compare", distro: "Distros", page: "Pages", action: "Actions", link: "Follow" };
 
-/** Results grouped for display, keeping each group's internal order. */
+/** Results grouped for display, in the order searchCommands put them. */
 export function groupCommands(results: Command[]): { kind: Command["kind"]; items: Command[] }[] {
-  return GROUP_ORDER.map((kind) => ({ kind, items: results.filter((r) => r.kind === kind) })).filter((g) => g.items.length > 0);
+  const groups: { kind: Command["kind"]; items: Command[] }[] = [];
+  for (const r of results) {
+    const g = groups.find((x) => x.kind === r.kind);
+    if (g) g.items.push(r);
+    else groups.push({ kind: r.kind, items: [r] });
+  }
+  return groups;
 }

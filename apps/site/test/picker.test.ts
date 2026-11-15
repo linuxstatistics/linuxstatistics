@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { fits, rankAll, suggest, type Answers } from "../src/lib/picker";
+import { fits, rankAll, score, suggest, type Answers } from "../src/lib/picker";
 import { PROFILES } from "../src/lib/picker-profiles";
 import { decodeAnswers, encodeAnswers, flow, prune, QUESTIONS } from "../src/lib/picker-questions";
 
@@ -249,4 +249,18 @@ test("AI on an AMD card picks distros with ROCm", () => {
 test("AI users are always asked about the graphics card, even on a server", () => {
   expect(ids({ use: "ai" })).toContain("gpu");
   expect(ids({ use: "ai", device: "pc", ram: 1 })).toContain("gpu");
+});
+
+test("older NVIDIA cards warn against rolling releases; Broadcom Wi-Fi against free-software-only distros", () => {
+  const rolling = PROFILES.find((p) => p.updates === "rolling")!;
+  expect(score(rolling, { gpu: "nvidia-old" }).misses.join(" ")).toMatch(/580 legacy driver/);
+  const free = PROFILES.find((p) => p.fossOnly);
+  if (free) expect(score(free, { wifi: "broadcom" }).misses).toContain("Leaves out the Broadcom Wi-Fi driver");
+});
+
+test("new answers are appended, so launch codes still decode and new ones round-trip", () => {
+  const a: Answers = { from: "linux", use: "gaming", level: "expert", device: "pc", ram: 8, gpu: "nvidia-old", updates: "stable", undo: "yes", desktop: "kde", telemetry: "none", init: "any", foss: "any", pkg: "any", wifi: "broadcom" };
+  expect(decodeAnswers(encodeAnswers(a))).toEqual(a);
+  expect(ids({ level: "new", device: "pc" })).not.toContain("wifi");
+  expect(ids({ level: "some", device: "pc" })).toContain("wifi");
 });

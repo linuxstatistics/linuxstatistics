@@ -1,16 +1,26 @@
+export type SponsorTier = "headline" | "guide" | "supporter";
+
 export interface Sponsor {
   name: string;
   logoUrl: string;
   href: string;
   tagline: string;
+  /** Which placement this sponsor buys. Omitted = headline (the original single slot). */
+  tier?: SponsorTier;
   /** First day of the paid term, YYYY-MM-DD (UTC). Omit for "already running". */
   startsOn?: string;
   /** Last day of the paid term, YYYY-MM-DD (UTC), inclusive. Omit for open-ended. */
   endsOn?: string;
 }
 
-/** The configured sponsor, or null when the slot is open (the launch state). */
-export const configuredSponsor: Sponsor | null = null;
+/**
+ * Every booked sponsor, any tier. One headline and one guide sponsor at a time;
+ * up to SUPPORTER_LIMIT supporters. Empty at launch.
+ */
+export const configuredSponsors: Sponsor[] = [];
+
+/** Supporters shown at once in the footer row. */
+export const SUPPORTER_LIMIT = 6;
 
 /** Where the "Sponsorships available" house ad points: the sponsors page. */
 export const sponsorContactHref = "/sponsors/";
@@ -24,8 +34,25 @@ export function sponsorIsActive(s: Sponsor | null, now: Date = new Date()): s is
   return true;
 }
 
+/** Active sponsors by tier: the first active headline and guide sponsor, and up to SUPPORTER_LIMIT supporters. */
+export function activeSponsors(all: Sponsor[], now: Date = new Date()) {
+  const live = all.filter((s) => sponsorIsActive(s, now));
+  const of = (t: SponsorTier) => live.filter((s) => (s.tier ?? "headline") === t);
+  return {
+    headline: of("headline")[0] ?? null,
+    guide: of("guide")[0] ?? null,
+    supporters: of("supporter").slice(0, SUPPORTER_LIMIT),
+  };
+}
+
+/** Sponsors to show at build time; expired terms fall back to the house ads. */
+export const sponsors = activeSponsors(configuredSponsors);
+
+/** The headline sponsor (sidebar card everywhere and the footer slot), or null. */
+export const sponsor: Sponsor | null = sponsors.headline;
+
 /**
- * The sponsor to show at build time: the configured one while its term runs,
- * else null so every placement falls back to the house ad.
+ * The sidebar card on install-intent pages (quiz, Switch, Getting started):
+ * the guide sponsor while one runs, else the headline sponsor.
  */
-export const sponsor: Sponsor | null = sponsorIsActive(configuredSponsor) ? configuredSponsor : null;
+export const guideSponsor: Sponsor | null = sponsors.guide ?? sponsors.headline;

@@ -2,6 +2,7 @@
 import Base from "../../../layouts/Base.astro";
 import SwitchPage from "../../../components/SwitchPage.astro";
 import { SponsorCard } from "../../../components/SponsorCard";
+import { guideSponsor } from "../../../config/sponsor";
 import { faqJsonLd } from "../../../lib/faq";
 import { switchFaq } from "../../../lib/switch";
 ---
@@ -21,7 +22,7 @@ import { switchFaq } from "../../../lib/switch";
         <SwitchPage from="mac" />
       </div>
       <aside class="side" aria-label="More">
-        <SponsorCard context="people switching from a Mac" />
+        <SponsorCard sponsor={guideSponsor} context="people switching from a Mac" />
         <section>
           <h2>Coming from Windows?</h2>
           <p><a href="/switch/windows/">Switching from Windows</a></p>

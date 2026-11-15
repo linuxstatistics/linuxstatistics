@@ -84,11 +84,15 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
     const light = p.uses.includes("old-hw") || p.desktops.includes("light") || p.minRamGb <= 1;
     crit(2, light ? 2 : -2, a.use === "old-hw" ? undefined : "Light enough for older hardware", "Heavier than the light options");
   }
-  if (a.gpu === "nvidia") {
+  const nvidia = a.gpu === "nvidia" || a.gpu === "nvidia-old";
+  if (nvidia) {
     const pts = { excellent: 3, good: 1, fair: 0, poor: -3 }[p.nvidia];
     crit(3, pts, p.nvidia === "excellent" ? "NVIDIA drivers set up for you" : "NVIDIA drivers easy to add", p.nvidia === "poor" ? "NVIDIA cards poorly supported" : "NVIDIA drivers need manual setup");
   }
-  if (a.use === "ai" && a.gpu === "nvidia") {
+  if (a.gpu === "nvidia-old") {
+    crit(0, p.updates === "rolling" ? -2 : 0, undefined, p.updates === "rolling" ? "Rolling updates can move you past the 580 legacy driver your card needs" : undefined);
+  }
+  if (a.use === "ai" && nvidia) {
     crit(3, p.cuda ? 3 : -2, "CUDA available from NVIDIA or the distro's own packages", "No official CUDA packages");
   } else if (a.use === "ai" && a.gpu === "amd") {
     crit(3, p.rocm ? 3 : -2, "AMD ROCm supported or packaged", "ROCm not officially supported");
@@ -109,6 +113,7 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
   }
   if (a.init === "no-systemd") crit(4, p.init === "other" ? 4 : -4, "Doesn't use systemd", "Uses systemd");
   if (a.foss === "yes") crit(4, p.fossOnly ? 4 : -1, "Free software only", "Includes non-free drivers or firmware");
+  if (a.wifi === "broadcom" && p.fossOnly) crit(0, -2, undefined, "Leaves out the Broadcom Wi-Fi driver");
   if (a.pkg && a.pkg !== "any") crit(2, p.pkg === a.pkg ? 2 : 0, `Uses ${PKG_TEXT[a.pkg]}`, `Uses ${PKG_TEXT[p.pkg]}`);
 
   // Telemetry: only distros we've checked count as "sends nothing by default".

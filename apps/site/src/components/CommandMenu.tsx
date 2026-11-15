@@ -7,14 +7,18 @@ function run(cmd: Command) {
     window.dispatchEvent(new Event("cycle-theme"));
     return;
   }
+  if (cmd.kind === "link") {
+    window.open(cmd.href, "_blank", "noopener,noreferrer");
+    return;
+  }
   window.location.href = cmd.href;
 }
 
 /**
- * The site's one search: distros, pages, comparisons ("mint vs fedora") and
- * theme. Opened from the header search button, Cmd/Ctrl+K or "/".
+ * The site's menu and search in one: pages, distros, comparisons ("mint vs fedora"),
+ * theme and the site's accounts. Opened from the header button, Cmd/Ctrl+K or "/".
  */
-export function CommandMenu({ items, staticPairs = [] }: { items: SearchItem[]; staticPairs?: string[] }) {
+export function CommandMenu({ items, staticPairs = [], current }: { items: SearchItem[]; staticPairs?: string[]; current?: string }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
@@ -70,15 +74,17 @@ export function CommandMenu({ items, staticPairs = [] }: { items: SearchItem[]; 
 
   return (
     <>
-      <button type="button" className="cmdk-trigger" aria-label="Search distros and pages" aria-keyshortcuts={mac ? "Meta+K" : "Control+K"} onClick={() => setOpen(true)}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg>
-        <span className="cmdk-trigger-label">Search distros and pages</span>
+      <button type="button" className="cmdk-trigger" aria-label="Menu and search" aria-haspopup="dialog" aria-expanded={open} aria-keyshortcuts={mac ? "Meta+K" : "Control+K"} onClick={() => setOpen(true)}>
+        <svg className="cmdk-icon-search" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg>
+        <svg className="cmdk-icon-menu" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+        <span className="cmdk-trigger-label">Menu and search</span>
+        <span className="cmdk-trigger-short" aria-hidden="true">Menu</span>
         <kbd className="cmdk-trigger-kbd" aria-hidden="true">{mac ? "⌘K" : "Ctrl K"}</kbd>
       </button>
       <dialog
         ref={dialog}
         className="cmdk"
-        aria-label="Search the site"
+        aria-label="Menu and search"
         onClose={() => setOpen(false)}
         onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
       >
@@ -88,7 +94,7 @@ export function CommandMenu({ items, staticPairs = [] }: { items: SearchItem[]; 
               ref={input}
               type="search"
               className="cmdk-input"
-              placeholder="Distro, page, or “mint vs fedora”"
+              placeholder="Search distros, pages, or “mint vs fedora”"
               aria-label="Search distros, pages and comparisons"
               role="combobox"
               aria-expanded={results.length > 0}
@@ -135,6 +141,8 @@ export function CommandMenu({ items, staticPairs = [] }: { items: SearchItem[]; 
                           >
                             <span className="cmdk-label">{r.label}</span>
                             {r.kind === "distro" && r.rank != null && <span className="cmdk-kind">#{r.rank}</span>}
+                            {r.kind === "page" && r.href === current && <span className="cmdk-kind">You're here</span>}
+                            {r.kind === "link" && <span className="cmdk-kind">{r.hint} ↗</span>}
                           </div>
                         );
                       })}

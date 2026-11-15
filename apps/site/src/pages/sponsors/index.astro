@@ -1,7 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { CONTACT } from "../../config/site";
-import { sponsor } from "../../config/sponsor";
+import { sponsors } from "../../config/sponsor";
 import { affiliateProviders } from "../../config/affiliate";
 import { loadDistros } from "../../lib/data";
 import { mediaKit } from "../../config/media-kit";
@@ -9,40 +9,47 @@ import { mediaKit } from "../../config/media-kit";
 const count = (await loadDistros()).length;
 const fmt = (n: number) => n.toLocaleString("en-US");
 const { offer } = mediaKit;
+const usd = (r: { from: number; to: number }) => `$${r.from}–${r.to}`;
+/** "Available", "Taken: Acme", "2 of 6 taken" or "Opens at 10,000 visitors a month". */
+const status = (t: (typeof offer.tiers)[number]) => {
+  const opensAt = t.opensAtMonthlyVisitors;
+  if (opensAt != null && (mediaKit.monthlyVisitors ?? 0) < opensAt) return `Opens at ${fmt(opensAt)} visitors a month`;
+  if (t.id === "supporter") return sponsors.supporters.length ? `${sponsors.supporters.length} of ${t.slots} taken` : "Available";
+  const booked = t.id === "headline" ? sponsors.headline : sponsors.guide;
+  return booked ? `Taken: ${booked.name}` : "Available";
+};
 const hasFigures = mediaKit.period != null && (mediaKit.monthlyVisitors != null || mediaKit.monthlyPageViews != null);
 ---
 
 <Base
   title="Sponsor LinuxStatistics"
-  description="Reach people choosing their next Linux distribution. One clearly labelled sponsor slot on every page; rankings and editorial notes are never for sale."
+  description="Reach people choosing their next Linux distribution. Three clearly labelled sponsor tiers; rankings and editorial notes are never for sale."
 >
   <article class="page prose legal">
     <h1>Sponsors</h1>
     <p class="lede">Reach people at the moment they're choosing a Linux distribution: switching from Windows, picking a gaming setup or comparing two options.</p>
 
-    <h2>Current sponsor</h2>
-    {sponsor ? (
-      <p>
-        <a href={sponsor.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="sponsored nofollow noopener">{sponsor.name}</a>: {sponsor.tagline}
-      </p>
-    ) : (
-      <p>The sponsor slot is open. Thanks for considering it.</p>
-    )}
-
-    <h2>What sponsors get</h2>
+    <h2>Sponsor tiers</h2>
+    <p>Founding prices for the first sponsors, flat and invoiced monthly, {offer.minimumMonths}-month minimum then month to month. Each placement switches off automatically when the term ends unless renewed. Prices rise with traffic; founding sponsors keep their rate while they renew.</p>
+    <div class="table-wrap">
+      <table class="data-table sponsor-tiers">
+        <thead><tr><th scope="col">Tier</th><th scope="col">What you get</th><th scope="col">Per month</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+          {offer.tiers.map((t) => (
+            <tr>
+              <th scope="row">{t.name}<span class="sub">{t.slots === 1 ? "one sponsor" : `up to ${t.slots}`}</span></th>
+              <td>{t.placement}</td>
+              <td class="num">{usd(t.priceUsdPerMonth)}</td>
+              <td>{status(t)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
     <ul>
-      <li>A sponsor card in the sidebar of the home page, the rising chart, the picker and every distro page, plus the footer slot on every page: logo, name, one line and a link. One sponsor at a time, so it isn't lost among others.</li>
-      <li>Placement across {count} distro pages, comparisons, the rising chart and the picker.</li>
-      <li>A mention in the monthly State of Linux Distros email.</li>
-    </ul>
-
-    <h2>Founding sponsor offer</h2>
-    <ul>
-      <li><strong>Price:</strong> ${offer.priceUsdPerMonth.from}–{offer.priceUsdPerMonth.to} a month, flat, invoiced monthly. The rate depends on term length and traffic at the time; we'll quote a number.</li>
-      <li><strong>Term:</strong> {offer.minimumMonths}-month minimum, then month to month. The card switches off automatically when the term ends unless renewed.</li>
-      <li><strong>Exclusivity:</strong> {offer.slots === 1 ? "one sponsor at a time, site-wide" : `${offer.slots} sponsors at a time`}.</li>
-      <li><strong>Creative:</strong> logo (SVG or PNG), name, one line of up to 60 characters, a link. We set it live within two working days.</li>
-      <li><strong>Reporting:</strong> page views across your term, on request.</li>
+      <li><strong>Creative:</strong> logo (SVG or PNG), name, one line of up to 60 characters, a link. Supporters: logo and link. We set it live within two working days.</li>
+      <li><strong>Exclusivity:</strong> one Headline and one Guide sponsor at a time, so neither is lost among others.</li>
+      <li><strong>Reporting:</strong> page views for your placement across your term, on request.</li>
     </ul>
 
     <h2>Audience and reach</h2>

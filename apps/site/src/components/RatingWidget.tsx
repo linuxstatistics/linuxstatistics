@@ -37,7 +37,7 @@ export function RatingWidget({
           {usable.length === 0 ? (
             <>
               <button type="button" className="signin-cta" disabled aria-describedby="signin-soon">Sign in to rate</button>
-              <span id="signin-soon" className="signin-soon">Coming soon with GitHub, GitLab or Codeberg</span>
+              <span id="signin-soon" className="signin-soon">Coming soon</span>
             </>
           ) : (
             usable.map((p) =>

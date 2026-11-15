@@ -90,3 +90,8 @@ export function orList(items: string[]): string {
   if (items.length <= 1) return items[0] ?? "";
   return `${items.slice(0, -1).join(", ")} or ${items[items.length - 1]}`;
 }
+
+/** First letter upper-case, for a clause shown on its own line. */
+export function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}

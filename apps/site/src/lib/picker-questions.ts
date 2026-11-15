@@ -9,7 +9,8 @@ export interface Answers {
   device?: "pc" | "pi" | "arm" | "pc32";
   /** Roughly how much memory, in GB: 1 = under 2, 2 = 2–4, 4 = 4–8, 8 = 8 or more. */
   ram?: 1 | 2 | 4 | 8 | "any";
-  gpu?: "nvidia" | "amd" | "intel" | "unsure";
+  /** "nvidia-old": GTX 10-series or earlier, which needs NVIDIA's 580 legacy driver. */
+  gpu?: "nvidia" | "amd" | "intel" | "unsure" | "nvidia-old";
   /** "any": not sure, so we go with the safer fixed releases. */
   updates?: Updates | "any";
   /** Wants updates that can be undone (image-based rollback or snapshots). */
@@ -21,6 +22,7 @@ export interface Answers {
   init?: "no-systemd" | "any";
   foss?: "yes" | "any";
   pkg?: Pkg | "any";
+  wifi?: "intel" | "broadcom" | "realtek" | "mediatek" | "unsure";
 }
 
 export type QuestionId = keyof Answers;
@@ -85,7 +87,7 @@ export const QUESTIONS: Question[] = [
     id: "gpu",
     legend: "What graphics card does it have?",
     why: "NVIDIA drivers are not open source, so some distros set them up for you and others leave it to you. For AI work it decides the toolkit: CUDA on NVIDIA, ROCm on AMD.",
-    options: [["nvidia", "NVIDIA"], ["amd", "AMD"], ["intel", "Intel (built-in)"], ["unsure", "Not sure"]],
+    options: [["nvidia", "NVIDIA"], ["amd", "AMD"], ["intel", "Intel (built-in)"], ["unsure", "Not sure"], ["nvidia-old", "Older NVIDIA", "GTX 10-series (e.g. GTX 1050 Ti) or earlier"]],
     show: (a) => a.use === "ai" || (desktopLike(a) && notServer(a) && a.use !== "old-hw" && a.ram !== 1),
   },
   {
@@ -152,6 +154,13 @@ export const QUESTIONS: Question[] = [
       ["any", "No preference"],
     ],
     show: expert,
+  },
+  {
+    id: "wifi",
+    legend: "Which Wi-Fi chip does it have?",
+    why: "Wi-Fi is the most common thing that doesn't work on first boot. Intel chips usually just work; some Broadcom and Realtek chips need extra drivers. On Windows: Device Manager → Network adapters. On a Mac: System Information → Network → Wi-Fi.",
+    options: [["intel", "Intel"], ["broadcom", "Broadcom", "Common in older laptops and Intel Macs"], ["realtek", "Realtek", "Including most cheap USB adapters"], ["mediatek", "MediaTek"], ["unsure", "Not sure / wired only"]],
+    show: (a) => desktopLike(a) && notServer(a) && a.level !== "new",
   },
 ];
 

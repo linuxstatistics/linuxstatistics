@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { SponsorCard } from "../../components/SponsorCard";
+import { guideSponsor } from "../../config/sponsor";
 import { WINDOWS_10, SWITCH_PICKS, fmt } from "../../lib/switch";
 import { loadDistros, loadMarketShare } from "../../lib/data";
 import { latestLinuxShare } from "../../lib/marketShare";
@@ -44,7 +45,7 @@ const pairs = popularPairs(list)
         <p>Already know what you want? <a href="/pick/">Answer a few questions</a> or browse the <a href="/">rankings</a>.</p>
       </div>
       <aside class="side" aria-label="More">
-        <SponsorCard context="people leaving Windows and macOS for Linux" />
+        <SponsorCard sponsor={guideSponsor} context="people leaving Windows and macOS for Linux" />
         <section>
           <h2>Not sure where to start?</h2>
           <p>Three plain questions, one starting point, and what to check next.</p>

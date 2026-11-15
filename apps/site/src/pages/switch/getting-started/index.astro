@@ -3,7 +3,14 @@ import Base from "../../../layouts/Base.astro";
 import { BEGINNER_REVIEWED, BEGINNER_SOURCES } from "../../../lib/beginner-picker";
 import { PROFILES } from "../../../lib/picker-profiles";
 import { SponsorCard } from "../../../components/SponsorCard";
-const downloads = ["mint", "ubuntu", "bazzite"].map((key) => PROFILES.find((p) => p.key === key)!);
+import { guideSponsor } from "../../../config/sponsor";
+import { HARDWARE_REVIEWED, HARDWARE_SOURCES, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK, WIFI_NOTE, codeParts } from "../../../lib/hardware-notes";
+const byKey = new Map(PROFILES.map((p) => [p.key, p]));
+const GUIDES = [
+  { key: "mint", name: "Linux Mint", short: "Mint", text: "Mint recommends Cinnamon when you are unsure which edition to choose; Xfce is its lighter option for older computers. Download a current 64-bit image, verify it, then follow Mint's live-session and installation guidance. A live session lets you check hardware before installation.", guideHref: "https://linuxmint-installation-guide.readthedocs.io/en/latest/", guideLabel: "Official Mint installation guide" },
+  { key: "ubuntu", name: "Ubuntu", short: "Ubuntu", text: "Choose the Ubuntu release supported by your tools. Long-term support releases are an option for a longer support window. Use the official tutorial to create installation media and try Ubuntu before installing. For local AI, check the exact GPU, CUDA or ROCm requirements and available memory separately.", guideHref: "https://ubuntu.com/tutorials/install-ubuntu-desktop", guideLabel: "Official Ubuntu desktop tutorial" },
+  { key: "bazzite", name: "Bazzite", short: "Bazzite", text: "Use Bazzite's image picker for your exact hardware, including graphics and desktop versus handheld use. Check required games and anti-cheat first. Follow Bazzite's own installation guide; do not assume another distro's live-session or disk instructions apply. Rollback protects system updates, not your personal-file backups.", guideHref: "https://docs.bazzite.gg/General/Installation_Guide/", guideLabel: "Official Bazzite installation guidance" },
+] as const;
 ---
 <Base title="Getting started with Linux safely | LinuxStatistics" description="Before installing Linux: back up, check your computer, apps and games, try a desktop, then follow the project's official instructions.">
   <article class="page">
@@ -14,28 +21,30 @@ const downloads = ["mint", "ubuntu", "bazzite"].map((key) => PROFILES.find((p) =
     <p class="lede">You don't need to replace your current system today. Check what matters, keep a way back, then try Linux.</p>
     <ol class="switch-path">
     <li><h2>Back up before changing anything</h2><p>Copy important files to a separate drive or backup service. Check that you can open them. Save recovery keys and make sure you can restore your current system. Installing Linux can erase files if the wrong disk option is chosen.</p></li>
-    <li id="hardware"><h2>Check your exact computer</h2><p>Identify the model, processor, memory and graphics. A recommendation is not a compatibility guarantee. Check Wi-Fi, sound, webcam, suspend and any accessories you depend on.</p><p><strong>Apple Silicon:</strong> use the <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/docs/platform/feature-support/overview/">Asahi model-support list</a> and <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/fedora/">official Fedora Asahi Remix guidance</a>, not a regular PC image. Intel Macs, Chromebooks, ARM boards and 32-bit PCs also need model-specific checks.</p></li>
+    <li id="hardware"><h2>Check your exact computer</h2><p>Identify the model, processor, memory and graphics. A recommendation is not a compatibility guarantee. Check Wi-Fi, sound, webcam, suspend and any accessories you depend on.</p><p><strong>Apple Silicon:</strong> use the <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/docs/platform/feature-support/overview/">Asahi model-support list</a> and <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/fedora/">official Fedora Asahi Remix guidance</a>, not a regular PC image. Intel Macs, Chromebooks, ARM boards and 32-bit PCs also need model-specific checks.</p><p><strong>Wi-Fi:</strong> {WIFI_NOTE} {codeParts(WIFI_HOW_TO_CHECK).map((p) => (p.code ? <code>{p.text}</code> : p.text))}</p><p><strong>Older NVIDIA cards:</strong> {OLD_NVIDIA_NOTE} {OLD_NVIDIA_BAZZITE}</p></li>
     <li><h2>Check your essential apps and games</h2><p>Make a short list of what you cannot do without. Test real files and workflows, not just whether an app launches. See alternatives for <a href="/switch/windows/#apps-h">Windows apps</a> or <a href="/switch/mac/#apps-h">Mac apps</a>. Early-alpha creative apps need extra caution.</p><p>For games, check <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://www.protondb.com/">ProtonDB</a> and <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://areweanticheatyet.com/">anti-cheat compatibility</a>. Keeping Windows for a required app or game can be the right answer.</p></li>
     <li><h2>Try before installing, where supported</h2><p>Many desktop distributions offer a live USB session. Follow the project's instructions, select the try/live option when available, and test your hardware before installing. Writing the USB erases that USB drive. A browser demo shows the desktop, not whether your hardware works. Apple Silicon and some systems use a different installation route.</p></li>
     <li id="downloads">
       <h2>Follow the official guide</h2>
       <p>Choose the correct current image for your computer and verify it using the project's instructions. Do not choose erase-disk or partitioning options until you understand their effect and have a recoverable backup.</p>
-        <section class="guide-next" data-guide="mint"><h3>Your Mint next steps</h3><p>Mint recommends Cinnamon when you are unsure which edition to choose; Xfce is its lighter option for older computers. Download a current 64-bit image, verify it, then follow Mint's live-session and installation guidance. A live session lets you check hardware before installation.</p><a href="https://linuxmint-installation-guide.readthedocs.io/en/latest/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Official Mint installation guide</a></section>
-        <section class="guide-next" data-guide="ubuntu"><h3>Your Ubuntu next steps</h3><p>Choose the Ubuntu release supported by your tools. Long-term support releases are an option for a longer support window. Use the official tutorial to create installation media and try Ubuntu before installing. For local AI, check the exact GPU, CUDA or ROCm requirements and available memory separately.</p><a href="https://ubuntu.com/tutorials/install-ubuntu-desktop" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Official Ubuntu desktop tutorial</a></section>
-        <section class="guide-next" data-guide="bazzite"><h3>Your Bazzite next steps</h3><p>Use Bazzite's image picker for your exact hardware, including graphics and desktop versus handheld use. Check required games and anti-cheat first. Follow Bazzite's own installation guide; do not assume another distro's live-session or disk instructions apply. Rollback protects system updates, not your personal-file backups.</p><a href="https://docs.bazzite.gg/General/Installation_Guide/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Official Bazzite installation guidance</a></section>
-      <div class="guide-downloads">
-        {downloads.map((p) => {
-          const name = p.key === "mint" ? "Linux Mint" : p.key === "ubuntu" ? "Ubuntu" : "Bazzite";
-          return <a class="guide-download" data-download={p.key} href={p.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Download {name}</a>;
-        })}
-      </div>
+        {GUIDES.map((g) => (
+          <section class="guide-next" data-guide={g.key}>
+            <h3>Your {g.short} next steps</h3>
+            <p>{g.text}</p>
+            <div class="guide-next-actions">
+              <a class="guide-download" data-download={g.key} href={byKey.get(g.key)!.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Download {g.name}</a>
+              <a href={g.guideHref} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{g.guideLabel}</a>
+              <a href={`/distro/${g.key}/`}>{g.short}: rank, ratings, pros and cons</a>
+            </div>
+          </section>
+        ))}
       <p class="guide-unsure">Not sure which one? <a href="/pick/">Find a starting point</a>.</p>
     </li>
     </ol>
-    <section class="switch-sec"><h2>Sources</h2><ul>{BEGINNER_SOURCES.map((s) => <li><a href={s.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{s.name}</a></li>)}</ul><p class="source-note">Recommendation guidance reviewed {BEGINNER_REVIEWED}. Check the project pages for current requirements.</p></section>
+    <section class="switch-sec"><h2>Sources</h2><ul>{[...BEGINNER_SOURCES, ...HARDWARE_SOURCES].map((s) => <li><a href={s.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{s.name}</a></li>)}</ul><p class="source-note">Recommendation guidance reviewed {BEGINNER_REVIEWED}; driver and Wi-Fi notes reviewed {HARDWARE_REVIEWED}. Check the project pages for current requirements.</p></section>
     </div>
     <aside class="side" aria-label="More">
-      <SponsorCard context="people about to install Linux" />
+      <SponsorCard sponsor={guideSponsor} context="people about to install Linux" />
       <section>
         <h2>Not sure which distro?</h2>
         <p>Three plain questions, one starting point, and what to check next.</p>
@@ -57,7 +66,12 @@ const downloads = ["mint", "ubuntu", "bazzite"].map((key) => PROFILES.find((p) =
   const slug = new URLSearchParams(location.search).get("distro");
   if (slug && Object.hasOwn(names, slug)) {
     const heading = document.getElementById("getting-started-title");
-    if (heading) heading.textContent = `Getting started with ${names[slug]}`;
+    if (heading) {
+      const link = document.createElement("a");
+      link.href = `/distro/${slug}/`;
+      link.textContent = names[slug]!;
+      heading.replaceChildren("Getting started with ", link);
+    }
     document.title = `Getting started with ${names[slug]} safely | LinuxStatistics`;
     document.querySelectorAll<HTMLElement>("[data-guide]").forEach((section) => { section.hidden = section.dataset.guide !== slug; });
     // A distro was chosen: show only its download as the primary action, and drop the "not sure" prompt.

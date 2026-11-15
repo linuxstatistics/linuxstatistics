@@ -59,3 +59,11 @@ test("the machine tip matches the computer the person uses now", () => {
   expect(beginnerHint(machine, { origin: "chromeos" })).toBeUndefined();
   expect(beginnerHint(machine, {})).toBeUndefined();
 });
+
+test("older NVIDIA is a valid short-quiz answer and keeps the gaming route", () => {
+  const a = { ...everyday, purpose: "gaming", gpu: "nvidia-old" };
+  expect(parseBeginner(new URLSearchParams(beginnerQuery(a)))).toEqual(a);
+  const r = beginnerRecommendation(a, known);
+  expect(r.kind === "recommendation" && r.slug).toBe("bazzite");
+  expect(r.caveat).toContain("older NVIDIA");
+});

@@ -3,6 +3,7 @@ import { DistroPicker, type PickerDistro } from "./DistroPicker";
 import { beginnerFlow, beginnerHint, beginnerOptions, beginnerQuery, beginnerRecommendation, parseBeginner, pickerMode, pruneBeginner, type BeginnerAnswers } from "../lib/beginner-picker";
 import { PROFILES } from "../lib/picker-profiles";
 import { revealPicker } from "../lib/pick-restore";
+import { HardwareNotes } from "./HardwareNotes";
 
 /** Short flow is independent of the detailed quiz's append-only share codes. */
 export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro[]; staticPairs: string[] }) {
@@ -84,10 +85,11 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
         </form>
       ) : (
         <section aria-label="Your starting point">
-          <h2 ref={heading} tabIndex={-1}>{result.kind === "recommendation" ? `A good place to start: ${name}` : result.title}</h2>
+          <h2 ref={heading} tabIndex={-1}>{result.kind === "recommendation" ? <>A good place to start: <a href={`/switch/getting-started/?distro=${result.slug}`}>{name}</a></> : result.title}</h2>
           {profile && <p>{profile.blurb}</p>}
           {result.kind === "recommendation" && <ul className="beginner-reasons">{result.reasons.map((r) => <li key={r}>{r}</li>)}</ul>}
           <p className="beginner-caveat">{result.caveat}</p>
+          {result.kind === "recommendation" && <HardwareNotes oldNvidia={answers.gpu === "nvidia-old"} bazzite={result.slug === "bazzite"} wifi={answers.machine === "intel-mac" ? "risky" : "check"} />}
           <div className="beginner-actions">
             <a className="cta" href={result.kind === "recommendation" ? `/switch/getting-started/?distro=${result.slug}` : result.href} target={result.kind === "compatibility-check" && result.href.startsWith("https:") ? "_blank" : undefined} rel={result.kind === "compatibility-check" && result.href.startsWith("https:") ? "noopener noreferrer" : undefined} {...(result.kind === "compatibility-check" && result.href.startsWith("https:") ? { "aria-describedby": "new-tab-description", title: "Opens in a new tab" } : {})}>{result.kind === "recommendation" ? `Getting started with ${name}` : "Check compatibility"}</a>
             {profile && <a href={profile.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Official download</a>}

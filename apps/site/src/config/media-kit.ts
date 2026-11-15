@@ -11,10 +11,35 @@ export const mediaKit = {
   subscribers: null as number | null,
   /** Top visitor countries, most first, e.g. ["United States", "Germany", "India"]. */
   topCountries: [] as string[],
-  /** Founding-sponsor offer. */
+  /** Founding-sponsor offer: three tiers, prices in USD per month. */
   offer: {
-    priceUsdPerMonth: { from: 150, to: 500 },
     minimumMonths: 3,
-    slots: 1,
+    tiers: [
+      {
+        id: "headline",
+        name: "Headline",
+        slots: 1,
+        priceUsdPerMonth: { from: 150, to: 300 },
+        placement: "Sidebar card on every page, the footer spot, a line in the monthly email and one or two posts on our social accounts per term.",
+        /** null = on sale now. */
+        opensAtMonthlyVisitors: null as number | null,
+      },
+      {
+        id: "guide",
+        name: "Guide",
+        slots: 1,
+        priceUsdPerMonth: { from: 75, to: 150 },
+        placement: "The sidebar card on the quiz, Switch and Getting started pages, where people are about to install Linux.",
+        opensAtMonthlyVisitors: 10_000 as number | null,
+      },
+      {
+        id: "supporter",
+        name: "Supporter",
+        slots: 6,
+        priceUsdPerMonth: { from: 25, to: 50 },
+        placement: "Your logo and link in the \"Supported by\" row in the footer of every page and on this page.",
+        opensAtMonthlyVisitors: null as number | null,
+      },
+    ],
   },
 };
