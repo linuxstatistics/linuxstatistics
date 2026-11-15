@@ -50,9 +50,3 @@ export const sponsors = activeSponsors(configuredSponsors);
 
 /** The headline sponsor (sidebar card everywhere and the footer slot), or null. */
 export const sponsor: Sponsor | null = sponsors.headline;
-
-/**
- * The sidebar card on install-intent pages (quiz, Switch, Getting started):
- * the guide sponsor while one runs, else the headline sponsor.
- */
-export const guideSponsor: Sponsor | null = sponsors.guide ?? sponsors.headline;

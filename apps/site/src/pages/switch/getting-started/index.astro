@@ -2,8 +2,7 @@
 import Base from "../../../layouts/Base.astro";
 import { BEGINNER_REVIEWED, BEGINNER_SOURCES } from "../../../lib/beginner-picker";
 import { PROFILES } from "../../../lib/picker-profiles";
-import { SponsorCard } from "../../../components/SponsorCard";
-import { guideSponsor } from "../../../config/sponsor";
+import { SponsorStack } from "../../../components/SponsorStack";
 import { HARDWARE_REVIEWED, HARDWARE_SOURCES, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK, WIFI_NOTE, codeParts } from "../../../lib/hardware-notes";
 const byKey = new Map(PROFILES.map((p) => [p.key, p]));
 const GUIDES = [
@@ -44,7 +43,7 @@ const GUIDES = [
     <section class="switch-sec"><h2>Sources</h2><ul>{[...BEGINNER_SOURCES, ...HARDWARE_SOURCES].map((s) => <li><a href={s.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{s.name}</a></li>)}</ul><p class="source-note">Recommendation guidance reviewed {BEGINNER_REVIEWED}; driver and Wi-Fi notes reviewed {HARDWARE_REVIEWED}. Check the project pages for current requirements.</p></section>
     </div>
     <aside class="side" aria-label="More">
-      <SponsorCard sponsor={guideSponsor} context="people about to install Linux" />
+      <SponsorStack context="people about to install Linux" />
       <section>
         <h2>Not sure which distro?</h2>
         <p>Three plain questions, one starting point, and what to check next.</p>

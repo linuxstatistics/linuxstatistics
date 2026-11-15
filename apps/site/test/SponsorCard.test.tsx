@@ -19,3 +19,31 @@ test("a real sponsor is labelled and linked as sponsored", () => {
   expect(link).toHaveAttribute("target", "_blank");
   expect(screen.getByText("Sponsor")).toBeInTheDocument();
 });
+
+test("install pages stack headline then guide; one company on both tiers shows once", async () => {
+  const { SponsorStack } = await import("../src/components/SponsorStack");
+  const h = { name: "Tux Laptops", logoUrl: "/h.png", href: "https://tux.test", tagline: "Laptops" };
+  const g = { name: "Backup Co", logoUrl: "/g.png", href: "https://backup.test", tagline: "Backups" };
+  const names = () => screen.queryAllByRole("img").map((i) => i.getAttribute("alt"));
+
+  render(<SponsorStack headline={h} guide={g} />);
+  expect(names()).toEqual(["Tux Laptops", "Backup Co"]);
+  cleanup();
+
+  render(<SponsorStack headline={h} guide={null} />);
+  expect(names()).toEqual(["Tux Laptops"]);
+  cleanup();
+
+  render(<SponsorStack headline={null} guide={null} />);
+  expect(screen.getAllByRole("complementary", { name: "Sponsor" })).toHaveLength(1);
+  expect(screen.getByRole("link", { name: "Sponsor LinuxStatistics" })).toBeInTheDocument();
+  cleanup();
+
+  render(<SponsorStack headline={null} guide={g} />);
+  expect(screen.getAllByRole("complementary", { name: "Sponsor" })).toHaveLength(2);
+  expect(names()).toEqual(["Backup Co"]);
+  cleanup();
+
+  render(<SponsorStack headline={h} guide={{ ...h, name: "Tux Laptops (install)", tagline: "Preinstalled Linux" }} />);
+  expect(names()).toEqual(["Tux Laptops (install)"]);
+});
