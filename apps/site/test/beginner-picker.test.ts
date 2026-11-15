@@ -67,3 +67,10 @@ test("older NVIDIA is a valid short-quiz answer and keeps the gaming route", () 
   expect(r.kind === "recommendation" && r.slug).toBe("bazzite");
   expect(r.caveat).toContain("older NVIDIA");
 });
+
+test("machine options: PCs, then Macs newest first, then boards, then not sure", () => {
+  const machine = BEGINNER_QUESTIONS.find((q) => q.id === "machine")!;
+  expect(beginnerOptions(machine).map(([v]) => v)).toEqual(["pc", "pc32", "apple", "intel-mac", "arm", "unsure"]);
+  const gpu = BEGINNER_QUESTIONS.find((q) => q.id === "gpu")!;
+  expect(beginnerOptions(gpu).map(([v]) => v)).toEqual(["nvidia", "nvidia-old", "amd", "intel", "unsure"]);
+});

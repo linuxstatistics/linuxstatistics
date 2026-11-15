@@ -3,7 +3,7 @@ import { afterEach, expect, test } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { PROFILES } from "../src/lib/picker-profiles";
-import { USES, useFit, useFits } from "../src/lib/use-fit";
+import { USES, primaryUses, useFit, useFits, withoutRepeats } from "../src/lib/use-fit";
 import { QUESTIONS } from "../src/lib/picker-questions";
 import { UseFitTabs } from "../src/components/UseFitTabs";
 
@@ -47,4 +47,26 @@ test("the tabs open on ?for= from the quiz and switch on click", async () => {
   await user.click(screen.getByRole("tab", { name: "Gaming" }));
   expect(screen.getByRole("tab", { name: "Gaming" })).toHaveAttribute("aria-selected", "true");
   expect(window.location.search).toBe("?for=gaming");
+});
+
+test("tabs show only the uses a distro is built for, plus the one the quiz linked to", async () => {
+  const fedora = prof("fedora");
+  const primary = primaryUses(fedora);
+  expect(primary).toEqual(USES.map((u) => u.use).filter((u) => fedora.uses.includes(u)));
+  expect(primary).not.toContain("gaming");
+  render(<UseFitTabs name="Fedora" fits={useFits(fedora)} primary={primary} />);
+  expect(screen.getAllByRole("tab")).toHaveLength(primary.length);
+  expect(screen.queryByRole("tab", { name: "Gaming" })).not.toBeInTheDocument();
+  cleanup();
+  window.history.replaceState(null, "", "/distro/fedora/?for=gaming");
+  render(<UseFitTabs name="Fedora" fits={useFits(fedora)} primary={primary} />);
+  expect(await screen.findByRole("tab", { name: "Gaming" })).toHaveAttribute("aria-selected", "true");
+  expect(screen.getAllByRole("tab")).toHaveLength(primary.length + 1);
+});
+
+test("tab lines that repeat the general pros and cons are dropped, never emptying a panel", () => {
+  const fits = withoutRepeats(useFits(prof("mint")), ["Windows-style Cinnamon desktop that feels familiar"]);
+  expect(fits.find((f) => f.use === "everyday")!.pros).not.toContain("Windows-style desktop that feels familiar");
+  const only = [{ use: "gaming" as const, label: "Gaming", verdict: "ok" as const, pros: ["Feels familiar"], cons: [] }];
+  expect(withoutRepeats(only, ["Feels familiar to everyone"])[0]!.pros).toEqual(["Feels familiar"]);
 });

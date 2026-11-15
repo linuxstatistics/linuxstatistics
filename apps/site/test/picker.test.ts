@@ -1,7 +1,7 @@
 import { expect, test } from "vitest";
 import { fits, rankAll, score, suggest, type Answers } from "../src/lib/picker";
 import { PROFILES } from "../src/lib/picker-profiles";
-import { decodeAnswers, encodeAnswers, flow, prune, QUESTIONS } from "../src/lib/picker-questions";
+import { decodeAnswers, displayOptions, encodeAnswers, flow, prune, QUESTIONS } from "../src/lib/picker-questions";
 
 const ranks: Record<string, number> = { cachyos: 1, mint: 2, mx: 3, debian: 4, popos: 5, zorin: 6, fedora: 7, endeavour: 8, ubuntu: 9, manjaro: 10, bazzite: 11 };
 const rankOf = (k: string) => ranks[k] ?? null;
@@ -263,4 +263,13 @@ test("new answers are appended, so launch codes still decode and new ones round-
   expect(decodeAnswers(encodeAnswers(a))).toEqual(a);
   expect(ids({ level: "new", device: "pc" })).not.toContain("wifi");
   expect(ids({ level: "some", device: "pc" })).toContain("wifi");
+});
+
+test("display order groups PCs, then Macs/boards, newest first, without changing share codes", () => {
+  const device = QUESTIONS.find((q) => q.id === "device")!;
+  expect(displayOptions(device).map(([v]) => v)).toEqual(["pc", "pc32", "pi", "arm"]);
+  const gpu = QUESTIONS.find((q) => q.id === "gpu")!;
+  expect(displayOptions(gpu).map(([v]) => v)).toEqual(["nvidia", "nvidia-old", "amd", "intel", "unsure"]);
+  for (const q of QUESTIONS) expect(displayOptions(q).map(([v]) => v).sort(), q.id).toEqual(q.options.map(([v]) => v).sort());
+  expect(decodeAnswers("1221421141")).toMatchObject({ device: "pc", gpu: "amd" });
 });

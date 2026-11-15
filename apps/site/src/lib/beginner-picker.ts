@@ -2,10 +2,10 @@ import { PROFILES } from "./picker-profiles";
 
 export const BEGINNER_QUESTIONS = [
   { id: "origin", title: "What do you use now?", options: [["windows", "Windows"], ["mac", "Mac"], ["linux", "Linux"], ["chromeos", "ChromeOS"], ["unsure", "Not sure"]] },
-  { id: "machine", title: "Which computer will run Linux?", hintFor: { mac: "On a Mac, open Apple menu → About This Mac. Look for Intel or an Apple M-series chip.", windows: "On Windows, open Settings → System → About. \"64-bit operating system\" means a regular 64-bit PC.", linux: "On Linux, run `uname -m` in a terminal. `x86_64` means a regular 64-bit PC, `aarch64` means ARM, `i686` means 32‑bit.", unsure: "On Windows, open Settings → System → About and look for \"64-bit operating system\". On a Mac, open Apple menu → About This Mac and look for Intel or an Apple M-series chip." }, options: [["pc", "A regular 64-bit PC"], ["intel-mac", "An Intel Mac"], ["apple", "An Apple Silicon Mac"], ["arm", "Raspberry Pi or another ARM board"], ["pc32", "A very old 32-bit PC"], ["unsure", "Not sure"]] },
+  { id: "machine", title: "Which computer will run Linux?", hintFor: { mac: "On a Mac, open Apple menu → About This Mac. Look for Intel or an Apple M-series chip.", windows: "On Windows, open Settings → System → About. \"64-bit operating system\" means a regular 64-bit PC.", linux: "On Linux, run `uname -m` in a terminal. `x86_64` means a regular 64-bit PC, `aarch64` means ARM, `i686` means 32‑bit.", unsure: "On Windows, open Settings → System → About and look for \"64-bit operating system\". On a Mac, open Apple menu → About This Mac and look for Intel or an Apple M-series chip." }, options: [["pc", "A regular 64-bit PC"], ["pc32", "A very old 32-bit PC"], ["apple", "An Apple Silicon Mac"], ["intel-mac", "An Intel Mac"], ["arm", "Raspberry Pi or another ARM board"], ["unsure", "Not sure"]] },
   { id: "purpose", title: "What will you mainly use it for?", options: [["everyday", "Web, email and everyday tasks"], ["gaming", "Games"], ["older", "Bringing an older computer back to life"], ["programming", "Programming"], ["work", "Creative work or specialist apps"], ["other", "Something else / not sure"], ["ai", "AI and local LLMs"]] },
   { id: "ram", title: "How much memory does it have?", options: [["1", "Under 2 GB"], ["2", "2–4 GB"], ["4", "4–8 GB"], ["8", "8 GB or more"], ["unsure", "Not sure"]] },
-  { id: "gpu", title: "Which graphics does it use?", hint: "Graphics hardware affects gaming images and AI acceleration. The exact model matters, not just the brand.", options: [["amd", "AMD"], ["intel", "Intel"], ["nvidia", "NVIDIA"], ["unsure", "Not sure"], ["nvidia-old", "Older NVIDIA (GTX 10-series or earlier)"]] },
+  { id: "gpu", title: "Which graphics does it use?", hint: "Graphics hardware affects gaming images and AI acceleration. The exact model matters, not just the brand.", options: [["nvidia", "NVIDIA"], ["nvidia-old", "Older NVIDIA (GTX 10-series or earlier)"], ["amd", "AMD"], ["intel", "Intel"], ["unsure", "Not sure"]] },
 ] as const;
 export type BeginnerKey = typeof BEGINNER_QUESTIONS[number]["id"];
 export type BeginnerAnswers = Partial<Record<BeginnerKey, string>>;
@@ -19,7 +19,7 @@ export function beginnerHint(q: typeof BEGINNER_QUESTIONS[number], a: BeginnerAn
   if ("hintFor" in q && a.origin && a.origin in q.hintFor) return q.hintFor[a.origin as keyof typeof q.hintFor];
   return undefined;
 }
-/** Stable display partition; legacy detailed-quiz encoded option positions are untouched. */
+/** Options as listed, with "not sure" answers last. Short-quiz links carry values, not positions, so this order can change freely. */
 export function beginnerOptions(q: typeof BEGINNER_QUESTIONS[number]) {
   return [...q.options].sort((a, b) => Number(["other", "unsure"].includes(a[0])) - Number(["other", "unsure"].includes(b[0])));
 }

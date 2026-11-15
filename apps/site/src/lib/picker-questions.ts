@@ -36,6 +36,8 @@ export interface Question<K extends QuestionId = QuestionId> {
   options: [NonNullable<Answers[K]>, string, string?][];
   /** Whether to ask, given the answers so far. Missing = always. */
   show?: (a: Answers) => boolean;
+  /** Display order by value, when it differs from `options` (whose order is fixed by share codes). */
+  display?: NonNullable<Answers[K]>[];
 }
 
 const desktopLike = (a: Answers) => a.device === undefined || a.device === "pc";
@@ -76,6 +78,7 @@ export const QUESTIONS: Question[] = [
     legend: "What will it run on?",
     why: "Not every distro makes images for Raspberry Pi, other ARM boards or old 32-bit PCs.",
     options: [["pc", "A laptop or desktop PC"], ["pi", "A Raspberry Pi"], ["arm", "Another ARM board"], ["pc32", "A very old PC (32-bit only)"]],
+    display: ["pc", "pc32", "pi", "arm"],
   },
   {
     id: "ram",
@@ -88,6 +91,7 @@ export const QUESTIONS: Question[] = [
     legend: "What graphics card does it have?",
     why: "NVIDIA drivers are not open source, so some distros set them up for you and others leave it to you. For AI work it decides the toolkit: CUDA on NVIDIA, ROCm on AMD.",
     options: [["nvidia", "NVIDIA"], ["amd", "AMD"], ["intel", "Intel (built-in)"], ["unsure", "Not sure"], ["nvidia-old", "Older NVIDIA", "GTX 10-series (e.g. GTX 1050 Ti) or earlier"]],
+    display: ["nvidia", "nvidia-old", "amd", "intel", "unsure"],
     show: (a) => a.use === "ai" || (desktopLike(a) && notServer(a) && a.use !== "old-hw" && a.ram !== 1),
   },
   {
@@ -163,6 +167,13 @@ export const QUESTIONS: Question[] = [
     show: (a) => desktopLike(a) && notServer(a) && a.level !== "new",
   },
 ];
+
+/** A question's options in display order. */
+export function displayOptions<K extends QuestionId>(q: Question<K>): Question<K>["options"] {
+  if (!q.display) return q.options;
+  const at = (v: unknown) => q.display!.indexOf(v as never);
+  return [...q.options].sort((x, y) => at(x[0]) - at(y[0]));
+}
 
 /** The questions that apply now, given the answers so far. */
 export function flow(a: Answers): Question[] {

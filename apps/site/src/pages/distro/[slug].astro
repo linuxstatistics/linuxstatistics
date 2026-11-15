@@ -12,7 +12,7 @@ import { SponsorCard } from "../../components/SponsorCard";
 import { RatingSkeleton } from "../../components/Skeleton";
 import { ProsCons } from "../../components/ProsCons";
 import { UseFitTabs } from "../../components/UseFitTabs";
-import { useFits } from "../../lib/use-fit";
+import { primaryUses, useFits, withoutRepeats } from "../../lib/use-fit";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { WhoItSuits } from "../../components/PairVerdict";
 import { notesFor } from "../../lib/distro-notes";
@@ -43,7 +43,8 @@ const near = neighbours(list, data.slug);
 const notes = notesFor(data.slug);
 const profile = PROFILES.find((p) => p.key === data.slug);
 const blurb = DISTRO_BLURBS[data.slug];
-const fits = profile ? useFits(profile) : null;
+const fits = profile ? withoutRepeats(useFits(profile), notes ? [...notes.pros, ...notes.cons] : []) : null;
+const primaryFits = profile ? primaryUses(profile) : undefined;
 const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "wikipedia");
@@ -138,7 +139,7 @@ const jsonLd = {
           </section>
         )}
         {notes && <ProsCons notes={notes} />}
-        {fits && <UseFitTabs client:visible name={data.name} fits={fits} />}
+        {fits && <UseFitTabs client:visible name={data.name} fits={fits} primary={primaryFits} />}
         <TelemetryNote slug={data.slug} />
         <RankByPeriod periods={data.rankByPeriod} />
         <section class="dsec" aria-labelledby="rate-h">

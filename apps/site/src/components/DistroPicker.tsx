@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { rankAll, type Suggestion } from "../lib/picker";
 import { PROFILES, type PickerProfile } from "../lib/picker-profiles";
-import { decodeAnswers, encodeAnswers, flow, prune, type Answers, type Question } from "../lib/picker-questions";
+import { decodeAnswers, displayOptions, encodeAnswers, flow, prune, type Answers, type Question } from "../lib/picker-questions";
 import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
 import { compareSlug } from "../lib/compare";
 import { revealPicker } from "../lib/pick-restore";
@@ -257,7 +257,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
           <h2 ref={headingRef} tabIndex={-1}>{q.legend}</h2>
         </legend>
         <div className="quiz-options">
-          {q.options.map(([value, label, hint]) => (
+          {displayOptions(q).map(([value, label, hint]) => (
             <button
               key={String(value)}
               type="button"

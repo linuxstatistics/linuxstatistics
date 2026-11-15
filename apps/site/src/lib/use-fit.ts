@@ -125,3 +125,28 @@ export function useFit(p: PickerProfile, use: Use): UseFit {
 }
 
 export const useFits = (p: PickerProfile): UseFit[] => USES.map(({ use }) => useFit(p, use));
+
+/** The uses a distro is built for (its own tabs); everyday when the profile names none. */
+export function primaryUses(p: PickerProfile): Use[] {
+  const own = USES.map((u) => u.use).filter((u) => p.uses.includes(u));
+  return own.length ? own : ["everyday"];
+}
+
+const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 3);
+
+/**
+ * Drop tab lines the general pros and cons already say (every longer word of
+ * the line appears in one note), unless that would leave the panel empty.
+ */
+export function withoutRepeats(fits: UseFit[], notes: string[]): UseFit[] {
+  const said = notes.map((n) => new Set(words(n)));
+  const repeats = (line: string) => {
+    const w = words(line);
+    return w.length > 0 && said.some((n) => w.every((x) => n.has(x)));
+  };
+  return fits.map((f) => {
+    const pros = f.pros.filter((l) => !repeats(l));
+    const cons = f.cons.filter((l) => !repeats(l));
+    return pros.length + cons.length > 0 ? { ...f, pros, cons } : f;
+  });
+}

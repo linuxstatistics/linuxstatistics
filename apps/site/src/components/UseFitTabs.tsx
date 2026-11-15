@@ -3,17 +3,22 @@ import type { Use } from "../lib/picker-profiles";
 import { isUse, VERDICT_TEXT, type UseFit } from "../lib/use-fit";
 
 /**
- * "How it fits what you do": one tab per use. Opens on ?for=<use> (set by the
- * quiz) so someone who asked about AI lands on the AI pros and cons. Rendered
- * on the server with the first tab open; all panels are in the HTML.
+ * "How it fits what you do": a tab for each use the distro is built for
+ * (`primary`), plus the use from ?for=<use> when the quiz sent someone here
+ * for something else. Rendered on the server with the first tab open.
  */
-export function UseFitTabs({ name, fits }: { name: string; fits: UseFit[] }) {
+export function UseFitTabs({ name, fits: all, primary }: { name: string; fits: UseFit[]; primary?: Use[] }) {
+  const [extra, setExtra] = useState<Use | null>(null);
+  const shown = new Set<Use>([...(primary ?? all.map((f) => f.use)), ...(extra ? [extra] : [])]);
+  const fits = all.filter((f) => shown.has(f.use));
   const [active, setActive] = useState<Use>(fits[0]!.use);
 
   useEffect(() => {
     const f = new URLSearchParams(window.location.search).get("for");
-    if (isUse(f)) setActive(f);
-  }, []);
+    if (!isUse(f) || !all.some((x) => x.use === f)) return;
+    setExtra(f);
+    setActive(f);
+  }, [all]);
 
   function pick(use: Use) {
     setActive(use);
