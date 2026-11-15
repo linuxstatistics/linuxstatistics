@@ -18,6 +18,7 @@ const GUIDES = [
     <div class="with-side-main beginner-guide">
     <h1 id="getting-started-title">Getting started with Linux</h1>
     <p class="lede">You don't need to replace your current system today. Check what matters, keep a way back, then try Linux.</p>
+    <p class="guide-skip" hidden><a href="#downloads">Already backed up and checked? Skip to the download</a></p>
     <ol class="switch-path">
     <li><h2>Back up before changing anything</h2><p>Copy important files to a separate drive or backup service. Check that you can open them. Save recovery keys and make sure you can restore your current system. Installing Linux can erase files if the wrong disk option is chosen.</p></li>
     <li id="hardware"><h2>Check your exact computer</h2><p>Identify the model, processor, memory and graphics. A recommendation is not a compatibility guarantee. Check Wi-Fi, sound, webcam, suspend and any accessories you depend on.</p><p><strong>Apple Silicon:</strong> use the <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/docs/platform/feature-support/overview/">Asahi model-support list</a> and <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/fedora/">official Fedora Asahi Remix guidance</a>, not a regular PC image. Intel Macs, Chromebooks, ARM boards and 32-bit PCs also need model-specific checks.</p><p><strong>Wi-Fi:</strong> {WIFI_NOTE} {codeParts(WIFI_HOW_TO_CHECK).map((p) => (p.code ? <code>{p.text}</code> : p.text))}</p><p><strong>Older NVIDIA cards:</strong> {OLD_NVIDIA_NOTE} {OLD_NVIDIA_BAZZITE}</p></li>
@@ -79,5 +80,6 @@ const GUIDES = [
       else link.hidden = true;
     });
     document.querySelector<HTMLElement>(".guide-unsure")?.setAttribute("hidden", "");
+    document.querySelector<HTMLElement>(".guide-skip")?.removeAttribute("hidden");
   }
 </script>

@@ -12,19 +12,36 @@ function Reasons({ items }: { items: string[] }) {
 }
 
 /** "Pick X if… / Pick Y if…" block at the top of a pair page. */
-export function PairVerdict({ v }: { v: Verdict }) {
+export interface NextSteps {
+  href: string;
+  guide?: string;
+}
+
+function Next({ name, to }: { name: string; to?: NextSteps }) {
+  if (!to) return null;
+  return (
+    <p className="verdict-next">
+      <a href={to.href}>{name} in detail</a>
+      {to.guide && <a href={to.guide}>Getting started with {name}</a>}
+    </p>
+  );
+}
+
+export function PairVerdict({ v, links }: { v: Verdict; links?: { a: NextSteps; b: NextSteps } }) {
   return (
     <section className="verdict" aria-label="Which to pick">
-      {[v.a, v.b].map((side) =>
+      {[v.a, v.b].map((side, i) =>
         side.reasons.length > 0 ? (
           <div key={side.name} className="verdict-card">
             <span className="verdict-label">Pick {side.name} if:</span>
             <Reasons items={side.reasons} />
+            <Next name={side.name} to={links?.[i === 0 ? "a" : "b"]} />
           </div>
         ) : side.empty === "same" ? (
           <div key={side.name} className="verdict-card">
             <span className="verdict-label">{side.name} suits the same people</span>
             <p>{side.blurb}</p>
+            <Next name={side.name} to={links?.[i === 0 ? "a" : "b"]} />
           </div>
         ) : (
           <div key={side.name} className="verdict-card no-data">

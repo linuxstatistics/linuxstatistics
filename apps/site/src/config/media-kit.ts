@@ -34,10 +34,10 @@ export const mediaKit = {
         id: "headline",
         name: "Headline",
         slots: 1,
-        summary: "The main placement, seen on every page of the site.",
+        summary: "The main placement, on the pages people use to choose a distro.",
         includes: [
-          "Sidebar card on every page, with your logo, one line and a link",
-          "The sponsor spot in the footer",
+          "Your card on the home page, every distro page, every comparison and the quiz and Switch pages, with your logo, one line and a link",
+          "The sponsor spot in the footer of every page",
           "A line in the monthly State of Linux Distros email",
           "A post on our social accounts during your term",
         ],

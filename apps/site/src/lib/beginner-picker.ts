@@ -74,4 +74,6 @@ export const BEGINNER_SOURCES = [
   { name: "Ubuntu for developers", href: "https://ubuntu.com/desktop/developers" },
   { name: "Asahi model support", href: "https://asahilinux.org/docs/platform/feature-support/overview/" },
 ];
+/** Distros with a step-by-step section on /switch/getting-started/. */
+export const GUIDE_SLUGS: ReadonlySet<string> = new Set(["mint", "ubuntu", "bazzite"]);
 export const BEGINNER_REVIEWED = "2026-11-13";

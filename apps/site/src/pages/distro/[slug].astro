@@ -139,8 +139,8 @@ const jsonLd = {
         )}
         {notes && <ProsCons notes={notes} />}
         {fits && <UseFitTabs client:visible name={data.name} fits={fits} />}
-        <RankByPeriod periods={data.rankByPeriod} />
         <TelemetryNote slug={data.slug} />
+        <RankByPeriod periods={data.rankByPeriod} />
         <section class="dsec" aria-labelledby="rate-h">
           <h2 id="rate-h">Rate {data.name}</h2>
           <DistroRating client:only="react" slug={data.slug}><RatingSkeleton slot="fallback" /></DistroRating>

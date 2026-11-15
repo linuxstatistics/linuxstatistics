@@ -23,3 +23,16 @@ test("a profiled side with nothing distinct shows its summary, not a no-data car
   expect(screen.getByText("Zorin suits the same people")).toBeInTheDocument();
   expect(screen.queryByText(/Not enough data/)).not.toBeInTheDocument();
 });
+
+test("verdict cards link to the distro page, and to the install guide when there is one", () => {
+  render(
+    <PairVerdict
+      v={{ a: { name: "Mint", reasons: ["you're new to Linux"] }, b: { name: "Arch", reasons: ["you want full control"] } }}
+      links={{ a: { href: "/distro/mint/", guide: "/switch/getting-started/?distro=mint" }, b: { href: "/distro/arch/" } }}
+    />,
+  );
+  expect(screen.getByRole("link", { name: "Mint in detail" })).toHaveAttribute("href", "/distro/mint/");
+  expect(screen.getByRole("link", { name: "Getting started with Mint" })).toHaveAttribute("href", "/switch/getting-started/?distro=mint");
+  expect(screen.getByRole("link", { name: "Arch in detail" })).toBeInTheDocument();
+  expect(screen.queryByRole("link", { name: "Getting started with Arch" })).not.toBeInTheDocument();
+});

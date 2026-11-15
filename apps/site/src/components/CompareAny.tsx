@@ -5,6 +5,9 @@ import { CompareSkeleton } from "./Skeleton";
 import { PairVerdict } from "./PairVerdict";
 import { ProsConsPair } from "./ProsCons";
 import { pairVerdict } from "../lib/verdict";
+import { GUIDE_SLUGS } from "../lib/beginner-picker";
+
+const nextSteps = (d: DistroDetail) => ({ href: `/distro/${d.slug}/`, guide: GUIDE_SLUGS.has(d.slug) ? `/switch/getting-started/?distro=${d.slug}` : undefined });
 import { notesFor } from "../lib/distro-notes";
 
 const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
@@ -65,7 +68,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
       <h2>
         {a.name} vs {b.name}
       </h2>
-      <PairVerdict v={verdict} />
+      <PairVerdict v={verdict} links={{ a: nextSteps(a), b: nextSteps(b) }} />
       {thin.length > 0 && (
         <p className="no-data-note" role="note">
           <span className="no-data-label">Limited data</span>
