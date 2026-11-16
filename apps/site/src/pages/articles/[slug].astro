@@ -1,6 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { SponsorCard } from "../../components/SponsorCard";
+import SwitchSide from "../../components/SwitchSide.astro";
 import { loadArticles } from "../../lib/article-entries";
 import { externalLinksNewTab, fmtArticleDate, relatedArticles } from "../../lib/articles";
 
@@ -32,7 +33,8 @@ const jsonLd = {
 <Base title={`${a.title} | LinuxStatistics`} description={a.description} jsonLd={a.draft ? undefined : jsonLd} noindex={a.draft}>
   {a.draft && <div class="article-draft-banner" role="note">Draft, not published. Only visible on the local dev server.</div>}
   <div class="page">
-    <article class="article">
+    <div class="with-side">
+    <article class="article with-side-main">
       <p class="article-crumbs"><a href="/articles/">Articles</a> › {a.tags[0]}</p>
       <h1>{a.title}</h1>
       <p class="article-meta">
@@ -43,7 +45,6 @@ const jsonLd = {
       <div class="article-body prose">
         <Fragment set:html={html} />
       </div>
-      <div class="article-sponsor"><SponsorCard context="people reading about Linux distros" /></div>
       {related.length > 0 && (
         <nav class="article-related" aria-labelledby="more-h">
           <h2 id="more-h">More articles</h2>
@@ -51,5 +52,19 @@ const jsonLd = {
         </nav>
       )}
     </article>
+      <aside class="side" aria-label="More">
+        <SponsorCard context="people reading about Linux distros" />
+        <section>
+          <h2>Explore the data</h2>
+          <ul class="stats-side-links">
+            <li><a href="/stats/">Linux by the numbers</a></li>
+            <li><a href="/">Distro rankings</a></li>
+            <li><a href="/rising/">Rising this month</a></li>
+            <li><a href="/data/">Download the data</a></li>
+          </ul>
+        </section>
+        <SwitchSide />
+      </aside>
+    </div>
   </div>
 </Base>

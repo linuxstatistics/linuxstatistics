@@ -1,5 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
+import { SponsorCard } from "../../components/SponsorCard";
+import SwitchSide from "../../components/SwitchSide.astro";
 import { loadArticles } from "../../lib/article-entries";
 import { fmtArticleDate } from "../../lib/articles";
 
@@ -16,6 +18,8 @@ const jsonLd = {
 
 <Base title="Articles: Linux distro data and analysis | LinuxStatistics" description="Notes and analysis built on our own numbers: how we rank distros, what's growing and what people leaving Windows pick." jsonLd={jsonLd}>
   <div class="page articles-page">
+    <div class="with-side">
+    <div class="with-side-main">
     <p class="stats-eyebrow">Articles</p>
     <h1>Notes and analysis</h1>
     <p class="lede">Written from our own numbers: how we rank distros, what's growing and what people leaving Windows pick.</p>
@@ -37,5 +41,20 @@ const jsonLd = {
         ))}
       </ul>
     )}
+    </div>
+      <aside class="side" aria-label="More">
+        <SponsorCard context="people reading about Linux distros" />
+        <section>
+          <h2>Explore the data</h2>
+          <ul class="stats-side-links">
+            <li><a href="/stats/">Linux by the numbers</a></li>
+            <li><a href="/">Distro rankings</a></li>
+            <li><a href="/rising/">Rising this month</a></li>
+            <li><a href="/data/">Download the data</a></li>
+          </ul>
+        </section>
+        <SwitchSide />
+      </aside>
+    </div>
   </div>
 </Base>
