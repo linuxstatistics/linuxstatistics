@@ -333,3 +333,41 @@ export const pickerFeedback = pgTable(
   },
   (t) => [index("picker_feedback_top_idx").on(t.topKey)],
 );
+
+/**
+ * One finished quiz. Anonymous: no account, IP, cookie, browser details or
+ * time of day. `quiz` is "pick" (advanced) or "start" (short beginner quiz);
+ * `code` is that quiz's answers in its own share format; `top_key` is the
+ * first result (a distro slug, or a check page key for the short quiz).
+ * A random `token` lets the same page visit take its row back ("don't count
+ * my answers"); it is never shown or exported.
+ */
+export const quizCompletions = pgTable(
+  "quiz_completions",
+  {
+    id: serial("id").primaryKey(),
+    quiz: text("quiz").notNull(),
+    code: text("code").notNull(),
+    topKey: text("top_key").notNull(),
+    day: text("day").notNull(),
+    token: text("token").notNull(),
+  },
+  (t) => [index("quiz_completions_day_idx").on(t.day), uniqueIndex("quiz_completions_token_uniq").on(t.token)],
+);
+
+/**
+ * "LinuxStatistics helped me switch" reports. Anonymous and self-reported:
+ * where the person came from, optionally the distro they use now, the page
+ * the card was on and the day.
+ */
+export const switchReports = pgTable(
+  "switch_reports",
+  {
+    id: serial("id").primaryKey(),
+    cameFrom: text("came_from").notNull(),
+    nowUsing: text("now_using"),
+    page: text("page").notNull(),
+    day: text("day").notNull(),
+  },
+  (t) => [index("switch_reports_day_idx").on(t.day)],
+);

@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   getDistroDetail,
   getRising,
+  getStats,
   resolveSlug,
   getDistroList,
   getGalaxy,
@@ -19,6 +20,7 @@ import { registerAdminRoutes } from "./routes/admin.js";
 import { registerEmailRoutes } from "./routes/email.js";
 import { registerSuggestionRoutes } from "./routes/suggestions.js";
 import { registerPickerRoutes } from "./routes/picker.js";
+import { registerFirstPartyRoutes } from "./routes/first-party.js";
 import { registerPublicV1 } from "./routes/public-v1.js";
 import { registerInterestRoutes } from "./routes/interest.js";
 
@@ -64,6 +66,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   const galaxyCached = ttlCache(TTL, () => getGalaxy(db));
   const metaCached = ttlCache(TTL, () => getMeta(db));
   const risingCached = ttlCache(TTL, () => getRising(db));
+  const statsCached = ttlCache(TTL, () => getStats(db));
 
   app.get("/health", async () => ({ ok: true }));
   app.get("/api/health", async () => ({ ok: true }));
@@ -75,6 +78,8 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   app.get("/api/meta", async () => metaCached());
 
   app.get("/api/rising", async () => risingCached());
+
+  app.get("/api/stats", async () => statsCached());
 
   app.get("/api/market-share", async (req) => {
     const q = marketQuerySchema.parse(req.query);
@@ -106,6 +111,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   registerEmailRoutes(app, db);
   registerSuggestionRoutes(app, db);
   registerPickerRoutes(app, db);
+  registerFirstPartyRoutes(app, db);
   registerPublicV1(app, db, distrosCached);
   registerInterestRoutes(app, db);
 

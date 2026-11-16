@@ -1,4 +1,4 @@
-import { RANK_SOURCE } from "@linux-statistics/shared";
+import { RANK_SOURCE, statsPayloadSchema } from "@linux-statistics/shared";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import type { FastifyInstance } from "fastify";
 import type { PGlite } from "@electric-sql/pglite";
@@ -96,6 +96,14 @@ test("GET /api/distros/:slug redirects a legacy slug to the canonical one", asyn
   const res = await app.inject({ method: "GET", url: "/api/distros/linux-mint" });
   expect(res.statusCode).toBe(301);
   expect(res.headers.location).toBe("/api/distros/mint");
+});
+
+test("GET /api/stats returns totals that match the stats schema", async () => {
+  const res = await app.inject({ method: "GET", url: "/api/stats" });
+  expect(res.statusCode).toBe(200);
+  const body = statsPayloadSchema.parse(res.json());
+  expect(body.listedDistros).toBeGreaterThan(0);
+  expect(body.site.pageViews).toEqual({ total: expect.any(Number), last30d: expect.any(Number) });
 });
 
 test("GET /api/rising lists climbers (none here: mint fell in the last month)", async () => {

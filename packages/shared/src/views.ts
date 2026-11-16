@@ -159,6 +159,34 @@ export const metaSchema = z.object({
 });
 export type Meta = z.infer<typeof metaSchema>;
 
+/** A count over all time and over the last 30 days. */
+export const countPairSchema = z.object({ total: z.number().int(), last30d: z.number().int() });
+export type CountPair = z.infer<typeof countPairSchema>;
+
+/** Totals for the /stats page. Our own counts and open data only; no third-party rank data. */
+export const statsPayloadSchema = z.object({
+  generatedAt: z.iso.datetime(),
+  trackedDistros: z.number().int(),
+  listedDistros: z.number().int(),
+  families: z.array(z.object({ family: z.string(), count: z.number().int() })),
+  github: z.object({ repos: z.number().int(), stars: z.number().int(), commitsLast30d: z.number().int() }),
+  releasesThisYear: z.number().int(),
+  supportEndingSoon: z.array(
+    z.object({ slug: z.string(), name: z.string(), cycle: z.string(), endsOn: z.string() }),
+  ),
+  site: z.object({
+    pageViews: countPairSchema,
+    quizVotes: countPairSchema,
+    quizCompletions: countPairSchema,
+    contributions: countPairSchema,
+    switchers: countPairSchema.extend({
+      /** All-time reports by where people came from, most first. */
+      byOrigin: z.array(z.object({ cameFrom: z.string(), count: z.number().int() })),
+    }),
+  }),
+});
+export type StatsPayload = z.infer<typeof statsPayloadSchema>;
+
 export const emailSignupInputSchema = z.object({
   email: z.email().max(320),
   source: z.string().max(64).optional(),
@@ -202,3 +230,39 @@ export const pickerFeedbackInputSchema = z.object({
   website: z.string().max(0).optional(),
 });
 export type PickerFeedbackInput = z.infer<typeof pickerFeedbackInputSchema>;
+
+/** Quiz names: "pick" = the advanced quiz, "start" = the short beginner quiz. */
+export const QUIZ_KINDS = ["pick", "start"] as const;
+
+/**
+ * One finished quiz, sent once per page visit. Anonymous. The code is the
+ * quiz's own answers format (digits for "pick", short value list for
+ * "start"); `token` is a random id the same visit can use to take it back.
+ */
+export const quizCompletionInputSchema = z
+  .object({
+    quiz: z.enum(QUIZ_KINDS),
+    code: z.string().max(80),
+    topKey: z.string().regex(/^[a-z0-9-]{1,64}$/),
+    token: z.uuid(),
+    /** Honeypot: must stay empty. */
+    website: z.string().max(0).optional(),
+  })
+  .refine((v) => (v.quiz === "pick" ? /^[0-9]{0,32}$/ : /^[a-z0-9-]{1,20}(\.[a-z0-9-]{0,20}){0,9}$/).test(v.code), {
+    path: ["code"],
+    message: "Invalid answers code",
+  });
+export type QuizCompletionInput = z.infer<typeof quizCompletionInputSchema>;
+
+export const SWITCH_ORIGINS = ["windows", "macos", "chromeos", "linux", "other"] as const;
+export const SWITCH_PAGES = ["quiz", "switch", "getting-started", "distro"] as const;
+
+/** "LinuxStatistics helped me switch". Anonymous and self-reported. */
+export const switchReportInputSchema = z.object({
+  cameFrom: z.enum(SWITCH_ORIGINS),
+  nowUsing: z.string().regex(/^[a-z0-9-]{1,64}$/).optional(),
+  page: z.enum(SWITCH_PAGES),
+  /** Honeypot: must stay empty. */
+  website: z.string().max(0).optional(),
+});
+export type SwitchReportInput = z.infer<typeof switchReportInputSchema>;
