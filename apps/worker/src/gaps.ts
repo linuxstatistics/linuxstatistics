@@ -3,6 +3,7 @@ import { PROFILES } from "../../site/src/lib/picker-profiles.js";
 import { NOTES } from "../../site/src/lib/distro-notes.js";
 import { TELEMETRY } from "../../site/src/lib/telemetry.js";
 import { DISTRO_BLURBS } from "../../site/src/lib/distro-blurbs.js";
+import { REFERENCE_PROFILES } from "../../site/src/lib/reference-profiles.js";
 import { GITHUB_REPOS } from "./github-repos.js";
 import { ENDOFLIFE_PRODUCTS } from "./sources/endoflife.js";
 import { WIKIDATA_ENDPOINT, WIKIDATA_SPARQL, parseWikidataDistros, type WikidataDistro } from "./sources/wikidata.js";
@@ -19,7 +20,7 @@ export const GAP_FIELDS = ["profile", "notes", "telemetry", "summary", "releaseY
 export type GapField = (typeof GAP_FIELDS)[number];
 
 export const GAP_LABEL: Record<GapField, string> = {
-  profile: "quiz profile",
+  profile: "quiz profile or reference card",
   notes: "pros and cons",
   telemetry: "telemetry check",
   summary: "summary",
@@ -57,6 +58,7 @@ type Detail = Pick<DistroDetail, "slug" | "homepage" | "description" | "releases
 
 const have = {
   profile: new Set(PROFILES.map((p) => p.key)),
+  reference: new Set(REFERENCE_PROFILES.map((p) => p.key)),
   notes: new Set(NOTES.map((n) => n.key)),
   telemetry: new Set(TELEMETRY.map((t) => t.key)),
   repo: new Set(GITHUB_REPOS.map((r) => r.key)),
@@ -65,10 +67,12 @@ const have = {
 /** What one distro is missing. */
 export function missingFor(d: DistroListItem, x: Detail | undefined): GapField[] {
   const m: GapField[] = [];
-  if (!have.profile.has(d.slug)) m.push("profile");
-  if (!have.notes.has(d.slug)) m.push("notes");
+  // A reference card stands in for the quiz profile and the pros and cons.
+  const ref = have.reference.has(d.slug);
+  if (!have.profile.has(d.slug) && !ref) m.push("profile");
+  if (!have.notes.has(d.slug) && !ref) m.push("notes");
   if (!have.telemetry.has(d.slug)) m.push("telemetry");
-  if (!have.profile.has(d.slug) && !DISTRO_BLURBS[d.slug] && !x?.description) m.push("summary");
+  if (!have.profile.has(d.slug) && !ref && !DISTRO_BLURBS[d.slug] && !x?.description) m.push("summary");
   if (d.firstReleaseYear == null) m.push("releaseYear");
   if (!x?.homepage) m.push("homepage");
   if (!d.repoFullName && !have.repo.has(d.slug)) m.push("repo");

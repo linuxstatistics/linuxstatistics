@@ -1,6 +1,7 @@
 import type { DistroListItem } from "@linux-statistics/shared";
 import { PROFILES, type PickerProfile } from "./picker-profiles";
 import { FAMILY_LABELS } from "./families";
+import { referenceFor } from "./reference-profiles";
 
 const PROFILE = new Map(PROFILES.map((p) => [p.key, p]));
 export const profileFor = (key: string): PickerProfile | null => PROFILE.get(key) ?? null;
@@ -28,6 +29,9 @@ export function reasonsFor(d: Facts, baseName?: string | null): { id: string; te
     else if (p.desktops.includes("mac-like")) out.push({ id: "mac-like", text: "you like a macOS-style desktop" });
     return out;
   }
+  // Reference card (BSDs, servers, NAS, phones): its own "good for" clauses.
+  const ref = referenceFor(d.slug);
+  if (ref) return ref.goodFor.map((text, i) => ({ id: `ref-${d.slug}-${i}`, text }));
   // No curated profile: fall back to facts we know.
   if (baseName) out.push({ id: `base-${d.basedOnSlug}`, text: `you like ${baseName} but want a different take on it` });
   else if (d.family === "independent") out.push({ id: "fam-independent", text: "you want a system built from scratch, not based on another distro" });

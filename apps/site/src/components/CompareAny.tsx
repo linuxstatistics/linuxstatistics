@@ -7,6 +7,7 @@ import { ProsConsPair } from "./ProsCons";
 import { pairVerdict } from "../lib/verdict";
 import { nextSteps } from "../lib/compare-links";
 import { notesFor } from "../lib/distro-notes";
+import { compareNotes } from "../lib/reference-profiles";
 
 const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
 
@@ -59,7 +60,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
     b: { name: b.name, reasons: [], empty: "unknown" as const },
   };
   const thin = [a, b].filter(
-    (d) => [d.firstReleaseYear, d.stars, d.commitsLast30d, d.basedOnSlug, notesFor(d.slug), d.userRating.count || null].filter((v) => v != null).length <= 1,
+    (d) => [d.firstReleaseYear, d.stars, d.commitsLast30d, d.basedOnSlug, compareNotes(d.slug, notesFor), d.userRating.count || null].filter((v) => v != null).length <= 1,
   );
   return (
     <section aria-label="Comparison">
@@ -103,7 +104,7 @@ export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
           </tbody>
         </table>
       </div>
-      <ProsConsPair a={{ name: a.name, notes: notesFor(a.slug) }} b={{ name: b.name, notes: notesFor(b.slug) }} />
+      <ProsConsPair a={{ name: a.name, notes: compareNotes(a.slug, notesFor) }} b={{ name: b.name, notes: compareNotes(b.slug, notesFor) }} />
     </section>
   );
 }

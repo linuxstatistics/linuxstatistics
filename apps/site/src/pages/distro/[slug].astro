@@ -17,6 +17,8 @@ import { TelemetryNote } from "../../components/TelemetryNote";
 import { WhoItSuits } from "../../components/PairVerdict";
 import { notesFor } from "../../lib/distro-notes";
 import { DISTRO_BLURBS } from "../../lib/distro-blurbs";
+import { referenceFor } from "../../lib/reference-profiles";
+import { ReferenceCard } from "../../components/ReferenceCard";
 import { PROFILES } from "../../lib/picker-profiles";
 import { reasonsFor } from "../../lib/verdict";
 import { compareSlug, popularPairs } from "../../lib/compare";
@@ -43,6 +45,7 @@ const near = neighbours(list, data.slug);
 const notes = notesFor(data.slug);
 const profile = PROFILES.find((p) => p.key === data.slug);
 const blurb = DISTRO_BLURBS[data.slug];
+const ref = profile ? null : referenceFor(data.slug);
 const fits = profile ? withoutRepeats(useFits(profile), notes ? [...notes.pros, ...notes.cons] : []) : null;
 const primaryFits = profile ? primaryUses(profile) : undefined;
 const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
@@ -63,7 +66,7 @@ const jsonLd = {
   "@type": "SoftwareApplication",
   name: data.name,
   applicationCategory: "OperatingSystem",
-  operatingSystem: "Linux",
+  operatingSystem: ref?.notLinux ? data.name : "Linux",
   url: `${site}/distro/${data.slug}/`,
   ...(data.homepage ? { sameAs: [data.homepage] } : {}),
   ...(data.userRating.average != null && data.userRating.count > 0
@@ -96,10 +99,11 @@ const jsonLd = {
       <div class="distro-head-text">
         <h1>{data.name}</h1>
       </div>
-      {(profile || data.homepage || data.repoFullName) && (
+      {(profile || ref || data.homepage || data.repoFullName) && (
         <div class="distro-head-actions">
-          {data.homepage && <a class="distro-head-secondary" href={data.homepage} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{profile ? "Website" : "Website and downloads"}</a>}
+          {data.homepage && <a class="distro-head-secondary" href={data.homepage} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{profile || ref ? "Website" : "Website and downloads"}</a>}
           {data.repoFullName && <a class="distro-head-secondary" href={`https://github.com/${data.repoFullName}`} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GitHub</a>}
+          {ref && <a class="cta" href={ref.start.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{ref.start.label}</a>}
           {profile && <a class="cta" href={profile.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" aria-label={`Official ${data.name} download`}><span class="label-long">Official download</span><span class="label-short" aria-hidden="true">Download</span></a>}
         </div>
       )}
@@ -107,10 +111,10 @@ const jsonLd = {
     <div class="distro-grid">
       <div class="distro-main">
         <section class="dsec dsec-overview" aria-label="Overview">
-          {(profile?.blurb || blurb || data.description) && (
+          {(profile?.blurb || blurb || data.description || ref) && (
             <div class="distro-description">
               <h2 class="visually-hidden">About {data.name}</h2>
-              {profile?.blurb ? <p>{profile.blurb}</p> : blurb ? <><p>{blurb.text}</p><p class="source-note">LinuxStatistics summary of <a href={blurb.source} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">the project's own website</a>. <a href={`/suggest/?kind=correction&subject=${data.slug}`}>Suggest a correction</a>.</p></> : data.description && (
+              {profile?.blurb ? <p>{profile.blurb}</p> : !data.description && ref ? <p>{ref.summary}</p> : blurb ? <><p>{blurb.text}</p><p class="source-note">LinuxStatistics summary of <a href={blurb.source} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">the project's own website</a>. <a href={`/suggest/?kind=correction&subject=${data.slug}`}>Suggest a correction</a>.</p></> : data.description && (
                 <>
                   <p>{data.description.text.split(/\n\s*\n/).filter(Boolean)[0]}</p>
                   {data.description.text.split(/\n\s*\n/).filter(Boolean).length > 1 && <details><summary>Read the full introduction</summary>{data.description.text.split(/\n\s*\n/).filter(Boolean).slice(1).map((paragraph) => <p>{paragraph}</p>)}</details>}
@@ -121,7 +125,8 @@ const jsonLd = {
           )}
           <DistroStats data={data} baseName={baseName} />
         </section>
-        {suits.length > 0 && (
+        {ref && <ReferenceCard name={data.name} profile={ref} insteadName={ref.instead ? list.find((d) => d.slug === ref.instead!.slug)?.name : undefined} />}
+        {!ref && suits.length > 0 && (
           <section class="dsec">
             <WhoItSuits name={data.name} reasons={suits} />
             {data.quizFit && (

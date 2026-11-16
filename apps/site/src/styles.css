@@ -533,6 +533,11 @@ h1, h2, h3 { text-wrap: balance; }
 .verdict-card p { margin: 6px 0 0; font-size: 16px; line-height: 1.45; }
 .verdict-reasons { margin: 8px 0 0; padding-left: 1.15em; display: grid; gap: 4px; font-size: 16px; line-height: 1.45; }
 .verdict-reasons li::marker { color: var(--accent); }
+.reference-kind { margin: 0 0 10px; font: 600 12px var(--sans); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink2); }
+.reference-not-for { margin: 14px 0 0; font-size: 15px; color: var(--ink2); max-width: 68ch; }
+.reference-not-for span { font-weight: 600; color: var(--ink); }
+.reference-instead { margin: 10px 0 0; font-size: 15px; }
+.reference-card .source-note { margin-top: 12px; }
 .verdict-next { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 10px 0 0 !important; font-size: 14px; }
 .compare-sponsor { max-width: 420px; margin: 24px 0 0; }
 .compare-sponsor .sponsor-card { margin: 0; }

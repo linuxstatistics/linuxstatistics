@@ -2,6 +2,7 @@ import type { DistroDetail } from "@linux-statistics/shared";
 import type { NextSteps } from "../components/PairVerdict";
 import { GUIDE_SLUGS } from "./beginner-picker";
 import { DISTRO_BLURBS } from "./distro-blurbs";
+import { referenceFor } from "./reference-profiles";
 
 /** First sentence of a description, kept short for a card. */
 export function firstSentence(text: string, max = 220): string {
@@ -17,7 +18,7 @@ export function firstSentence(text: string, max = 220): string {
  * release) are left out of the card.
  */
 export function nextSteps(d: Pick<DistroDetail, "slug" | "homepage" | "repoFullName" | "description">): NextSteps {
-  const text = DISTRO_BLURBS[d.slug]?.text ?? d.description?.text;
+  const text = referenceFor(d.slug)?.summary ?? DISTRO_BLURBS[d.slug]?.text ?? d.description?.text;
   return {
     href: `/distro/${d.slug}/`,
     guide: GUIDE_SLUGS.has(d.slug) ? `/switch/getting-started/?distro=${d.slug}` : undefined,

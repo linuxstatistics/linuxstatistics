@@ -13,6 +13,7 @@ import { Faq } from "../../components/Faq";
 import { EthicalAd } from "../../components/EthicalAd";
 import { SponsorCard } from "../../components/SponsorCard";
 import { notesFor } from "../../lib/distro-notes";
+import { compareNotes } from "../../lib/reference-profiles";
 import { TELEMETRY_LABEL, telemetryFor } from "../../lib/telemetry";
 import { releaseStats } from "../../components/DistroStats";
 import { pairVerdict } from "../../lib/verdict";
@@ -90,10 +91,10 @@ const verdict = pairVerdict(a, b, nameOf);
 const steps = (d: DistroDetail) => nextSteps(d);
 /** Distros missing most optional facts (repo, release year, profile notes, ratings). */
 const thin = [a, b]
-  .filter((d) => [d.firstReleaseYear, d.stars, d.commitsLast30d, d.basedOnSlug, notesFor(d.slug), d.userRating.count || null].filter((v) => v != null).length <= 1)
+  .filter((d) => [d.firstReleaseYear, d.stars, d.commitsLast30d, d.basedOnSlug, compareNotes(d.slug, notesFor), d.userRating.count || null].filter((v) => v != null).length <= 1)
   .map((d) => d.name);
-const na = notesFor(a.slug);
-const nb = notesFor(b.slug);
+const na = compareNotes(a.slug, notesFor);
+const nb = compareNotes(b.slug, notesFor);
 const faq = pairFaq(a, b);
 const jsonLd = faq.length > 0 ? faqJsonLd(faq) : undefined;
 const title = `${a.name} vs ${b.name}: Linux distro comparison | LinuxStatistics`;

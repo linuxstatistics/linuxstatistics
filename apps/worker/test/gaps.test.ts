@@ -42,7 +42,7 @@ test("the report lists gaps by rank, flags distros with no editorial data, and r
   expect(r.rows.map((x) => x.slug)).toEqual(["mint", "newos"]);
   expect(r.newUnprofiled).toEqual(["newos"]);
   const md = reportMarkdown(r);
-  expect(md).toContain("#12 New OS (`newos`): quiz profile, pros and cons, telemetry check");
+  expect(md).toContain("#12 New OS (`newos`): quiz profile or reference card, pros and cons, telemetry check");
   expect(md).not.toMatch(/Proposals/);
 });
 
