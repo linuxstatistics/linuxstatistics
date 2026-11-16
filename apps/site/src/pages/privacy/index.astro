@@ -13,7 +13,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
 >
   <article class="page prose legal">
     <h1>Privacy policy</h1>
-    <p class="lede">Short version: {ethicalAds.enabled ? "contextual ads with no tracking" : "no ads"}, no tracking cookies, no selling data. We store only what we need to run sign-in, ratings, quiz votes and the monthly email.</p>
+    <p class="lede">Short version: {ethicalAds.enabled ? "contextual ads with no tracking" : "no ads"}, no tracking cookies, no selling data. We store only what we need to run sign-in, ratings and the monthly email, plus anonymous counts of quizzes and switches that you can opt out of.</p>
     <p class="legal-meta">Last updated {updated}. Operator: {OPERATOR.name}, {OPERATOR.country}. Contact: <a href={`mailto:${CONTACT.privacy}`}>{CONTACT.privacy}</a>.</p>
 
     <h2>If you just browse</h2>
@@ -69,11 +69,25 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
       State of Linux Distros report. Every email has an unsubscribe link, and we delete your address when you unsubscribe or ask us to.
     </p>
 
-    <h2>The distro quiz</h2>
+    <h2 id="quiz">The distro quiz</h2>
     <p>
-      The quiz runs in your browser. Your answers are kept only in the page's link (so you can share it) and aren't sent to us.
-      If you answer "Did this fit?", we store your vote, the top suggestion, your answers as a short code of digits, and the date.
-      We don't store your IP address, an account or a cookie with it. We use these votes, only as totals, to improve the quiz and to publish figures such as "what people switching from Windows pick".
+      The quiz runs in your browser, and your answers are kept in the page's link so you can share it. When you finish a quiz on this site,
+      we count it: we store which quiz it was, your answers as a short code (for example <code>1213</code> or <code>windows.pc.gaming</code>),
+      the top suggestion and the date. Opening a shared results link isn't counted.
+    </p>
+    <p>
+      Nothing about you is stored with it: no IP address, account, cookie, browser details or time of day. Under the results you can choose
+      "Don't count my answers" to remove it straight away. If your browser sends the Global Privacy Control signal, we don't count it at all.
+    </p>
+    <p>
+      If you answer "Did this fit?", we also store your vote with the same details. We use all of this only as totals, to improve the quiz and to
+      publish figures such as "what people switching from Windows pick". Published figures leave out any group smaller than 10.
+    </p>
+
+    <h2 id="switch">"Did LinuxStatistics help you switch?"</h2>
+    <p>
+      If you tell us we helped you switch, we store where you came from (for example Windows), the distro you use now if you pick one, the page you
+      were on and the date. Nothing about you is stored with it. We show the totals on our <a href="/stats/">stats page</a> as self-reported figures.
     </p>
 
     <h2>Suggestions</h2>
@@ -87,6 +101,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
       <li><strong>Sign-in, ratings and reviews:</strong> to provide the service you asked for.</li>
       <li><strong>Email:</strong> your consent, which you can withdraw at any time.</li>
       <li><strong>Security logs and abuse prevention:</strong> our legitimate interest in keeping the site working and fair.</li>
+      <li><strong>Quiz and "helped me switch" counts:</strong> our legitimate interest in improving the quiz and publishing figures about switching to Linux. Nothing stored identifies you, and you can opt out.</li>
       {analytics.enabled && <li><strong>Page-view counts and load timings:</strong> our legitimate interest in knowing which pages people use and how fast they load, so we can improve the site.</li>}
     </ul>
 
@@ -103,6 +118,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
     <ul>
       <li>Account and contributions: until you ask us to delete them.</li>
       <li>Email address: until you unsubscribe.</li>
+      <li>Anonymous counts (page views, quizzes, fit votes, "helped me switch"): kept, because they can't be linked to you.</li>
       <li>Server logs: up to 30 days. Database backups: up to 30 days.</li>
     </ul>
 

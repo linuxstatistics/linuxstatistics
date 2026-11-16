@@ -1,0 +1,190 @@
+---
+import Base from "../../layouts/Base.astro";
+import { SponsorCard } from "../../components/SponsorCard";
+import SwitchSide from "../../components/SwitchSide.astro";
+import { StatsShareChart } from "../../components/StatsShareChart";
+import { SWITCH_FROM } from "../../components/SwitchReport";
+import { loadMarketShare, loadRising, loadStats } from "../../lib/data";
+import { FAMILY_LABELS } from "../../lib/families";
+import { familyBars, fmtInt, linuxShareChange, shareSeries, showSiteStats } from "../../lib/stats";
+import type { Family } from "@linux-statistics/shared";
+
+const [stats, points, rising] = await Promise.all([loadStats(), loadMarketShare(), loadRising()]);
+const share = linuxShareChange(points);
+const series = shareSeries(points);
+const fam = familyBars(stats);
+const risers = rising.slice(0, 5);
+const showSite = showSiteStats(stats);
+const updated = new Date(stats.generatedAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const fromLabel = new Map(SWITCH_FROM.map(([v, l]) => [v, l]));
+const endLabel = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
+
+const description = `Linux by the numbers: ${share ? `${share.value}% of desktops worldwide, ` : ""}${fmtInt(stats.trackedDistros)} distros tracked, ${stats.releasesThisYear} releases this year, and what's rising.`;
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  name: "Linux by the numbers",
+  description: "Totals for the Linux distros LinuxStatistics tracks: desktop share, distros by family, releases and end-of-support dates, and GitHub activity.",
+  url: new URL("/stats/", Astro.site).href,
+  dateModified: stats.generatedAt,
+  isBasedOn: ["https://gs.statcounter.com/os-market-share/desktop/worldwide", "https://endoflife.date/", "https://www.wikidata.org/"],
+  distribution: [{ "@type": "DataDownload", encodingFormat: "application/json", contentUrl: new URL("/data/distros.json", Astro.site).href }],
+};
+---
+
+<Base title="Linux by the numbers: stats on distros and desktop share | LinuxStatistics" description={description} jsonLd={jsonLd}>
+  <div class="page stats-page">
+    <p class="stats-eyebrow">Stats</p>
+    <h1>Linux by the numbers</h1>
+    <p class="lede">What we track across the Linux world, refreshed every week from open sources. Each panel says where its numbers come from.</p>
+    <p class="legal-meta">Updated {updated}</p>
+
+    <div class="stats-cards">
+      {share && (
+        <div class="stats-card stats-card-lead">
+          <div class="stats-num" data-count={share.value} data-dec="2" data-suffix="%">{share.value.toFixed(2)}%</div>
+          <div class="stats-label">Linux share of desktops worldwide, {share.label}</div>
+          {share.delta != null && <div class:list={["stats-delta", share.delta < 0 && "down"]}>{share.delta >= 0 ? "▲" : "▼"} {Math.abs(share.delta).toFixed(2)} pts in a year</div>}
+        </div>
+      )}
+      <div class="stats-card"><div class="stats-num" data-count={stats.trackedDistros}>{fmtInt(stats.trackedDistros)}</div><div class="stats-label">Distros tracked</div></div>
+      <div class="stats-card"><div class="stats-num" data-count={stats.listedDistros}>{fmtInt(stats.listedDistros)}</div><div class="stats-label">With their own page here</div></div>
+      <div class="stats-card"><div class="stats-num" data-count={stats.releasesThisYear}>{fmtInt(stats.releasesThisYear)}</div><div class="stats-label">Releases this year, of distros we follow</div></div>
+    </div>
+
+    <div class="with-side stats-body">
+      <div class="with-side-main">
+        <section class="stats-panel stats-reveal" aria-labelledby="share-h">
+          <div class="stats-panel-head">
+            <h2 id="share-h">Desktop share since {Math.floor(series.linux[0]?.t ?? 2010)}</h2>
+            <div class="stats-legend" aria-hidden="true"><span class="os-linux"><i></i>Linux</span><span class="os-macos"><i></i>macOS</span><span class="os-windows"><i></i>Windows</span></div>
+          </div>
+          <StatsShareChart series={series} />
+          <p class="stats-source">Source: <a href="https://gs.statcounter.com/os-market-share/desktop/worldwide" {...ext}>StatCounter Global Stats</a>, desktop OS share, worldwide. <a href="/desktop-share/">Linux vs Windows vs macOS over time</a></p>
+        </section>
+
+        <div class="stats-grid">
+          <section class="stats-panel stats-reveal" aria-labelledby="fam-h">
+            <h2 id="fam-h">Distros by family</h2>
+            <ul class="stats-bars">
+              {fam.bars.map((f) => (
+                <li class={`fam-${f.family}`}><span>{FAMILY_LABELS[f.family as Family] ?? f.family}</span><span class="stats-bar"><span style={`--w:${f.pct}%`}></span></span><b>{f.count}</b></li>
+              ))}
+            </ul>
+            <p class="stats-source">Distros with a page here, grouped by what they're based on.{fam.other > 0 && ` ${fmtInt(fam.other)} more are other or not yet sorted.`}</p>
+          </section>
+
+          <section class="stats-panel" aria-labelledby="rise-h">
+            <h2 id="rise-h">Rising this month</h2>
+            {risers.length > 0 ? (
+              <ol class="stats-list">
+                {risers.map((d, i) => <li><span class="stats-pos">{i + 1}</span><a href={`/distro/${d.slug}/`}>{d.name}</a><span class="stats-up">▲ {d.rank1mDelta}</span></li>)}
+              </ol>
+            ) : <p class="stats-source">No big climbers this month.</p>}
+            <a class="stats-more" href="/rising/">See all risers <span class="icon-arrow" aria-hidden="true" /></a>
+          </section>
+
+          <section class="stats-panel" aria-labelledby="gh-h">
+            <h2 id="gh-h">On GitHub</h2>
+            <div class="stats-kv">
+              <div><span class="stats-num" data-count={stats.github.stars}>{fmtInt(stats.github.stars)}</span><span>stars across {stats.github.repos} distro {stats.github.repos === 1 ? "repo" : "repos"} we follow</span></div>
+              <div><span class="stats-num" data-count={stats.github.commitsLast30d}>{fmtInt(stats.github.commitsLast30d)}</span><span>commits in the last 30 days</span></div>
+            </div>
+            <p class="stats-source">Source: <a href="https://github.com/" {...ext}>GitHub</a>, main repository per distro.</p>
+          </section>
+
+          <section class="stats-panel" aria-labelledby="eol-h">
+            <h2 id="eol-h">End of support soon</h2>
+            {stats.supportEndingSoon.length > 0 ? (
+              <ul class="stats-list">
+                {stats.supportEndingSoon.map((r) => <li><span class="stats-pos" aria-hidden="true">·</span><a href={`/distro/${r.slug}/`}>{r.name} {r.cycle}</a><span class="stats-when">{endLabel(r.endsOn)}</span></li>)}
+              </ul>
+            ) : <p class="stats-source">Nothing ends in the next four months.</p>}
+            <p class="stats-source">Source: <a href="https://endoflife.date/" {...ext}>endoflife.date</a>. Upgrade before the date to keep getting security fixes.</p>
+          </section>
+        </div>
+      </div>
+      <aside class="side" aria-label="More">
+        <SponsorCard context="people following Linux by the numbers" />
+        <section>
+          <h2>Explore the data</h2>
+          <ul class="stats-side-links">
+            <li><a href="/">Distro rankings</a></li>
+            <li><a href="/rising/">Rising this month</a></li>
+            <li><a href="/desktop-share/">Linux vs Windows vs macOS</a></li>
+            <li><a href="/data/">Download the data</a></li>
+            <li><a href="/about/#ranking">How we rank distros</a></li>
+          </ul>
+        </section>
+        <SwitchSide />
+      </aside>
+    </div>
+
+    {showSite && (
+      <section class="stats-site" aria-labelledby="site-h">
+        <p class="stats-eyebrow">This site</p>
+        <h2 id="site-h">How people use LinuxStatistics</h2>
+        <div class="stats-cards">
+          {[
+            { label: "Distro page views", v: stats.site.pageViews },
+            { label: "Quizzes finished", v: stats.site.quizCompletions },
+            { label: "People who say we helped them switch", v: stats.site.switchers },
+            { label: "Ratings and \"I use this\"", v: stats.site.contributions },
+          ].map((c) => (
+            <div class="stats-card">
+              <div class="stats-num" data-count={c.v.total}>{fmtInt(c.v.total)}</div>
+              <div class="stats-label">{c.label}</div>
+              <div class="stats-sub"><strong data-count={c.v.last30d}>{fmtInt(c.v.last30d)}</strong> in the last 30 days</div>
+            </div>
+          ))}
+        </div>
+        {stats.site.switchers.byOrigin.length > 0 && (
+          <p class="stats-source">Switchers came from: {stats.site.switchers.byOrigin.map((o) => `${fromLabel.get(o.cameFrom) ?? o.cameFrom} ${fmtInt(o.count)}`).join(", ")}. Self-reported.</p>
+        )}
+        <p class="stats-source">Counted on our own pages. Bots are filtered and nothing about visitors is stored. <a href="/privacy/">Privacy</a></p>
+      </section>
+    )}
+  </div>
+</Base>
+
+<script>
+  // Count numbers up and draw charts in once, as they scroll into view. The
+  // final values are already in the HTML; with reduced motion nothing moves.
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const nums = [...document.querySelectorAll<HTMLElement>(".stats-page [data-count]")];
+  const reveals = [...document.querySelectorAll<HTMLElement>(".stats-page .stats-reveal")];
+  if (reduce || !("IntersectionObserver" in window)) {
+    reveals.forEach((el) => el.classList.add("in"));
+  } else {
+    const fmt = (el: HTMLElement, v: number) => {
+      const dec = Number(el.dataset.dec ?? 0);
+      return v.toLocaleString("en-US", { minimumFractionDigits: dec, maximumFractionDigits: dec }) + (el.dataset.suffix ?? "");
+    };
+    const run = (el: HTMLElement) => {
+      const to = Number(el.dataset.count);
+      const t0 = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - t0) / 800);
+        el.textContent = fmt(el, to * (1 - Math.pow(1 - t, 3)));
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          const el = e.target as HTMLElement;
+          io.unobserve(el);
+          if (el.dataset.count) run(el);
+          else el.classList.add("in");
+        }
+      },
+      { threshold: 0.3 },
+    );
+    document.documentElement.classList.add("stats-js");
+    nums.forEach((el) => io.observe(el));
+    reveals.forEach((el) => io.observe(el));
+  }
+</script>

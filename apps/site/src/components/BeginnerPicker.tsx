@@ -4,6 +4,9 @@ import { beginnerFlow, beginnerHint, beginnerOptions, beginnerQuery, beginnerRec
 import { PROFILES } from "../lib/picker-profiles";
 import { revealPicker } from "../lib/pick-restore";
 import { HardwareNotes } from "./HardwareNotes";
+import { QuizCountNote } from "./QuizCountNote";
+import { SwitchReport } from "./SwitchReport";
+import { beginnerCode } from "../lib/quiz-count";
 
 /** Short flow is independent of the detailed quiz's append-only share codes. */
 export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro[]; staticPairs: string[] }) {
@@ -12,6 +15,8 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
   const [step, setStep] = useState(0);
   const [done, setDone] = useState(false);
   const [error, setError] = useState(false);
+  /** Set when the last question is answered in this visit (not a restored link): only then is the quiz counted. */
+  const [finishedHere, setFinishedHere] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const interacted = useRef(false);
   const [restored, setRestored] = useState(false);
@@ -48,6 +53,7 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
     setError(false);
     setStep(next);
     setDone(complete);
+    if (complete) setFinishedHere(true);
     history.pushState({ beginnerStep: next, beginnerDone: complete }, "", `/pick/?${beginnerQuery(nextAnswers)}`);
   };
   if (mode === "advanced") return <DistroPicker distros={distros} staticPairs={staticPairs} />;
@@ -95,6 +101,8 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
             {profile && <a href={profile.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Official download</a>}
           </div>
           {result.kind === "recommendation" && result.alternatives.length > 0 && <div className="beginner-alternatives"><h3>Other options, if you need them</h3>{result.alternatives.map((a) => <p key={a.slug}><a href={`/distro/${a.slug}/`}>{distros.find((d) => d.slug === a.slug)?.name}</a>: {a.reason}</p>)}</div>}
+          <QuizCountNote quiz="start" code={beginnerCode(answers)} topKey={result.kind === "recommendation" ? result.slug : "check"} fresh={finishedHere} />
+          <SwitchReport page="quiz" distros={distros} />
           <button type="button" className="chip" onClick={() => navigate(0)}>Edit answers</button>
         </section>
       )}

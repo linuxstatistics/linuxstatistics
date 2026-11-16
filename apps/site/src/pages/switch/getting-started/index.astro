@@ -3,8 +3,11 @@ import Base from "../../../layouts/Base.astro";
 import { BEGINNER_REVIEWED, BEGINNER_SOURCES } from "../../../lib/beginner-picker";
 import { PROFILES } from "../../../lib/picker-profiles";
 import { SponsorStack } from "../../../components/SponsorStack";
+import { SwitchReport } from "../../../components/SwitchReport";
+import { loadDistros } from "../../../lib/data";
 import { HARDWARE_REVIEWED, HARDWARE_SOURCES, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK, WIFI_NOTE, codeParts } from "../../../lib/hardware-notes";
 const byKey = new Map(PROFILES.map((p) => [p.key, p]));
+const comboItems = (await loadDistros()).filter((d) => (d.rank ?? 999) <= 150).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const GUIDES = [
   { key: "mint", name: "Linux Mint", short: "Mint", text: "Mint recommends Cinnamon when you are unsure which edition to choose; Xfce is its lighter option for older computers. Download a current 64-bit image, verify it, then follow Mint's live-session and installation guidance. A live session lets you check hardware before installation.", guideHref: "https://linuxmint-installation-guide.readthedocs.io/en/latest/", guideLabel: "Official Mint installation guide" },
   { key: "ubuntu", name: "Ubuntu", short: "Ubuntu", text: "Choose the Ubuntu release supported by your tools. Long-term support releases are an option for a longer support window. Use the official tutorial to create installation media and try Ubuntu before installing. For local AI, check the exact GPU, CUDA or ROCm requirements and available memory separately.", guideHref: "https://ubuntu.com/tutorials/install-ubuntu-desktop", guideLabel: "Official Ubuntu desktop tutorial" },
@@ -41,6 +44,7 @@ const GUIDES = [
       <p class="guide-unsure">Not sure which one? <a href="/pick/">Find a starting point</a>.</p>
     </li>
     </ol>
+    <SwitchReport client:visible page="getting-started" distros={comboItems} />
     <section class="switch-sec"><h2>Sources</h2><ul>{[...BEGINNER_SOURCES, ...HARDWARE_SOURCES].map((s) => <li><a href={s.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{s.name}</a></li>)}</ul><p class="source-note">Recommendation guidance reviewed {BEGINNER_REVIEWED}; driver and Wi-Fi notes reviewed {HARDWARE_REVIEWED}. Check the project pages for current requirements.</p></section>
     </div>
     <aside class="side" aria-label="More">

@@ -70,5 +70,8 @@ check feed.xml '<feed xmlns="http://www.w3.org/2005/Atom">' "site Atom feed is b
 check distro/mint/feed.xml 'endoflife.date' "per-distro release feed credits its source"
 # Feeds are an export: no rank numbers, scores or hits.
 if grep -rliE '#[0-9]|rank_|hits|interest score|index_value' "$DIST/feed.xml" "$DIST"/distro/*/feed.xml >/dev/null 2>&1; then echo "FAIL: a feed carries ranking data"; fail=1; else echo "ok:   feeds carry no ranking data"; fi
+check stats/index.html 'Linux by the numbers' "stats page renders"
+# /stats is built from our totals: no rank numbers or hits.
+if grep -qiE 'hitsPerDay|hits_per_day|interest score' "$DIST/stats/index.html"; then echo "FAIL: stats page carries ranking data"; fail=1; else echo "ok:   stats page has no ranking data"; fi
 echo "distro pages: $(ls "$DIST/distro" | wc -l | tr -d ' ')"
 exit $fail

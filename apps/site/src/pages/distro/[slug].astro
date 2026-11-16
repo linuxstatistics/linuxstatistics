@@ -3,6 +3,7 @@ import Base from "../../layouts/Base.astro";
 import RankCredit from "../../components/RankCredit.astro";
 import { DistroStats } from "../../components/DistroStats";
 import { DistroRating } from "../../components/DistroRating";
+import { SwitchReport } from "../../components/SwitchReport";
 import { AffiliateBlock } from "../../components/AffiliateBlock";
 import { EthicalAd } from "../../components/EthicalAd";
 import { RankByPeriod } from "../../components/RankByPeriod";
@@ -46,6 +47,8 @@ const notes = notesFor(data.slug);
 const profile = PROFILES.find((p) => p.key === data.slug);
 const blurb = DISTRO_BLURBS[data.slug];
 const ref = profile ? null : referenceFor(data.slug);
+// The switch card's distro search: this distro plus the top 60, to keep the page small.
+const switchItems = list.filter((d) => d.slug === data.slug || (d.rank ?? 999) <= 60).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const fits = profile ? withoutRepeats(useFits(profile), notes ? [...notes.pros, ...notes.cons] : []) : null;
 const primaryFits = profile ? primaryUses(profile) : undefined;
 const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
@@ -151,6 +154,7 @@ const jsonLd = {
           <h2 id="rate-h">Rate {data.name}</h2>
           <DistroRating client:only="react" slug={data.slug}><RatingSkeleton slot="fallback" /></DistroRating>
         </section>
+        {!ref && <SwitchReport client:visible page="distro" nowUsing={data.slug} distros={switchItems} />}
         <AffiliateBlock />
         <EthicalAd placement="distro" />
         <p class="source-note">

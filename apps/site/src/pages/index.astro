@@ -4,13 +4,15 @@ import Base from "../layouts/Base.astro";
 import { ListView } from "../components/ListView";
 import { Podium } from "../components/Podium";
 import { SponsorCard } from "../components/SponsorCard";
-import { loadDistros, loadMarketShare, loadMeta, loadRising, dataDate } from "../lib/data";
+import { loadDistros, loadMarketShare, loadMeta, loadRising, loadStats, dataDate } from "../lib/data";
+import { SWITCHERS_HOME_THRESHOLD } from "../config/stats";
 import { buildHeadline } from "../lib/headline";
 import { RANK_SOURCE, RANK_VALUE_LABEL } from "@linux-statistics/shared";
 import { latestLinuxShare, linuxYearlySeries } from "../lib/marketShare";
 import { ShareChart } from "../components/ShareChart";
 
-const [items, marketShare, meta, rising] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta(), loadRising()]);
+const [items, marketShare, meta, rising, stats] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta(), loadRising(), loadStats()]);
+const switchers = stats.site.switchers.total >= SWITCHERS_HOME_THRESHOLD ? stats.site.switchers.total : null;
 const asOf = dataDate(meta, "wikipedia");
 const site = Astro.site!.href.replace(/\/$/, "");
 const headline = buildHeadline(items);
@@ -50,6 +52,7 @@ const jsonLd = {
       <h1>Linux distro rankings</h1>
     )}
     <p class="mast-note">Ranked by interest, not installs: Wikipedia views, GitHub stars and more, combined in an <a href="/about/#ranking">open index</a>. <a href="/about/#interest-not-installs">Why not page hits?</a></p>
+    {switchers != null && <p class="mast-switchers"><a href="/stats/">{switchers.toLocaleString("en-US")} people say LinuxStatistics helped them switch to Linux</a></p>}
   </div>
 
   <div class="home">

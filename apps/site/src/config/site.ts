@@ -20,4 +20,4 @@ export const SOCIAL: { name: string; handle: string; href: string; relMe?: true 
 export const SEARCH_VERIFY = { bing: "", google: "" };
 
 /** Date the legal pages last changed (YYYY-MM-DD). Update when the text changes. */
-export const POLICIES_UPDATED = "2026-11-12";
+export const POLICIES_UPDATED = "2026-11-15";

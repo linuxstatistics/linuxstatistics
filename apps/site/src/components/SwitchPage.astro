@@ -1,5 +1,6 @@
 ---
 import { AppAlternatives } from "./AppAlternatives";
+import { SwitchReport } from "./SwitchReport";
 import { Faq } from "./Faq";
 import { CATEGORIES, appsFor } from "../lib/app-alternatives";
 import { loadDistros } from "../lib/data";
@@ -129,6 +130,8 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
     </p>
   )}
 </section>
+
+<SwitchReport client:visible page="switch" distros={list.filter((d) => (d.rank ?? 999) <= 150).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }))} />
 
 <Faq items={faq} />
 <p class="source-note">

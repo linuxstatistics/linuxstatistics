@@ -6,6 +6,8 @@ import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
 import { compareSlug } from "../lib/compare";
 import { revealPicker } from "../lib/pick-restore";
 import { HardwareNotes } from "./HardwareNotes";
+import { QuizCountNote } from "./QuizCountNote";
+import { SwitchReport } from "./SwitchReport";
 
 export interface PickerDistro {
   slug: string;
@@ -20,8 +22,9 @@ type Fit = "idle" | "sending" | "done";
 /**
  * "Which distro should I use?" quiz: one question per screen, every question
  * skippable, later questions depend on earlier answers. Runs in the browser;
- * answers live only in the URL (?a=) so results can be shared. The optional
- * "did this fit?" vote is anonymous.
+ * answers live in the URL (?a=) so results can be shared. A quiz finished in
+ * this visit is counted anonymously (QuizCountNote); the "did this fit?" vote
+ * is anonymous too.
  */
 export function DistroPicker({ distros, staticPairs = [], initialCode }: { distros: PickerDistro[]; staticPairs?: string[]; initialCode?: string }) {
   const bySlug = useMemo(() => new Map(distros.map((d) => [d.slug, d])), [distros]);
@@ -36,6 +39,8 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
   const [why, setWhy] = useState(false);
   const [fit, setFit] = useState<Fit>("idle");
   const [copied, setCopied] = useState(false);
+  /** True once the visitor answered the last question here (not a shared link): only then is the quiz counted. */
+  const [finishedHere, setFinishedHere] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const [restored, setRestored] = useState(false);
 
@@ -82,7 +87,10 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
     setAnswers(pruned);
     if (skippedId) setSkipped((s) => new Set(s).add(skippedId));
     setWhy(false);
-    if (idx + 1 >= qs.length) setDone(true);
+    if (idx + 1 >= qs.length) {
+      setDone(true);
+      setFinishedHere(true);
+    }
     else setStep(idx + 1);
   }
 
@@ -223,6 +231,8 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
               </div>
               <button type="button" onClick={copyLink}>{copied ? "Link copied" : "Copy link to these results"}</button>
             </div>
+            <QuizCountNote quiz="pick" code={code} topKey={results[0]?.key ?? null} fresh={finishedHere} />
+            <SwitchReport page="quiz" distros={distros} />
           </>
         )}
         {(answers.from === "windows" || answers.from === "mac") && (
@@ -237,7 +247,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
           <button type="button" onClick={restart}>Start over</button>
         </p>
         <p className="source-note">
-          Suggestions come from hand-written profiles of {profiles.length} popular distros, not from your data. Your answers stay in this page's link; nothing is saved unless you vote. Try a live USB before installing.
+          Suggestions come from hand-written profiles of {profiles.length} popular distros, not from your data. Your answers are in this page's link. A finished quiz is counted anonymously (answers and top match, nothing about you) unless you opt out. Try a live USB before installing.
         </p>
       </div>
     );
