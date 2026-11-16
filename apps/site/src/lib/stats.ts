@@ -1,5 +1,5 @@
 import type { MarketSharePoint, StatsPayload } from "@linux-statistics/shared";
-import { STATS_SITE_THRESHOLD } from "../config/stats";
+import { REPO_CONTRIBUTORS_THRESHOLD, REPO_STARS_THRESHOLD, STATS_SITE_THRESHOLD } from "../config/stats";
 
 export interface SharePoint {
   /** Fractional year, e.g. 2026.75 for October 2026. */
@@ -59,3 +59,11 @@ export function familyBars(s: StatsPayload) {
 }
 
 export const fmtInt = (n: number) => n.toLocaleString("en-US");
+
+/** Our repo's numbers worth showing: each only once past its threshold, so small early counts aren't on display. */
+export function ownRepoFacts(repo: StatsPayload["site"]["repo"]): { stars: number | null; contributors: number | null } {
+  return {
+    stars: repo && repo.stars >= REPO_STARS_THRESHOLD ? repo.stars : null,
+    contributors: repo && repo.contributors >= REPO_CONTRIBUTORS_THRESHOLD ? repo.contributors : null,
+  };
+}

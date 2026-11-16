@@ -38,6 +38,7 @@ const stats = (last30d: number): StatsPayload => ({
     quizVotes: { total: 0, last30d: 0 },
     quizCompletions: { total: 0, last30d: 0 },
     contributions: { total: 0, last30d: 0 },
+    repo: null,
     switchers: { total: 0, last30d: 0, byOrigin: [] },
   },
 });
@@ -49,4 +50,11 @@ test("the This site section needs enough recent views, not just an all-time tota
 
 test("family bars leave out 'other' and scale to the largest known family", () => {
   expect(familyBars(stats(0))).toEqual({ bars: [{ family: "debian", count: 48, pct: 100 }, { family: "arch", count: 12, pct: 25 }], other: 400 });
+});
+
+test("our repo card shows stars only past their threshold, contributors past theirs", async () => {
+  const { ownRepoFacts } = await import("../src/lib/stats");
+  expect(ownRepoFacts(null)).toEqual({ stars: null, contributors: null });
+  expect(ownRepoFacts({ stars: 99, contributors: 4 })).toEqual({ stars: null, contributors: null });
+  expect(ownRepoFacts({ stars: 100, contributors: 5 })).toEqual({ stars: 100, contributors: 5 });
 });

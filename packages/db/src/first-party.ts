@@ -1,7 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import type { QuizCompletionInput, SwitchReportInput } from "@linux-statistics/shared";
 import type { Database } from "./client.js";
-import { quizCompletions, switchReports } from "./schema.js";
+import { quizCompletions, siteMetrics, switchReports } from "./schema.js";
 
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
 
@@ -60,4 +60,23 @@ export async function listSwitchReports(db: Database): Promise<SwitchReportRow[]
     .select({ id: switchReports.id, day: switchReports.day, cameFrom: switchReports.cameFrom, nowUsing: switchReports.nowUsing, page: switchReports.page })
     .from(switchReports)
     .orderBy(asc(switchReports.id));
+}
+
+/** Our own repository's numbers, written by the GitHub ingest. */
+export const OWN_REPO_KEYS = ["repo_stars", "repo_contributors", "repo_forks"] as const;
+export type OwnRepoKey = (typeof OWN_REPO_KEYS)[number];
+
+export async function setSiteMetrics(db: Database, values: Partial<Record<OwnRepoKey, number>>, now: Date = new Date()): Promise<void> {
+  for (const [key, value] of Object.entries(values)) {
+    if (value == null) continue;
+    await db
+      .insert(siteMetrics)
+      .values({ key, value, updatedAt: now })
+      .onConflictDoUpdate({ target: siteMetrics.key, set: { value, updatedAt: now } });
+  }
+}
+
+export async function getSiteMetrics(db: Database): Promise<Partial<Record<OwnRepoKey, number>>> {
+  const rows = await db.select().from(siteMetrics);
+  return Object.fromEntries(rows.map((r) => [r.key, r.value]));
 }

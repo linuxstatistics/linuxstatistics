@@ -1,4 +1,4 @@
-import { findDistroIdBySlug, replaceGithubRepo, type Database } from "@linux-statistics/db";
+import { findDistroIdBySlug, replaceGithubRepo, setSiteMetrics, type Database } from "@linux-statistics/db";
 import { mapGithubRepo, type GithubRepoResponse } from "./sources/github.js";
 import { politeGet, StopError, type FetchLike } from "./http.js";
 import { GITHUB_REPOS } from "./github-repos.js";
@@ -14,6 +14,9 @@ async function countViaLink(url: string, get: (u: string) => Promise<Response>):
   const body = (await res.json()) as unknown[];
   return Array.isArray(body) ? body.length : 0;
 }
+
+/** Our own repository, shown on /stats ("built in the open"). */
+export const OWN_REPO = "linuxstatistics/linuxstatistics";
 
 export interface GithubIngestResult {
   written: number;
@@ -61,6 +64,17 @@ export async function ingestGithub(
       if (err instanceof StopError) throw err;
       result.failed.push({ repo, error: String(err instanceof Error ? err.message : err) });
     }
+  }
+  // Our own repository: stars, forks and contributors for /stats.
+  try {
+    const res = await get(`https://api.github.com/repos/${OWN_REPO}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const mapped = mapGithubRepo((await res.json()) as GithubRepoResponse);
+    const contributors = await countViaLink(`https://api.github.com/repos/${OWN_REPO}/contributors?per_page=1&anon=true`, get);
+    await setSiteMetrics(db, { repo_stars: mapped.stars, repo_forks: mapped.forks, repo_contributors: contributors }, now);
+  } catch (err) {
+    if (err instanceof StopError) throw err;
+    result.failed.push({ repo: OWN_REPO, error: String(err instanceof Error ? err.message : err) });
   }
   return result;
 }

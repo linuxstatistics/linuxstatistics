@@ -6,7 +6,8 @@ import { StatsShareChart } from "../../components/StatsShareChart";
 import { SWITCH_FROM } from "../../components/SwitchReport";
 import { loadMarketShare, loadRising, loadStats } from "../../lib/data";
 import { FAMILY_LABELS } from "../../lib/families";
-import { familyBars, fmtInt, linuxShareChange, shareSeries, showSiteStats } from "../../lib/stats";
+import { familyBars, fmtInt, linuxShareChange, ownRepoFacts, shareSeries, showSiteStats } from "../../lib/stats";
+import { SOURCE_URL } from "../../config/site";
 import type { Family } from "@linux-statistics/shared";
 
 const [stats, points, rising] = await Promise.all([loadStats(), loadMarketShare(), loadRising()]);
@@ -15,6 +16,7 @@ const series = shareSeries(points);
 const fam = familyBars(stats);
 const risers = rising.slice(0, 5);
 const showSite = showSiteStats(stats);
+const own = ownRepoFacts(stats.site.repo);
 const updated = new Date(stats.generatedAt).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 const fromLabel = new Map(SWITCH_FROM.map(([v, l]) => [v, l]));
 const endLabel = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
@@ -86,12 +88,12 @@ const jsonLd = {
           </section>
 
           <section class="stats-panel" aria-labelledby="gh-h">
-            <h2 id="gh-h">On GitHub</h2>
+            <h2 id="gh-h">Distros we follow on GitHub</h2>
             <div class="stats-kv">
-              <div><span class="stats-num" data-count={stats.github.stars}>{fmtInt(stats.github.stars)}</span><span>stars across {stats.github.repos} distro {stats.github.repos === 1 ? "repo" : "repos"} we follow</span></div>
-              <div><span class="stats-num" data-count={stats.github.commitsLast30d}>{fmtInt(stats.github.commitsLast30d)}</span><span>commits in the last 30 days</span></div>
+              <div><span class="stats-num" data-count={stats.github.stars}>{fmtInt(stats.github.stars)}</span><span>stars across {stats.github.repos} distro {stats.github.repos === 1 ? "repo" : "repos"}</span></div>
+              <div><span class="stats-num" data-count={stats.github.commitsLast30d}>{fmtInt(stats.github.commitsLast30d)}</span><span>commits to them in the last 30 days</span></div>
             </div>
-            <p class="stats-source">Source: <a href="https://github.com/" {...ext}>GitHub</a>, main repository per distro.</p>
+            <p class="stats-source">Most distros develop on their own servers, GitLab or elsewhere, so this covers only the main repositories we track on <a href="https://github.com/" {...ext}>GitHub</a>.</p>
           </section>
 
           <section class="stats-panel" aria-labelledby="eol-h">
@@ -139,6 +141,13 @@ const jsonLd = {
             </div>
           ))}
         </div>
+        <p class="stats-open">
+          <strong>Built in the open.</strong>{" "}
+          {own.stars != null && <><span data-count={own.stars}>{fmtInt(own.stars)}</span> stars{own.contributors != null ? ", " : " "}</>}
+          {own.contributors != null && <><span data-count={own.contributors}>{fmtInt(own.contributors)}</span> contributors </>}
+          {(own.stars != null || own.contributors != null) && "on "}
+          <a href={SOURCE_URL} {...ext}>our GitHub repository</a>. Code under AGPL-3.0, data on <a href="/data/">Open data</a>.
+        </p>
         {stats.site.switchers.byOrigin.length > 0 && (
           <p class="stats-source">Switchers came from: {stats.site.switchers.byOrigin.map((o) => `${fromLabel.get(o.cameFrom) ?? o.cameFrom} ${fmtInt(o.count)}`).join(", ")}. Self-reported.</p>
         )}

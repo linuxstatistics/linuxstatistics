@@ -3,6 +3,7 @@ import type { CountPair, StatsPayload } from "@linux-statistics/shared";
 import type { Database } from "./client.js";
 import { distroContributions, distroReleases, distros, pageViewDays, pickerFeedback, quizCompletions, switchReports } from "./schema.js";
 import { getDistroList } from "./queries.js";
+import { getSiteMetrics } from "./first-party.js";
 
 const DAY = 86_400_000;
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
@@ -91,6 +92,9 @@ export async function getStats(db: Database, now = new Date(), soonDays = 120): 
     .groupBy(switchReports.cameFrom)
     .orderBy(sql`count(*) desc`, switchReports.cameFrom);
 
+  const own = await getSiteMetrics(db);
+  const repo = own.repo_stars != null ? { stars: own.repo_stars, contributors: own.repo_contributors ?? 0 } : null;
+
   return {
     generatedAt: now.toISOString(),
     trackedDistros: Number(tracked?.value ?? 0),
@@ -104,6 +108,7 @@ export async function getStats(db: Database, now = new Date(), soonDays = 120): 
       quizVotes: pair(votes?.total, votes?.recent),
       quizCompletions: pair(quizzes?.total, quizzes?.recent),
       contributions: pair(contribs?.total, contribs?.recent),
+      repo,
       switchers: { ...pair(switched?.total, switched?.recent), byOrigin: byOrigin.map((r) => ({ cameFrom: r.cameFrom, count: Number(r.count) })) },
     },
   };

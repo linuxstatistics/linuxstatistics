@@ -371,3 +371,13 @@ export const switchReports = pgTable(
   },
   (t) => [index("switch_reports_day_idx").on(t.day)],
 );
+
+/**
+ * Facts about LinuxStatistics itself (e.g. our own repository's stars and
+ * contributors), one row per key, overwritten by the source that owns it.
+ */
+export const siteMetrics = pgTable("site_metrics", {
+  key: text("key").primaryKey(),
+  value: integer("value").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+});

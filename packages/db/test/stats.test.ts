@@ -8,6 +8,7 @@ import {
   addSwitchReport,
   listQuizCompletions,
   removeQuizCompletion,
+  setSiteMetrics,
   addPopularitySnapshot,
   countPageView,
   getStats,
@@ -81,4 +82,11 @@ test("quiz completions count once per visit and can be taken back with their tok
 test("stats carry no third-party rank data", async () => {
   const json = JSON.stringify(await getStats(db, now));
   expect(json).not.toMatch(/"rank|hitsPerDay|distrowatch/i);
+});
+
+test("our own repo appears once the GitHub ingest has written it", async () => {
+  expect((await getStats(db, now)).site.repo).toBeNull();
+  await setSiteMetrics(db, { repo_stars: 120, repo_contributors: 6, repo_forks: 3 }, now);
+  await setSiteMetrics(db, { repo_stars: 125 }, now);
+  expect((await getStats(db, now)).site.repo).toEqual({ stars: 125, contributors: 6 });
 });

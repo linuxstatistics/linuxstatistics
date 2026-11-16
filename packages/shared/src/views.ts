@@ -179,6 +179,8 @@ export const statsPayloadSchema = z.object({
     quizVotes: countPairSchema,
     quizCompletions: countPairSchema,
     contributions: countPairSchema,
+    /** Our own repository; null until the GitHub ingest has run. */
+    repo: z.object({ stars: z.number().int(), contributors: z.number().int() }).nullable(),
     switchers: countPairSchema.extend({
       /** All-time reports by where people came from, most first. */
       byOrigin: z.array(z.object({ cameFrom: z.string(), count: z.number().int() })),
