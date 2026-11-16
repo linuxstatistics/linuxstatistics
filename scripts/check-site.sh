@@ -73,5 +73,8 @@ if grep -rliE '#[0-9]|rank_|hits|interest score|index_value' "$DIST/feed.xml" "$
 check stats/index.html 'Linux by the numbers' "stats page renders"
 # /stats is built from our totals: no rank numbers or hits.
 if grep -qiE 'hitsPerDay|hits_per_day|interest score' "$DIST/stats/index.html"; then echo "FAIL: stats page carries ranking data"; fail=1; else echo "ok:   stats page has no ranking data"; fi
+check articles/index.html 'Notes and analysis' "articles list renders"
+# Drafts never reach a production build.
+if grep -rlqE 'article-draft-banner|article-draft-tag|Draft, not published' "$DIST/articles" 2>/dev/null; then echo "FAIL: a draft article is in the build"; fail=1; else echo "ok:   no draft articles in the build"; fi
 echo "distro pages: $(ls "$DIST/distro" | wc -l | tr -d ' ')"
 exit $fail

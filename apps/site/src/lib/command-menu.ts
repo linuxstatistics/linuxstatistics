@@ -27,6 +27,7 @@ export const PAGE_COMMANDS: PageCommand[] = [
   { href: "/compare/", label: "Compare distros", keywords: "vs versus side by side" },
   { href: "/desktop-share/", label: "Desktop share over time", keywords: "market share statcounter windows macos" },
   { href: "/stats/", label: "Linux by the numbers", keywords: "stats statistics numbers totals releases end of life" },
+  { href: "/articles/", label: "Articles", keywords: "blog posts analysis method" },
   { href: "/data/", label: "Open data", keywords: "download csv json api badge" },
   { href: "/about/", label: "About and sources", keywords: "method index sources" },
   { href: "/about/ratings/", label: "How scores work", keywords: "ratings reviews" },

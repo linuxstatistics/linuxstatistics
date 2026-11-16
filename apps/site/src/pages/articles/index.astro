@@ -1,0 +1,41 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadArticles } from "../../lib/article-entries";
+import { fmtArticleDate } from "../../lib/articles";
+
+const list = (await loadArticles()).map((a) => a.card);
+const site = Astro.site!.href.replace(/\/$/, "");
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  name: "LinuxStatistics articles",
+  url: `${site}/articles/`,
+  blogPost: list.filter((a) => !a.draft).map((a) => ({ "@type": "BlogPosting", headline: a.title, url: `${site}/articles/${a.slug}/`, datePublished: a.published.toISOString().slice(0, 10) })),
+};
+---
+
+<Base title="Articles: Linux distro data and analysis | LinuxStatistics" description="Notes and analysis built on our own numbers: how we rank distros, what's growing and what people leaving Windows pick." jsonLd={jsonLd}>
+  <div class="page articles-page">
+    <p class="stats-eyebrow">Articles</p>
+    <h1>Notes and analysis</h1>
+    <p class="lede">Written from our own numbers: how we rank distros, what's growing and what people leaving Windows pick.</p>
+    {list.length === 0 ? (
+      <div class="articles-empty">No articles yet. The first one is on its way. <a href="/feed.xml">Follow the feed</a> to hear when it's out.</div>
+    ) : (
+      <ul class="articles-list">
+        {list.map((a) => (
+          <li>
+            <div class="article-meta">
+              <time datetime={a.published.toISOString().slice(0, 10)}>{fmtArticleDate(a.published)}</time>
+              <span>{a.minutes} min read</span>
+              {a.tags.slice(0, 1).map((t) => <span class="article-tag">{t}</span>)}
+              {a.draft && <span class="article-draft-tag">Draft</span>}
+            </div>
+            <h2><a href={`/articles/${a.slug}/`}>{a.title}</a></h2>
+            <p>{a.description}</p>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</Base>

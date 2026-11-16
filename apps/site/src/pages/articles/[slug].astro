@@ -1,0 +1,55 @@
+---
+import Base from "../../layouts/Base.astro";
+import { SponsorCard } from "../../components/SponsorCard";
+import { loadArticles } from "../../lib/article-entries";
+import { externalLinksNewTab, fmtArticleDate, relatedArticles } from "../../lib/articles";
+
+export async function getStaticPaths() {
+  const all = await loadArticles();
+  return all.map((a) => ({ params: { slug: a.card.slug }, props: { entry: a.entry, card: a.card, cards: all.map((x) => x.card) } }));
+}
+
+const { entry, card: a, cards } = Astro.props;
+// Markdown is rendered by the content loader; external links get the site's new-tab attributes.
+const html = externalLinksNewTab(entry.rendered?.html ?? "", Astro.site?.origin);
+const related = relatedArticles(a, cards);
+const site = Astro.site!.href.replace(/\/$/, "");
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: a.title,
+  description: a.description,
+  datePublished: iso(a.published),
+  dateModified: iso(a.updated ?? a.published),
+  url: `${site}/articles/${a.slug}/`,
+  author: { "@type": "Organization", name: "LinuxStatistics", url: `${site}/` },
+  publisher: { "@type": "Organization", name: "LinuxStatistics", url: `${site}/` },
+  keywords: a.tags.join(", "),
+};
+---
+
+<Base title={`${a.title} | LinuxStatistics`} description={a.description} jsonLd={a.draft ? undefined : jsonLd} noindex={a.draft}>
+  {a.draft && <div class="article-draft-banner" role="note">Draft, not published. Only visible on the local dev server.</div>}
+  <div class="page">
+    <article class="article">
+      <p class="article-crumbs"><a href="/articles/">Articles</a> › {a.tags[0]}</p>
+      <h1>{a.title}</h1>
+      <p class="article-meta">
+        <time datetime={iso(a.published)}>{fmtArticleDate(a.published)}</time>
+        {a.updated && <span>Updated <time datetime={iso(a.updated)}>{fmtArticleDate(a.updated)}</time></span>}
+        <span>{a.minutes} min read</span>
+      </p>
+      <div class="article-body prose">
+        <Fragment set:html={html} />
+      </div>
+      <div class="article-sponsor"><SponsorCard context="people reading about Linux distros" /></div>
+      {related.length > 0 && (
+        <nav class="article-related" aria-labelledby="more-h">
+          <h2 id="more-h">More articles</h2>
+          <ul>{related.map((r) => <li><a href={`/articles/${r.slug}/`}>{r.title}</a></li>)}</ul>
+        </nav>
+      )}
+    </article>
+  </div>
+</Base>
