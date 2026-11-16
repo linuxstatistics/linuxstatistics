@@ -59,6 +59,7 @@ jobs:
           fi
           case "$s" in *[!a-z,]*) echo "bad sources: $s"; exit 1;; esac
           echo "sources=$s" >> "$GITHUB_OUTPUT"
+          [ "$(date -u +%u)" = 1 ] && echo "gaps=1" >> "$GITHUB_OUTPUT" || true
           echo "Sources: $s"
 
       - name: Ingest
@@ -80,6 +81,15 @@ jobs:
         env:
           HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: curl -fsS -X POST "$HOOK" > /dev/null && echo "Vercel rebuild triggered"
+
+      # Mondays: list ranked distros missing data, with proposals to review.
+      # Read-only; the summary appears on the run page. Never fails the run.
+      - name: Data-gap report
+        if: steps.pick.outputs.gaps == '1'
+        continue-on-error: true
+        env:
+          API_URL: https://linuxstatistics.com
+        run: npx --yes pnpm@12.14.0 --filter @linux-statistics/worker gaps --top 200
 
       - name: Report failed sources
         if: steps.ingest.outputs.code == '1'

@@ -33,6 +33,9 @@ test("parseEndoflife maps cycles newest first, with support/eol/lts normalised",
 
 test("product mapping uses our slugs and the public URL shape", () => {
   expect(ENDOFLIFE_PRODUCTS.ubuntu).toBe("ubuntu");
+  // Added 2026-11-15, each checked against our homepage / Wikipedia text for the slug.
+  expect(ENDOFLIFE_PRODUCTS).toMatchObject({ antix: "antix", devuan: "devuan", netbsd: "netbsd", nura: "nura", oracle: "oracle-linux", proxmox: "proxmox-ve", truenas: "truenas", xcpng: "xcp-ng", zentyal: "zentyal" });
+  expect(new Set(Object.values(ENDOFLIFE_PRODUCTS)).size).toBe(Object.keys(ENDOFLIFE_PRODUCTS).length);
   expect(ENDOFLIFE_PRODUCTS.mint).toBe("linuxmint");
   expect(productUrl("linuxmint")).toBe("https://endoflife.date/api/linuxmint.json");
 });

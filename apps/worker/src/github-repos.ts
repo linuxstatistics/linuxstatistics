@@ -15,4 +15,13 @@ export const GITHUB_REPOS: { key: string; repo: string }[] = [
   { key: "opensuse", repo: "openSUSE/openSUSE-release-tools" },
   { key: "elementary", repo: "elementary/os" },
   { key: "garuda", repo: "garuda-linux/garuda-tools" },
+  // Added 2026-11-15 from Wikidata source-repository claims (gap report), each checked against the GitHub API.
+  { key: "nixos", repo: "NixOS/nixpkgs" },
+  { key: "bazzite", repo: "ublue-os/bazzite" },
+  { key: "omarchy", repo: "omacom/omarchy" },
+  { key: "anduin", repo: "Anduin2017/AnduinOS" },
+  { key: "libreelec", repo: "LibreELEC/LibreELEC.tv" },
+  { key: "armbian", repo: "armbian/build" },
+  { key: "openmediavault", repo: "openmediavault/openmediavault" },
+  { key: "asahi", repo: "AsahiLinux/asahi-installer" },
 ];

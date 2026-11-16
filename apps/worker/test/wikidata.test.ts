@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { afterEach, beforeEach, expect, test } from "vitest";
 import type { PGlite } from "@electric-sql/pglite";
 import { addAlias, getDistroDetail, getDistroList, initPgliteDb, schema, upsertDistro, type Database } from "@linux-statistics/db";
-import { parseWikidataDistros, slugify } from "../src/sources/wikidata.js";
+import { githubPathOf, parseWikidataDistros, slugify } from "../src/sources/wikidata.js";
 import { ingestWikidataDistros } from "../src/ingest-wikidata.js";
 import { runSources } from "../src/sources-run.js";
 
@@ -28,7 +28,9 @@ test("parser merges rows per item, keeps every DistroWatch ID and skips unlabell
   expect(mint).toEqual({
     qid: "Q102", name: "Linux Mint", distrowatchKeys: ["mint"], baseQids: ["Q101"],
     firstReleaseYear: 2006, homepage: "https://linuxmint.com", dissolved: false, enwikiTitle: "Linux_Mint",
+    githubRepos: ["linuxmint", "linuxmint/cinnamon"],
   });
+  expect(all.find((x) => x.qid === "Q100")!.githubRepos).toEqual([]);
   expect(all.some((x) => x.qid === "Q106")).toBe(false);
   expect(all.find((x) => x.qid === "Q107")!.distrowatchKeys).toEqual(["twokeys-a", "twokeys-b"]);
   expect(all.find((x) => x.qid === "Q105")!.dissolved).toBe(true);
@@ -119,7 +121,7 @@ test("a reused DistroWatch ID is not trusted alone: different name and homepage 
 
 test("matchProblem: homepage domain wins; same name needs no contradiction", async () => {
   const { matchProblem, sameName } = await import("../src/ingest-wikidata.js");
-  const it = { qid: "Q1", name: "Aurora", distrowatchKeys: ["aurora"], baseQids: [], firstReleaseYear: 2009, homepage: "http://www.eeebuntu.org/", dissolved: false, enwikiTitle: null };
+  const it = { qid: "Q1", name: "Aurora", distrowatchKeys: ["aurora"], baseQids: [], firstReleaseYear: 2009, homepage: "http://www.eeebuntu.org/", dissolved: false, enwikiTitle: null, githubRepos: [] };
   const fedora = { slug: "fedora", family: "rpm" };
   const ubuntu = { slug: "ubuntu", family: "debian" };
   expect(matchProblem("Aurora", "https://getaurora.dev", fedora, it, ubuntu)).toMatch(/homepage differs/);
@@ -141,10 +143,18 @@ test("a pinned Wikidata item matches our distro even when the names differ", asy
   const { WIKIDATA_PINS } = await import("../src/families.js");
   const [slug, qid] = Object.entries(WIKIDATA_PINS)[0]!;
   await upsertDistro(db, { slug, name: "Totally Different", family: "debian", status: "active" });
-  const pinned = { qid, name: "Raspberry Pi OS", distrowatchKeys: [], baseQids: [], firstReleaseYear: 2012, homepage: "https://www.raspberrypi.com/software/", dissolved: false, enwikiTitle: null };
+  const pinned = { qid, name: "Raspberry Pi OS", distrowatchKeys: [], baseQids: [], firstReleaseYear: 2012, homepage: "https://www.raspberrypi.com/software/", dissolved: false, enwikiTitle: null, githubRepos: [] };
   const r = await ingestWikidataDistros(db, [pinned]);
   expect(r.matched).toBe(1);
   expect(r.discovered).toEqual([]);
   const row = (await db.select().from(schema.distros)).find((d) => d.slug === slug)!;
   expect(row.firstReleaseYear).toBe(2012);
+});
+
+test("GitHub paths from source-repository URLs", () => {
+  expect(githubPathOf("https://github.com/linuxmint")).toBe("linuxmint");
+  expect(githubPathOf("https://github.com/pop-os/pop/")).toBe("pop-os/pop");
+  expect(githubPathOf("https://www.github.com/a/b.git")).toBe("a/b");
+  expect(githubPathOf("https://gitlab.com/a/b")).toBeNull();
+  expect(githubPathOf("https://github.com/a/b/tree/main")).toBeNull();
 });

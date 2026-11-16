@@ -13,7 +13,8 @@
     "monthly": "tsx src/monthly/run.ts",
     "card": "tsx src/cards/run.ts",
     "press-kit": "tsx src/press/build.ts",
-    "indexnow": "tsx src/indexnow.ts"
+    "indexnow": "tsx src/indexnow.ts",
+    "gaps": "tsx src/gaps-run.ts"
   },
   "dependencies": {
     "@fontsource/inter": "^5.3.0",

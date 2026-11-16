@@ -1,10 +1,10 @@
 /**
  * Linux distributions on Wikidata (CC0): every item that is an instance of
  * (a subclass of) "Linux distribution", with its DistroWatch ID, base,
- * inception, website, dissolution date and English Wikipedia article when
- * present.
+ * inception, website, dissolution date, source repository and English
+ * Wikipedia article when present.
  */
-export const WIKIDATA_SPARQL = `SELECT ?item ?itemLabel ?dw ?base ?inception ?website ?dissolved ?enwiki WHERE {
+export const WIKIDATA_SPARQL = `SELECT ?item ?itemLabel ?dw ?base ?inception ?website ?dissolved ?enwiki ?repo WHERE {
   ?item wdt:P31/wdt:P279* wd:Q131669 .
   OPTIONAL { ?enwiki schema:about ?item ; schema:isPartOf <https://en.wikipedia.org/> . }
   OPTIONAL { ?item wdt:P3112 ?dw . }
@@ -12,6 +12,7 @@ export const WIKIDATA_SPARQL = `SELECT ?item ?itemLabel ?dw ?base ?inception ?we
   OPTIONAL { ?item wdt:P571 ?inception . }
   OPTIONAL { ?item wdt:P856 ?website . }
   OPTIONAL { ?item wdt:P576 ?dissolved . }
+  OPTIONAL { ?item wdt:P1324 ?repo . }
   SERVICE wikibase:label { bd:serviceParam wikibase:language "en,mul". }
 }`;
 
@@ -30,6 +31,8 @@ export interface WikidataDistro {
   dissolved: boolean;
   /** English Wikipedia article title ("Linux_Mint"), from the sitelink. */
   enwikiTitle: string | null;
+  /** GitHub "owner" or "owner/repo" from the source-repository claims (P1324), sorted. A proposal only: repos stay curated. */
+  githubRepos: string[];
 }
 
 interface Binding {
@@ -57,14 +60,14 @@ export function parseWikidataDistros(json: unknown, opts: { minItems?: number } 
   const bindings = (json as { results?: { bindings?: Binding[] } })?.results?.bindings;
   if (!Array.isArray(bindings)) throw new Error("Wikidata response has no results.bindings");
 
-  type Acc = { name: string; dw: Set<string>; bases: Set<string>; years: number[]; sites: Set<string>; dissolved: boolean; enwiki: string | null };
+  type Acc = { name: string; dw: Set<string>; bases: Set<string>; years: number[]; sites: Set<string>; dissolved: boolean; enwiki: string | null; gh: Set<string> };
   const byQid = new Map<string, Acc>();
   for (const b of bindings) {
     const qid = qidOf(b.item?.value);
     const name = b.itemLabel?.value?.trim();
     if (!qid) throw new Error(`Wikidata row without a valid item: ${JSON.stringify(b).slice(0, 120)}`);
     if (!name || /^Q\d+$/.test(name)) continue;
-    const acc = byQid.get(qid) ?? { name, dw: new Set(), bases: new Set(), years: [], sites: new Set(), dissolved: false, enwiki: null };
+    const acc = byQid.get(qid) ?? { name, dw: new Set(), bases: new Set(), years: [], sites: new Set(), dissolved: false, enwiki: null, gh: new Set() };
     const dw = b.dw?.value?.trim().toLowerCase();
     if (dw && /^[a-z0-9][a-z0-9_-]*$/.test(dw)) acc.dw.add(dw);
     const base = qidOf(b.base?.value);
@@ -76,6 +79,8 @@ export function parseWikidataDistros(json: unknown, opts: { minItems?: number } 
     if (b.dissolved?.value) acc.dissolved = true;
     const title = enwikiTitleOf(b.enwiki?.value);
     if (title) acc.enwiki = title;
+    const gh = githubPathOf(b.repo?.value);
+    if (gh) acc.gh.add(gh);
     byQid.set(qid, acc);
   }
 
@@ -96,8 +101,16 @@ export function parseWikidataDistros(json: unknown, opts: { minItems?: number } 
       homepage: pickSite(a.sites),
       dissolved: a.dissolved,
       enwikiTitle: a.enwiki,
+      githubRepos: [...a.gh].sort(),
     }))
     .sort((x, y) => Number(x.qid.slice(1)) - Number(y.qid.slice(1)));
+}
+
+/** "https://github.com/linuxmint/cinnamon.git" -> "linuxmint/cinnamon"; an org URL gives "linuxmint". Non-GitHub URLs give null. */
+export function githubPathOf(url: string | undefined): string | null {
+  const m = url ? /^https?:\/\/(?:www\.)?github\.com\/([A-Za-z0-9-]+)(?:\/([A-Za-z0-9._-]+?))?(?:\.git)?\/?$/.exec(url.trim()) : null;
+  if (!m) return null;
+  return m[2] ? `${m[1]}/${m[2]}` : m[1]!;
 }
 
 /** "https://en.wikipedia.org/wiki/Linux_Mint" -> "Linux_Mint" (decoded, underscores kept). */
