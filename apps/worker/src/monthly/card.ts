@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { brandMarkDataUri } from "@linux-statistics/shared";
+import { markEl } from "../cards/render.js";
 import type { MonthlySummary } from "./summary.js";
 
 const require = createRequire(import.meta.url);
@@ -29,8 +30,9 @@ export async function renderCard(s: MonthlySummary, siteHost: string): Promise<B
         "div",
         { flexDirection: "column", marginTop: 32 },
         top.map((d) =>
-          h("div", { fontSize: 36, marginBottom: 10, alignItems: "baseline" }, [
+          h("div", { fontSize: 36, marginBottom: 10, alignItems: "center" }, [
             h("div", { width: 70, color: "#7d8794" }, `#${d.rank}`),
+            markEl(d.slug, d.name, 36),
             h("div", { fontWeight: 700 }, d.name),
           ]),
         ),

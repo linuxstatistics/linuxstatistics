@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { brandMarkDataUri } from "@linux-statistics/shared";
+import { markDataUri } from "@linux-statistics/shared/marks-node";
 
 const require = createRequire(import.meta.url);
 const font = (w: 400 | 700) => readFileSync(require.resolve(`@fontsource/inter/files/inter-latin-${w}-normal.woff`));
@@ -14,14 +15,18 @@ const h = (type: string, style: Record<string, unknown>, children?: unknown): El
 });
 
 /** 1200×630 PNG for shared quiz results: "Matched with <Distro>". */
-export async function renderMatchCard(m: { name: string; blurb: string; rank: number | null }, siteHost: string): Promise<Buffer> {
+export async function renderMatchCard(m: { slug: string; name: string; blurb: string; rank: number | null }, siteHost: string): Promise<Buffer> {
+  const logo = markDataUri(m.slug);
   const tree = h(
     "div",
     { width: 1200, height: 630, boxSizing: "border-box", background: "#000", color: "#e9eef5", flexDirection: "column", padding: "64px", fontFamily: "Inter", position: "relative" },
     [
       h("div", { fontSize: 26, letterSpacing: 6, color: "#7d8794" }, "WHICH LINUX DISTRO SHOULD I USE?"),
       h("div", { fontSize: 40, marginTop: 40, color: "#7d8794" }, "Matched with"),
-      h("div", { fontSize: 96, fontWeight: 700, marginTop: 4, color: "#3cfe3f" }, m.name),
+      h("div", { alignItems: "center", gap: 28, marginTop: 8 }, [
+        ...(logo ? [{ type: "img", props: { src: logo, width: 104, height: 104 } }] : []),
+        h("div", { fontSize: 96, fontWeight: 700, color: "#3cfe3f", lineHeight: 1 }, m.name),
+      ]),
       h("div", { fontSize: 32, marginTop: 24, maxWidth: 1000, lineHeight: 1.3 }, m.blurb),
       h("div", { position: "absolute", left: 64, right: 64, bottom: 56, justifyContent: "space-between", fontSize: 26, color: "#7d8794" }, [
         h("div", {}, "Take the quiz"),

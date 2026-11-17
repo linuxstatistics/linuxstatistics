@@ -3,6 +3,8 @@ import { createRequire } from "node:module";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { BRAND, brandMarkDataUri } from "@linux-statistics/shared";
+import { markDataUri } from "@linux-statistics/shared/marks-node";
+import { monogram } from "@linux-statistics/shared/distro-marks";
 
 const require = createRequire(import.meta.url);
 const font = (w: 400 | 700) => readFileSync(require.resolve(`@fontsource/inter/files/inter-latin-${w}-normal.woff`));
@@ -63,4 +65,11 @@ export function barRow(label: string, value: number, max: number, valueText: str
     h("div", { flex: 1, height: fs, background: "#15171c", borderRadius: 6, overflow: "hidden" }, [h("div", { width: `${Math.round(pct * 100)}%`, height: "100%", background: color, borderRadius: 6 }, [])]),
     h("div", { width: 140, justifyContent: "flex-end", color: BRAND.muted }, valueText),
   ]);
+}
+
+/** A distro's logo at `px`, or its first letter on a neutral tile (as on the site). */
+export function markEl(slug: string, name: string, px: number): El {
+  const src = markDataUri(slug);
+  if (src) return { type: "img", props: { src, width: px, height: px, style: { marginRight: 16 } } };
+  return h("div", { width: px, height: px, marginRight: 16, background: "#1d2026", border: "1px solid #2a2d33", color: BRAND.muted, fontSize: Math.round(px * 0.5), fontWeight: 700, alignItems: "center", justifyContent: "center" }, monogram(name));
 }

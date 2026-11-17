@@ -1,6 +1,6 @@
 import type { DistroListItem, MarketSharePoint } from "@linux-statistics/shared";
 import { BRAND } from "@linux-statistics/shared";
-import { barRow, frame, h, type El, type Size } from "./render.js";
+import { barRow, frame, h, markEl, type El, type Size } from "./render.js";
 
 export const KINDS = ["top", "movers", "share", "stat"] as const;
 export type Kind = (typeof KINDS)[number];
@@ -31,8 +31,9 @@ export function topCard(list: DistroListItem[], i: CardInput, asOf: string): El 
     headline: i.title ?? monthLabel(asOf),
     caption: i.caption ?? RANK_CREDIT,
     body: top.map((d) =>
-      h("div", { fontSize: fs, marginBottom: 10, alignItems: "baseline" }, [
+      h("div", { fontSize: fs, marginBottom: 10, alignItems: "center" }, [
         h("div", { width: 80, color: BRAND.muted }, `#${d.rank}`),
+        markEl(d.slug, d.name, fs),
         h("div", { fontWeight: 700 }, d.name),
         d.rank1mDelta != null && d.rank1mDelta !== 0
           ? h("div", { marginLeft: 18, fontSize: fs - 8, color: d.rank1mDelta > 0 ? BRAND.neon : "#ff6b6b" }, `${d.rank1mDelta > 0 ? "+" : "-"}${Math.abs(d.rank1mDelta)}`)
@@ -54,8 +55,9 @@ export function moversCard(rising: DistroListItem[], i: CardInput, asOf: string)
     caption: i.caption ?? RANK_CREDIT,
     body: top.length
       ? top.map((d) =>
-          h("div", { fontSize: fs, marginBottom: 10, alignItems: "baseline" }, [
+          h("div", { fontSize: fs, marginBottom: 10, alignItems: "center" }, [
             h("div", { width: 110, color: BRAND.neon, fontWeight: 700 }, `+${d.rank1mDelta}`),
+            markEl(d.slug, d.name, fs),
             h("div", { fontWeight: 700 }, d.name),
             h("div", { marginLeft: 18, fontSize: fs - 8, color: BRAND.muted }, `#${d.rank} to #${d.rank1m}`),
           ]),
