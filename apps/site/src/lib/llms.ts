@@ -15,6 +15,8 @@ const PAGES: [path: string, label: string, note: string][] = [
   ["/stats/", "Stats", "Linux by the numbers"],
   ["/articles/", "Articles", "Notes and analysis built on our data"],
   ["/data/", "Open data", "JSON and CSV downloads and a read-only API"],
+  ["/telemetry/", "Telemetry", "Which distros send usage data by default, checked against each project's documentation"],
+  ["/support-dates/", "Support dates", "When each release reaches end of support (endoflife.date)"],
   ["/changelog/", "Changelog", "Every change to the ranking method, data corrections and source outages"],
   ["/guides/verify-download/", "Verify a download", "SHA256 and GPG commands for Windows, macOS and Linux"],
 ];

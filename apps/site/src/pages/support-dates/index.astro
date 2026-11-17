@@ -1,0 +1,77 @@
+---
+import Base from "../../layouts/Base.astro";
+import { DistroMark } from "../../components/DistroMark";
+import { Faq } from "../../components/Faq";
+import { dataDate, loadDistro, loadDistros, loadMeta, mapLimit } from "../../lib/data";
+import { endingSoon, supportRows } from "../../lib/support-dates";
+import { faqNode } from "../../lib/structured-data";
+
+const [list, meta] = await Promise.all([loadDistros(), loadMeta()]);
+const details = await mapLimit(list, 8, (d) => loadDistro(d.slug));
+const today = new Date().toISOString().slice(0, 10);
+const rows = supportRows(details, today);
+const active = rows.filter((r) => r.ends >= today);
+const ended = rows.filter((r) => r.ends < today).reverse();
+const soon = endingSoon(rows, today);
+const updated = dataDate(meta, "endoflife");
+const fmt = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+const monthOf = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+const longest = [...active].sort((a, b) => (b.extended ?? b.ends).localeCompare(a.extended ?? a.ends))[0];
+const answer = `We track support dates for ${rows.length} Linux distributions. ${soon.length === 0 ? "None reach" : soon.length === 1 ? "One reaches" : `${soon.length} reach`} end of support in the next six months${soon[0] ? `, starting with ${soon[0].name} ${soon[0].release} on ${fmt(soon[0].ends)}` : ""}. A release past its end date gets no more security updates, so upgrade before then.`;
+const faq = [
+  { q: "What happens when a Linux release reaches end of life?", a: "It stops getting security updates and bug fixes. It keeps working, but each unpatched hole stays open, so upgrade to a supported release before the date." },
+  ...(longest ? [{ q: "Which Linux distro has the longest support?", a: `Of the releases we track, ${longest.name} ${longest.release} is supported longest, until ${monthOf(longest.extended ?? longest.ends)}${longest.extended ? " with extended support" : ""}.` }] : []),
+  { q: "Where do these dates come from?", a: "From endoflife.date, a community-maintained project that tracks release lifecycles from each vendor's own announcements (CC BY-SA 4.0). We update them weekly." },
+];
+---
+
+<Base
+  title="Linux distro support dates: when each release reaches end of life | LinuxStatistics"
+  description={`End-of-support dates for ${rows.length} Linux distributions, soonest first, with extended support where it exists. ${soon.length === 1 ? "One ends" : `${soon.length} end`} in the next six months.`}
+  jsonLd={faqNode(faq)}
+>
+  <article class="page prose ref-page">
+    <h1>Linux support dates</h1>
+    <p class="lede">{answer}</p>
+    {updated && <p class="legal-meta">Updated {monthOf(updated)} from <a href="https://endoflife.date/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).</p>}
+
+    {soon.length > 0 && (
+      <section class="ref-soon" aria-labelledby="soon-h">
+        <h2 id="soon-h">Ending in the next six months</h2>
+        <ul>
+          {soon.map((r) => (<li><a href={`/distro/${r.slug}/`}>{r.name} {r.release}</a> <span class="ref-sub">{fmt(r.ends)}</span></li>))}
+        </ul>
+      </section>
+    )}
+
+    <h2>Supported releases</h2>
+    <div class="table-scroll">
+      <table class="data-table support-table">
+        <thead><tr><th>Distro</th><th>Release</th><th>Released</th><th>Support ends</th><th>Extended to</th></tr></thead>
+        <tbody>
+          {active.map((r) => (
+            <tr>
+              <td><a class="with-mark" href={`/distro/${r.slug}/`}><DistroMark slug={r.slug} name={r.name} /><span>{r.name}</span></a></td>
+              <td>{r.release}</td>
+              <td>{r.releasedOn ? fmt(r.releasedOn) : "-"}</td>
+              <td><time datetime={r.ends}>{fmt(r.ends)}</time></td>
+              <td>{r.extended ? <time datetime={r.extended}>{fmt(r.extended)}</time> : "-"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {ended.length > 0 && (
+      <>
+        <h2>Support already ended</h2>
+        <p>The newest release we know of is past its end date. Check the project's site for a newer one.</p>
+        <ul class="ref-ended">
+          {ended.map((r) => (<li><a href={`/distro/${r.slug}/`}>{r.name} {r.release}</a> <span class="ref-sub">ended {fmt(r.ends)}</span></li>))}
+        </ul>
+      </>
+    )}
+
+    <Faq items={faq} />
+  </article>
+</Base>

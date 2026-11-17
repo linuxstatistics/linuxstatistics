@@ -1,0 +1,79 @@
+---
+import Base from "../../layouts/Base.astro";
+import { DistroMark } from "../../components/DistroMark";
+import { Faq } from "../../components/Faq";
+import { loadDistros } from "../../lib/data";
+import { TELEMETRY, TELEMETRY_CHECKED, TELEMETRY_LABEL, type TelemetryLevel } from "../../lib/telemetry";
+import { faqNode, itemListNode } from "../../lib/structured-data";
+
+const list = await loadDistros();
+const nameOf = new Map(list.map((d) => [d.slug, d.name]));
+const site = Astro.site!.href.replace(/\/$/, "");
+const LEVELS: { level: TelemetryLevel; heading: string; intro: string }[] = [
+  { level: "none", heading: "Sends nothing", intro: "The operating system sends no usage data by default." },
+  { level: "opt-in", heading: "Off unless you agree", intro: "Nothing is sent unless you turn it on, at install or in settings." },
+  { level: "counting", heading: "Anonymous count, on by default", intro: "An anonymous install or update count is sent by default. You can turn it off." },
+  { level: "usage", heading: "Usage data, on by default", intro: "More than a count: usage, hardware or package data is sent by default. You can turn it off." },
+];
+const rows = (level: TelemetryLevel) =>
+  TELEMETRY.filter((t) => t.level === level && nameOf.has(t.key)).sort((a, b) => nameOf.get(a.key)!.localeCompare(nameOf.get(b.key)!));
+const count = (level: TelemetryLevel) => rows(level).length;
+const total = LEVELS.reduce((n, l) => n + count(l.level), 0);
+const quiet = count("none") + count("opt-in");
+const month = new Date(`${TELEMETRY_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+const answer = `Of the ${total} Linux distributions we checked, ${count("none")} send no usage data by default and ${count("opt-in")} more only send it if you agree. ${count("counting") + count("usage")} send an anonymous count or usage data by default, and each can be turned off. Every entry links to the project's own documentation.`;
+const faq = [
+  { q: "Which Linux distros have no telemetry?", a: `${count("none")} of the ${total} distros we checked send nothing by default, including ${rows("none").slice(0, 5).map((t) => nameOf.get(t.key)).join(", ")}. The full list is on this page, each with a source.` },
+  { q: "Does Ubuntu collect telemetry?", a: `${TELEMETRY.find((t) => t.key === "ubuntu")?.detail ?? "See the Ubuntu entry on this page."}` },
+  { q: "What does this list cover?", a: "What the operating system itself sends home by default, checked against each project's documentation or build files. Apps you install, like browsers or Steam, have their own policies and aren't covered." },
+  { q: "How do I get a distro added or corrected?", a: "Use the suggestion form. We check every change against the project's own documentation before publishing it." },
+];
+const jsonLd = {
+  "@graph": [
+    faqNode(faq),
+    itemListNode(site, "Linux distributions that send no telemetry by default", rows("none").map((t) => ({ name: nameOf.get(t.key)!, href: `/distro/${t.key}/` }))),
+  ],
+};
+const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
+---
+
+<Base
+  title="Linux distro telemetry: which ones send data home | LinuxStatistics"
+  description={`Which Linux distributions send usage data by default, and how to turn it off. ${total} distros checked against their own documentation, ${quiet} send nothing unless you agree.`}
+  jsonLd={jsonLd}
+>
+  <article class="page prose ref-page">
+    <h1>Linux distro telemetry</h1>
+    <p class="lede">{answer}</p>
+    <p class="legal-meta">Checked {month}. Operating system defaults only, not apps you install.</p>
+
+    <dl class="ref-counts">
+      {LEVELS.map((l) => (
+        <div><dt>{l.heading}</dt><dd>{count(l.level)}</dd></div>
+      ))}
+    </dl>
+
+    {LEVELS.filter((l) => count(l.level) > 0).map((l) => (
+      <section>
+        <h2 id={`level-${l.level}`}>{l.heading} <span class="ref-n">{count(l.level)}</span></h2>
+        <p>{l.intro}</p>
+        <ul class="ref-list">
+          {rows(l.level).map((t) => (
+            <li>
+              <a class="with-mark" href={`/distro/${t.key}/`}><DistroMark slug={t.key} name={nameOf.get(t.key)!} /><span>{nameOf.get(t.key)}</span></a>
+              <p>{t.detail}</p>
+              {t.turnOff && <p class="ref-sub">Turn it off: {t.turnOff}</p>}
+              <p class="ref-sub"><a href={t.source} {...ext}>Source</a>{t.checked === "build" ? " · confirmed in the build files" : " · the project's own statement"}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+
+    <Faq items={faq} />
+    <p class="source-note">
+      Not listed means not checked yet, not that a distro sends nothing. <a href="/suggest/?kind=correction">Suggest a distro or a correction</a>.
+      The same facts are in <a href="/data/notes.json">notes.json</a> (CC BY 4.0).
+    </p>
+  </article>
+</Base>

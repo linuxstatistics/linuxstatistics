@@ -455,6 +455,9 @@ export const TELEMETRY: TelemetryInfo[] = [
   },
 ];
 
+/** Last date the list as a whole was checked (see the header comment). */
+export const TELEMETRY_CHECKED = "2026-11-13";
+
 const BY_KEY = new Map(TELEMETRY.map((t) => [t.key, t]));
 
 export function telemetryFor(key: string): TelemetryInfo | null {
