@@ -70,6 +70,13 @@ check feed.xml '<feed xmlns="http://www.w3.org/2005/Atom">' "site Atom feed is b
 check distro/mint/feed.xml 'endoflife.date' "per-distro release feed credits its source"
 # Feeds are an export: no rank numbers, scores or hits.
 if grep -rliE '#[0-9]|rank_|hits|interest score|index_value' "$DIST/feed.xml" "$DIST"/distro/*/feed.xml >/dev/null 2>&1; then echo "FAIL: a feed carries ranking data"; fail=1; else echo "ok:   feeds carry no ranking data"; fi
+check llms.txt '# LinuxStatistics' "llms.txt is built"
+check llms-full.txt '## Mint' "llms-full.txt lists distro facts"
+check data/index.html '"@type":"Dataset"' "open data page has Dataset JSON-LD"
+check distro/mint/index.html 'class="key-facts"' "distro page has key facts"
+check "compare/$pair/index.html" 'key-facts-pair' "compare pair has key facts"
+# llms-full.txt is an export: no rank numbers or hits.
+if grep -qiE '#[0-9]|ranked|rank_|hits|interest score|index_value' "$DIST/llms-full.txt"; then echo "FAIL: llms-full.txt carries ranking data"; fail=1; else echo "ok:   llms-full.txt has no ranking data"; fi
 check stats/index.html 'Linux by the numbers' "stats page renders"
 # /stats is built from our totals: no rank numbers or hits.
 if grep -qiE 'hitsPerDay|hits_per_day|interest score' "$DIST/stats/index.html"; then echo "FAIL: stats page carries ranking data"; fail=1; else echo "ok:   stats page has no ranking data"; fi

@@ -3,9 +3,11 @@ import Base from "../../layouts/Base.astro";
 import { DATA_CREDIT, DATASET_VERSION, SOURCES } from "../../lib/dataset";
 import { loadDistros } from "../../lib/data";
 import { SOURCE_URL } from "../../config/site";
+import { datasetJsonLd } from "../../lib/llms";
 
 const list = await loadDistros();
 const site = Astro.site!.href.replace(/\/$/, "");
+const jsonLd = datasetJsonLd(site, list.length, new Date().toISOString().slice(0, 10));
 const files = [
   { href: "/data/distros.json", name: "distros.json", what: `Facts, GitHub activity and community ratings for all ${list.length} distros, with version, licence and sources.` },
   { href: "/data/distros.csv", name: "distros.csv", what: "The same table as CSV." },
@@ -16,6 +18,7 @@ const files = [
 
 <Base
   title="Open data: Linux distro facts and ratings as JSON and CSV | LinuxStatistics"
+  jsonLd={jsonLd}
   description={`Download Linux distro facts, community ratings, editorial notes and desktop market share as JSON or CSV under CC BY 4.0. ${list.length} distros.`}
 >
   <article class="page prose legal data-page">
