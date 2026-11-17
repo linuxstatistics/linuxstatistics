@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DistroMark } from "./DistroMark";
+import { verifyFor } from "../lib/verify-pages";
 import { rankAll, type Suggestion } from "../lib/picker";
 import { PROFILES, type PickerProfile } from "../lib/picker-profiles";
 import { decodeAnswers, displayOptions, encodeAnswers, flow, prune, type Answers, type Question } from "../lib/picker-questions";
@@ -340,6 +341,14 @@ function ResultCard({ r, i, d, p, server, forUse }: { r: Suggestion; i: number; 
       <p className="telemetry-line">Telemetry: {t ? TELEMETRY_LABEL[t.level] : "not checked yet"}</p>
       <p className="result-links">
         <a href={p.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Official download</a>
+        {verifyFor(d.slug) && (
+          <>
+            {" · "}
+            <a href={verifyFor(d.slug)!.url} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Checksums</a>
+          </>
+        )}
+        {" · "}
+        <a href="/guides/verify-download/">How to verify</a>
         {p.distrosea && (
           <>
             {" · "}

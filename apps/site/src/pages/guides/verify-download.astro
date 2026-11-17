@@ -1,0 +1,82 @@
+---
+import Base from "../../layouts/Base.astro";
+import { PressCopy } from "../../components/PressCopy";
+import { GPG_STEPS, SHA256_STEPS, VERIFY_CHECKED, VERIFY_FILE } from "../../lib/verify-guide";
+
+const title = "How to verify a Linux download (SHA256 and GPG) | LinuxStatistics";
+const description = "Check that a Linux image downloaded correctly and wasn't tampered with: one SHA256 command for Windows, macOS or Linux, plus an optional signature check.";
+const faq = [
+  { q: "Why verify a Linux download?", a: "It confirms the file arrived complete and is the one the project published. A broken download can fail to boot or install; a swapped file could contain malware." },
+  { q: "Is a matching SHA256 checksum enough?", a: "It proves the file matches the checksum you compared against. If you copied that checksum from the project's own site over HTTPS, that is enough for most people. The GPG signature check also proves the checksum list came from the project." },
+];
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "HowTo",
+      name: "Verify a Linux download",
+      step: [
+        { "@type": "HowToStep", name: "Find the official checksum", text: "Open the distro's own checksum or verify page and copy the SHA256 value for the file you downloaded." },
+        { "@type": "HowToStep", name: "Compute the checksum of your file", text: "Run the SHA256 command for your operating system in the folder that holds the download." },
+        { "@type": "HowToStep", name: "Compare", text: "The two values must match exactly. If they don't, delete the file and download it again." },
+      ],
+    },
+    { "@type": "FAQPage", mainEntity: faq.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) },
+  ],
+};
+---
+
+<Base title={title} description={description} jsonLd={jsonLd}>
+  <article class="page prose legal verify-guide">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/switch/">Switch to Linux</a> / Verify a download</nav>
+    <h1>How to verify a Linux download</h1>
+    <p class="lede">Two minutes that confirm the file arrived complete and is the one the project published.</p>
+    <p class="legal-meta">Commands checked {VERIFY_CHECKED}.</p>
+
+    <h2>1. Get the official checksum</h2>
+    <p>
+      On the distro's own website, open its checksum or verify page and find the SHA256 value for the exact file you
+      downloaded. Each distro page here links to it under "Download". Never take a checksum from a mirror or a forum post.
+    </p>
+
+    <h2>2. Compute the checksum of your file</h2>
+    <p>Open a terminal in the folder with the download and run the command for your system. Replace <code>{VERIFY_FILE}</code> with the file's real name.</p>
+    {SHA256_STEPS.map((s) => (
+      <div class="verify-step">
+        <h3>{s.os}</h3>
+        <p class="verify-where">{s.where}</p>
+        <div class="verify-cmd"><pre class="credit-line"><code>{s.command}</code></pre><PressCopy client:visible text={s.command} /></div>
+      </div>
+    ))}
+
+    <p>
+      If the project only publishes SHA512 or MD5, swap the algorithm: <code>-Algorithm SHA512</code> or
+      <code>-Algorithm MD5</code> on Windows, <code>shasum -a 512</code> or <code>md5</code> on macOS,
+      <code>sha512sum</code> or <code>md5sum</code> on Linux. MD5 catches broken downloads but not deliberate tampering,
+      so check the signature too when the project offers one.
+    </p>
+
+    <h2>3. Compare the two values</h2>
+    <p>
+      They must match exactly, every character. Capital and small letters don't matter. If they differ, delete the file
+      and download it again from the official site. Don't write a file that fails this check to a USB stick.
+    </p>
+
+    <h2>Optional: check the signature</h2>
+    <p>
+      A matching checksum proves the file matches the list you compared against. A GPG signature also proves the list
+      came from the project. Most distros sign their checksum list; their verify page names the key and the file names.
+      On Windows, install <a href="https://gpg4win.org/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Gpg4win</a> first; macOS needs <a href="https://gpgtools.org/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">GPG Suite</a> or Homebrew's <code>gnupg</code>.
+    </p>
+    {GPG_STEPS.map((s) => (
+      <div class="verify-step">
+        <p class="verify-where">{s.what}</p>
+        <div class="verify-cmd"><pre class="credit-line"><code>{s.command}</code></pre><PressCopy client:visible text={s.command} /></div>
+      </div>
+    ))}
+    <p>Look for "Good signature" from the key the project names. A warning that the key isn't certified is normal unless you've signed the key yourself.</p>
+
+    <h2>Questions</h2>
+    {faq.map((f) => (<><h3>{f.q}</h3><p>{f.a}</p></>))}
+  </article>
+</Base>

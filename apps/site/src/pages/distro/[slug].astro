@@ -16,6 +16,8 @@ import { UseFitTabs } from "../../components/UseFitTabs";
 import { primaryUses, useFits, withoutRepeats } from "../../lib/use-fit";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { KeyFacts } from "../../components/KeyFacts";
+import { DownloadBlock } from "../../components/DownloadBlock";
+import { verifyFor } from "../../lib/verify-pages";
 import { DistroMark } from "../../components/DistroMark";
 import { keyFacts } from "../../lib/facts";
 import { WhoItSuits } from "../../components/PairVerdict";
@@ -155,6 +157,7 @@ const jsonLd = {
         {fits && <UseFitTabs client:visible name={data.name} fits={fits} primary={primaryFits} />}
         <TelemetryNote slug={data.slug} />
         <KeyFacts title={`${data.name} key facts`} facts={facts} />
+        {profile && <DownloadBlock name={data.name} downloadUrl={profile.downloadUrl} verify={verifyFor(data.slug)} distrosea={profile.distrosea} />}
         <RankByPeriod periods={data.rankByPeriod} />
         <section class="dsec" aria-labelledby="rate-h">
           <h2 id="rate-h">Rate {data.name}</h2>
