@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 import * as icons from "simple-icons";
 import { DISTRO_MARKS, luminance, markStyle, monogram } from "../src/lib/distro-marks";
+import { MARKS_DIR, markDataUri } from "@linux-statistics/shared/marks-node";
 
 const bySlug = new Map(Object.values(icons).map((i) => [i.slug, i]));
 
@@ -41,9 +42,25 @@ test("full-colour icons exist, are credited, and never shadow a simple-icons mar
   for (const [slug, img] of Object.entries(DISTRO_IMAGES)) {
     expect(DISTRO_MARKS[slug], slug).toBeUndefined();
     expect(img.file, slug).toMatch(/^[a-z0-9-]+\.png$/);
-    expect(existsSync(resolve(process.cwd(), "apps/site/public/marks", img.file)), slug).toBe(true);
-    expect(img.source, slug).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
+    expect(existsSync(resolve(MARKS_DIR, img.file)), slug).toBe(true);
+    expect(img.source, slug).toMatch(/^https?:\/\//);
+    if (img.license.startsWith("Trademark")) expect(img.author, slug).toMatch(/project \((Official website icon|GitHub organization avatar)\)$/);
+    else expect(img.source, slug).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
     expect(img.license.length, slug).toBeGreaterThan(2);
     expect(img.author.length, slug).toBeGreaterThan(2);
   }
+});
+
+test("share cards get a data URI per mark, null for monograms", () => {
+  expect(markDataUri("arch")).toMatch(/^data:image\/svg\+xml;utf8,/);
+  expect(decodeURIComponent(markDataUri("arch")!)).toContain('fill="#1793D1"');
+  expect(markDataUri("puppy")).toMatch(/^data:image\/png;base64,iVBOR/);
+  expect(markDataUri("no-such-distro")).toBeNull();
+});
+
+test("every PNG in the marks folder is listed in the manifest", async () => {
+  const { DISTRO_IMAGES } = await import("../src/lib/distro-marks");
+  const { readdirSync } = await import("node:fs");
+  const listed = new Set(Object.values(DISTRO_IMAGES).map((m) => m.file));
+  expect(readdirSync(MARKS_DIR).filter((f) => f.endsWith(".png")).filter((f) => !listed.has(f))).toEqual([]);
 });

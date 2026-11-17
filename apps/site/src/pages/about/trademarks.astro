@@ -11,10 +11,12 @@ const marks = Object.entries(DISTRO_MARKS)
   .filter(([slug]) => nameOf.has(slug))
   .map(([slug, m]) => ({ slug, name: nameOf.get(slug)!, ...m }))
   .sort((a, b) => a.name.localeCompare(b.name));
-const images = Object.entries(DISTRO_IMAGES)
+const allImages = Object.entries(DISTRO_IMAGES)
   .filter(([slug]) => nameOf.has(slug))
   .map(([slug, m]) => ({ slug, name: nameOf.get(slug)!, ...m }))
   .sort((a, b) => a.name.localeCompare(b.name));
+const images = allImages.filter((m) => !m.license.startsWith("Trademark"));
+const official = allImages.filter((m) => m.license.startsWith("Trademark"));
 const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
 ---
 
@@ -75,6 +77,26 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
               <td><a href={`/distro/${m.slug}/`}>{m.name}</a></td>
               <td><a href={m.source} {...ext}>{m.author}</a></td>
               <td>{m.license}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Official icons</h2>
+    <p>
+      Where no freely licensed logo exists, we use the square icon the project publishes itself, on its own website or
+      GitHub organization, resized but otherwise unchanged. These are the project's trademarks, shown only to identify it.
+    </p>
+    <div class="table-scroll">
+      <table class="data-table marks-table">
+        <thead><tr><th><span class="visually-hidden">Logo</span></th><th>Distro</th><th>Source</th></tr></thead>
+        <tbody>
+          {official.map((m) => (
+            <tr>
+              <td class="logo-cell"><DistroMark slug={m.slug} name={m.name} /></td>
+              <td><a href={`/distro/${m.slug}/`}>{m.name}</a></td>
+              <td><a href={m.source} {...ext}>{m.source.includes("github.com/") ? "GitHub organization" : new URL(m.source).hostname.replace(/^www\./, "")}</a></td>
             </tr>
           ))}
         </tbody>
