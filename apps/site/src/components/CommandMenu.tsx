@@ -2,6 +2,32 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { SearchItem } from "./DistroSearch";
 import { GROUP_LABEL, groupCommands, searchCommands, type Command } from "../lib/command-menu";
 
+/**
+ * Keep the page still behind the open menu, so a swipe scrolls the menu list.
+ * The body is pinned at its current offset and put back on close, so the page
+ * doesn't jump to the top (plain overflow: hidden does that on iOS).
+ */
+let lockedY: number | null = null;
+function lockScroll() {
+  if (lockedY !== null) return;
+  lockedY = window.scrollY;
+  const b = document.body.style;
+  b.position = "fixed";
+  b.top = `-${lockedY}px`;
+  b.left = "0";
+  b.right = "0";
+  document.documentElement.classList.add("cmdk-open");
+}
+function unlockScroll() {
+  if (lockedY === null) return;
+  const y = lockedY;
+  lockedY = null;
+  const b = document.body.style;
+  b.position = b.top = b.left = b.right = "";
+  document.documentElement.classList.remove("cmdk-open");
+  window.scrollTo({ top: y, behavior: "instant" });
+}
+
 function run(cmd: Command) {
   if (cmd.kind === "action") {
     window.dispatchEvent(new Event("cycle-theme"));
@@ -20,6 +46,10 @@ function run(cmd: Command) {
  */
 export function CommandMenu({ items, staticPairs = [], current }: { items: SearchItem[]; staticPairs?: string[]; current?: string }) {
   const [open, setOpen] = useState(false);
+  // Keyboard opens (Cmd/Ctrl+K, "/") focus the search box; a tap on a touch screen
+  // doesn't, so the on-screen keyboard stays down until the person taps the box.
+  const focusOnOpen = useRef(true);
+  const lastPointer = useRef("");
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const [mac, setMac] = useState(false);
@@ -36,6 +66,7 @@ export function CommandMenu({ items, staticPairs = [], current }: { items: Searc
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        focusOnOpen.current = true;
         setOpen((o) => !o);
         return;
       }
@@ -43,24 +74,32 @@ export function CommandMenu({ items, staticPairs = [], current }: { items: Searc
       const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable);
       if (e.key === "/" && !typing && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
+        focusOnOpen.current = true;
         setOpen(true);
       }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      unlockScroll();
+    };
   }, []);
 
   useEffect(() => {
     const d = dialog.current;
     if (!d) return;
     if (open && !d.open) {
+      // Lock before showModal and focus: both can scroll the page, and the lock records where it was.
+      lockScroll();
       if (typeof d.showModal === "function") d.showModal();
       else d.setAttribute("open", "");
-      input.current?.focus();
+      if (focusOnOpen.current) input.current?.focus({ preventScroll: true });
+      else (d.querySelector(".cmdk-panel") as HTMLElement | null)?.focus({ preventScroll: true });
     } else if (!open && d.open) {
       if (typeof d.close === "function") d.close();
       else d.removeAttribute("open");
     }
+    if (!open) unlockScroll();
     if (!open) {
       setQ("");
       setActive(0);
@@ -74,7 +113,13 @@ export function CommandMenu({ items, staticPairs = [], current }: { items: Searc
 
   return (
     <>
-      <button type="button" className="cmdk-trigger" aria-label="Menu and search" aria-haspopup="dialog" aria-expanded={open} aria-keyshortcuts={mac ? "Meta+K" : "Control+K"} onClick={() => setOpen(true)}>
+      <button type="button" className="cmdk-trigger" aria-label="Menu and search" aria-haspopup="dialog" aria-expanded={open} aria-keyshortcuts={mac ? "Meta+K" : "Control+K"} onPointerDown={(e) => { lastPointer.current = e.pointerType; }}
+        onClick={() => {
+          // Mouse or keyboard: focus the box. Touch or pen: leave the keyboard down.
+          focusOnOpen.current = !(lastPointer.current === "touch" || lastPointer.current === "pen");
+          lastPointer.current = "";
+          setOpen(true);
+        }}>
         <svg className="cmdk-icon-search" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4 4" /></svg>
         <svg className="cmdk-icon-menu" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
         <span className="cmdk-trigger-label">Menu and search</span>
@@ -89,7 +134,7 @@ export function CommandMenu({ items, staticPairs = [], current }: { items: Searc
         onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
       >
         {open && (
-          <div className="cmdk-panel">
+          <div className="cmdk-panel" tabIndex={-1}>
             <input
               ref={input}
               type="search"

@@ -76,6 +76,16 @@ test("the header button opens the menu and shows a way out when nothing matches"
   expect(screen.getByRole("link", { name: /suggest a distro/i })).toHaveAttribute("href", "/suggest/?kind=distro");
 });
 
+test("a tap on the header button opens the menu without focusing the search box", async () => {
+  const user = userEvent.setup();
+  render(<CommandMenu items={items} />);
+  await user.pointer({ keys: "[TouchA]", target: screen.getByRole("button", { name: /menu and search/i }) });
+  const box = screen.getByRole("combobox");
+  expect(box).not.toHaveFocus();
+  expect(document.documentElement).toHaveClass("cmdk-open");
+  await user.keyboard("{Escape}");
+});
+
 test("slash opens it; results are grouped with titles in display order", async () => {
   const user = userEvent.setup();
   render(<CommandMenu items={items} />);
