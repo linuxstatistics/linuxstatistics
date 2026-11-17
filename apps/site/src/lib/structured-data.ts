@@ -1,0 +1,63 @@
+import { SOCIAL } from "../config/site";
+
+export interface Crumb {
+  name: string;
+  /** Path; the last crumb (the current page) has none. */
+  href?: string;
+}
+
+/** Site-wide WebSite + Organization graph, on every page. */
+export function siteGraph(site: string) {
+  return [
+    { "@type": "WebSite", "@id": `${site}/#website`, name: "LinuxStatistics", url: `${site}/`, publisher: { "@id": `${site}/#org` }, inLanguage: "en" },
+    {
+      "@type": "Organization",
+      "@id": `${site}/#org`,
+      name: "LinuxStatistics",
+      url: `${site}/`,
+      logo: `${site}/apple-touch-icon.png`,
+      sameAs: SOCIAL.map((s) => s.href),
+    },
+  ];
+}
+
+/** BreadcrumbList for a visible breadcrumb; the current page is the last item. */
+export function breadcrumbLd(site: string, crumbs: Crumb[], currentUrl: string) {
+  return {
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((c, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: c.name,
+      item: c.href ? new URL(c.href, `${site}/`).href : currentUrl,
+    })),
+  };
+}
+
+/** One JSON-LD document: the site graph, an optional breadcrumb, and the page's own nodes. */
+export function pageGraph(site: string, opts: { page?: Record<string, unknown>; crumbs?: Crumb[]; url: string }) {
+  const nodes: Record<string, unknown>[] = [...siteGraph(site)];
+  if (opts.crumbs?.length) nodes.push(breadcrumbLd(site, opts.crumbs, opts.url));
+  if (opts.page) {
+    const { "@context": _ctx, "@graph": graph, ...rest } = opts.page as Record<string, unknown> & { "@graph"?: Record<string, unknown>[] };
+    if (Array.isArray(graph)) nodes.push(...graph);
+    if (Object.keys(rest).length) nodes.push(rest);
+  }
+  return { "@context": "https://schema.org", "@graph": nodes };
+}
+
+/** FAQPage node from question/answer pairs (plain text). */
+export function faqNode(items: { q: string; a: string }[]) {
+  return { "@type": "FAQPage", mainEntity: items.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
+}
+
+/** ItemList node: ordered links to distro pages. */
+export function itemListNode(site: string, name: string, items: { name: string; href: string }[]) {
+  return {
+    "@type": "ItemList",
+    name,
+    itemListOrder: "https://schema.org/ItemListOrderAscending",
+    numberOfItems: items.length,
+    itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, url: new URL(it.href, `${site}/`).href })),
+  };
+}

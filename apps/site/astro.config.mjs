@@ -13,7 +13,14 @@ export default defineConfig({
   compressHTML: true,
   // Fetch a page when the pointer rests on its link, so the click feels instant.
   prefetch: { prefetchAll: true, defaultStrategy: "hover" },
-  integrations: [react(), sitemap({ filter: (page) => !page.includes("/admin/") && !page.includes("/pick/match/") })],
+  integrations: [
+    react(),
+    sitemap({
+      filter: (page) => !page.includes("/admin/") && !page.includes("/pick/match/"),
+      // Every page is rebuilt from fresh data on each build, so the build date is each page's real lastmod.
+      serialize: (item) => ({ ...item, lastmod: new Date().toISOString() }),
+    }),
+  ],
   server: { port: 4380, host: "localhost" },
   vite: {
     server: {

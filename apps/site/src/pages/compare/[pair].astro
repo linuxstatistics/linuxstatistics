@@ -108,7 +108,7 @@ const lead =
 const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popularity, family, GitHub activity and community ratings side by side. ${lead}`.trim();
 ---
 
-<Base title={title} description={description} jsonLd={jsonLd}>
+<Base breadcrumbs={[{ name: "Compare", href: "/compare/" }, { name: `${a.name} vs ${b.name}` }]} title={title} description={description} jsonLd={jsonLd}>
   <div class="page">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/compare/">Compare</a> / {a.name} vs {b.name}</nav>
     <div class="with-side">

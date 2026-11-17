@@ -19,6 +19,9 @@ import { KeyFacts } from "../../components/KeyFacts";
 import { DownloadBlock } from "../../components/DownloadBlock";
 import { verifyFor } from "../../lib/verify-pages";
 import { entriesFor, KIND_LABEL } from "../../lib/changelog";
+import { distroFaq } from "../../lib/faq";
+import { faqNode } from "../../lib/structured-data";
+import { Faq } from "../../components/Faq";
 import { DistroMark } from "../../components/DistroMark";
 import { keyFacts } from "../../lib/facts";
 import { WhoItSuits } from "../../components/PairVerdict";
@@ -62,6 +65,7 @@ const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank 
 const asOf = dataDate(meta, "wikipedia");
 const facts = keyFacts(data, { baseName, asOf, includeRank: true });
 const changes = entriesFor(data.slug);
+const faq = distroFaq(data, { baseName });
 const site = Astro.site!.href.replace(/\/$/, "");
 const switchFrom = (["windows", "mac"] as const).filter((f) =>
   PROFILES.find((p) => p.key === data.slug)?.desktops.includes(f === "windows" ? "windows-like" : "mac-like"),
@@ -94,7 +98,7 @@ const jsonLd = {
 };
 ---
 
-<Base title={title} description={description} jsonLd={jsonLd} feed={data.releases.length > 0 ? { href: `/distro/${data.slug}/feed.xml`, title: `${data.name} releases` } : undefined}>
+<Base breadcrumbs={[{ name: "Rankings", href: "/" }, { name: data.name }]} title={title} description={description} jsonLd={faq.length > 0 ? { "@graph": [jsonLd, faqNode(faq)] } : jsonLd} feed={data.releases.length > 0 ? { href: `/distro/${data.slug}/feed.xml`, title: `${data.name} releases` } : undefined}>
   <script is:inline define:vars={{ viewSlug: data.slug }}>
     // Count one view of this distro page (no cookies or visitor data). Skips
     // prerender and "Do Not Track"/"Global Privacy Control" browsers.
@@ -161,6 +165,7 @@ const jsonLd = {
         <KeyFacts title={`${data.name} key facts`} facts={facts} />
         {profile && <DownloadBlock name={data.name} downloadUrl={profile.downloadUrl} verify={verifyFor(data.slug)} distrosea={profile.distrosea} />}
         <RankByPeriod periods={data.rankByPeriod} />
+        {faq.length > 0 && <section class="dsec"><Faq items={faq} /></section>}
         {changes.length > 0 && (
           <section class="dsec distro-changes" aria-labelledby="changes-h">
             <h2 id="changes-h">Changes affecting {data.name}</h2>

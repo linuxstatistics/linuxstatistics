@@ -84,6 +84,10 @@ check index.html 'href="/changelog/"' "footer links the changelog"
 check distro/truenas/index.html 'Changes affecting' "distro page shows its changelog entries"
 # The changelog feed is an export: no rank numbers or hits.
 if grep -qiE '#[0-9]|rank_|hits_per_day|interest score|index_value' "$DIST/changelog/feed.xml"; then echo "FAIL: changelog feed carries ranking data"; fail=1; else echo "ok:   changelog feed has no ranking data"; fi
+check index.html '"@type":"Organization"' "every page has Organization JSON-LD"
+check index.html 'creativecommons.org/licenses/by/4.0' "home Dataset carries the data licence"
+check distro/mint/index.html '"BreadcrumbList"' "distro page has BreadcrumbList JSON-LD"
+check distro/mint/index.html '"FAQPage"' "distro page has FAQ JSON-LD"
 check llms.txt '# LinuxStatistics' "llms.txt is built"
 check llms-full.txt '## Mint' "llms-full.txt lists distro facts"
 check data/index.html '"@type":"Dataset"' "open data page has Dataset JSON-LD"

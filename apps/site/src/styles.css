@@ -1494,3 +1494,4 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .distro-changes ul { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 8px; max-width: 640px; }
 .distro-changes li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
 .distro-changes time { font: 13px var(--sans); color: var(--ink2); min-width: 96px; }
+

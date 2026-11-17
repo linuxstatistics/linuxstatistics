@@ -6,7 +6,7 @@ import { faqJsonLd } from "../../../lib/faq";
 import { switchFaq } from "../../../lib/switch";
 ---
 
-<Base
+<Base breadcrumbs={[{ name: "Switch to Linux", href: "/switch/" }, { name: "From a Mac" }]}
   title="Switching from Mac to Linux: which distro, and what changes | LinuxStatistics"
   description="Which Linux distro to pick on an Intel or Apple Silicon Mac, what changes day to day, and what to use instead of your Mac apps."
   jsonLd={faqJsonLd(switchFaq("mac"))}

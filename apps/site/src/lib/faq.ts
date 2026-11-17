@@ -1,4 +1,4 @@
-import type { DistroListItem } from "@linux-statistics/shared";
+import type { DistroDetail, DistroListItem } from "@linux-statistics/shared";
 import { profileFor } from "./verdict";
 import { telemetryFor, TELEMETRY_LABEL } from "./telemetry";
 
@@ -95,4 +95,50 @@ export function faqJsonLd(items: QA[]) {
     "@type": "FAQPage",
     mainEntity: items.map((x) => ({ "@type": "Question", name: x.q, acceptedAnswer: { "@type": "Answer", text: x.a } })),
   };
+}
+
+/**
+ * Questions about one distro, answered only from data we hold: who it suits
+ * (curated profile), default telemetry (checked), support end (endoflife.date)
+ * and base (curated). No question is asked without an answer.
+ */
+export function distroFaq(
+  d: Pick<DistroDetail, "slug" | "name" | "basedOnSlug" | "family" | "releases">,
+  opts: { baseName?: string | null; today?: string } = {},
+): QA[] {
+  const out: QA[] = [];
+  const p = profileFor(d.slug);
+  if (p) {
+    const beginner = p.levels.includes("new");
+    out.push({
+      q: `Is ${d.name} good for beginners?`,
+      a: beginner
+        ? `Yes. ${d.name} is one of the distros we suggest to people new to Linux. ${p.blurb}`
+        : `It's better suited to people with some Linux experience${p.levels.includes("expert") && !p.levels.includes("some") ? " (we list it for experts)" : ""}. ${p.blurb}`,
+    });
+  }
+  const t = telemetryFor(d.slug);
+  if (t) {
+    out.push({
+      q: `Does ${d.name} collect telemetry?`,
+      a: `${t.detail}${t.turnOff ? ` To turn it off: ${t.turnOff}` : ""} This covers the operating system's defaults, not apps you install.`,
+    });
+  }
+  const today = opts.today ?? new Date().toISOString().slice(0, 10);
+  const cur = d.releases.find((r) => r.releasedOn != null && r.releasedOn <= today) ?? d.releases[0];
+  const end = cur?.supportEnds ?? cur?.eol;
+  if (cur && end) {
+    const when = new Date(`${end}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+    const label = `${d.name} ${cur.latest ?? cur.cycle}${cur.lts ? " LTS" : ""}`;
+    out.push({
+      q: `How long is ${d.name} supported?`,
+      a: end < today ? `Support for ${label} ended in ${when}. Upgrade to a newer release.` : `${label} is supported until ${when}, according to endoflife.date.`,
+    });
+  }
+  if (d.basedOnSlug && opts.baseName) {
+    out.push({ q: `What is ${d.name} based on?`, a: `${d.name} is based on ${opts.baseName}, so it shares its package format and much of its software.` });
+  } else if (d.family === "independent") {
+    out.push({ q: `What is ${d.name} based on?`, a: `${d.name} is independent: it isn't built on another distribution.` });
+  }
+  return out;
 }

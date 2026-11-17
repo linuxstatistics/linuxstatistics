@@ -29,10 +29,14 @@ interface Props {
   image?: string;
   /** An extra Atom feed for this page, e.g. one distro's releases. */
   feed?: { href: string; title: string };
+  /** Visible breadcrumb (also emitted as BreadcrumbList); the last crumb is the current page. */
+  breadcrumbs?: Crumb[];
 }
 
-const { title, description, jsonLd, noindex = false, image: pageImage, feed } = Astro.props;
+const { title, description, jsonLd, noindex = false, image: pageImage, feed, breadcrumbs } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const siteUrl = Astro.site!.href.replace(/\/$/, "");
+const ld = pageGraph(siteUrl, { page: jsonLd, crumbs: breadcrumbs, url: canonical });
 // Every page has a share image: the page's own, else the site card built at /og.png.
 const image = pageImage ?? new URL("/og.png", Astro.site).href;
 const [allDistros, marketShare, meta] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta()]);
@@ -54,6 +58,7 @@ const NAV = [
 const path = Astro.url.pathname;
 const isCurrent = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 import { AuthSkeleton } from "../components/Skeleton";
+import { pageGraph, type Crumb } from "../lib/structured-data";
 ---
 
 <!doctype html>
@@ -93,7 +98,7 @@ import { AuthSkeleton } from "../components/Skeleton";
     {SEARCH_VERIFY.google && <meta name="google-site-verification" content={SEARCH_VERIFY.google} />}
     <link rel="alternate" type="application/atom+xml" title="LinuxStatistics: releases and monthly movers" href="/feed.xml" />
     {feed && <link rel="alternate" type="application/atom+xml" title={feed.title} href={feed.href} />}
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <script type="application/ld+json" set:html={JSON.stringify(ld)} />
     {/* Page views and load timings, tagged with the route pattern (e.g. /distro/[slug]); same-origin scripts. */}
     {analytics.enabled && !noindex && (
       <>
