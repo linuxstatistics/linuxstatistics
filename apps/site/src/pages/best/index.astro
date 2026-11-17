@@ -1,0 +1,38 @@
+---
+import Base from "../../layouts/Base.astro";
+import { DistroMark } from "../../components/DistroMark";
+import { loadDistros } from "../../lib/data";
+import { BEST_TOPICS, bestPicks, isIndexable } from "../../lib/best-for";
+import { PROFILES } from "../../lib/picker-profiles";
+import { itemListNode } from "../../lib/structured-data";
+
+const list = await loadDistros();
+const bySlug = new Map(list.map((d) => [d.slug, d]));
+const profiles = PROFILES.filter((p) => bySlug.has(p.key));
+const rankOf = (k: string) => bySlug.get(k)?.rank ?? null;
+const topics = BEST_TOPICS.map((t) => ({ t, picks: bestPicks(t, profiles, rankOf) })).filter((x) => isIndexable(x.picks));
+const site = Astro.site!.href.replace(/\/$/, "");
+---
+
+<Base
+  title="Best Linux distro for… gaming, old laptops, developers and more | LinuxStatistics"
+  description="The best Linux distributions for each use: beginners, gaming, NVIDIA, old laptops, low RAM, Raspberry Pi, developers, home servers, privacy and local AI. Ranked by our quiz engine."
+  jsonLd={itemListNode(site, "Best Linux distro by use", topics.map(({ t }) => ({ name: t.title, href: `/best/${t.slug}/` })))}
+>
+  <article class="page">
+    <h1>Best Linux for…</h1>
+    <p class="lede">Pick what you'll use it for. Each page ranks distros with the same engine as our quiz, so they always agree.</p>
+    <ul class="best-topics">
+      {topics.map(({ t, picks }) => (
+        <li>
+          <a href={`/best/${t.slug}/`}>
+            <span class="best-topic-title">{t.label}</span>
+            <span class="best-topic-marks" aria-hidden="true">{picks.slice(0, 3).map((p) => <DistroMark slug={p.key} name={bySlug.get(p.key)!.name} />)}</span>
+            <span class="best-topic-top">Top pick: {bySlug.get(picks[0]!.key)!.name}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="source-note">Not sure which fits? <a href="/pick/">Take the quiz</a>.</p>
+  </article>
+</Base>

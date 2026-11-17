@@ -84,12 +84,22 @@ check index.html 'href="/changelog/"' "footer links the changelog"
 check distro/truenas/index.html 'Changes affecting' "distro page shows its changelog entries"
 # The changelog feed is an export: no rank numbers or hits.
 if grep -qiE '#[0-9]|rank_|hits_per_day|interest score|index_value' "$DIST/changelog/feed.xml"; then echo "FAIL: changelog feed carries ranking data"; fail=1; else echo "ok:   changelog feed has no ranking data"; fi
+check best/index.html 'class="best-topics"' "best-for hub renders"
+check best/gaming/index.html 'class="best-list"' "best-for topic page has picks"
+check best/gaming/index.html '"ItemList"' "best-for page has ItemList JSON-LD"
+check best/gaming/index.html '/pick/?a=' "best-for page links the pre-filled quiz"
+check telemetry/index.html 'class="ref-list"' "telemetry page renders"
+check support-dates/index.html 'class="data-table support-table"' "support dates page renders"
 check index.html '"@type":"Organization"' "every page has Organization JSON-LD"
 check index.html 'creativecommons.org/licenses/by/4.0' "home Dataset carries the data licence"
 check distro/mint/index.html '"BreadcrumbList"' "distro page has BreadcrumbList JSON-LD"
 check distro/mint/index.html '"FAQPage"' "distro page has FAQ JSON-LD"
-check telemetry/index.html 'class="ref-list"' "telemetry page renders"
-check support-dates/index.html 'class="data-table support-table"' "support dates page renders"
+# Thin best-for topics are noindex and stay out of the sitemap.
+for f in "$DIST"/best/*/index.html; do
+  slug=$(basename "$(dirname "$f")")
+  if grep -q 'name="robots" content="noindex"' "$f" && grep -q "/best/$slug/" "$DIST"/sitemap-*.xml; then echo "FAIL: noindex /best/$slug/ is in the sitemap"; fail=1; fi
+done
+echo "ok:   noindex best-for topics kept out of the sitemap"
 # Reference pages are exports of our facts: no rank numbers or hits on telemetry/support pages.
 if grep -qiE 'hitsPerDay|hits_per_day|interest score' "$DIST/telemetry/index.html" "$DIST/support-dates/index.html"; then echo "FAIL: a reference page carries ranking data"; fail=1; else echo "ok:   reference pages have no ranking data"; fi
 check llms.txt '# LinuxStatistics' "llms.txt is built"

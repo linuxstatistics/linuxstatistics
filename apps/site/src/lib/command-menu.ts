@@ -27,6 +27,7 @@ export const PAGE_COMMANDS: PageCommand[] = [
   { href: "/compare/", label: "Compare distros", keywords: "vs versus side by side" },
   { href: "/desktop-share/", label: "Desktop share over time", keywords: "market share statcounter windows macos" },
   { href: "/stats/", label: "Linux by the numbers", keywords: "stats statistics numbers totals releases end of life" },
+  { href: "/best/", label: "Best Linux for…", keywords: "best gaming beginners old laptop low ram raspberry pi developers server privacy creative ai laptops" },
   { href: "/telemetry/", label: "Telemetry by distro", keywords: "privacy tracking data collection telemetry" },
   { href: "/support-dates/", label: "Support dates", keywords: "end of life eol support lts lifecycle" },
   { href: "/articles/", label: "Articles", keywords: "blog posts analysis method" },

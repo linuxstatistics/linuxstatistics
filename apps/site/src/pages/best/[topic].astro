@@ -1,0 +1,122 @@
+---
+import Base from "../../layouts/Base.astro";
+import { DistroMark } from "../../components/DistroMark";
+import { Faq } from "../../components/Faq";
+import { SponsorCard } from "../../components/SponsorCard";
+import SwitchSide from "../../components/SwitchSide.astro";
+import { loadDistros } from "../../lib/data";
+import { BEST_TOPICS, bestPicks, isIndexable, topicBySlug, type BestTopic } from "../../lib/best-for";
+import { PROFILES } from "../../lib/picker-profiles";
+import { encodeAnswers } from "../../lib/picker-questions";
+import { telemetryFor, TELEMETRY_LABEL } from "../../lib/telemetry";
+import { faqNode, itemListNode } from "../../lib/structured-data";
+
+export function getStaticPaths() {
+  return BEST_TOPICS.map((t) => ({ params: { topic: t.slug } }));
+}
+
+const topic = topicBySlug(Astro.params.topic!) as BestTopic;
+const list = await loadDistros();
+const bySlug = new Map(list.map((d) => [d.slug, d]));
+const rankOf = (k: string) => bySlug.get(k)?.rank ?? null;
+const profiles = PROFILES.filter((p) => bySlug.has(p.key));
+const byKey = new Map(profiles.map((p) => [p.key, p]));
+const picks = bestPicks(topic, profiles, rankOf);
+const indexable = isIndexable(picks);
+const site = Astro.site!.href.replace(/\/$/, "");
+const month = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+const names = picks.map((p) => bySlug.get(p.key)!.name);
+const top = names[0];
+const answer = top
+  ? `${top} is our top pick${names.length > 1 ? `, followed by ${names.slice(1, 3).join(" and ")}` : ""}. ${topic.lead} Picks come from the same engine as our quiz and are updated monthly.`
+  : topic.lead;
+const quizHref = `/pick/?a=${encodeAnswers(topic.answers)}`;
+const faq = [
+  ...(top ? [{ q: `What is the ${topic.title.replace(/^Best /, "best ").toLowerCase()}?`, a: `${top}${names.length > 1 ? `, then ${names.slice(1, 3).join(" and ")}` : ""}. ${byKey.get(picks[0]!.key)!.blurb}` }] : []),
+  ...topic.faq,
+];
+const jsonLd = {
+  "@graph": [
+    ...(picks.length ? [itemListNode(site, `${topic.title}, ${month}`, picks.map((p) => ({ name: bySlug.get(p.key)!.name, href: `/distro/${p.key}/` })))] : []),
+    faqNode(faq),
+  ],
+};
+// Thin (noindex) topics aren't linked until they qualify.
+const related = topic.related.map((s) => topicBySlug(s)!).filter((t) => t && isIndexable(bestPicks(t, profiles, rankOf)));
+const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
+const fmtTrend = (n: number | null) => (n == null || n === 0 ? null : n > 0 ? `up ${n} this month` : `down ${-n} this month`);
+---
+
+<Base
+  title={`${topic.title} (${month}) | LinuxStatistics`}
+  description={`${topic.lead} ${top ? `Top picks: ${names.slice(0, 3).join(", ")}.` : ""} Ranked by our quiz engine, updated monthly.`.trim()}
+  jsonLd={jsonLd}
+  noindex={!indexable}
+  breadcrumbs={[{ name: "Best Linux for…", href: "/best/" }, { name: topic.label }]}
+>
+  <div class="page">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/best/">Best Linux for…</a> / {topic.label}</nav>
+    <div class="with-side">
+    <div class="with-side-main best-page">
+      <h1>{topic.title}</h1>
+      <p class="lede">{answer}</p>
+      <p class="legal-meta">Updated {month}. Ranked by fit for this use, then by interest. <a href="/about/#ranking">How we rank</a>.</p>
+
+      {picks.length === 0 ? (
+        <p>We don't have enough checked distros for this yet. <a href={quizHref}>Take the quiz</a> instead.</p>
+      ) : (
+        <ol class="best-list">
+          {picks.map((p, i) => {
+            const d = bySlug.get(p.key)!;
+            const prof = byKey.get(p.key)!;
+            const t = telemetryFor(p.key);
+            const trend = fmtTrend(d.rank1mDelta);
+            return (
+              <li class="best-pick">
+                <h2>
+                  <span class="best-n">{i + 1}</span>
+                  <a class="with-mark" href={`/distro/${p.key}/`}><DistroMark slug={p.key} name={d.name} size={32} /><span>{d.name}</span></a>
+                </h2>
+                <p>{prof.blurb}</p>
+                {p.reasons.length > 0 && <ul class="why-fits">{p.reasons.slice(0, 4).map((r) => <li>{r}</li>)}</ul>}
+                {topic.slug === "laptops" && prof.laptop && <p class="ref-sub">Shipped or certified by <a href={prof.laptop.source} {...ext}>{prof.laptop.vendor}</a>.</p>}
+                {p.misses.length > 0 && <p class="watch-out"><span>Watch out:</span> {p.misses.slice(0, 2).join("; ")}.</p>}
+                <p class="ref-sub">
+                  {d.rank != null ? `#${d.rank} on our interest index` : "Outside our interest top 100"}{trend ? `, ${trend}` : ""}
+                  {" · "}Telemetry: {t ? TELEMETRY_LABEL[t.level].toLowerCase() : "not checked yet"}
+                  {" · "}<a href={prof.downloadUrl} {...ext}>Official download</a>
+                </p>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+
+      <section class="best-quiz">
+        <h2>Not quite right?</h2>
+        <p>Answer a few questions about your computer and what you'll use it for. The quiz starts with this page's answers filled in.</p>
+        <a class="cta" href={quizHref}>Take the quiz</a>
+      </section>
+
+      <Faq items={faq} />
+      <p class="source-note">
+        Picks come from our <a href="/pick/">quiz</a>'s curated distro profiles. Rank is our <a href="/about/#ranking">interest index</a>, which measures interest, not installs.
+        Telemetry is checked against each project's own documentation (<a href="/telemetry/">all distros</a>).
+      </p>
+    </div>
+    <aside class="side" aria-label="More">
+      <SponsorCard context="people choosing a Linux distro" />
+      {related.length > 0 && (
+        <section>
+          <h2>Also see</h2>
+          <ul class="side-links">
+            {related.map((r) => <li><a href={`/best/${r.slug}/`}>{r.title}</a></li>)}
+            <li><a href="/best/">All topics</a></li>
+          </ul>
+        </section>
+      )}
+      <SwitchSide />
+    </aside>
+    </div>
+  </div>
+</Base>

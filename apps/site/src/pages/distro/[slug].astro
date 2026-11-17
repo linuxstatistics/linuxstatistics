@@ -20,6 +20,7 @@ import { DownloadBlock } from "../../components/DownloadBlock";
 import { verifyFor } from "../../lib/verify-pages";
 import { entriesFor, KIND_LABEL } from "../../lib/changelog";
 import { distroFaq } from "../../lib/faq";
+import { topicsFor, listedProfiles as PROFILES_LISTED } from "../../lib/best-for";
 import { faqNode } from "../../lib/structured-data";
 import { Faq } from "../../components/Faq";
 import { DistroMark } from "../../components/DistroMark";
@@ -66,6 +67,8 @@ const asOf = dataDate(meta, "wikipedia");
 const facts = keyFacts(data, { baseName, asOf, includeRank: true });
 const changes = entriesFor(data.slug);
 const faq = distroFaq(data, { baseName });
+const listed = new Map(list.map((d) => [d.slug, d.rank]));
+const bestFor = topicsFor(data.slug, PROFILES_LISTED(listed), (k) => listed.get(k) ?? null).slice(0, 4);
 const site = Astro.site!.href.replace(/\/$/, "");
 const switchFrom = (["windows", "mac"] as const).filter((f) =>
   PROFILES.find((p) => p.key === data.slug)?.desktops.includes(f === "windows" ? "windows-like" : "mac-like"),
@@ -201,6 +204,14 @@ const jsonLd = {
           <h2>Compare {data.name} with…</h2>
           <CompareWith client:visible self={{ slug: data.slug, name: data.name }} items={searchItems} staticPairs={[...staticPairs]} />
         </section>
+        {bestFor.length > 0 && (
+          <section>
+            <h2>{data.name} is a top pick for</h2>
+            <ul class="side-links">
+              {bestFor.map(({ topic, place }) => <li><a href={`/best/${topic.slug}/`}>{topic.label}</a> <span class="from">#{place}</span></li>)}
+            </ul>
+          </section>
+        )}
         <RelatedLinks compare={compare} family={family} familyLabel={family_label} near={near} />
       </aside>
     </div>

@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
+import { NOINDEX_PATHS } from "./src/config/noindex.js";
 
 const site = process.env.SITE_URL ?? "https://linuxstatistics.com";
 const apiTarget = process.env.API_URL ?? "http://localhost:3001";
@@ -16,7 +17,8 @@ export default defineConfig({
   integrations: [
     react(),
     sitemap({
-      filter: (page) => !page.includes("/admin/") && !page.includes("/pick/match/"),
+      // NOINDEX_PATHS lists pages built with a robots noindex (thin /best/ topics); keep them out too.
+      filter: (page) => !page.includes("/admin/") && !page.includes("/pick/match/") && !NOINDEX_PATHS.some((p) => page.endsWith(p)),
       // Every page is rebuilt from fresh data on each build, so the build date is each page's real lastmod.
       serialize: (item) => ({ ...item, lastmod: new Date().toISOString() }),
     }),
