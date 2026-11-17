@@ -569,6 +569,17 @@ h1, h2, h3 { text-wrap: balance; }
 .tm-usage { color: var(--down); }
 .quiz .telemetry-line { font: 12px var(--sans); color: var(--ink2); }
 
+/* Key facts: quotable sentences with their sources */
+.key-facts { max-width: 640px; }
+.key-facts h2 { font: 700 21px/1.15 var(--display); letter-spacing: -0.02em; margin: 24px 0 8px; }
+.key-facts ul { margin: 0; padding-left: 1.1em; }
+.key-facts li { margin: 0 0 6px; }
+.key-fact-source { font: 12px/1.6 var(--sans); color: var(--ink2); }
+.key-facts-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; max-width: 760px; }
+.key-facts-pair h2 { grid-column: 1 / -1; }
+.key-facts-pair h3 { font: 600 15px var(--sans); margin: 0 0 6px; }
+@media (max-width: 640px) { .key-facts-pair { grid-template-columns: 1fr; } }
+
 /* Rating widget */
 .rating-widget { margin-top: 24px; padding-top: 18px; border-top: 3px solid var(--ink); display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
 .rating-widget .star-row { display: flex; gap: 2px; }

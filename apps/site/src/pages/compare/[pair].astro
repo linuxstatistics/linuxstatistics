@@ -10,6 +10,8 @@ import { ComparePicker } from "../../components/ComparePicker";
 import { PairVerdict } from "../../components/PairVerdict";
 import { NotEnoughData, ProsConsPair } from "../../components/ProsCons";
 import { Faq } from "../../components/Faq";
+import { KeyFactsPair } from "../../components/KeyFacts";
+import { keyFacts } from "../../lib/facts";
 import { EthicalAd } from "../../components/EthicalAd";
 import { SponsorCard } from "../../components/SponsorCard";
 import { notesFor } from "../../lib/distro-notes";
@@ -163,6 +165,7 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
         </div>
       </section>
     )}
+    <KeyFactsPair sides={[a, b].map((d) => ({ name: d.name, facts: keyFacts(d, { baseName: d.basedOnSlug ? nameOf.get(d.basedOnSlug) : null, asOf, includeRank: true }) }))} />
     <Faq items={faq} />
     <EthicalAd placement="compare" />
     <p class="source-note">
