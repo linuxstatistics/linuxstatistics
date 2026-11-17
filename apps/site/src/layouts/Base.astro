@@ -123,8 +123,8 @@ import { AuthSkeleton } from "../components/Skeleton";
           ))}
         </nav>
         <div class="header-right">
-          <div class="cmdk-slot"><CommandMenu client:idle items={jumpItems} staticPairs={staticPairs} current={path} /></div>
           <div class="auth-slot"><HeaderAuth client:only="react"><AuthSkeleton slot="fallback" /></HeaderAuth></div>
+          <div class="cmdk-slot"><CommandMenu client:idle items={jumpItems} staticPairs={staticPairs} current={path} /></div>
         </div>
       </header>
       <hr class="rule" />
