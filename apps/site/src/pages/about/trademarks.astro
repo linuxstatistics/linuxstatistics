@@ -1,0 +1,60 @@
+---
+import Base from "../../layouts/Base.astro";
+import { DistroMark } from "../../components/DistroMark";
+import { DISTRO_MARKS, MARKS_FROM } from "../../lib/distro-marks";
+import { loadDistros } from "../../lib/data";
+import { CONTACT } from "../../config/site";
+
+const list = await loadDistros();
+const nameOf = new Map(list.map((d) => [d.slug, d.name]));
+const marks = Object.entries(DISTRO_MARKS)
+  .filter(([slug]) => nameOf.has(slug))
+  .map(([slug, m]) => ({ slug, name: nameOf.get(slug)!, ...m }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
+---
+
+<Base
+  title="Trademarks and logos | LinuxStatistics"
+  description="Distribution names and logos on LinuxStatistics belong to their owners. We use them only to identify each project, never to suggest endorsement."
+>
+  <article class="page prose legal">
+    <h1>Trademarks and logos</h1>
+    <p class="lede">Distribution names and logos belong to their owners. We show them only so you can recognize each project.</p>
+
+    <h2>How we use them</h2>
+    <ul>
+      <li>Small and unmodified, always next to the project's name.</li>
+      <li>Never to suggest that a project endorses, sponsors or works with LinuxStatistics.</li>
+      <li>A distro without a logo here gets its first letter instead. We don't draw our own versions of anyone's logo.</li>
+    </ul>
+
+    <h2>Corrections and removal</h2>
+    <p>
+      If you represent a project and want its logo changed or removed, or think we're using it wrong, email{" "}
+      <a href={`mailto:${CONTACT.general}?subject=Logo`}>{CONTACT.general}</a>. We act on these requests quickly and
+      don't need a legal letter.
+    </p>
+
+    <h2>Where the logos come from</h2>
+    <p>
+      The shapes come from <a href="https://simpleicons.org/" {...ext}>Simple Icons</a> ({MARKS_FROM}), which collects
+      single-color brand marks under CC0. That license covers the drawings only; trademark rights stay with each project.
+      The source for each logo:
+    </p>
+    <div class="table-scroll">
+      <table class="data-table marks-table">
+        <thead><tr><th><span class="visually-hidden">Logo</span></th><th>Distro</th><th>Source</th></tr></thead>
+        <tbody>
+          {marks.map((m) => (
+            <tr>
+              <td class="logo-cell"><DistroMark slug={m.slug} name={m.name} /></td>
+              <td><a href={`/distro/${m.slug}/`}>{m.name}</a></td>
+              <td><a href={m.source} {...ext}>{new URL(m.source).hostname.replace(/^www\./, "")}</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </article>
+</Base>

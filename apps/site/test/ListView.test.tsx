@@ -91,6 +91,18 @@ test("Rating is off by default and sortable once turned on", async () => {
   expect(rowNames()).toEqual(["Linux Mint", "Arch Linux", "Fedora"]);
 });
 
+test("Logo is off by default, unsortable, and shows marks once turned on", async () => {
+  const user = userEvent.setup();
+  const { container } = render(<ListView items={items} />);
+  expect(screen.queryByRole("columnheader", { name: "Logo" })).not.toBeInTheDocument();
+  expect(container.querySelector(".dmark")).toBeNull();
+  await user.click(screen.getByRole("button", { name: "Choose columns" }));
+  await user.click(screen.getByRole("checkbox", { name: "Logo" }));
+  const th = screen.getByRole("columnheader", { name: "Logo" });
+  expect(th.querySelector("button")).toBeNull();
+  expect(container.querySelectorAll("td.logo-cell .dmark")).toHaveLength(3);
+});
+
 test("tags secondary columns to be hidden on mobile", () => {
   render(<ListView items={items} />);
   const hits = screen.getByRole("columnheader", { name: /^Interest score/ });

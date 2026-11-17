@@ -2,6 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroListItem, type DistroStatus, type Family } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating } from "../lib/rating";
+import { DistroMark } from "./DistroMark";
 import { RankDifference } from "./RankDifference";
 
 /** Historical change in this ranking window, distinct from the 1-month comparison. */
@@ -21,7 +22,8 @@ type SortKey =
   | "firstReleaseYear"
   | "rankTrend"
   | "rank1mDelta"
-  | "rating";
+  | "rating"
+  | "logo";
 
 export function distroHref(slug: string): string {
   return `/distro/${slug}/`;
@@ -41,6 +43,8 @@ interface ColumnDef {
   fixed?: boolean;
   /** hidden until the user turns it on in the Columns menu */
   hiddenByDefault?: boolean;
+  /** header is a plain label, not a sort button */
+  unsortable?: boolean;
   /** extra class on the cells */
   cellClass?: string;
   render: (d: DistroListItem, ctx: RenderCtx) => ReactNode;
@@ -71,6 +75,7 @@ function HitsCell({ v, max }: { v: number | null; max: number }) {
 
 const COLUMNS: ColumnDef[] = [
   { key: "rank", label: "#", numeric: true, fixed: true, cellClass: "rank", render: (d) => d.rank ?? "-" },
+  { key: "logo", label: "Logo", hiddenByDefault: true, unsortable: true, cellClass: "logo-cell", render: (d) => <DistroMark slug={d.slug} name={d.name} /> },
   {
     key: "name",
     label: "Distro",
@@ -110,6 +115,7 @@ function thtdClass(c: ColumnDef): string {
 }
 
 function compare(a: DistroListItem, b: DistroListItem, key: SortKey): number {
+  if (key === "logo") return 0;
   if (key === "rating") {
     // Sentinel keeps unrated distros (null average) last in descending order.
     return (a.userRating.average ?? -1) - (b.userRating.average ?? -1);
@@ -271,12 +277,16 @@ export function ListView({ items, pageSize = 0, firstPage, offset = 0, maxHits }
                 <th
                   key={c.key}
                   className={thtdClass(c)}
-                  aria-sort={sortKey === c.key ? (asc ? "ascending" : "descending") : "none"}
+                  aria-sort={c.unsortable ? undefined : sortKey === c.key ? (asc ? "ascending" : "descending") : "none"}
                 >
-                  <button type="button" onClick={() => toggleSort(c.key)}>
-                    {c.label}
-                    {sortKey === c.key ? (asc ? " ▲" : " ▼") : ""}
-                  </button>
+                  {c.unsortable ? (
+                    <span className="visually-hidden">{c.label}</span>
+                  ) : (
+                    <button type="button" onClick={() => toggleSort(c.key)}>
+                      {c.label}
+                      {sortKey === c.key ? (asc ? " ▲" : " ▼") : ""}
+                    </button>
+                  )}
                 </th>
               ))}
             </tr>

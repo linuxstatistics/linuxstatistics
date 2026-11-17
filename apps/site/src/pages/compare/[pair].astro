@@ -11,6 +11,7 @@ import { PairVerdict } from "../../components/PairVerdict";
 import { NotEnoughData, ProsConsPair } from "../../components/ProsCons";
 import { Faq } from "../../components/Faq";
 import { KeyFactsPair } from "../../components/KeyFacts";
+import { DistroMark } from "../../components/DistroMark";
 import { keyFacts } from "../../lib/facts";
 import { EthicalAd } from "../../components/EthicalAd";
 import { SponsorCard } from "../../components/SponsorCard";
@@ -132,7 +133,7 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
             {[a, b].map((d, i) => (
               <th>
                 <i class={`h2h-key ${i === 0 ? "h2h-a" : "h2h-b"}`} aria-hidden="true" />
-                <a href={`/distro/${d.slug}/`}>{d.name}</a>
+                <a class="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a>
                 <span class="th-sub">{d.rank != null ? `#${d.rank} · ` : ""}{FAMILY_LABELS[d.family]}</span>
               </th>
             ))}

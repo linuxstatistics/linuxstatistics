@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { DistroMark } from "./DistroMark";
 import { rankAll, type Suggestion } from "../lib/picker";
 import { PROFILES, type PickerProfile } from "../lib/picker-profiles";
 import { decodeAnswers, displayOptions, encodeAnswers, flow, prune, type Answers, type Question } from "../lib/picker-questions";
@@ -317,7 +318,7 @@ function ResultCard({ r, i, d, p, server, forUse }: { r: Suggestion; i: number; 
   return (
     <div className="result">
       <h3>
-        {i + 1}. <a href={`/distro/${d.slug}/${forUse}`}>{d.name}</a> <span className="match">{matchLabel(r.pct)}</span>
+        <span className="with-mark">{i + 1}. <DistroMark slug={d.slug} name={d.name} size={32} /> <a href={`/distro/${d.slug}/${forUse}`}>{d.name}</a></span> <span className="match">{matchLabel(r.pct)}</span>
       </h3>
       <p className="sub">
         {d.rank != null ? `#${d.rank} in popularity (12 months)` : "Outside the popularity top 100"}

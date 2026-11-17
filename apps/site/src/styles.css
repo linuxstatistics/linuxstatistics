@@ -350,6 +350,7 @@ h1, h2, h3 { text-wrap: balance; }
 @media (min-width: 761px) {
   .leaderboard { table-layout: fixed; }
   .leaderboard .col-rank { width: 52px; }
+  .leaderboard .col-logo { width: 36px; }
   .leaderboard .col-family { width: 15%; }
   .leaderboard .col-hitsPerDay, .leaderboard .col-stars, .leaderboard .col-commitsLast30d, .leaderboard .col-rating { width: 12%; }
   .leaderboard .col-rank1mDelta, .leaderboard .col-rankTrend, .leaderboard .col-firstReleaseYear { width: 9%; }
@@ -436,10 +437,9 @@ h1, h2, h3 { text-wrap: balance; }
 @media (hover: hover) { .distro-head-secondary:hover { border-color: var(--ink2); } }
 @media (max-width: 760px) {
   .distro-head { flex-direction: column; align-items: stretch; }
-  /* Phones: the buttons share one row, download first and widest. */
+  /* Phones: the buttons share one row at their natural width. */
   .distro-head-actions { flex-wrap: nowrap; gap: 8px; }
   .distro-head-actions a { justify-content: center; padding-inline: 14px; font-size: 14px; white-space: nowrap; }
-  .distro-head-actions .cta { flex: 1 1 auto; }
   .distro-head-actions .label-long { display: none; }
 }
 @media (min-width: 761px) { .distro-head-actions .label-short { display: none; } }
@@ -568,6 +568,20 @@ h1, h2, h3 { text-wrap: balance; }
 .tm-counting { color: var(--accent); }
 .tm-usage { color: var(--down); }
 .quiz .telemetry-line { font: 12px var(--sans); color: var(--ink2); }
+
+/* Distro marks: logo on a brand-colour tile, or a monogram */
+.dmark { display: inline-flex; align-items: center; justify-content: center; flex: none; vertical-align: middle; overflow: hidden; }
+.dmark svg { width: 64%; height: 64%; display: block; }
+.dmark-20 { width: 20px; height: 20px; font-size: 11px; }
+.dmark-32 { width: 32px; height: 32px; font-size: 16px; }
+.dmark-64 { width: 64px; height: 64px; font-size: 30px; }
+.dmark-mono { background: var(--row); color: var(--ink2); font-family: var(--display); font-weight: 700; line-height: 1; box-shadow: inset 0 0 0 1px var(--line); }
+.with-mark { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+.with-mark > span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.distro-head-text { display: flex; align-items: center; gap: 16px; }
+.distro-head-text h1 { margin: 0; }
+.logo-cell { width: 20px; padding-right: 0 !important; line-height: 0; }
+@media (max-width: 640px) { .distro-head-text .dmark-64 { width: 44px; height: 44px; font-size: 22px; } }
 
 /* Key facts: quotable sentences with their sources */
 .key-facts { max-width: 640px; }

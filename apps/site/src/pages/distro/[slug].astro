@@ -16,6 +16,7 @@ import { UseFitTabs } from "../../components/UseFitTabs";
 import { primaryUses, useFits, withoutRepeats } from "../../lib/use-fit";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { KeyFacts } from "../../components/KeyFacts";
+import { DistroMark } from "../../components/DistroMark";
 import { keyFacts } from "../../lib/facts";
 import { WhoItSuits } from "../../components/PairVerdict";
 import { notesFor } from "../../lib/distro-notes";
@@ -103,6 +104,7 @@ const jsonLd = {
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/">Rankings</a> / {data.name}</nav>
     <div class="distro-head">
       <div class="distro-head-text">
+        <DistroMark slug={data.slug} name={data.name} size={64} />
         <h1>{data.name}</h1>
       </div>
       {(profile || ref || data.homepage || data.repoFullName) && (

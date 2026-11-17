@@ -70,6 +70,10 @@ check feed.xml '<feed xmlns="http://www.w3.org/2005/Atom">' "site Atom feed is b
 check distro/mint/feed.xml 'endoflife.date' "per-distro release feed credits its source"
 # Feeds are an export: no rank numbers, scores or hits.
 if grep -rliE '#[0-9]|rank_|hits|interest score|index_value' "$DIST/feed.xml" "$DIST"/distro/*/feed.xml >/dev/null 2>&1; then echo "FAIL: a feed carries ranking data"; fail=1; else echo "ok:   feeds carry no ranking data"; fi
+check about/trademarks/index.html 'Corrections and removal' "trademarks page renders"
+check index.html 'href="/about/trademarks/"' "footer links the trademarks page"
+check marks.svg '<symbol id="m-arch"' "logo sprite is built"
+check distro/fedora/index.html 'class="dmark' "distro page header shows its mark"
 check llms.txt '# LinuxStatistics' "llms.txt is built"
 check llms-full.txt '## Mint' "llms-full.txt lists distro facts"
 check data/index.html '"@type":"Dataset"' "open data page has Dataset JSON-LD"
