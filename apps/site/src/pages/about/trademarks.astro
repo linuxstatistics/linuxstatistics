@@ -1,13 +1,17 @@
 ---
 import Base from "../../layouts/Base.astro";
 import { DistroMark } from "../../components/DistroMark";
-import { DISTRO_MARKS, MARKS_FROM } from "../../lib/distro-marks";
+import { DISTRO_IMAGES, DISTRO_MARKS, MARKS_FROM } from "../../lib/distro-marks";
 import { loadDistros } from "../../lib/data";
 import { CONTACT } from "../../config/site";
 
 const list = await loadDistros();
 const nameOf = new Map(list.map((d) => [d.slug, d.name]));
 const marks = Object.entries(DISTRO_MARKS)
+  .filter(([slug]) => nameOf.has(slug))
+  .map(([slug, m]) => ({ slug, name: nameOf.get(slug)!, ...m }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+const images = Object.entries(DISTRO_IMAGES)
   .filter(([slug]) => nameOf.has(slug))
   .map(([slug, m]) => ({ slug, name: nameOf.get(slug)!, ...m }))
   .sort((a, b) => a.name.localeCompare(b.name));
@@ -36,9 +40,9 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
       don't need a legal letter.
     </p>
 
-    <h2>Where the logos come from</h2>
+    <h2>Single-color logos</h2>
     <p>
-      The shapes come from <a href="https://simpleicons.org/" {...ext}>Simple Icons</a> ({MARKS_FROM}), which collects
+      Logos on a colored square come from <a href="https://simpleicons.org/" {...ext}>Simple Icons</a> ({MARKS_FROM}), which collects
       single-color brand marks under CC0. That license covers the drawings only; trademark rights stay with each project.
       The source for each logo:
     </p>
@@ -51,6 +55,26 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
               <td class="logo-cell"><DistroMark slug={m.slug} name={m.name} /></td>
               <td><a href={`/distro/${m.slug}/`}>{m.name}</a></td>
               <td><a href={m.source} {...ext}>{new URL(m.source).hostname.replace(/^www\./, "")}</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <h2>Full-color logos</h2>
+    <p>
+      These come from <a href="https://commons.wikimedia.org/" {...ext}>Wikimedia Commons</a> and are shown
+      unmodified, resized to a small PNG. Each keeps its license and author:
+    </p>
+    <div class="table-scroll">
+      <table class="data-table marks-table">
+        <thead><tr><th><span class="visually-hidden">Logo</span></th><th>Distro</th><th>Author</th><th>License</th></tr></thead>
+        <tbody>
+          {images.map((m) => (
+            <tr>
+              <td class="logo-cell"><DistroMark slug={m.slug} name={m.name} /></td>
+              <td><a href={`/distro/${m.slug}/`}>{m.name}</a></td>
+              <td><a href={m.source} {...ext}>{m.author}</a></td>
+              <td>{m.license}</td>
             </tr>
           ))}
         </tbody>

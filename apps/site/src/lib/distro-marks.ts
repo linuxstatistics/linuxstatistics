@@ -106,3 +106,29 @@ export function monogram(name: string): string {
 }
 
 export const markId = (slug: string) => `m-${slug}`;
+
+export interface DistroImageEntry {
+  /** file under public/marks/, a 128 px square PNG rendered from the source */
+  file: string;
+  /** Wikimedia Commons file page */
+  source: string;
+  license: string;
+  author: string;
+}
+
+/**
+ * Full-colour square icons from Wikimedia Commons for distros simple-icons doesn't
+ * cover. Shown as-is (no tile). SVG sources were rendered to PNG so no SVG from
+ * outside the project is served.
+ */
+export const DISTRO_IMAGES: Record<string, DistroImageEntry> = {
+  chimera: { file: "chimera.png", source: "https://commons.wikimedia.org/wiki/File:Chimera_Linux_logo.svg", license: "CC BY-SA 4.0", author: "Cura Sylfaen for the Chimera Linux project" },
+  kaos: { file: "kaos.png", source: "https://commons.wikimedia.org/wiki/File:KaOS_logo_2015.svg", license: "GPL", author: "KaOS" },
+  midnightbsd: { file: "midnightbsd.png", source: "https://commons.wikimedia.org/wiki/File:MidnightBSDLogo.svg", license: "CC BY 3.0", author: "Soursquirrel" },
+  openmandriva: { file: "openmandriva.png", source: "https://commons.wikimedia.org/wiki/File:OpenMandriva_Logo.svg", license: "CC BY-SA 4.0", author: "Zacharpolis" },
+  pclinuxos: { file: "pclinuxos.png", source: "https://commons.wikimedia.org/wiki/File:PCLinuxOS_logo.svg", license: "CC BY-SA 3.0", author: "David Smid" },
+  porteus: { file: "porteus.png", source: "https://commons.wikimedia.org/wiki/File:Mainlogoporteus.png", license: "GPL", author: "Blaze" },
+  puppy: { file: "puppy.png", source: "https://commons.wikimedia.org/wiki/File:Puppy_logo.svg", license: "Attribution", author: "afgs, puppylinux.com" },
+  sparky: { file: "sparky.png", source: "https://commons.wikimedia.org/wiki/File:SparkyLinux-logo-200px.png", license: "GPL", author: "Pavroo" },
+  ubuntucinnamon: { file: "ubuntucinnamon.png", source: "https://commons.wikimedia.org/wiki/File:UbuntuCinnamon.png", license: "CC BY-SA 4.0", author: "Ubuntu Cinnamon Remix" },
+};

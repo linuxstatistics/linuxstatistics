@@ -235,6 +235,7 @@ h1, h2, h3 { text-wrap: balance; }
 .legal p { margin: 0 0 16px; }
 .legal .legal-meta { font: 12px/1.7 var(--sans); color: var(--ink2); margin: -6px 0 8px; }
 .legal .legal-meta a { color: var(--ink2); }
+.legal .table-scroll { margin: 8px 0 16px; }
 .page .lede { color: var(--ink2); font-size: 16px; max-width: 62ch; margin: 0 0 22px; }
 .page .source-note { font: 12px/1.6 var(--sans); color: var(--ink2); margin-top: 24px; max-width: 90ch; }
 .page .source-note a { color: var(--ink2); }
@@ -575,6 +576,7 @@ h1, h2, h3 { text-wrap: balance; }
 .dmark-20 { width: 20px; height: 20px; font-size: 11px; }
 .dmark-32 { width: 32px; height: 32px; font-size: 16px; }
 .dmark-64 { width: 64px; height: 64px; font-size: 30px; }
+.dmark-img img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .dmark-mono { background: var(--row); color: var(--ink2); font-family: var(--display); font-weight: 700; line-height: 1; box-shadow: inset 0 0 0 1px var(--line); }
 .with-mark { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
 .with-mark > span:last-child { overflow: hidden; text-overflow: ellipsis; }

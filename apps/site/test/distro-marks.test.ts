@@ -33,3 +33,17 @@ test("sprite content is path data only (nothing that could run)", () => {
     expect(bySlug.get(m.icon)?.path, m.icon).toMatch(/^[MmLlHhVvCcSsQqTtAaZz0-9eE.,\s-]+$/);
   }
 });
+
+test("full-colour icons exist, are credited, and never shadow a simple-icons mark", async () => {
+  const { DISTRO_IMAGES } = await import("../src/lib/distro-marks");
+  const { existsSync } = await import("node:fs");
+  const { resolve } = await import("node:path");
+  for (const [slug, img] of Object.entries(DISTRO_IMAGES)) {
+    expect(DISTRO_MARKS[slug], slug).toBeUndefined();
+    expect(img.file, slug).toMatch(/^[a-z0-9-]+\.png$/);
+    expect(existsSync(resolve(process.cwd(), "apps/site/public/marks", img.file)), slug).toBe(true);
+    expect(img.source, slug).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
+    expect(img.license.length, slug).toBeGreaterThan(2);
+    expect(img.author.length, slug).toBeGreaterThan(2);
+  }
+});
