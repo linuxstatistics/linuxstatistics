@@ -11,6 +11,7 @@ import {
   getGalaxy,
   getMarketShare,
   getMeta,
+  getSourceEvents,
   type Database,
 } from "@linux-statistics/db";
 import { currentUser, registerSession } from "./lib/session.js";
@@ -67,6 +68,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   const metaCached = ttlCache(TTL, () => getMeta(db));
   const risingCached = ttlCache(TTL, () => getRising(db));
   const statsCached = ttlCache(TTL, () => getStats(db));
+  const sourceEventsCached = ttlCache(TTL, () => getSourceEvents(db));
 
   app.get("/health", async () => ({ ok: true }));
   app.get("/api/health", async () => ({ ok: true }));
@@ -80,6 +82,9 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   app.get("/api/rising", async () => risingCached());
 
   app.get("/api/stats", async () => statsCached());
+
+  // Read-only source outages for the public changelog; never triggers ingestion.
+  app.get("/api/changelog/source-events", async () => sourceEventsCached());
 
   app.get("/api/market-share", async (req) => {
     const q = marketQuerySchema.parse(req.query);

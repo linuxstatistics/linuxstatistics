@@ -1,27 +1,10 @@
-import type { Meta, SourceFreshness } from "@linux-statistics/shared";
+import { SOURCE_CADENCE_DAYS, SOURCE_LABEL, type Meta, type SourceFreshness } from "@linux-statistics/shared";
 
 const DAY = 86_400_000;
 
-/** How often each source is refreshed in production (matches deploy/systemd/*.timer). */
-export const CADENCE_DAYS: Record<SourceFreshness["source"], number> = {
-  distrowatch: 1,
-  github: 7,
-  wikidata: 7,
-  statcounter: 31,
-  wikipedia: 31,
-  endoflife: 7,
-  descriptions: 7,
-};
-
-const LABEL: Record<SourceFreshness["source"], string> = {
-  distrowatch: "Rankings",
-  github: "Repository activity",
-  wikidata: "Distro facts",
-  statcounter: "Desktop share",
-  wikipedia: "Interest index",
-  endoflife: "Release dates",
-  descriptions: "Distro descriptions",
-};
+/** How often each source is refreshed in production. */
+export const CADENCE_DAYS = SOURCE_CADENCE_DAYS;
+const LABEL = SOURCE_LABEL;
 
 export type StaleSource = { source: SourceFreshness["source"]; label: string; days: number; ago: string };
 

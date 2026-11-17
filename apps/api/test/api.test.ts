@@ -1,4 +1,4 @@
-import { RANK_SOURCE, statsPayloadSchema } from "@linux-statistics/shared";
+import { RANK_SOURCE, sourceEventSchema, statsPayloadSchema } from "@linux-statistics/shared";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import type { FastifyInstance } from "fastify";
 import type { PGlite } from "@electric-sql/pglite";
@@ -113,4 +113,12 @@ test("GET /api/rising lists climbers (none here: mint fell in the last month)", 
   const list = (await app.inject({ method: "GET", url: "/api/distros" })).json();
   expect(list[0].rank1m).toBe(3);
   expect(list[0].rank1mDelta).toBe(-2);
+});
+
+test("GET /api/changelog/source-events returns a list of outage events", async () => {
+  const res = await app.inject({ method: "GET", url: "/api/changelog/source-events" });
+  expect(res.statusCode).toBe(200);
+  const body = res.json();
+  expect(Array.isArray(body)).toBe(true);
+  for (const e of body) expect(sourceEventSchema.parse(e)).toBeTruthy();
 });

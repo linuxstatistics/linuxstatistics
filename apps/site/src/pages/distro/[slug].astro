@@ -18,6 +18,7 @@ import { TelemetryNote } from "../../components/TelemetryNote";
 import { KeyFacts } from "../../components/KeyFacts";
 import { DownloadBlock } from "../../components/DownloadBlock";
 import { verifyFor } from "../../lib/verify-pages";
+import { entriesFor, KIND_LABEL } from "../../lib/changelog";
 import { DistroMark } from "../../components/DistroMark";
 import { keyFacts } from "../../lib/facts";
 import { WhoItSuits } from "../../components/PairVerdict";
@@ -60,6 +61,7 @@ const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 const searchItems = list.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
 const asOf = dataDate(meta, "wikipedia");
 const facts = keyFacts(data, { baseName, asOf, includeRank: true });
+const changes = entriesFor(data.slug);
 const site = Astro.site!.href.replace(/\/$/, "");
 const switchFrom = (["windows", "mac"] as const).filter((f) =>
   PROFILES.find((p) => p.key === data.slug)?.desktops.includes(f === "windows" ? "windows-like" : "mac-like"),
@@ -159,6 +161,21 @@ const jsonLd = {
         <KeyFacts title={`${data.name} key facts`} facts={facts} />
         {profile && <DownloadBlock name={data.name} downloadUrl={profile.downloadUrl} verify={verifyFor(data.slug)} distrosea={profile.distrosea} />}
         <RankByPeriod periods={data.rankByPeriod} />
+        {changes.length > 0 && (
+          <section class="dsec distro-changes" aria-labelledby="changes-h">
+            <h2 id="changes-h">Changes affecting {data.name}</h2>
+            <ul>
+              {changes.slice(0, 5).map((e) => (
+                <li>
+                  <time datetime={e.date}>{new Date(`${e.date}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })}</time>
+                  <span class={`changelog-kind kind-${e.kind}`}>{KIND_LABEL[e.kind]}</span>
+                  <span>{e.title}</span>
+                </li>
+              ))}
+            </ul>
+            <p class="source-note"><a href="/changelog/">All changes to our numbers</a></p>
+          </section>
+        )}
         <section class="dsec" aria-labelledby="rate-h">
           <h2 id="rate-h">Rate {data.name}</h2>
           <DistroRating client:only="react" slug={data.slug}><RatingSkeleton slot="fallback" /></DistroRating>

@@ -3,6 +3,7 @@ import type {
   DistroListItem,
   MarketSharePoint,
   Meta,
+  SourceEvent,
   StatsPayload,
 } from "@linux-statistics/shared";
 
@@ -34,6 +35,7 @@ export const loadMarketShare = () =>
 export const loadMeta = () => getJson<Meta>("/api/meta");
 export const loadRising = () => getJson<DistroListItem[]>("/api/rising");
 export const loadStats = () => getJson<StatsPayload>("/api/stats");
+export const loadSourceEvents = () => getJson<SourceEvent[]>("/api/changelog/source-events");
 export const loadDistro = (slug: string) =>
   getJson<DistroDetail>(`/api/distros/${encodeURIComponent(slug)}`);
 

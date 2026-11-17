@@ -12,3 +12,4 @@ export * from "./releases.js";
 export * from "./descriptions.js";
 export * from "./stats.js";
 export * from "./first-party.js";
+export * from "./changelog.js";

@@ -77,6 +77,13 @@ check distro/fedora/index.html 'class="dmark' "distro page header shows its mark
 check distro/mint/index.html 'class="download-block"' "distro page has the download block"
 check distro/mint/index.html 'href="/guides/verify-download/"' "download block links the verify guide"
 check guides/verify-download/index.html 'Get-FileHash' "verify guide has the Windows command"
+check changelog/index.html 'class="changelog-list"' "changelog page renders"
+check changelog/index.html 'composite index' "changelog records the ranking method change"
+check changelog/feed.xml '<feed xmlns="http://www.w3.org/2005/Atom">' "changelog feed is built"
+check index.html 'href="/changelog/"' "footer links the changelog"
+check distro/truenas/index.html 'Changes affecting' "distro page shows its changelog entries"
+# The changelog feed is an export: no rank numbers or hits.
+if grep -qiE '#[0-9]|rank_|hits_per_day|interest score|index_value' "$DIST/changelog/feed.xml"; then echo "FAIL: changelog feed carries ranking data"; fail=1; else echo "ok:   changelog feed has no ranking data"; fi
 check llms.txt '# LinuxStatistics' "llms.txt is built"
 check llms-full.txt '## Mint' "llms-full.txt lists distro facts"
 check data/index.html '"@type":"Dataset"' "open data page has Dataset JSON-LD"

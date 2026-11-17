@@ -31,6 +31,7 @@ export const PAGE_COMMANDS: PageCommand[] = [
   { href: "/data/", label: "Open data", keywords: "download csv json api badge" },
   { href: "/about/", label: "About and sources", keywords: "method index sources" },
   { href: "/about/ratings/", label: "How scores work", keywords: "ratings reviews" },
+  { href: "/changelog/", label: "Changelog", keywords: "changes method corrections outages history" },
   { href: "/suggest/", label: "Suggest a distro or fix", keywords: "add correction feedback" },
   { href: "/sponsors/", label: "Sponsors", keywords: "advertise sponsor" },
   { href: "/press/", label: "Press kit", keywords: "logo brand media" },

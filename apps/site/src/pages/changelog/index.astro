@@ -1,0 +1,83 @@
+---
+import Base from "../../layouts/Base.astro";
+import { loadDistros, loadSourceEvents } from "../../lib/data";
+import { KIND_LABEL, changeRows } from "../../lib/changelog";
+
+const [events, list] = await Promise.all([loadSourceEvents(), loadDistros()]);
+const rows = changeRows(events);
+const nameOf = new Map(list.map((d) => [d.slug, d.name]));
+const counts = { method: 0, correction: 0, source: 0 } as Record<string, number>;
+for (const r of rows) counts[r.kind] = (counts[r.kind] ?? 0) + 1;
+const filters = [
+  { key: "all", label: "All", n: rows.length },
+  { key: "method", label: "Method", n: counts.method },
+  { key: "correction", label: "Corrections", n: counts.correction },
+  { key: "source", label: "Sources", n: counts.source },
+];
+const fmt = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
+const ext = (href: string) => (href.startsWith("http") ? { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" } : {});
+---
+
+<Base
+  title="Changelog: changes to our rankings and data | LinuxStatistics"
+  description="Every change that affects the numbers on LinuxStatistics: ranking method changes, data corrections and data sources that were late or down."
+  feed={{ href: "/changelog/feed.xml", title: "LinuxStatistics changelog" }}
+>
+  <article class="page prose changelog">
+    <h1>Changelog</h1>
+    <p class="lede">Anything that changes the numbers you see is listed here: how we rank, what we corrected, and when a data source was late.</p>
+    <p class="legal-meta">
+      Method changes and corrections are written by hand and published with the code that makes them. Source outages are added
+      automatically from our update logs. <a href="/changelog/feed.xml">Follow the changelog</a> (Atom feed).
+    </p>
+
+    <div class="changelog-filter" role="group" aria-label="Show">
+      {filters.map((f, i) => (
+        <button type="button" data-filter={f.key} aria-pressed={i === 0 ? "true" : "false"} disabled={f.n === 0}>
+          {f.label} <span class="changelog-count">{f.n}</span>
+        </button>
+      ))}
+    </div>
+
+    {rows.length === 0 ? (
+      <p>No changes yet.</p>
+    ) : (
+      <ol class="changelog-list">
+        {rows.map((r) => (
+          <li id={r.id} data-kind={r.kind} class="changelog-item">
+            <div class="changelog-meta">
+              <time datetime={r.date}>{fmt(r.date)}</time>
+              <span class={`changelog-kind kind-${r.kind}`}>{KIND_LABEL[r.kind]}</span>
+              {r.ongoing && <span class="changelog-kind kind-ongoing">Ongoing</span>}
+            </div>
+            <h2>{r.title}</h2>
+            <p>{r.body}</p>
+            {r.distros.length > 0 && (
+              <p class="changelog-distros">
+                Affects:{" "}
+                {r.distros.map((s, i) => (<>{i > 0 && ", "}<a href={`/distro/${s}/`}>{nameOf.get(s) ?? s}</a></>))}
+              </p>
+            )}
+            {r.links.length > 0 && (
+              <p class="changelog-links">
+                {r.links.map((l, i) => (<>{i > 0 && " · "}<a href={l.href} {...ext(l.href)}>{l.label}</a></>))}
+              </p>
+            )}
+          </li>
+        ))}
+      </ol>
+    )}
+  </article>
+  <script>
+    // Filters only hide entries; without JS every entry shows.
+    const buttons = document.querySelectorAll<HTMLButtonElement>(".changelog-filter button");
+    const items = document.querySelectorAll<HTMLElement>(".changelog-item");
+    for (const b of buttons) {
+      b.addEventListener("click", () => {
+        const f = b.dataset.filter;
+        for (const x of buttons) x.setAttribute("aria-pressed", String(x === b));
+        for (const it of items) it.hidden = f !== "all" && it.dataset.kind !== f;
+      });
+    }
+  </script>
+</Base>

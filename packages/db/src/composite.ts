@@ -3,26 +3,16 @@ import type { Database } from "./client.js";
 import { distros, githubRepos, githubSnapshots, popularitySnapshots } from "./schema.js";
 import { getDistroList } from "./queries.js";
 import { pageViewsSince } from "./interest.js";
+import { COMPOSITE_WEIGHTS, type CompositeInput } from "@linux-statistics/shared";
 
 /**
  * Our composite index: one rank from several interest signals, so no single
  * third-party source decides the chart. Each input becomes a 0..1 score by
  * rank position (1 = best) over the distros it covers; inputs a distro lacks
  * score 0. The weighted sum is ranked. Weights and the method are published on
- * /about/. Changing WEIGHTS changes the chart; do it in a reviewed commit.
+ * /about/. The weights live in packages/shared/src/weights.ts.
  */
-export const COMPOSITE_WEIGHTS = {
-  /** English Wikipedia article views per day, last 12 months (our "interest" index). */
-  interest: 0.5,
-  /** DistroWatch 12-month page-hit rank, a small credited input while our own signals grow. */
-  distrowatch: 0.3,
-  /** GitHub stars of the main repo, for distros with one. */
-  github: 0.1,
-  /** Views of the distro's page on this site over the last 90 days. */
-  siteViews: 0.1,
-} as const;
-
-export type CompositeInput = keyof typeof COMPOSITE_WEIGHTS;
+export { COMPOSITE_WEIGHTS, type CompositeInput };
 
 export interface CompositeRow {
   distroId: number;

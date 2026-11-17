@@ -268,3 +268,12 @@ export const switchReportInputSchema = z.object({
   website: z.string().max(0).optional(),
 });
 export type SwitchReportInput = z.infer<typeof switchReportInputSchema>;
+
+export const sourceEventSchema = z.object({
+  source: sourceFreshnessSchema.shape.source,
+  from: z.string(),
+  to: z.string().nullable(),
+  days: z.number().int(),
+  cadenceDays: z.number().int(),
+  failedRuns: z.number().int(),
+});
