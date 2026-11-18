@@ -3,7 +3,7 @@ Description=LinuxStatistics: Wikipedia page views and the interest index, monthl
 # Runs after Wikidata (Sunday) so new article links are picked up.
 
 [Timer]
-OnCalendar=*-*-03 05:30:00 UTC
+OnCalendar=*-*-02 05:30:00 UTC
 RandomizedDelaySec=30min
 Persistent=true
 Unit=linuxstatistics-ingest@wikipedia.service
