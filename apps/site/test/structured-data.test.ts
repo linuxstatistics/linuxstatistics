@@ -11,7 +11,21 @@ test("every page carries WebSite + Organization with the official accounts", () 
   expect(g["@context"]).toBe("https://schema.org");
   const types = g["@graph"].map((n) => n["@type"]);
   expect(types).toEqual(["WebSite", "Organization"]);
-  expect(g["@graph"][1]).toMatchObject({ sameAs: SOCIAL.map((s) => s.href) });
+  expect(g["@graph"][1]).toMatchObject({ sameAs: [...SOCIAL.map((s) => s.href), "https://github.com/linuxstatistics"] });
+});
+
+test("Organization says who runs the site: description, logo, contact, no street address", () => {
+  const org = pageGraph(SITE, { url: `${SITE}/` })["@graph"][1] as Record<string, unknown>;
+  expect(org).toMatchObject({
+    "@id": `${SITE}/#org`,
+    name: "LinuxStatistics",
+    url: `${SITE}/`,
+    logo: { "@type": "ImageObject", url: `${SITE}/press/Logos/linuxstats-mark-tile-1024.png`, width: 1024, height: 1024 },
+    contactPoint: { "@type": "ContactPoint", email: "hello@linuxstatistics.com" },
+  });
+  expect(String(org.description).length).toBeGreaterThan(50);
+  expect(org).not.toHaveProperty("address");
+  expect((org.sameAs as string[]).length).toBeGreaterThanOrEqual(3);
 });
 
 test("page nodes and @graph pages merge into one graph without nested contexts", () => {

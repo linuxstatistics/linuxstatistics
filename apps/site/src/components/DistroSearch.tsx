@@ -31,6 +31,7 @@ export function DistroSearch({
   label,
   className = "jump",
   slashShortcut = false,
+  onWant,
 }: {
   items: SearchItem[];
   hrefFor: (slug: string) => string;
@@ -38,6 +39,8 @@ export function DistroSearch({
   label: string;
   className?: string;
   slashShortcut?: boolean;
+  /** Called on first focus, e.g. to load the full list. */
+  onWant?: () => void;
 }) {
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
@@ -72,6 +75,7 @@ export function DistroSearch({
         aria-controls={listId}
         aria-autocomplete="list"
         value={q}
+        onFocus={onWant}
         onChange={(e) => {
           setQ(e.target.value);
           setActive(0);

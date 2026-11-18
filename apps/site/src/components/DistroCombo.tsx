@@ -12,12 +12,15 @@ export function DistroCombo({
   onChange,
   label,
   placeholder = "Search for a distro…",
+  onWant,
 }: {
   items: SearchItem[];
   value: string;
   onChange: (slug: string) => void;
   label: string;
   placeholder?: string;
+  /** Called on first focus, e.g. to load the full list. */
+  onWant?: () => void;
 }) {
   const selected = items.find((d) => d.slug === value) ?? null;
   const [q, setQ] = useState(selected?.name ?? "");
@@ -72,6 +75,7 @@ export function DistroCombo({
         placeholder={placeholder}
         value={q}
         onFocus={(e) => {
+          onWant?.();
           e.currentTarget.select();
           setOpen(true);
           setActive(0);

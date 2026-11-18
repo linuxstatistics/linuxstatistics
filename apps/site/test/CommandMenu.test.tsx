@@ -112,3 +112,21 @@ test("slash opens it; results are grouped with titles in display order", async (
   await user.type(box, "mint vs fedora");
   expect(screen.getAllByRole("group")[0]).toHaveTextContent("Compare");
 });
+
+test("with src, the full list loads when the menu opens, so any distro can be found", async () => {
+  const { packList, resetDistroList } = await import("../src/lib/distro-list");
+  const { vi } = await import("vitest");
+  resetDistroList();
+  const row = { family: "other", status: "active", hitsPerDay: null, stars: null, commitsLast30d: null, firstReleaseYear: null, rankTrend: null, rank1m: null, rank1mDelta: null, userRating: { average: null, count: 0 } } as const;
+  const fetchMock = vi.fn(async () => new Response(JSON.stringify(packList([...items, { slug: "obscure", name: "Obscure OS", rank: 400 }].map((d) => ({ ...row, ...d }))))));
+  vi.stubGlobal("fetch", fetchMock);
+  const user = userEvent.setup();
+  render(<CommandMenu items={items.slice(0, 2)} src="/lists/distros.json" />);
+  expect(fetchMock).not.toHaveBeenCalled();
+  await user.keyboard("{Control>}k{/Control}");
+  await user.type(screen.getByRole("combobox"), "obscure");
+  expect(await screen.findByRole("option", { name: /Obscure OS/ })).toBeInTheDocument();
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  vi.unstubAllGlobals();
+  resetDistroList();
+});

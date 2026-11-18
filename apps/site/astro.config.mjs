@@ -1,10 +1,15 @@
+import { copyFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import { NOINDEX_PATHS } from "./src/config/noindex.js";
+import { lastmodFor, loadLastmodContext } from "./src/lib/sitemap-lastmod.ts";
 
 const site = process.env.SITE_URL ?? "https://linuxstatistics.com";
 const apiTarget = process.env.API_URL ?? "http://localhost:3001";
+/** Loaded once, on the first sitemap entry. */
+let lastmodCtx;
 
 export default defineConfig({
   site,
@@ -19,9 +24,24 @@ export default defineConfig({
     sitemap({
       // NOINDEX_PATHS lists pages built with a robots noindex (thin /best/ topics); keep them out too.
       filter: (page) => !page.includes("/admin/") && !page.includes("/pick/match/") && !NOINDEX_PATHS.some((p) => page.endsWith(p)),
-      // Every page is rebuilt from fresh data on each build, so the build date is each page's real lastmod.
-      serialize: (item) => ({ ...item, lastmod: new Date().toISOString() }),
+      // lastmod is when the page's content last changed: the data date, an article's date, the policies date.
+      // Pages without one get no lastmod rather than the build time.
+      serialize: async (item) => {
+        lastmodCtx ??= loadLastmodContext(apiTarget, fileURLToPath(new URL("./src/content/articles/", import.meta.url)));
+        const lastmod = lastmodFor(item.url, await lastmodCtx);
+        return lastmod ? { ...item, lastmod } : item;
+      },
     }),
+    // /sitemap.xml is where many crawlers look first: the same index, at that name too.
+    {
+      name: "sitemap-xml-alias",
+      hooks: {
+        "astro:build:done": async ({ dir }) => {
+          const index = new URL("sitemap-index.xml", dir);
+          if (existsSync(index)) copyFileSync(index, new URL("sitemap.xml", dir));
+        },
+      },
+    },
   ],
   server: { port: 4380, host: "localhost" },
   vite: {

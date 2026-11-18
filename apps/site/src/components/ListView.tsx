@@ -1,7 +1,9 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroListItem, type DistroStatus, type Family } from "@linux-statistics/shared";
+import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroStatus, type Family } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating } from "../lib/rating";
+import type { ListRow } from "../lib/distro-list";
+import { useDistroList } from "../lib/use-distro-list";
 import { DistroMark } from "./DistroMark";
 import { RankDifference } from "./RankDifference";
 
@@ -29,7 +31,7 @@ export function distroHref(slug: string): string {
   return `/distro/${slug}/`;
 }
 
-function starsCell(d: DistroListItem): ReactNode {
+function starsCell(d: ListRow): ReactNode {
   return d.stars === null ? "-" : d.stars.toLocaleString();
 }
 
@@ -47,7 +49,7 @@ interface ColumnDef {
   unsortable?: boolean;
   /** extra class on the cells */
   cellClass?: string;
-  render: (d: DistroListItem, ctx: RenderCtx) => ReactNode;
+  render: (d: ListRow, ctx: RenderCtx) => ReactNode;
 }
 
 interface RenderCtx {
@@ -114,7 +116,7 @@ function thtdClass(c: ColumnDef): string {
   return [c.numeric ? "num" : "", c.mobileHide ? "col-hide-mobile" : "", `col-${c.key}`].filter(Boolean).join(" ");
 }
 
-function compare(a: DistroListItem, b: DistroListItem, key: SortKey): number {
+function compare(a: ListRow, b: ListRow, key: SortKey): number {
   if (key === "logo") return 0;
   if (key === "rating") {
     // Sentinel keeps unrated distros (null average) last in descending order.
@@ -129,7 +131,14 @@ function compare(a: DistroListItem, b: DistroListItem, key: SortKey): number {
 }
 
 export interface ListViewProps {
-  items: DistroListItem[];
+  /** Rows rendered into the HTML. With `src`, the first page only; the rest loads from `src`. */
+  items: ListRow[];
+  /** Packed distro list to load after hydration (see lib/distro-list). */
+  src?: string;
+  /** Slugs left out of the loaded list (shown elsewhere on the page, e.g. the podium). */
+  exclude?: string[];
+  /** Row count of the full list, for the totals until it has loaded. */
+  total?: number;
   /** Highest hits/day across the whole chart (including rows shown elsewhere). */
   maxHits?: number;
   /** Rows shown before "Show more"; each click adds this many again. 0 = show all. */
@@ -140,7 +149,12 @@ export interface ListViewProps {
   offset?: number;
 }
 
-export function ListView({ items, pageSize = 0, firstPage, offset = 0, maxHits }: ListViewProps) {
+export function ListView({ items: initial, src, exclude, total, pageSize = 0, firstPage, offset = 0, maxHits }: ListViewProps) {
+  const { items: listItems, loaded } = useDistroList(initial, src);
+  const items = useMemo(
+    () => (loaded && exclude?.length ? listItems.filter((d) => !exclude.includes(d.slug)) : listItems),
+    [listItems, loaded, exclude],
+  );
   const ctx: RenderCtx = { maxHits: maxHits ?? Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0)) };
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [asc, setAsc] = useState(true);
@@ -178,7 +192,10 @@ export function ListView({ items, pageSize = 0, firstPage, offset = 0, maxHits }
 
   // Searching or filtering looks through everything; only the shown rows are capped.
   const shown = limit > 0 ? rows.slice(0, limit) : rows;
-  const remaining = rows.length - shown.length;
+  // Until the full list arrives, the totals come from the build.
+  const filtered = family !== "all" || status !== "all" || search.trim() !== "";
+  const rowCount = !loaded && total != null && !filtered ? total : rows.length;
+  const remaining = rowCount - shown.length;
   const nextBatch = Math.min(pageSize, remaining);
 
   function toggleSort(key: SortKey) {
@@ -319,10 +336,10 @@ export function ListView({ items, pageSize = 0, firstPage, offset = 0, maxHits }
             Show next {nextBatch}
           </button>
           <button type="button" className="list-more-all" onClick={() => setLimit(0)}>
-            Show all {rows.length + offset}
+            Show all {rowCount + offset}
           </button>
           <span className="list-count">
-            Showing {shown.length + offset} of {rows.length + offset}
+            Showing {shown.length + offset} of {rowCount + offset}
           </span>
         </div>
       )}

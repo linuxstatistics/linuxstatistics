@@ -9,6 +9,7 @@ import { SponsorSlot } from "../components/SponsorSlot";
 import { SupporterRow } from "../components/SupporterRow";
 import { CommandMenu } from "../components/CommandMenu";
 import { compareSlug, popularPairs } from "../lib/compare";
+import { LIST_PATH, topSearchItems } from "../lib/distro-list";
 import { PressMenu } from "../components/PressMenu";
 import { loadDistros, loadMarketShare, loadMeta, dataDate } from "../lib/data";
 import { staleSources } from "../lib/freshness";
@@ -40,7 +41,8 @@ const ld = pageGraph(siteUrl, { page: jsonLd, crumbs: breadcrumbs, url: canonica
 // Every page has a share image: the page's own, else the site card built at /og.png.
 const image = pageImage ?? new URL("/og.png", Astro.site).href;
 const [allDistros, marketShare, meta] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta()]);
-const jumpItems = allDistros.map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
+// The empty menu shows the top 5; the full list loads when the menu opens.
+const jumpItems = topSearchItems(allDistros, 5);
 const staticPairs = popularPairs(allDistros).map(([a, b]) => compareSlug(a, b));
 // Data facts for the footer, shown on every page.
 const asOf = dataDate(meta, "wikipedia");
@@ -129,7 +131,7 @@ import { pageGraph, type Crumb } from "../lib/structured-data";
         </nav>
         <div class="header-right">
           <div class="auth-slot"><HeaderAuth client:only="react"><AuthSkeleton slot="fallback" /></HeaderAuth></div>
-          <div class="cmdk-slot"><CommandMenu client:idle items={jumpItems} staticPairs={staticPairs} current={path} /></div>
+          <div class="cmdk-slot"><CommandMenu client:idle items={jumpItems} src={LIST_PATH} staticPairs={staticPairs} current={path} /></div>
         </div>
       </header>
       <hr class="rule" />

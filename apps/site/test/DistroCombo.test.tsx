@@ -41,3 +41,20 @@ test("the second box leaves out the first choice and the pair opens its page", a
   expect(assign).toHaveBeenCalledWith("/compare/mint-vs-ubuntu/");
   vi.unstubAllGlobals();
 });
+
+test("with src, focusing a box loads the full list", async () => {
+  const { packList, resetDistroList } = await import("../src/lib/distro-list");
+  resetDistroList();
+  const row = { family: "other", status: "active", hitsPerDay: null, stars: null, commitsLast30d: null, firstReleaseYear: null, rankTrend: null, rank1m: null, rank1mDelta: null, userRating: { average: null, count: 0 } } as const;
+  const fetchMock = vi.fn(async () => new Response(JSON.stringify(packList([...options, { slug: "obscure", name: "Obscure OS", rank: 400 }].map((d) => ({ ...row, ...d }))))));
+  vi.stubGlobal("fetch", fetchMock);
+  const user = userEvent.setup();
+  render(<ComparePicker options={options.slice(0, 1)} src="/lists/distros.json" staticPairs={[]} />);
+  expect(fetchMock).not.toHaveBeenCalled();
+  const first = screen.getByRole("combobox", { name: "First distro" });
+  await user.click(first);
+  await user.type(first, "obsc");
+  expect(await screen.findByRole("option", { name: "Obscure OS#400" })).toBeInTheDocument();
+  vi.unstubAllGlobals();
+  resetDistroList();
+});

@@ -52,12 +52,27 @@ check index.html 'href="/desktop-share/"' "home links to the desktop share page"
 [ -f "$DIST/favicon.svg" ] && echo "ok:   favicon" || { echo "FAIL: favicon missing"; fail=1; }
 [ -f "$DIST/sitemap-index.xml" ] && echo "ok:   sitemap" || { echo "FAIL: sitemap missing"; fail=1; }
 [ -f "$DIST/robots.txt" ] && echo "ok:   robots.txt" || { echo "FAIL: robots.txt missing"; fail=1; }
+cmp -s "$DIST/sitemap.xml" "$DIST/sitemap-index.xml" && echo "ok:   /sitemap.xml is the sitemap index" || { echo "FAIL: /sitemap.xml missing or differs from sitemap-index.xml"; fail=1; }
+# lastmod is the content date, never the build time: a whole day (the writer adds T00:00:00.000Z), no time of day.
+if grep -oE '<lastmod>[^<]*</lastmod>' "$DIST"/sitemap-[0-9]*.xml | grep -qvE '<lastmod>[0-9]{4}-[0-9]{2}-[0-9]{2}(T00:00:00\.000Z)?</lastmod>'; then echo "FAIL: sitemap lastmod carries a build timestamp"; fail=1; else echo "ok:   sitemap lastmod values are dates"; fi
+grep -q '<loc>https://[^<]*/articles/how-we-rank-distros/</loc><lastmod>[0-9]' "$DIST"/sitemap-[0-9]*.xml && echo "ok:   articles have a lastmod" || { echo "FAIL: article without lastmod in the sitemap"; fail=1; }
+# The islands' list is internal: disallowed for crawlers and never in the sitemap.
+check robots.txt 'Disallow: /lists/' "robots.txt disallows /lists/"
+check lists/distros.json '"fields":\["slug","name"' "islands' distro list is built"
+if grep -q '/lists/' "$DIST"/sitemap-*.xml; then echo "FAIL: /lists/ is in the sitemap"; fail=1; else echo "ok:   /lists/ kept out of the sitemap"; fi
+# Page weight: distro lists load from /lists/, not the HTML. Keep every page under 100 KB (agents' page budget).
+big=$(find "$DIST" -name '*.html' -size +100k | sed "s|^$DIST||" | head -5)
+if [ -n "$big" ]; then echo "FAIL: pages over 100 KB:"; echo "$big"; fail=1; else echo "ok:   every page under 100 KB"; fi
+# Organization: what assistants need to resolve who runs the site.
+if python3 -c 'import json,re,sys; s=open(sys.argv[1]).read(); o=[n for b in re.findall(r"<script type=\"application/ld\+json\">(.*?)</script>",s,re.S) for n in (json.loads(b).get("@graph") or [json.loads(b)]) if n.get("@type")=="Organization" and n.get("description")]; sys.exit(0 if o and all(o[0].get(k) for k in ("name","url","logo","description","contactPoint")) and len(o[0].get("sameAs",[]))>=3 else 1)' "$DIST/index.html"; then echo "ok:   Organization has name, url, logo, description, contactPoint and 3+ sameAs"; else echo "FAIL: Organization JSON-LD incomplete"; fail=1; fi
 [ -f "$DIST/404.html" ] && echo "ok:   404 page" || { echo "FAIL: 404 page missing"; fail=1; }
 # External links must open in a new tab (keep visitors on the site).
 same_tab=$(grep -rhoE '<a [^>]*href="https?://[^"]*"[^>]*>' "$DIST" --include=*.html | grep -v 'target="_blank"' | grep -v 'href="https://linuxstatistics.com' | sort -u | head -5 || true)
 if [ -n "$same_tab" ]; then echo "FAIL: external links without target=\"_blank\":"; echo "$same_tab"; fail=1; else echo "ok:   external links open in a new tab"; fi
 # Open data never carries third-party ranking data.
 if grep -qiE 'rank_|hits_per_day|hitsPerDay|distrowatch|index_value' "$DIST/data/distros.json" "$DIST/data/distros.csv"; then echo "FAIL: open data carries ranking fields"; fail=1; else echo "ok:   open data has no ranking fields"; fi
+# /lists/ carries ranks for the islands, so it is never offered as data.
+if grep -qE 'href="[^"]*/lists/' "$DIST/data/index.html" || grep -q '/lists/' "$DIST/llms.txt" "$DIST/llms-full.txt" "$DIST/feed.xml"; then echo "FAIL: /lists/ is linked from the open data, llms.txt or the feed"; fail=1; else echo "ok:   /lists/ not offered as data"; fi
 # Press kit: page, zip and every asset it links to.
 if [ -f "$DIST/press/index.html" ] && [ -f "$DIST/press/PressKit.zip" ]; then echo "ok:   press kit page and zip"; else echo "FAIL: press kit page or zip missing"; fail=1; fi
 missing=$(grep -oE 'href="/press/[^"]+"' "$DIST/press/index.html" | sed -E 's/href="\/press\/([^"]+)"/\1/' | sort -u | while read -r f; do [ -f "$DIST/press/$f" ] || echo "$f"; done)

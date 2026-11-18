@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useDistroList } from "../lib/use-distro-list";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS } from "../lib/families";
 import { CompareSkeleton } from "./Skeleton";
@@ -16,10 +17,12 @@ const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));
  * Not indexed: the page carries noindex via its parent, and popular pairs
  * have their own static pages.
  */
-export function CompareAny({ names = {} }: { names?: Record<string, string> }) {
+export function CompareAny({ names: given = {}, src }: { names?: Record<string, string>; /** Distro list for names, loaded only when a pair is asked for. */ src?: string }) {
   const [pair, setPair] = useState<[DistroDetail, DistroDetail] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [wanted, setWanted] = useState(false);
+  const { items: listed } = useDistroList<{ slug: string; name: string }>([], src, wanted);
+  const names = useMemo(() => ({ ...Object.fromEntries(listed.map((d) => [d.slug, d.name])), ...given }), [listed, given]);
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);

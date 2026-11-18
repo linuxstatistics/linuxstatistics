@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { SearchItem } from "./DistroSearch";
 import { groupCommands, searchCommands, type Command } from "../lib/command-menu";
+import { useDistroList } from "../lib/use-distro-list";
 
 /**
  * Keep the page still behind the open menu, so a swipe scrolls the menu list.
@@ -44,8 +45,17 @@ function run(cmd: Command) {
  * The site's menu and search in one: pages, distros, comparisons ("mint vs fedora"),
  * theme and the site's accounts. Opened from the header button, Cmd/Ctrl+K or "/".
  */
-export function CommandMenu({ items, staticPairs = [], current }: { items: SearchItem[]; staticPairs?: string[]; current?: string }) {
+export function CommandMenu({ items: initial, src, staticPairs = [], current }: {
+  /** Distros in the HTML; with `src`, only the top ones the empty menu shows. */
+  items: SearchItem[];
+  /** Full distro list, loaded the first time the menu opens. */
+  src?: string;
+  staticPairs?: string[];
+  current?: string;
+}) {
   const [open, setOpen] = useState(false);
+  const [wanted, setWanted] = useState(false);
+  const { items } = useDistroList(initial, src, wanted);
   // Keyboard opens (Cmd/Ctrl+K, "/") focus the search box; a tap on a touch screen
   // doesn't, so the on-screen keyboard stays down until the person taps the box.
   const focusOnOpen = useRef(true);
@@ -86,6 +96,7 @@ export function CommandMenu({ items, staticPairs = [], current }: { items: Searc
   }, []);
 
   useEffect(() => {
+    if (open) setWanted(true);
     const d = dialog.current;
     if (!d) return;
     if (open && !d.open) {
@@ -113,7 +124,7 @@ export function CommandMenu({ items, staticPairs = [], current }: { items: Searc
 
   return (
     <>
-      <button type="button" className="cmdk-trigger" aria-label="Menu and search" aria-haspopup="dialog" aria-expanded={open} aria-keyshortcuts={mac ? "Meta+K" : "Control+K"} onPointerDown={(e) => { lastPointer.current = e.pointerType; }}
+      <button type="button" className="cmdk-trigger" aria-label="Menu and search" aria-haspopup="dialog" aria-expanded={open} aria-keyshortcuts={mac ? "Meta+K" : "Control+K"} onPointerDown={(e) => { lastPointer.current = e.pointerType; }} onPointerEnter={() => setWanted(true)} onFocus={() => setWanted(true)}
         onClick={() => {
           // Mouse or keyboard: focus the box. Touch or pen: leave the keyboard down.
           focusOnOpen.current = !(lastPointer.current === "touch" || lastPointer.current === "pen");

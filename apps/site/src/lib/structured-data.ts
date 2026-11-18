@@ -1,4 +1,9 @@
-import { SOCIAL } from "../config/site";
+import { PRESS_FILES } from "@linux-statistics/shared";
+import { CONTACT, SOCIAL, SOURCE_URL } from "../config/site";
+
+/** Who runs the site, for assistants and search engines. No street address: it's a one-person site. */
+export const ORG_DESCRIPTION =
+  "Independent, open-source statistics on Linux distributions: an open popularity index, release support dates, telemetry defaults, GitHub activity and community ratings, plus a quiz to help people pick a distro.";
 
 export interface Crumb {
   name: string;
@@ -9,14 +14,17 @@ export interface Crumb {
 /** Site-wide WebSite + Organization graph, on every page. */
 export function siteGraph(site: string) {
   return [
-    { "@type": "WebSite", "@id": `${site}/#website`, name: "LinuxStatistics", url: `${site}/`, publisher: { "@id": `${site}/#org` }, inLanguage: "en" },
+    { "@type": "WebSite", "@id": `${site}/#website`, name: "LinuxStatistics", url: `${site}/`, description: ORG_DESCRIPTION, publisher: { "@id": `${site}/#org` }, inLanguage: "en" },
     {
       "@type": "Organization",
       "@id": `${site}/#org`,
       name: "LinuxStatistics",
       url: `${site}/`,
-      logo: `${site}/apple-touch-icon.png`,
-      sameAs: SOCIAL.map((s) => s.href),
+      description: ORG_DESCRIPTION,
+      logo: { "@type": "ImageObject", url: `${site}/press/${PRESS_FILES.tilePng}`, width: 1024, height: 1024 },
+      email: CONTACT.general,
+      contactPoint: { "@type": "ContactPoint", contactType: "general inquiries", email: CONTACT.general, url: `${site}/about/` },
+      sameAs: [...SOCIAL.map((s) => s.href), SOURCE_URL.replace(/\/[^/]+$/, "")],
     },
   ];
 }

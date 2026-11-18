@@ -2,8 +2,9 @@
 import { AppAlternatives } from "./AppAlternatives";
 import { SwitchReport } from "./SwitchReport";
 import { Faq } from "./Faq";
-import { CATEGORIES, appsFor } from "../lib/app-alternatives";
+import { appsFor } from "../lib/app-alternatives";
 import { loadDistros } from "../lib/data";
+import { LIST_PATH, topSearchItems } from "../lib/distro-list";
 import { PROFILES } from "../lib/picker-profiles";
 import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
 import { END_OF_10, OLDER_PC_PICKS, WHAT_CHANGES, picksFor, switchFaq, type From } from "../lib/switch";
@@ -108,7 +109,7 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
 <section class="switch-sec" aria-labelledby="apps-h">
   <h2 id="apps-h">Your apps on Linux</h2>
   <p>What to use instead of {apps.length} common apps from {label}. Missing one? <a href="/suggest/?kind=correction">Tell us</a>.</p>
-  <AppAlternatives client:visible apps={apps} categories={CATEGORIES} />
+  <AppAlternatives client:visible from={from} />
 </section>
 
 <section class="switch-sec" aria-labelledby="help-h">
@@ -131,7 +132,7 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
   )}
 </section>
 
-<SwitchReport client:visible page="switch" distros={list.filter((d) => (d.rank ?? 999) <= 150).map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }))} />
+<SwitchReport client:visible page="switch" distros={topSearchItems(list, 10)} src={LIST_PATH} />
 
 <Faq items={faq} />
 <p class="source-note">

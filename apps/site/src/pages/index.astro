@@ -10,6 +10,7 @@ import { buildHeadline } from "../lib/headline";
 import { RANK_SOURCE, RANK_VALUE_LABEL } from "@linux-statistics/shared";
 import { latestLinuxShare, linuxYearlySeries } from "../lib/marketShare";
 import { ShareChart } from "../components/ShareChart";
+import { LIST_PATH, listRow } from "../lib/distro-list";
 
 const [items, marketShare, meta, rising, stats] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta(), loadRising(), loadStats()]);
 const switchers = stats.site.switchers.total >= SWITCHERS_HOME_THRESHOLD ? stats.site.switchers.total : null;
@@ -18,6 +19,10 @@ const site = Astro.site!.href.replace(/\/$/, "");
 const headline = buildHeadline(items);
 const share = latestLinuxShare(marketShare);
 const restItems = items.filter((d) => d.rank === null || d.rank > 3);
+// The HTML carries the first page of the table (rank order, as the table sorts by default); the rest loads from LIST_PATH.
+const FIRST_PAGE = 47;
+const firstRows = [...restItems].sort((a, b) => (a.rank ?? Infinity) - (b.rank ?? Infinity)).slice(0, FIRST_PAGE);
+const podiumSlugs = items.filter((d) => !restItems.includes(d)).map((d) => d.slug);
 
 const title = headline
   ? `${headline.leader} is #1. Linux distro rankings | LinuxStatistics`
@@ -62,7 +67,7 @@ const jsonLd = {
     <section aria-label="Rankings">
       <Podium items={items} />
       <div class="sec"><h2>The rest of the chart</h2><span class="sec-sub">{RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}, last 12 months<button type="button" class="rank-explainer-btn" popovertarget="rank-explainer" aria-label="What do these numbers mean?" title="What do these numbers mean?"></button></span></div>
-      <ListView client:load items={restItems} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={47} pageSize={50} offset={items.length - restItems.length} />
+      <ListView client:load items={firstRows.map(listRow)} src={LIST_PATH} exclude={podiumSlugs} total={restItems.length} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={FIRST_PAGE} pageSize={50} offset={items.length - restItems.length} />
       <div id="rank-explainer" class="rank-explainer" popover role="dialog" aria-labelledby="rank-explainer-h">
         <div class="rank-explainer-head">
           <h2 id="rank-explainer-h">What these numbers mean</h2>

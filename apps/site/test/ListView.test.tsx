@@ -163,3 +163,34 @@ test("hits bars scale linearly with a visible minimum", async () => {
   expect(hitsBarPct(10, 3200)).toBe(2);
   expect(hitsBarPct(null, 3200)).toBe(0);
 });
+
+test("with src, the first page is in the HTML and the rest loads after hydration", async () => {
+  const { packList, resetDistroList } = await import("../src/lib/distro-list");
+  resetDistroList();
+  const all = Array.from({ length: 30 }, (_, i) => ({ ...items[0]!, slug: `f${i}`, name: `F ${String(i).padStart(2, "0")}`, rank: i + 1 }));
+  const fetchMock = vi.fn(async () => new Response(JSON.stringify(packList(all))));
+  vi.stubGlobal("fetch", fetchMock);
+  const user = userEvent.setup();
+  // The podium shows #1–#3; the table starts at #4.
+  render(<ListView items={all.slice(3, 10)} src="/lists/distros.json" exclude={["f0", "f1", "f2"]} total={27} firstPage={7} pageSize={10} offset={3} />);
+  expect(screen.getByText("Showing 10 of 30")).toBeInTheDocument();
+  expect(await screen.findByRole("button", { name: "Show next 10" })).toBeInTheDocument();
+  expect(fetchMock).toHaveBeenCalledWith("/lists/distros.json");
+  await user.click(screen.getByRole("button", { name: "Show all 30" }));
+  expect(screen.getAllByRole("row")).toHaveLength(28);
+  expect(screen.queryByRole("link", { name: "F 00" })).not.toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "F 29" })).toBeInTheDocument();
+  vi.unstubAllGlobals();
+  resetDistroList();
+});
+
+test("with src, a failed load keeps the rows the page rendered", async () => {
+  const { resetDistroList } = await import("../src/lib/distro-list");
+  resetDistroList();
+  vi.stubGlobal("fetch", vi.fn(async () => new Response("", { status: 503 })));
+  render(<ListView items={items} src="/lists/distros.json" total={3} />);
+  await new Promise((r) => setTimeout(r, 0));
+  expect(rowNames()).toEqual(["Linux Mint", "Arch Linux", "Fedora"]);
+  vi.unstubAllGlobals();
+  resetDistroList();
+});

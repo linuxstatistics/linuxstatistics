@@ -24,6 +24,7 @@ import { nextSteps } from "../../lib/compare-links";
 import SwitchSide from "../../components/SwitchSide.astro";
 import { faqJsonLd, pairFaq } from "../../lib/faq";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
+import { LIST_PATH, topSearchItems } from "../../lib/distro-list";
 
 export async function getStaticPaths() {
   const list = await loadDistros();
@@ -47,9 +48,10 @@ const related = [...compareSuggestions(list, a, staticPairs, 5), ...compareSugge
   .filter((l) => !l.href.includes(thisPair))
   .filter((l, i, all) => all.findIndex((x) => x.href === l.href) === i)
   .slice(0, 8);
-const options = list
-  .sort((x, y) => x.name.localeCompare(y.name))
-  .map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }));
+// Picker choices: the top distros plus this pair in the HTML; the full list loads on first focus.
+const options = [...topSearchItems(list, 10), ...[a, b].map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }))].filter(
+  (o, i, all) => all.findIndex((x) => x.slug === o.slug) === i,
+);
 const asOf = dataDate(meta, "wikipedia");
 
 type Row = { label: string; a: string; b: string; better?: "a" | "b"; split?: number };
@@ -184,7 +186,7 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
       </section>
     )}
     <h2>Compare other distros</h2>
-    <ComparePicker client:visible options={options} staticPairs={[...staticPairs]} initialA={a.slug} />
+    <ComparePicker client:visible options={options} src={LIST_PATH} staticPairs={[...staticPairs]} initialA={a.slug} />
     </div>
     <aside class="side" aria-label="More">
       <SponsorCard context="people comparing Linux distros" />

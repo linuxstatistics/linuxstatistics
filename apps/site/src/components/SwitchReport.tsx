@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { DistroCombo } from "./DistroCombo";
 import type { SearchItem } from "./DistroSearch";
+import { useDistroList } from "../lib/use-distro-list";
 
 export const SWITCH_FROM: [string, string][] = [
   ["windows", "Windows"],
@@ -17,7 +18,15 @@ type Page = "quiz" | "switch" | "getting-started" | "distro";
  * the person came from and, optionally, the distro they use now. Counted
  * once per page visit; nothing is stored in the browser.
  */
-export function SwitchReport({ page, distros, nowUsing: preset }: { page: Page; distros: SearchItem[]; nowUsing?: string }) {
+export function SwitchReport({ page, distros: initial, src, nowUsing: preset }: {
+  page: Page;
+  /** Distros in the HTML; with `src`, the full list loads when the box is first focused. */
+  distros: SearchItem[];
+  src?: string;
+  nowUsing?: string;
+}) {
+  const [wanted, setWanted] = useState(false);
+  const { items: distros } = useDistroList(initial, src, wanted);
   const [from, setFrom] = useState<string | null>(null);
   const [now, setNow] = useState(preset ?? "");
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
@@ -60,7 +69,7 @@ export function SwitchReport({ page, distros, nowUsing: preset }: { page: Page; 
       </fieldset>
       {from && (
         <div className="switch-report-now">
-          <DistroCombo items={distros} value={now} onChange={setNow} label="Now using (optional)" placeholder="Search for your distro…" />
+          <DistroCombo items={distros} value={now} onChange={setNow} onWant={() => setWanted(true)} label="Now using (optional)" placeholder="Search for your distro…" />
         </div>
       )}
       <div className="switch-report-actions">
