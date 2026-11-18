@@ -78,6 +78,23 @@ export function groupByTopic(cards: ArticleCard[]): { topic: TopicSlug; articles
   return TOPIC_SLUGS.map((topic) => ({ topic, articles: sortArticles(cards.filter((a) => a.topic === topic)) })).filter((g) => g.articles.length > 0);
 }
 
+/** Articles per topic on the index; a live hub's page lists the rest. */
+export const INDEX_PER_TOPIC = 3;
+/** The "Latest" row shows this many, and only once there are more articles than that. */
+export const INDEX_LATEST = 3;
+
+/** The /articles/ page: a latest row, jump links, and per-topic sections capped when the hub is live. */
+export function articleIndex(cards: ArticleCard[]) {
+  const latest = cards.length > INDEX_LATEST ? sortArticles(cards).slice(0, INDEX_LATEST) : [];
+  const sections = groupByTopic(cards).map(({ topic, articles }) => {
+    const live = isHubLive(cards, topic);
+    // A thin hub has no page to point to, so every article stays here.
+    const shown = live ? articles.slice(0, INDEX_PER_TOPIC) : articles;
+    return { topic, live, articles: shown, more: articles.length - shown.length };
+  });
+  return { latest, sections, jump: sections.map((x) => x.topic) };
+}
+
 /** Guides whose steps were last checked more than GUIDE_STALE_MONTHS ago. */
 export function staleGuides(cards: ArticleCard[], now = new Date()): ArticleCard[] {
   const limit = new Date(now);

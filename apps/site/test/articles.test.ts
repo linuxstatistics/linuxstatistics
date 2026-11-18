@@ -171,3 +171,25 @@ test("share card title size shrinks for long titles", async () => {
   const { titleSize } = await import("../src/lib/og-card");
   expect(titleSize("Short")).toBeGreaterThan(titleSize("x".repeat(100)));
 });
+
+test("index: latest 3 once there are more than 3, jump links per topic, 3 per live topic, all for thin topics", async () => {
+  const { articleIndex } = await import("../src/lib/articles");
+  const few = [card("a", "2026-01-01", "data"), card("b", "2026-01-02", "privacy")];
+  expect(articleIndex(few).latest).toEqual([]);
+  expect(articleIndex(few).jump).toEqual(["privacy", "data"]);
+  const many = [
+    ...["2026-01-01", "2026-01-02", "2026-01-03", "2026-01-04", "2026-01-05"].map((d, i) => card(`g${i}`, d, "gaming")),
+    card("p1", "2026-02-01", "privacy"),
+    card("p2", "2026-02-02", "privacy"),
+  ];
+  const ix = articleIndex(many);
+  expect(ix.latest.map((a) => a.slug)).toEqual(["p2", "p1", "g4"]);
+  const gaming = ix.sections.find((x) => x.topic === "gaming")!;
+  expect(gaming.live).toBe(true);
+  expect(gaming.articles.map((a) => a.slug)).toEqual(["g4", "g3", "g2"]);
+  expect(gaming.more).toBe(2);
+  const privacy = ix.sections.find((x) => x.topic === "privacy")!;
+  expect(privacy.live).toBe(false);
+  expect(privacy.articles).toHaveLength(2);
+  expect(privacy.more).toBe(0);
+});

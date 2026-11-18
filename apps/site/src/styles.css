@@ -1562,3 +1562,16 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .article-body img { max-width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--line); }
 /* Charts draw at 720 units wide; on phones they shrink, so the labels scale up to stay readable. */
 @media (max-width: 600px) { .article-chart .stats-chart text { font-size: 19px; } .article-chart { padding: 12px 10px 10px; } }
+.articles-jump { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 4px; }
+.articles-jump a { font: 13px/1 var(--sans); padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); text-decoration: none; background: var(--panel); }
+.articles-jump a:hover { border-color: var(--accent); color: var(--accent); }
+.articles-topic { scroll-margin-top: 80px; }
+.articles-latest { margin-top: 28px; }
+.articles-latest > h2 { font: 700 21px/1.15 var(--display); letter-spacing: -0.02em; margin: 0 0 10px; }
+.articles-latest ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.articles-latest li { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+.articles-latest .article-meta { font-size: 12px; gap: 4px 10px; }
+.articles-latest h3 { font: 700 17px/1.25 var(--display); margin: 8px 0 0; }
+.articles-latest h3 a { color: var(--ink); text-decoration: none; }
+.articles-latest h3 a:hover { text-decoration: underline; }
+@media (max-width: 760px) { .articles-latest ul { grid-template-columns: 1fr; } }

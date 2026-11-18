@@ -3,11 +3,12 @@ import Base from "../../layouts/Base.astro";
 import ArticleSide from "../../components/ArticleSide.astro";
 import ArticleList from "../../components/ArticleList.astro";
 import { loadArticles } from "../../lib/article-entries";
-import { groupByTopic, isHubLive } from "../../lib/articles";
-import { topicBySlug } from "../../lib/article-topics";
+import { articleIndex } from "../../lib/articles";
+import { topicBySlug, TYPE_LABEL } from "../../lib/article-topics";
+import { fmtArticleDate } from "../../lib/articles";
 
 const list = (await loadArticles()).map((a) => a.card);
-const groups = groupByTopic(list);
+const { latest, sections, jump } = articleIndex(list);
 const site = Astro.site!.href.replace(/\/$/, "");
 const jsonLd = {
   "@context": "https://schema.org",
@@ -28,18 +29,36 @@ const jsonLd = {
     {list.length === 0 ? (
       <div class="articles-empty">No articles yet. The first one is on its way. <a href="/articles/feed.xml">Follow the feed</a> to hear when it's out.</div>
     ) : (
-      groups.map(({ topic, articles }) => {
-        const t = topicBySlug(topic)!;
-        const live = isHubLive(list, topic);
-        return (
-          <section class="articles-topic" aria-labelledby={`t-${topic}`}>
-            <h2 id={`t-${topic}`}>{live ? <a href={`/articles/${topic}/`}>{t.name}</a> : t.name}</h2>
-            {/* A live hub lists them all, so the index shows its newest 5; otherwise every article stays here. */}
-            <ArticleList articles={live ? articles.slice(0, 5) : articles} level={3} />
-            {live && <p class="articles-topic-more"><a href={`/articles/${topic}/`}>All {t.name.toLowerCase()} articles</a></p>}
+      <>
+        {jump.length > 1 && (
+          <nav class="articles-jump" aria-label="Topics">
+            {jump.map((t) => <a href={`#t-${t}`}>{topicBySlug(t)!.name}</a>)}
+          </nav>
+        )}
+        {latest.length > 0 && (
+          <section class="articles-latest" aria-labelledby="latest-h">
+            <h2 id="latest-h">Latest</h2>
+            <ul>
+              {latest.map((a) => (
+                <li>
+                  <p class="article-meta"><span class="article-type">{TYPE_LABEL[a.type]}</span><span>{topicBySlug(a.topic)!.name}</span><time datetime={a.published.toISOString().slice(0, 10)}>{fmtArticleDate(a.published)}</time>{a.draft && <span class="article-draft-tag">Draft</span>}</p>
+                  <h3><a href={`/articles/${a.slug}/`}>{a.title}</a></h3>
+                </li>
+              ))}
+            </ul>
           </section>
-        );
-      })
+        )}
+        {sections.map(({ topic, live, articles, more }) => {
+          const t = topicBySlug(topic)!;
+          return (
+            <section class="articles-topic" id={`t-${topic}`} aria-labelledby={`t-${topic}-h`}>
+              <h2 id={`t-${topic}-h`}>{live ? <a href={`/articles/${topic}/`}>{t.name}</a> : t.name}</h2>
+              <ArticleList articles={articles} level={3} />
+              {live && <p class="articles-topic-more"><a href={`/articles/${topic}/`}>{more > 0 ? `All ${t.name.toLowerCase()} articles (${more} more)` : `All ${t.name.toLowerCase()} articles`}</a></p>}
+            </section>
+          );
+        })}
+      </>
     )}
     </div>
       <ArticleSide />
