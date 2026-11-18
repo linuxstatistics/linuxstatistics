@@ -4,6 +4,8 @@ import { DistroMark } from "../../components/DistroMark";
 import { Faq } from "../../components/Faq";
 import { SponsorCard } from "../../components/SponsorCard";
 import SwitchSide from "../../components/SwitchSide.astro";
+import RelatedArticles from "../../components/RelatedArticles.astro";
+import { BEST_TO_TOPIC } from "../../lib/article-topics";
 import { loadDistros } from "../../lib/data";
 import { BEST_TOPICS, bestPicks, isIndexable, topicBySlug, type BestTopic } from "../../lib/best-for";
 import { PROFILES } from "../../lib/picker-profiles";
@@ -115,6 +117,7 @@ const fmtTrend = (n: number | null) => (n == null || n === 0 ? null : n > 0 ? `u
           </ul>
         </section>
       )}
+      {BEST_TO_TOPIC[topic.slug] && <RelatedArticles topic={BEST_TO_TOPIC[topic.slug]} title="Latest articles" />}
       <SwitchSide />
     </aside>
     </div>

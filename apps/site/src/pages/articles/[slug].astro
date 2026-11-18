@@ -1,70 +1,20 @@
 ---
-import Base from "../../layouts/Base.astro";
-import { SponsorCard } from "../../components/SponsorCard";
-import SwitchSide from "../../components/SwitchSide.astro";
+import ArticleView from "../../components/articles/ArticleView.astro";
+import HubView from "../../components/articles/HubView.astro";
 import { loadArticles } from "../../lib/article-entries";
-import { externalLinksNewTab, fmtArticleDate, relatedArticles } from "../../lib/articles";
+import { ARTICLE_TOPICS } from "../../lib/article-topics";
 
+// One route for /articles/<slug>/: a topic hub or an article. Slugs never collide (tested).
 export async function getStaticPaths() {
   const all = await loadArticles();
-  return all.map((a) => ({ params: { slug: a.card.slug }, props: { entry: a.entry, card: a.card, cards: all.map((x) => x.card) } }));
+  const cards = all.map((x) => x.card);
+  return [
+    ...ARTICLE_TOPICS.map((t) => ({ params: { slug: t.slug }, props: { kind: "hub" as const, topic: t, cards } })),
+    ...all.map((a) => ({ params: { slug: a.card.slug }, props: { kind: "article" as const, entry: a.entry, card: a.card, cards } })),
+  ];
 }
 
-const { entry, card: a, cards } = Astro.props;
-// Markdown is rendered by the content loader; external links get the site's new-tab attributes.
-const html = externalLinksNewTab(entry.rendered?.html ?? "", Astro.site?.origin);
-const related = relatedArticles(a, cards);
-const site = Astro.site!.href.replace(/\/$/, "");
-const iso = (d: Date) => d.toISOString().slice(0, 10);
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Article",
-  headline: a.title,
-  description: a.description,
-  datePublished: iso(a.published),
-  dateModified: iso(a.updated ?? a.published),
-  url: `${site}/articles/${a.slug}/`,
-  author: { "@type": "Organization", name: "LinuxStatistics", url: `${site}/` },
-  publisher: { "@type": "Organization", name: "LinuxStatistics", url: `${site}/` },
-  keywords: a.tags.join(", "),
-};
+const p = Astro.props;
 ---
 
-<Base title={`${a.title} | LinuxStatistics`} description={a.description} jsonLd={a.draft ? undefined : jsonLd} noindex={a.draft}>
-  {a.draft && <div class="article-draft-banner" role="note">Draft, not published. Only visible on the local dev server.</div>}
-  <div class="page">
-    <div class="with-side">
-    <article class="article with-side-main">
-      <p class="article-crumbs"><a href="/articles/">Articles</a> › {a.tags[0]}</p>
-      <h1>{a.title}</h1>
-      <p class="article-meta">
-        <time datetime={iso(a.published)}>{fmtArticleDate(a.published)}</time>
-        {a.updated && <span>Updated <time datetime={iso(a.updated)}>{fmtArticleDate(a.updated)}</time></span>}
-        <span>{a.minutes} min read</span>
-      </p>
-      <div class="article-body prose">
-        <Fragment set:html={html} />
-      </div>
-      {related.length > 0 && (
-        <nav class="article-related" aria-labelledby="more-h">
-          <h2 id="more-h">More articles</h2>
-          <ul>{related.map((r) => <li><a href={`/articles/${r.slug}/`}>{r.title}</a></li>)}</ul>
-        </nav>
-      )}
-    </article>
-      <aside class="side" aria-label="More">
-        <SponsorCard context="people reading about Linux distros" />
-        <section>
-          <h2>Explore the data</h2>
-          <ul class="stats-side-links">
-            <li><a href="/stats/">Linux by the numbers</a></li>
-            <li><a href="/">Distro rankings</a></li>
-            <li><a href="/rising/">Rising this month</a></li>
-            <li><a href="/data/">Download the data</a></li>
-          </ul>
-        </section>
-        <SwitchSide />
-      </aside>
-    </div>
-  </div>
-</Base>
+{p.kind === "hub" ? <HubView topic={p.topic} cards={p.cards} /> : <ArticleView entry={p.entry} card={p.card} cards={p.cards} />}

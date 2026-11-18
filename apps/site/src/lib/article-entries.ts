@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from "astro:content";
-import { readingMinutes, sortArticles, type ArticleCard } from "./articles";
+import { readingMinutes, sortArticles, toCard, type ArticleCard } from "./articles";
 
 export interface ArticleEntry {
   entry: CollectionEntry<"articles"> | CollectionEntry<"drafts">;
@@ -16,7 +16,7 @@ export async function loadArticles(): Promise<ArticleEntry[]> {
     ...drafts.filter((e) => !seen.has(e.id)).map((entry) => ({ entry, draft: true })),
   ].map(({ entry, draft }) => ({
     entry,
-    card: { slug: entry.id, ...entry.data, minutes: readingMinutes(entry.body ?? ""), draft },
+    card: toCard(entry.id, entry.data, readingMinutes(entry.body ?? ""), draft),
   }));
   const order = sortArticles(all.map((a) => a.card));
   return order.map((c) => all.find((a) => a.card === c)!);

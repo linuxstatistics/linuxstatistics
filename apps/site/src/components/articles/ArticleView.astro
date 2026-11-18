@@ -1,0 +1,78 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArticleSide from "../ArticleSide.astro";
+import { externalLinksNewTab, fmtArticleDate, isHubLive, relatedArticles, type ArticleCard } from "../../lib/articles";
+import type { ArticleEntry } from "../../lib/article-entries";
+import { TYPE_LABEL, topicBySlug } from "../../lib/article-topics";
+import { faqNode } from "../../lib/structured-data";
+
+interface Props {
+  entry: ArticleEntry["entry"];
+  card: ArticleCard;
+  cards: ArticleCard[];
+}
+
+const { entry, card: a, cards } = Astro.props;
+const topic = topicBySlug(a.topic)!;
+const hubLive = isHubLive(cards, a.topic);
+// Markdown is rendered by the content loader; external links get the site's new-tab attributes.
+const html = externalLinksNewTab(entry.rendered?.html ?? "", Astro.site?.origin);
+const related = relatedArticles(a, cards);
+const site = Astro.site!.href.replace(/\/$/, "");
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+const org = { "@type": "Organization", "@id": `${site}/#org`, name: "LinuxStatistics", url: `${site}/` };
+const article = {
+  "@type": "Article",
+  headline: a.title,
+  description: a.description,
+  datePublished: iso(a.published),
+  dateModified: iso(a.updated ?? a.published),
+  url: `${site}/articles/${a.slug}/`,
+  author: org,
+  publisher: org,
+  articleSection: topic.name,
+};
+// Q&A: FAQ markup from the same front-matter fields the page shows, so they can't disagree.
+const qaNode = a.type === "qa" && a.question && a.answer ? faqNode([{ q: a.question, a: a.answer }]) : null;
+// Guide: HowTo from the first ordered list in the body, one step per item.
+const firstOl = a.type === "guide" ? html.match(/<ol[^>]*>([\s\S]*?)<\/ol>/) : null;
+const steps = firstOl ? [...firstOl[1]!.matchAll(/<li[^>]*>([\s\S]*?)<\/li>/g)].map((m) => m[1]!.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim()).filter(Boolean) : [];
+const howTo = steps.length > 1 ? { "@type": "HowTo", name: a.title, step: steps.map((t, i) => ({ "@type": "HowToStep", position: i + 1, text: t })) } : null;
+const jsonLd = { "@graph": [article, ...(qaNode ? [qaNode] : []), ...(howTo ? [howTo] : [])] };
+const monthYear = (d: Date) => d.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+---
+
+<Base title={`${a.title} | LinuxStatistics`} description={a.description} jsonLd={a.draft ? undefined : jsonLd} noindex={a.draft} breadcrumbs={hubLive ? [{ name: "Articles", href: "/articles/" }, { name: topic.name, href: `/articles/${topic.slug}/` }, { name: a.title }] : [{ name: "Articles", href: "/articles/" }, { name: a.title }]}>
+  {a.draft && <div class="article-draft-banner" role="note">Draft, not published. Only visible on the local dev server.</div>}
+  <div class="page">
+    <div class="with-side">
+    <article class="article with-side-main">
+      <p class="article-crumbs"><a href="/articles/">Articles</a> › {hubLive ? <a href={`/articles/${topic.slug}/`}>{topic.name}</a> : topic.name}</p>
+      <h1>{a.title}</h1>
+      <p class="article-meta">
+        <span class="article-type">{TYPE_LABEL[a.type]}</span>
+        <time datetime={iso(a.published)}>{fmtArticleDate(a.published)}</time>
+        {a.updated && <span>Updated <time datetime={iso(a.updated)}>{fmtArticleDate(a.updated)}</time></span>}
+        <span>{a.minutes} min read</span>
+      </p>
+      {a.type === "guide" && a.checked && <p class="guide-checked">Steps checked {monthYear(a.checked)}.</p>}
+      {a.type === "qa" && a.question && a.answer && (
+        <div class="qa-lead">
+          <p class="qa-q">{a.question}</p>
+          <p class="qa-a">{a.answer}</p>
+        </div>
+      )}
+      <div class="article-body prose">
+        <Fragment set:html={html} />
+      </div>
+      {related.length > 0 && (
+        <nav class="article-related" aria-labelledby="more-h">
+          <h2 id="more-h">More articles</h2>
+          <ul>{related.map((r) => <li><a href={`/articles/${r.slug}/`}>{r.title}</a></li>)}</ul>
+        </nav>
+      )}
+    </article>
+      <ArticleSide />
+    </div>
+  </div>
+</Base>

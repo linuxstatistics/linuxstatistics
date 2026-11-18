@@ -23,7 +23,7 @@ const PAGES: [path: string, label: string, note: string][] = [
 ];
 
 /** /llms.txt: a short map of the site for language models (llmstxt.org format). */
-export function llmsIndex(site: string, distroCount: number): string {
+export function llmsIndex(site: string, distroCount: number, hubs: { slug: string; name: string; intro: string }[] = []): string {
   return [
     "# LinuxStatistics",
     "",
@@ -35,6 +35,7 @@ export function llmsIndex(site: string, distroCount: number): string {
     "",
     ...PAGES.map(([p, label, note]) => `- [${label}](${site}${p}): ${note}`),
     "",
+    ...(hubs.length ? ["## Articles by topic", "", ...hubs.map((h) => `- [${h.name}](${site}/articles/${h.slug}/): ${h.intro}`), ""] : []),
     "## Data",
     "",
     `- [distros.json](${site}/data/distros.json): facts, GitHub activity and ratings for every distro`,

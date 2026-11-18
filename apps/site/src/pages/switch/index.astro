@@ -20,6 +20,7 @@ const starterSet = new Set(starters.map((d) => d.slug));
 const pairs = popularPairs(list)
   .filter(([a, b]) => starterSet.has(a) && starterSet.has(b))
   .slice(0, 4);
+import RelatedArticles from "../../components/RelatedArticles.astro";
 ---
 
 <Base
@@ -45,6 +46,7 @@ const pairs = popularPairs(list)
       </div>
       <aside class="side" aria-label="More">
         <SponsorStack context="people leaving Windows and macOS for Linux" />
+        <RelatedArticles topic="beginners" title="Articles for switchers" />
         <section>
           <h2>Not sure where to start?</h2>
           <p>Three plain questions, one starting point, and what to check next.</p>

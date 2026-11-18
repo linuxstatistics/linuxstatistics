@@ -117,6 +117,29 @@ check stats/index.html 'Linux by the numbers' "stats page renders"
 # /stats is built from our totals: no rank numbers or hits.
 if grep -qiE 'hitsPerDay|hits_per_day|interest score' "$DIST/stats/index.html"; then echo "FAIL: stats page carries ranking data"; fail=1; else echo "ok:   stats page has no ranking data"; fi
 check articles/index.html 'Notes and analysis' "articles list renders"
+check articles/feed.xml '<feed xmlns="http://www.w3.org/2005/Atom">' "articles feed is built"
+check articles/data/index.html 'class="hub-start"' "article topic hub renders"
+# Thin hubs (noindex) are never linked from other pages and stay out of the sitemap.
+for f in "$DIST"/articles/*/index.html; do
+  t=$(basename "$(dirname "$f")")
+  grep -q 'class="hub-start"' "$f" || continue
+  if grep -q 'name="robots" content="noindex"' "$f"; then
+    linked=$(grep -rl "href=\"/articles/$t/\"" "$DIST" --include=index.html 2>/dev/null | grep -v "^$DIST/articles/$t/index.html$" | head -3)
+    if [ -n "$linked" ]; then echo "FAIL: thin hub /articles/$t/ is linked from:"; echo "$linked"; fail=1; fi
+    if grep -q "/articles/$t/<" "$DIST"/sitemap-*.xml; then echo "FAIL: thin hub /articles/$t/ is in the sitemap"; fail=1; fi
+  fi
+done
+echo "ok:   thin article hubs unlinked and out of the sitemap"
+# Guides: warn (don't fail) when steps were last checked more than 6 months ago.
+if [ -f "$DIST/articles/guides.json" ]; then
+  python3 - "$DIST/articles/guides.json" <<'PY' || true
+import json,sys,datetime
+now=datetime.date.today()
+for g in json.load(open(sys.argv[1])):
+    d=datetime.date.fromisoformat(g["checked"])
+    if (now.year-d.year)*12+(now.month-d.month) > 6: print(f"WARN: guide /articles/{g['slug']}/ steps last checked {g['checked']}")
+PY
+fi
 # Drafts never reach a production build.
 if grep -rlqE 'article-draft-banner|article-draft-tag|Draft, not published' "$DIST/articles" 2>/dev/null; then echo "FAIL: a draft article is in the build"; fail=1; else echo "ok:   no draft articles in the build"; fi
 echo "distro pages: $(ls "$DIST/distro" | wc -l | tr -d ' ')"

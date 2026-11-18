@@ -1,0 +1,76 @@
+---
+import Base from "../../layouts/Base.astro";
+import ArticleSide from "../ArticleSide.astro";
+import ArticleList from "../ArticleList.astro";
+import { hubArticles, isHubLive, type ArticleCard } from "../../lib/articles";
+import { ARTICLE_TYPES, MIN_HUB_ARTICLES, TYPE_LABEL, type ArticleTopic } from "../../lib/article-topics";
+import { itemListNode } from "../../lib/structured-data";
+
+interface Props {
+  topic: ArticleTopic;
+  cards: ArticleCard[];
+}
+const { topic, cards } = Astro.props;
+const live = isHubLive(cards, topic.slug);
+const list = hubArticles(cards, topic.slug);
+const types = ARTICLE_TYPES.filter((t) => list.some((a) => a.type === t));
+const site = Astro.site!.href.replace(/\/$/, "");
+const jsonLd = {
+  "@graph": [
+    { "@type": "CollectionPage", name: `${topic.name}: Linux articles`, url: `${site}/articles/${topic.slug}/`, description: topic.intro },
+    ...(list.length ? [itemListNode(site, `${topic.name} articles`, list.filter((a) => !a.draft).map((a) => ({ name: a.title, href: `/articles/${a.slug}/` })))] : []),
+  ],
+};
+---
+
+<Base
+  title={`${topic.name}: Linux articles | LinuxStatistics`}
+  description={topic.intro}
+  jsonLd={jsonLd}
+  noindex={!live}
+  breadcrumbs={[{ name: "Articles", href: "/articles/" }, { name: topic.name }]}
+  feed={live ? { href: `/articles/${topic.slug}/feed.xml`, title: `LinuxStatistics: ${topic.name}` } : undefined}
+>
+  <div class="page articles-page">
+    <div class="with-side">
+    <div class="with-side-main">
+      <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/articles/">Articles</a> / {topic.name}</nav>
+      <h1>{topic.name}</h1>
+      <p class="lede">{topic.intro}</p>
+      <section class="hub-start" aria-labelledby="start-h">
+        <h2 id="start-h">Start here</h2>
+        <ul class="side-links">
+          {topic.related.map((r) => <li><a href={r.href}>{r.label}</a></li>)}
+        </ul>
+      </section>
+      {list.length === 0 ? (
+        <div class="articles-empty">No {topic.name.toLowerCase()} articles yet. <a href="/articles/">See all articles</a>.</div>
+      ) : (
+        <>
+          {types.length > 1 && (
+            <div class="changelog-filter hub-filter" role="group" aria-label="Show">
+              <button type="button" data-filter="all" aria-pressed="true">All</button>
+              {types.map((t) => <button type="button" data-filter={t} aria-pressed="false">{TYPE_LABEL[t]}</button>)}
+            </div>
+          )}
+          <ArticleList articles={list} />
+        </>
+      )}
+      {!live && list.length > 0 && <p class="source-note">This page appears in search once it has {MIN_HUB_ARTICLES} articles.</p>}
+    </div>
+    <ArticleSide />
+    </div>
+  </div>
+  <script>
+    // The filter only hides; without JS every article shows.
+    const buttons = document.querySelectorAll<HTMLButtonElement>(".hub-filter button");
+    const items = document.querySelectorAll<HTMLElement>(".articles-list li[data-type]");
+    for (const b of buttons) {
+      b.addEventListener("click", () => {
+        const f = b.dataset.filter;
+        for (const x of buttons) x.setAttribute("aria-pressed", String(x === b));
+        for (const it of items) it.hidden = f !== "all" && it.dataset.type !== f;
+      });
+    }
+  </script>
+</Base>

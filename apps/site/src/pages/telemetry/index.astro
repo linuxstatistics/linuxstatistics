@@ -2,6 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import { DistroMark } from "../../components/DistroMark";
 import { Faq } from "../../components/Faq";
+import RelatedArticles from "../../components/RelatedArticles.astro";
 import { loadDistros } from "../../lib/data";
 import { TELEMETRY, TELEMETRY_CHECKED, TELEMETRY_LABEL, type TelemetryLevel } from "../../lib/telemetry";
 import { faqNode, itemListNode } from "../../lib/structured-data";
@@ -71,6 +72,7 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
     ))}
 
     <Faq items={faq} />
+    <RelatedArticles topic="privacy" title="Privacy articles" />
     <p class="source-note">
       Not listed means not checked yet, not that a distro sends nothing. <a href="/suggest/?kind=correction">Suggest a distro or a correction</a>.
       The same facts are in <a href="/data/notes.json">notes.json</a> (CC BY 4.0).

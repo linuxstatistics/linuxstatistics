@@ -28,7 +28,7 @@ test("every pick really carries the topic's tag", () => {
 
 test("thin topics are listed as noindex, and only those (run best:noindex to update)", () => {
   const thin = BEST_TOPICS.filter((t) => !isIndexable(bestPicks(t, PROFILES, rankOf))).map((t) => `/best/${t.slug}/`);
-  expect([...NOINDEX_PATHS].sort()).toEqual(thin.sort());
+  expect([...NOINDEX_PATHS].filter((p) => p.startsWith("/best/")).sort()).toEqual(thin.sort());
 });
 
 test("tag sources are https links", () => {

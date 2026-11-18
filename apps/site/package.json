@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "typecheck": "astro check && tsc -p tsconfig.json --noEmit",
-    "best:noindex": "tsx scripts/best-noindex.ts"
+    "best:noindex": "tsx scripts/best-noindex.ts",
+    "article:check": "tsx scripts/article-check.ts"
   },
   "dependencies": {
     "@astrojs/react": "^7.1.2",

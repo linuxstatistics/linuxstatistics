@@ -1,0 +1,27 @@
+---
+import { fmtArticleDate, type ArticleCard } from "../lib/articles";
+import { TYPE_LABEL } from "../lib/article-topics";
+
+interface Props {
+  articles: ArticleCard[];
+  /** Heading level for article titles. */
+  level?: 2 | 3;
+}
+const { articles, level = 2 } = Astro.props;
+const H = level === 2 ? "h2" : "h3";
+---
+
+<ul class="articles-list">
+  {articles.map((a) => (
+    <li data-type={a.type}>
+      <div class="article-meta">
+        <span class="article-type">{TYPE_LABEL[a.type]}</span>
+        <time datetime={a.published.toISOString().slice(0, 10)}>{fmtArticleDate(a.published)}</time>
+        <span>{a.minutes} min read</span>
+        {a.draft && <span class="article-draft-tag">Draft</span>}
+      </div>
+      <H><a href={`/articles/${a.slug}/`}>{a.title}</a></H>
+      <p>{a.description}</p>
+    </li>
+  ))}
+</ul>

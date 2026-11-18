@@ -1,0 +1,30 @@
+---
+import { loadArticles } from "../lib/article-entries";
+import { sortArticles, topicsOf } from "../lib/articles";
+import { topicBySlug, TYPE_LABEL } from "../lib/article-topics";
+
+/**
+ * Latest published articles for a topic or about a distro, for pages outside
+ * /articles/. Renders nothing when there are none. Drafts never show here.
+ */
+interface Props {
+  topic?: string;
+  distro?: string;
+  title: string;
+  max?: number;
+}
+const { topic, distro, title, max = 3 } = Astro.props;
+const cards = (await loadArticles()).map((a) => a.card).filter((a) => !a.draft);
+const list = sortArticles(cards.filter((a) => (topic ? topicsOf(a).includes(topic as never) : true) && (distro ? a.distros.includes(distro) : true))).slice(0, max);
+const t = topic ? topicBySlug(topic) : undefined;
+---
+
+{list.length > 0 && (
+  <section class="related-articles" aria-label={title}>
+    <h2>{title}</h2>
+    <ul class="side-links">
+      {list.map((a) => <li><a href={`/articles/${a.slug}/`}>{a.title}</a> <span class="from">{TYPE_LABEL[a.type]}</span></li>)}
+    </ul>
+    {t && <p class="side-more"><a href="/articles/">All articles</a></p>}
+  </section>
+)}

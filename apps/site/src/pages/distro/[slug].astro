@@ -17,6 +17,7 @@ import { primaryUses, useFits, withoutRepeats } from "../../lib/use-fit";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { KeyFacts } from "../../components/KeyFacts";
 import { DownloadBlock } from "../../components/DownloadBlock";
+import RelatedArticles from "../../components/RelatedArticles.astro";
 import { verifyFor } from "../../lib/verify-pages";
 import { entriesFor, KIND_LABEL } from "../../lib/changelog";
 import { distroFaq } from "../../lib/faq";
@@ -212,6 +213,7 @@ const jsonLd = {
             </ul>
           </section>
         )}
+        <RelatedArticles distro={data.slug} title={`Articles about ${data.name}`} />
         <RelatedLinks compare={compare} family={family} familyLabel={family_label} near={near} />
       </aside>
     </div>

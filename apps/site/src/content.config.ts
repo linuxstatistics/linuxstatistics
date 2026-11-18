@@ -15,7 +15,7 @@ const articles = defineCollection({
  */
 const dir = process.env.ARTICLE_DRAFTS_DIR;
 const drafts = defineCollection({
-  loader: draftsEnabled(import.meta.env.DEV, dir) ? glob({ pattern: ["**/*.md", "!**/README.md"], base: dir! }) : { name: "no-drafts", load: async () => {} },
+  loader: draftsEnabled(import.meta.env.DEV, dir) ? glob({ pattern: ["**/*.md", "!**/README.md", "!_templates/**", "!**/_*.md"], base: dir! }) : { name: "no-drafts", load: async () => {} },
   schema: articleFrontmatter,
 });
 

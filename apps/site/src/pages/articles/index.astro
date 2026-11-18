@@ -1,11 +1,13 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { SponsorCard } from "../../components/SponsorCard";
-import SwitchSide from "../../components/SwitchSide.astro";
+import ArticleSide from "../../components/ArticleSide.astro";
+import ArticleList from "../../components/ArticleList.astro";
 import { loadArticles } from "../../lib/article-entries";
-import { fmtArticleDate } from "../../lib/articles";
+import { groupByTopic, isHubLive } from "../../lib/articles";
+import { topicBySlug } from "../../lib/article-topics";
 
 const list = (await loadArticles()).map((a) => a.card);
+const groups = groupByTopic(list);
 const site = Astro.site!.href.replace(/\/$/, "");
 const jsonLd = {
   "@context": "https://schema.org",
@@ -16,7 +18,7 @@ const jsonLd = {
 };
 ---
 
-<Base title="Articles: Linux distro data and analysis | LinuxStatistics" description="Notes and analysis built on our own numbers: how we rank distros, what's growing and what people leaving Windows pick." jsonLd={jsonLd}>
+<Base title="Articles: Linux distro data and analysis | LinuxStatistics" description="Notes and analysis built on our own numbers: how we rank distros, what's growing and what people leaving Windows pick." jsonLd={jsonLd} feed={{ href: "/articles/feed.xml", title: "LinuxStatistics articles" }}>
   <div class="page articles-page">
     <div class="with-side">
     <div class="with-side-main">
@@ -24,37 +26,23 @@ const jsonLd = {
     <h1>Notes and analysis</h1>
     <p class="lede">Written from our own numbers: how we rank distros, what's growing and what people leaving Windows pick.</p>
     {list.length === 0 ? (
-      <div class="articles-empty">No articles yet. The first one is on its way. <a href="/feed.xml">Follow the feed</a> to hear when it's out.</div>
+      <div class="articles-empty">No articles yet. The first one is on its way. <a href="/articles/feed.xml">Follow the feed</a> to hear when it's out.</div>
     ) : (
-      <ul class="articles-list">
-        {list.map((a) => (
-          <li>
-            <div class="article-meta">
-              <time datetime={a.published.toISOString().slice(0, 10)}>{fmtArticleDate(a.published)}</time>
-              <span>{a.minutes} min read</span>
-              {a.tags.slice(0, 1).map((t) => <span class="article-tag">{t}</span>)}
-              {a.draft && <span class="article-draft-tag">Draft</span>}
-            </div>
-            <h2><a href={`/articles/${a.slug}/`}>{a.title}</a></h2>
-            <p>{a.description}</p>
-          </li>
-        ))}
-      </ul>
+      groups.map(({ topic, articles }) => {
+        const t = topicBySlug(topic)!;
+        const live = isHubLive(list, topic);
+        return (
+          <section class="articles-topic" aria-labelledby={`t-${topic}`}>
+            <h2 id={`t-${topic}`}>{live ? <a href={`/articles/${topic}/`}>{t.name}</a> : t.name}</h2>
+            {/* A live hub lists them all, so the index shows its newest 5; otherwise every article stays here. */}
+            <ArticleList articles={live ? articles.slice(0, 5) : articles} level={3} />
+            {live && <p class="articles-topic-more"><a href={`/articles/${topic}/`}>All {t.name.toLowerCase()} articles</a></p>}
+          </section>
+        );
+      })
     )}
     </div>
-      <aside class="side" aria-label="More">
-        <SponsorCard context="people reading about Linux distros" />
-        <section>
-          <h2>Explore the data</h2>
-          <ul class="stats-side-links">
-            <li><a href="/stats/">Linux by the numbers</a></li>
-            <li><a href="/">Distro rankings</a></li>
-            <li><a href="/rising/">Rising this month</a></li>
-            <li><a href="/data/">Download the data</a></li>
-          </ul>
-        </section>
-        <SwitchSide />
-      </aside>
+      <ArticleSide />
     </div>
   </div>
 </Base>
