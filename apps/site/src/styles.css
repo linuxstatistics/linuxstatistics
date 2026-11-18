@@ -260,14 +260,20 @@ html.cmdk-open { overflow: hidden; }
 
 /* Podium */
 .podium { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 12px; margin: 0 0 28px; }
-.pod { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 16px 18px 22px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; text-decoration: none; transition: transform 0.16s var(--ease-out), border-color 0.16s var(--ease-out); }
+.pod { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: last baseline; padding: 20px 18px 24px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; text-decoration: none; transition: transform 0.16s var(--ease-out), border-color 0.16s var(--ease-out); }
 @media (hover: hover) { .pod:hover { transform: translateY(-2px); border-color: color-mix(in oklch, var(--ink2) 45%, var(--line)); } }
 .pod:active { transform: scale(0.98); }
-.pod .pr { font: 700 60px/0.85 var(--display); letter-spacing: -0.05em; color: var(--ink2); }
-.pod:first-child .pr { color: var(--accent); font-size: 80px; }
-.pod .pn { font: 700 24px/1.1 var(--display); letter-spacing: -0.02em; }
+/* Rank digit: its figure height (about 0.69em in Archivo) equals the text beside it, from the top of the
+   name's capitals to the baseline of the meta line; the digit sits on that same baseline (align-items: last baseline). */
+.pod .pr { font: 700 58px/1 var(--display); letter-spacing: -0.05em; color: var(--ink2); }
+.pod:first-child .pr { color: var(--accent); font-size: 70px; }
+.pod .pt { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.pod .pn { font: 700 24px/1.1 var(--display); letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pod:first-child .pn { font-size: 32px; }
-.pod .pm { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; font: 13px var(--sans); }
+.pod .pm { display: flex; flex-wrap: nowrap; gap: 10px; align-items: baseline; font: 13px/1 var(--sans); color: var(--ink2); white-space: nowrap; container-type: inline-size; }
+/* Narrow podium cards: the score keeps its number, the "interest score" label goes (the table header names it). */
+@container (max-width: 210px) { .pod .pm small { display: none; } }
+.pod .pm .fam { color: var(--ink2); }
 .pod .pm small { color: var(--ink2); }
 .pod .pb { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--accent); opacity: 0.8; }
 
@@ -948,8 +954,8 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
   .distro-grid { grid-template-columns: 1fr; gap: 48px; }
   .home { grid-template-columns: 1fr; gap: 28px; }
   .podium { grid-template-columns: 1fr; gap: 8px; }
-  .pod { display: grid; grid-template-columns: auto 1fr; column-gap: 16px; align-items: center; padding: 12px 16px 16px; }
-  .pod .pr, .pod:first-child .pr { font-size: 44px; grid-row: span 2; }
+  .pod { padding: 14px 16px 18px; }
+  .pod .pr, .pod:first-child .pr { font-size: 57px; }
   .pod .pn, .pod:first-child .pn { font-size: 22px; }
 }
 @media (max-width: 760px) {
@@ -1604,8 +1610,6 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 
 /* Logos next to names in tables and lists. */
 .leaderboard td.distro-name-cell .with-mark, .side li a.with-mark { display: inline-flex; align-items: center; gap: 10px; }
-.pod .pn { display: inline-flex; align-items: center; gap: 12px; min-width: 0; }
-.pod .pn > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Tap targets: links in lists and source lines are at least 24px tall (WCAG 2.5.8). */
 .side li a:not(.with-mark), .stats-side-links a, .side-links a, .footer-links li a, .glossary-list dt a { display: inline-block; min-height: 24px; padding-block: 2px; }

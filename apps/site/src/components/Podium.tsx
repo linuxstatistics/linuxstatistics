@@ -1,7 +1,6 @@
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroListItem } from "@linux-statistics/shared";
-import { FAMILY_LABELS, familyColor } from "../lib/families";
+import { FAMILY_LABELS } from "../lib/families";
 import { RankDifference } from "./RankDifference";
-import { DistroMark } from "./DistroMark";
 
 /** Top three distros as big cards; static HTML, no client JS. */
 export function Podium({ items }: { items: DistroListItem[] }) {
@@ -15,16 +14,16 @@ export function Podium({ items }: { items: DistroListItem[] }) {
       {top.map((d) => (
         <a key={d.slug} className="pod" href={`/distro/${d.slug}/`}>
           <span className="pr">{d.rank}</span>
-          <span className="pn"><DistroMark slug={d.slug} name={d.name} size={32} /><span>{d.name}</span></span>
-          <span className="pm">
-            <span className="fam" style={{ color: familyColor(d.family) }}>
-              {FAMILY_LABELS[d.family].toLowerCase()}
-            </span>
+          <span className="pt">
+            <span className="pn">{d.name}</span>
+            <span className="pm">
+              <span className="fam">{FAMILY_LABELS[d.family].toLowerCase()}</span>
             <span title={RANK_VALUE_LABEL[RANK_SOURCE]}>
               {d.hitsPerDay?.toLocaleString("en-US") ?? "-"}
               <small> {RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}</small>
             </span>
-            <RankDifference value={d.rank1mDelta} />
+              <RankDifference value={d.rank1mDelta} />
+            </span>
           </span>
           <i className="pb" style={{ width: `${(((d.hitsPerDay ?? 0) / max) * 100).toFixed(0)}%` }} />
         </a>
