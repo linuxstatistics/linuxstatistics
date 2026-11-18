@@ -576,7 +576,8 @@ html.cmdk-open { overflow: hidden; }
 
 /* Distro marks: logo on a brand-colour tile, or a monogram */
 .dmark { display: inline-flex; align-items: center; justify-content: center; flex: none; vertical-align: middle; overflow: hidden; }
-.dmark svg { width: 64%; height: 64%; display: block; }
+.dmark svg { width: 64%; height: 64%; display: block; fill: currentColor; }
+.dmark:empty { background: var(--row); }
 .dmark-20 { width: 20px; height: 20px; font-size: 11px; }
 .dmark-32 { width: 32px; height: 32px; font-size: 16px; }
 .dmark-64 { width: 64px; height: 64px; font-size: 30px; }
@@ -1596,3 +1597,19 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 /* Reference pages: sidebar under a wide main column (support dates table). */
 .with-side.ref-side-below { grid-template-columns: minmax(0, 1fr); }
 .with-side.ref-side-below > .side { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 36px; align-items: start; max-width: none; }
+
+/* Logos next to names in tables and lists. */
+.leaderboard td.distro-name-cell .with-mark, .side li a.with-mark { display: inline-flex; align-items: center; gap: 10px; }
+.pod .pn { display: inline-flex; align-items: center; gap: 12px; min-width: 0; }
+.pod .pn > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Tap targets: links in lists and source lines are at least 24px tall (WCAG 2.5.8). */
+.side li a:not(.with-mark), .stats-side-links a, .side-links a, .footer-links li a, .glossary-list dt a { display: inline-block; min-height: 24px; padding-block: 2px; }
+.side li a.with-mark { min-height: 24px; padding-block: 2px; }
+.ref-sub a, .source-note a, .legal-meta a { display: inline-block; min-height: 24px; line-height: 24px; }
+@media (pointer: coarse) {
+  .leaderboard td.distro-name-cell a { display: flex; min-height: 32px; align-items: center; }
+  .side li a, .stats-side-links a, .side-links a, .footer-links li a { min-height: 32px; padding-block: 6px; }
+}
+.switch-report-prompt { margin: 32px 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 15px; max-width: 720px; }
+.switch-report-prompt .switch-report-note { font-size: 13px; color: var(--ink2); }

@@ -191,7 +191,7 @@ const jsonLd = {
           <h2 id="rate-h">Rate {data.name}</h2>
           <DistroRating client:only="react" slug={data.slug}><RatingSkeleton slot="fallback" /></DistroRating>
         </section>
-        {!ref && <SwitchReport client:visible page="distro" nowUsing={data.slug} distros={switchItems} src={LIST_PATH} />}
+        {!ref && <SwitchReport client:visible page="distro" compact nowUsing={data.slug} distros={switchItems} src={LIST_PATH} />}
         <AffiliateBlock />
         <EthicalAd placement="distro" />
         <p class="source-note">

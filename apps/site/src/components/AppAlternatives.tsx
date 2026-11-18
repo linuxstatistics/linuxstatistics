@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
 import { CATEGORIES, SUPPORT_HELP, SUPPORT_LABEL, appsFor, type AppAlternative, type Category, type Support } from "../lib/app-alternatives";
 
-const FIRST = 20;
+const FIRST = 10;
 
 /**
- * Searchable app table. Every row is in the HTML; rows past the first 20 are hidden until "Show all".
+ * Searchable app table. Every row is in the HTML; rows past the first 10 are hidden until "Show all".
  * Pass `from` rather than `apps` on a page: the table data then ships once, in the script, not again in the props.
  */
 export function AppAlternatives({ from, apps: given, categories = CATEGORIES }: { from?: "windows" | "mac"; apps?: AppAlternative[]; categories?: Category[] }) {

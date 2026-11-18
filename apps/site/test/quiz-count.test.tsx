@@ -69,3 +69,12 @@ test("the switch card needs an origin, sends a valid report and thanks the visit
   expect(body).toMatchObject({ cameFrom: "windows", nowUsing: "mint", page: "distro" });
   expect(switchReportInputSchema.safeParse(body).success).toBe(true);
 });
+
+test("the compact switch report is a one-line prompt until opened", async () => {
+  const { default: userEvent } = await import("@testing-library/user-event");
+  const user = userEvent.setup();
+  render(<SwitchReport page="distro" compact nowUsing="mint" distros={[{ slug: "mint", name: "Linux Mint", rank: 1 }]} />);
+  expect(screen.queryByRole("heading", { name: /help you switch/ })).toBeNull();
+  await user.click(screen.getByRole("button", { name: "Tell us where you came from" }));
+  expect(screen.getByRole("heading", { name: /help you switch/ })).toBeInTheDocument();
+});

@@ -1,4 +1,5 @@
 ---
+import { DistroMark } from "../../components/DistroMark";
 import SwitchSide from "../../components/SwitchSide.astro";
 import Base from "../../layouts/Base.astro";
 import RankCredit from "../../components/RankCredit.astro";
@@ -60,7 +61,7 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
             {rising.map((d, i) => (
               <tr>
                 <td class="rank">{i + 1}</td>
-                <td class="distro-name-cell"><a href={`/distro/${d.slug}/`}>{d.name}</a></td>
+                <td class="distro-name-cell"><a class="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a></td>
                 <td class="fam-cell"><span class={`fam f-${d.family}`} style={{ color: familyColor(d.family) }}>{FAMILY_LABELS[d.family].toLowerCase()}</span></td>
                 <td class="num">{d.rank}</td>
                 <td class="num">{d.rank1m}</td>

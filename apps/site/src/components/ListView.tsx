@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroStatus, type Family } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating } from "../lib/rating";
@@ -24,8 +24,7 @@ type SortKey =
   | "firstReleaseYear"
   | "rankTrend"
   | "rank1mDelta"
-  | "rating"
-  | "logo";
+  | "rating";
 
 export function distroHref(slug: string): string {
   return `/distro/${slug}/`;
@@ -53,6 +52,8 @@ interface ColumnDef {
 }
 
 interface RenderCtx {
+  /** False in the server HTML: logos render as empty tiles until hydration to keep the page small. */
+  mounted: boolean;
   /** Highest hits/day in the full list, for bar scaling. */
   maxHits: number;
 }
@@ -77,12 +78,16 @@ function HitsCell({ v, max }: { v: number | null; max: number }) {
 
 const COLUMNS: ColumnDef[] = [
   { key: "rank", label: "#", numeric: true, fixed: true, cellClass: "rank", render: (d) => d.rank ?? "-" },
-  { key: "logo", label: "Logo", hiddenByDefault: true, unsortable: true, cellClass: "logo-cell", render: (d) => <DistroMark slug={d.slug} name={d.name} /> },
   {
     key: "name",
     label: "Distro",
     fixed: true,
-    render: (d) => <a href={distroHref(d.slug)}>{d.name}</a>,
+    render: (d, ctx) => (
+      <a className="with-mark" href={distroHref(d.slug)}>
+        <DistroMark slug={d.slug} name={d.name} deferred={!ctx.mounted} />
+        {d.name}
+      </a>
+    ),
   },
   {
     key: "family",
@@ -117,7 +122,6 @@ function thtdClass(c: ColumnDef): string {
 }
 
 function compare(a: ListRow, b: ListRow, key: SortKey): number {
-  if (key === "logo") return 0;
   if (key === "rating") {
     // Sentinel keeps unrated distros (null average) last in descending order.
     return (a.userRating.average ?? -1) - (b.userRating.average ?? -1);
@@ -158,7 +162,9 @@ export function ListView({ items: given, packed, src, exclude, total, pageSize =
     () => (loaded && exclude?.length ? listItems.filter((d) => !exclude.includes(d.slug)) : listItems),
     [listItems, loaded, exclude],
   );
-  const ctx: RenderCtx = { maxHits: maxHits ?? Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0)) };
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const ctx: RenderCtx = { mounted, maxHits: maxHits ?? Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0)) };
   const [sortKey, setSortKey] = useState<SortKey>("rank");
   const [asc, setAsc] = useState(true);
   const [family, setFamily] = useState<Family | "all">("all");

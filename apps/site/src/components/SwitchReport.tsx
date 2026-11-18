@@ -18,8 +18,10 @@ type Page = "quiz" | "switch" | "getting-started" | "distro";
  * the person came from and, optionally, the distro they use now. Counted
  * once per page visit; nothing is stored in the browser.
  */
-export function SwitchReport({ page, distros: initial, src, nowUsing: preset }: {
+export function SwitchReport({ page, distros: initial, src, nowUsing: preset, compact = false }: {
   page: Page;
+  /** One-line prompt that opens into the full card (distro pages, where most readers aren't switching). */
+  compact?: boolean;
   /** Distros in the HTML; with `src`, the full list loads when the box is first focused. */
   distros: SearchItem[];
   src?: string;
@@ -30,6 +32,7 @@ export function SwitchReport({ page, distros: initial, src, nowUsing: preset }: 
   const [from, setFrom] = useState<string | null>(null);
   const [now, setNow] = useState(preset ?? "");
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const [open, setOpen] = useState(!compact);
 
   async function send() {
     if (!from || state !== "idle") return;
@@ -44,6 +47,18 @@ export function SwitchReport({ page, distros: initial, src, nowUsing: preset }: 
     } catch {
       setState("error");
     }
+  }
+
+  if (!open) {
+    return (
+      <p className="switch-report-prompt">
+        Switched to Linux recently?{" "}
+        <button type="button" className="link-button" onClick={() => setOpen(true)}>
+          Tell us where you came from
+        </button>{" "}
+        <span className="switch-report-note">(anonymous, two taps)</span>
+      </p>
+    );
   }
 
   if (state === "done") {

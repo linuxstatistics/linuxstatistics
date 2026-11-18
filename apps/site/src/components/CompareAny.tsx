@@ -1,3 +1,4 @@
+import { DistroMark } from "./DistroMark";
 import { useEffect, useMemo, useState } from "react";
 import { useDistroList } from "../lib/use-distro-list";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
@@ -87,7 +88,7 @@ export function CompareAny({ names: given = {}, src }: { names?: Record<string, 
               <th />
               {[a, b].map((d) => (
                 <th key={d.slug}>
-                  <a href={`/distro/${d.slug}/`}>{d.name}</a>
+                  <a className="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a>
                   <span className="th-sub">
                     {d.rank != null ? `#${d.rank} · ` : ""}
                     {FAMILY_LABELS[d.family]}

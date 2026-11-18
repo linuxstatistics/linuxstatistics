@@ -1,4 +1,5 @@
 ---
+import { DistroMark } from "../components/DistroMark";
 import SwitchSide from "../components/SwitchSide.astro";
 import Base from "../layouts/Base.astro";
 import { ListView } from "../components/ListView";
@@ -85,7 +86,7 @@ const jsonLd = {
           <ul>
             {rising.slice(0, 5).map((d) => (
               <li>
-                <a href={`/distro/${d.slug}/`}>{d.name}</a>
+                <a class="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a>
                 <span class="from">#{d.rank} → #{d.rank1m}</span>
                 <b>+{d.rank1mDelta}</b>
               </li>
