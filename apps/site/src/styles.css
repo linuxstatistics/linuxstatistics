@@ -426,7 +426,9 @@ html.cmdk-open { overflow: hidden; }
 .t-acc[data-open="true"] .t-acc-panel { grid-template-rows: 1fr; }
 .t-acc-panel-inner { overflow: hidden; min-height: 0; opacity: 0; transition: opacity 0.18s var(--ease-out); }
 .t-acc[data-open="true"] .t-acc-panel-inner { opacity: 1; }
-.col-menu .t-acc-panel { position: absolute; right: 0; top: calc(100% + 8px); z-index: calc(var(--z-dropdown) + 1); min-width: 190px; }
+.col-menu .t-acc-panel { position: absolute; right: 0; top: calc(100% + 8px); z-index: calc(var(--z-dropdown) + 1); min-width: 190px; visibility: hidden; transition: grid-template-rows 0.22s var(--ease-out), visibility 0s 0.22s; }
+/* Collapsed, the panel keeps its padding and border; hiding it stops that strip from catching clicks over the table header. */
+.col-menu[data-open="true"] .t-acc-panel { visibility: visible; transition-delay: 0s; }
 
 /* ---------- Sign-in ---------- */
 .auth-control { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }

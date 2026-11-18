@@ -125,17 +125,20 @@ function thtdClass(c: ColumnDef): string {
   return [c.numeric ? "num" : "", c.mobileHide ? "col-hide-mobile" : "", `col-${c.key}`].filter(Boolean).join(" ");
 }
 
-function compare(a: ListRow, b: ListRow, key: SortKey): number {
+/** Sort order for `key`; rows without a value stay last in either direction. */
+function compare(a: ListRow, b: ListRow, key: SortKey, asc: boolean): number {
+  const dir = asc ? 1 : -1;
   if (key === "rating") {
     // Sentinel keeps unrated distros (null average) last in descending order.
-    return (a.userRating.average ?? -1) - (b.userRating.average ?? -1);
+    return dir * ((a.userRating.average ?? -1) - (b.userRating.average ?? -1));
   }
   const av = a[key];
   const bv = b[key];
-  if (av === null || av === undefined) return 1;
-  if (bv === null || bv === undefined) return -1;
-  if (typeof av === "string" && typeof bv === "string") return av.localeCompare(bv);
-  return (av as number) - (bv as number);
+  const aMissing = av === null || av === undefined;
+  const bMissing = bv === null || bv === undefined;
+  if (aMissing || bMissing) return aMissing === bMissing ? 0 : aMissing ? 1 : -1;
+  if (typeof av === "string" && typeof bv === "string") return dir * av.localeCompare(bv);
+  return dir * ((av as number) - (bv as number));
 }
 
 export interface ListViewProps {
@@ -199,8 +202,7 @@ export function ListView({ items: given, packed, src, exclude, total, pageSize =
       const q = search.trim().toLowerCase();
       r = r.filter((i) => i.name.toLowerCase().includes(q));
     }
-    const sorted = [...r].sort((a, b) => compare(a, b, sortKey));
-    return asc ? sorted : sorted.reverse();
+    return [...r].sort((a, b) => compare(a, b, sortKey, asc));
   }, [items, family, status, search, sortKey, asc]);
 
   // Searching or filtering looks through everything; only the shown rows are capped.
@@ -215,7 +217,7 @@ export function ListView({ items: given, packed, src, exclude, total, pageSize =
     if (key === sortKey) setAsc((v) => !v);
     else {
       setSortKey(key);
-      setAsc(key === "rank" || key === "name");
+      setAsc(key === "rank" || key === "name" || key === "family");
     }
   }
 

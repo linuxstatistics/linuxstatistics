@@ -43,6 +43,25 @@ test("sorting by Trend orders by biggest climber", async () => {
   expect(rowNames()).toEqual(["Linux Mint", "Arch Linux", "Fedora"]);
 });
 
+test("rows without a value stay last in both sort directions", async () => {
+  const user = userEvent.setup();
+  const withMissing = [...items, { ...items[1]!, slug: "void", name: "Void", rank: 4, stars: null }];
+  render(<ListView items={withMissing} />);
+  const github = screen.getByRole("button", { name: /GitHub/ });
+  await user.click(github);
+  expect(rowNames()).toEqual(["Linux Mint", "Arch Linux", "Fedora", "Void"]);
+  await user.click(github);
+  expect(rowNames()).toEqual(["Fedora", "Arch Linux", "Linux Mint", "Void"]);
+});
+
+test("sorting by Family starts A to Z", async () => {
+  const user = userEvent.setup();
+  render(<ListView items={items} />);
+  await user.click(screen.getByRole("button", { name: /Family/ }));
+  // arch, debian, rpm
+  expect(rowNames()).toEqual(["Arch Linux", "Linux Mint", "Fedora"]);
+});
+
 test("search filters by name", async () => {
   const user = userEvent.setup();
   render(<ListView items={items} />);
