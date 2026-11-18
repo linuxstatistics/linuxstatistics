@@ -1,0 +1,51 @@
+---
+import { DESKTOP_LABEL, type DistroDetail } from "@linux-statistics/shared";
+import { DistroScreenshot } from "./DistroScreenshot";
+import { screenshotFor } from "../lib/screenshots";
+import { pageForDesktop } from "../lib/desktops";
+import { desktopHref } from "../lib/desktop-links";
+import ShotLightbox from "./ShotLightbox.astro";
+
+/**
+ * "What <distro> looks like": the default-desktop screenshot next to the
+ * desktops on offer and one line from the desktop's own page. Shown when we
+ * have a screenshot or know the desktops; no placeholder image.
+ */
+interface Props {
+  data: DistroDetail;
+}
+const { data } = Astro.props;
+const shot = screenshotFor(data.slug);
+const f = data.facts;
+const main = f?.defaultDesktop ?? null;
+const chips = f ? [...(main ? [main] : []), ...f.otherDesktops] : [];
+// With no default, the desktop in the screenshot is the one we describe.
+const shown = main ?? chips.find((d) => shot && DESKTOP_LABEL[d] === shot.desktop) ?? null;
+const page = shown ? pageForDesktop(shown) : undefined;
+const show = shot || chips.length > 0;
+---
+
+{show && (
+  <section class="dsec distro-looks" aria-labelledby="looks-h">
+    <h2 id="looks-h">What {data.name} looks like</h2>
+    <div class:list={["looks-grid", { "looks-noshot": !shot }]}>
+      {shot && <DistroScreenshot slug={data.slug} name={data.name} />}
+      <div class="looks-text">
+        {chips.length > 0 && (
+          <ul class="looks-chips" aria-label="Desktops">
+            {chips.map((d) => {
+              const href = desktopHref(d);
+              const label = d === main ? `${DESKTOP_LABEL[d]} (default)` : d === shown ? `${DESKTOP_LABEL[d]} (pictured)` : DESKTOP_LABEL[d];
+              return <li class:list={{ on: d === shown }}>{href ? <a href={href}>{label}</a> : <span>{label}</span>}</li>;
+            })}
+          </ul>
+        )}
+        {!main && chips.length > 0 && <p>No single default: you pick a desktop when you install.</p>}
+        {page && <p>{page.summary}</p>}
+        {page && <a class="looks-more" href={`/desktop/${page.slug}/`}>About {page.slug === "window-managers" ? "window managers" : page.name} <span class="icon-arrow" aria-hidden="true" /></a>}
+      </div>
+    </div>
+  </section>
+)}
+
+{shot && <ShotLightbox />}

@@ -1696,11 +1696,49 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .dr-all { display: inline-block; margin-top: 6px; font: 12px var(--sans); color: var(--ink2); }
 .desktop-index td.di-long { min-width: 260px; }
 .desktop-index .di-short { display: none; }
+.desktop-index .di-weight-label { display: none; }
 @media (max-width: 560px) {
-  .desktop-index .di-long { display: none; }
-  .desktop-index .di-short { display: block; margin-top: 4px; font: 400 13px/1.4 var(--sans); color: var(--ink2); }
-  .desktop-index th[scope="row"] { vertical-align: top; }
-  .desktop-index td { vertical-align: top; white-space: nowrap; }
+  .desktop-index, .desktop-index tbody { display: block; }
+  .desktop-index thead, .desktop-index .di-long { display: none; }
+  .desktop-index tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name logos" "weight weight" "short short"; gap: 2px 12px; padding: 14px 0; border-bottom: 1px solid var(--row); }
+  .desktop-index th, .desktop-index td { padding: 0; border: 0; }
+  .desktop-index th[scope="row"] { display: contents; }
+  .desktop-index th[scope="row"] > a { grid-area: name; align-self: center; font: 700 17px var(--display); }
+  .desktop-index .di-short { grid-area: short; display: block; margin-top: 6px; font: 400 14px/1.45 var(--sans); color: var(--ink); }
+  .desktop-index .dr-logos { grid-area: logos; align-self: center; }
+  .desktop-index .di-weight { grid-area: weight; font: 13px var(--sans); color: var(--ink2); }
+  .desktop-index .di-weight-label { display: inline; }
+  .table-scroll:has(> .desktop-index) { overflow: visible; }
 }
 .desktop-vs td { vertical-align: top; }
 .ref-counts dd.ref-counts-text { font-size: 18px; line-height: 1.2; }
+
+/* ---------- Screenshots ---------- */
+.distro-shot { margin: 0; }
+.distro-shot a { display: block; }
+.distro-shot img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--line); background: var(--row); }
+.distro-shot figcaption { margin-top: 8px; font: 12px/1.5 var(--sans); color: var(--ink2); }
+.distro-shot figcaption a { color: inherit; }
+.shot-pair-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px 24px; }
+.shot-pair .distro-shot { margin-top: 8px; }
+.looks-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px 24px; align-items: start; }
+.looks-grid.looks-noshot { grid-template-columns: minmax(0, 1fr); max-width: 68ch; }
+@media (max-width: 760px) { .looks-grid { grid-template-columns: minmax(0, 1fr); } }
+.distro-shot img { cursor: zoom-in; }
+.looks-chips { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.looks-chips li > * { display: inline-block; padding: 4px 12px; border: 1px solid var(--line); border-radius: var(--pill); font: 600 13px var(--sans); text-decoration: none; color: var(--ink); }
+.looks-chips li.on > * { border-color: var(--accent); color: var(--accent); }
+@media (hover: hover) { .looks-chips a:hover { border-color: var(--ink2); } }
+.looks-text p { margin: 0 0 10px; }
+.looks-more { font-weight: 600; }
+dialog.shot-lightbox.shot-lightbox, .distro-page .distro-main > dialog.shot-lightbox { position: fixed; inset: 0; margin: auto; padding: 0; border: 0; background: transparent; width: min(94vw, 1280px); max-width: none; height: fit-content; max-height: 92vh; overflow: visible; border-top: 0; padding-top: 0; }
+.shot-lightbox img { max-height: 92vh; object-fit: contain; }
+.shot-lightbox::backdrop { background: oklch(0.1 0.01 265 / 0.86); }
+.shot-lightbox img { display: block; width: 100%; height: auto; border-radius: var(--radius); }
+.shot-lightbox form { position: absolute; top: 10px; right: 10px; margin: 0; }
+.shot-close { min-height: 36px; padding: 0 14px; border: 0; border-radius: var(--pill); background: oklch(0.1 0.01 265 / 0.75); color: oklch(0.96 0 0); font: 600 13px var(--sans); cursor: pointer; }
+.shot-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) {
+  .shot-lightbox[open] { animation: shot-in 180ms var(--ease-out); }
+  @keyframes shot-in { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
+}

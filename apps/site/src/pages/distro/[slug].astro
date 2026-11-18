@@ -16,6 +16,7 @@ import { UseFitTabs } from "../../components/UseFitTabs";
 import { primaryUses, useFits, withoutRepeats } from "../../lib/use-fit";
 import { TelemetryNote } from "../../components/TelemetryNote";
 import { KeyFacts } from "../../components/KeyFacts";
+import DistroLooks from "../../components/DistroLooks.astro";
 import { DownloadBlock } from "../../components/DownloadBlock";
 import RelatedArticles from "../../components/RelatedArticles.astro";
 import { verifyFor } from "../../lib/verify-pages";
@@ -166,6 +167,7 @@ const jsonLd = {
             )}
           </section>
         )}
+        <DistroLooks data={data} />
         {profile && <DownloadBlock name={data.name} downloadUrl={profile.downloadUrl} verify={verifyFor(data.slug)} distrosea={profile.distrosea} />}
         {notes && !fits && <ProsCons notes={notes} />}
         {fits && <UseFitTabs client:visible name={data.name} fits={fits} primary={primaryFits} overall={notes} />}

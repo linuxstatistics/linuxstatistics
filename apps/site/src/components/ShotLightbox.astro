@@ -1,0 +1,27 @@
+---
+/** One native dialog that opens any `.distro-shot` image full size; the link still works without JS. */
+---
+
+<dialog class="shot-lightbox" id="shot-lightbox" aria-label="Desktop screenshot">
+  <form method="dialog"><button class="shot-close" aria-label="Close">Close</button></form>
+  <img alt="" decoding="async" />
+</dialog>
+<script is:inline>
+  // Full-size screenshot in a native dialog; without JS the link opens the image itself.
+  (() => {
+    const dlg = document.getElementById("shot-lightbox");
+    if (!dlg || !dlg.showModal) return;
+    const img = dlg.querySelector("img");
+    document.querySelectorAll(".distro-shot > a").forEach((a) => {
+      a.addEventListener("click", (e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+        e.preventDefault();
+        const inner = a.querySelector("img");
+        img.src = a.getAttribute("href");
+        img.alt = inner ? inner.alt : "";
+        dlg.showModal();
+      });
+    });
+    dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+  })();
+</script>

@@ -4,6 +4,7 @@ import { DistroMark } from "../../components/DistroMark";
 import { DISTRO_IMAGES, DISTRO_MARKS, MARKS_FROM } from "../../lib/distro-marks";
 import { loadDistros } from "../../lib/data";
 import { CONTACT } from "../../config/site";
+import { SCREENSHOTS } from "../../lib/screenshots";
 
 const list = await loadDistros();
 const nameOf = new Map(list.map((d) => [d.slug, d.name]));
@@ -17,6 +18,10 @@ const allImages = Object.entries(DISTRO_IMAGES)
   .sort((a, b) => a.name.localeCompare(b.name));
 const images = allImages.filter((m) => !m.license.startsWith("Trademark"));
 const official = allImages.filter((m) => m.license.startsWith("Trademark"));
+const shots = Object.entries(SCREENSHOTS)
+  .filter(([slug]) => nameOf.has(slug))
+  .map(([slug, s]) => ({ slug, name: nameOf.get(slug)!, ...s }))
+  .sort((a, b) => a.name.localeCompare(b.name));
 const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
 ---
 
@@ -97,6 +102,28 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
               <td class="logo-cell"><DistroMark slug={m.slug} name={m.name} /></td>
               <td><a href={`/distro/${m.slug}/`}>{m.name}</a></td>
               <td><a href={m.source} {...ext}>{m.source.includes("github.com/") ? "GitHub organization" : new URL(m.source).hostname.replace(/^www\./, "")}</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="screenshots">Desktop screenshots</h2>
+    <p>
+      Distro pages show one screenshot of the default desktop, taken from Wikimedia Commons under the license listed with
+      each file. We resize them and convert them to WebP; nothing else is changed. Distros without a freely licensed
+      screenshot show none. To replace one with an official image, <a href={`mailto:${CONTACT.general}?subject=Screenshot`}>email us</a>.
+    </p>
+    <div class="table-scroll">
+      <table class="data-table marks-table">
+        <thead><tr><th>Distro</th><th>Shows</th><th>Credit</th><th>License</th></tr></thead>
+        <tbody>
+          {shots.map((m) => (
+            <tr>
+              <td><a href={`/distro/${m.slug}/`}>{m.name}</a></td>
+              <td>{m.caption}, {m.desktop}</td>
+              <td><a href={m.source} {...ext}>{m.author}</a></td>
+              <td>{m.license}</td>
             </tr>
           ))}
         </tbody>

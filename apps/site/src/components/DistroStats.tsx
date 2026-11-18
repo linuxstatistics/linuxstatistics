@@ -45,7 +45,9 @@ export function detailRows(data: DistroDetail, baseName?: string | null, today?:
     } else if (offered.length) {
       rows.push({ label: "Desktop", value: "Your choice at install" });
     }
-    if (offered.length) rows.push({ label: f.defaultDesktop ? "Also offered" : "Desktops offered", value: offered.map((o) => o.label).join(", "), links: offered });
+    // Flavours that are their own distro (Kubuntu for Ubuntu) stay here; other desktops are listed in "What it looks like".
+    const flavours = offered.filter((o) => o.href?.startsWith("/distro/"));
+    if (flavours.length) rows.push({ label: "Flavors", value: flavours.map((o) => o.label).join(", "), links: flavours });
     if (f.packageManager) rows.push({ label: "Package manager", value: PACKAGE_MANAGER_LABEL[f.packageManager] });
     if (f.init) rows.push({ label: "Init system", value: INIT_LABEL[f.init] });
   }

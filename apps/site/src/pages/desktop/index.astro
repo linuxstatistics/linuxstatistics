@@ -30,7 +30,7 @@ const rows = DESKTOP_PAGES.map((p) => ({ p, g: distrosFor(p, list) }));
               {rows.map(({ p, g }) => (
                 <tr>
                   <th scope="row"><a href={`/desktop/${p.slug}/`}>{p.name}</a><span class="di-short">{p.summary}</span></th>
-                  <td>{WEIGHT_LABEL[p.weight]}</td>
+                  <td class="di-weight"><span class="di-weight-label">{WEIGHT_HEADING}: </span>{WEIGHT_LABEL[p.weight]}</td>
                   <td class="dr-logos">
                     {g.byDefault.length > 0 && (
                       <a href={`/desktop/${p.slug}/`} aria-label={`${g.byDefault.length} distros come with ${p.name}`} title={g.byDefault.slice(0, 4).map((d) => d.name).join(", ")}>

@@ -11,6 +11,9 @@ import { PairVerdict } from "../../components/PairVerdict";
 import { NotEnoughData, ProsConsPair } from "../../components/ProsCons";
 import { Faq } from "../../components/Faq";
 import { KeyFactsPair } from "../../components/KeyFacts";
+import { DistroScreenshot } from "../../components/DistroScreenshot";
+import ShotLightbox from "../../components/ShotLightbox.astro";
+import { screenshotFor } from "../../lib/screenshots";
 import { DistroMark } from "../../components/DistroMark";
 import { keyFacts } from "../../lib/facts";
 import { EthicalAd } from "../../components/EthicalAd";
@@ -160,6 +163,17 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
         </tbody>
       </table>
     </div>
+    {(screenshotFor(a.slug) || screenshotFor(b.slug)) && (
+      <section class="shot-pair" aria-label="Default desktops">
+        <h2>Default desktops</h2>
+        <div class="shot-pair-grid">
+          {[a, b].map((d) => (
+            <div><h3 class="pc-name">{d.name}</h3>{screenshotFor(d.slug) ? <DistroScreenshot slug={d.slug} name={d.name} compact /> : <p class="source-note">No free screenshot yet.</p>}</div>
+          ))}
+        </div>
+        <ShotLightbox />
+      </section>
+    )}
     {(na || nb) ? (
       <ProsConsPair a={{ name: a.name, notes: na }} b={{ name: b.name, notes: nb }} />
     ) : (
