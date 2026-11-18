@@ -130,3 +130,44 @@ test("front-matter reader handles quoted strings, dates and arrays", async () =>
   expect(fm?.body).toBe("Body text");
   expect(readFrontmatter("no front matter")).toBeNull();
 });
+
+test("chart lines: share, rank (1 or 2 distros), rising, top n; anything else is an error", async () => {
+  const { parseChart, findCharts, replaceCharts, findChartLines } = await import("../src/lib/article-charts");
+  expect(parseChart("share")).toEqual({ kind: "share" });
+  expect(parseChart("rank mint")).toEqual({ kind: "rank", slugs: ["mint"] });
+  expect(parseChart("Rank Mint Fedora")).toEqual({ kind: "rank", slugs: ["mint", "fedora"] });
+  expect(parseChart("rank mint fedora ubuntu")).toHaveProperty("error");
+  expect(parseChart("rank mint mint")).toHaveProperty("error");
+  expect(parseChart("rank")).toHaveProperty("error");
+  expect(parseChart("rising")).toEqual({ kind: "rising" });
+  expect(parseChart("top")).toEqual({ kind: "top", n: 10 });
+  expect(parseChart("top 5")).toEqual({ kind: "top", n: 5 });
+  expect(parseChart("top 99")).toHaveProperty("error");
+  expect(parseChart("pie")).toHaveProperty("error");
+  const html = "<p>Intro</p>\n<p>[chart: top 5]</p>\n<p>Inline [chart: share] stays text.</p>";
+  expect(findCharts(html).map((c) => c.raw)).toEqual(["top 5"]);
+  expect(replaceCharts(html, (s) => `<figure>${s.kind}</figure>`)).toBe("<p>Intro</p>\n<figure>top</figure>\n<p>Inline [chart: share] stays text.</p>");
+  expect(() => replaceCharts("<p>[chart: pie]</p>", () => "")).toThrow(/unknown chart/);
+  expect(findChartLines("a\n\n[chart: rising]\n").map((c) => c.line)).toEqual([3]);
+});
+
+test("chart drawing: figure carries the finding, source and link; lines and bars draw", async () => {
+  const { figure, lineSvg, barsSvg } = await import("../src/lib/article-charts");
+  const f = figure("<svg></svg>", "Linux rose to 5%.", { title: "Share", source: "StatCounter", asOf: "2026-10-01", link: { href: "/stats/", label: "More" } });
+  expect(f).toContain('role="img" aria-label="Linux rose to 5%."');
+  expect(f).toContain("Source: StatCounter");
+  expect(f).toContain('datetime="2026-10-01"');
+  expect(f).toContain('href="/stats/"');
+  const line = lineSvg([{ name: "Mint", cls: "os-linux", points: [{ t: 2026, value: 3 }, { t: 2026.5, value: 1 }] }], { invert: true, min: 1, max: 4 });
+  expect(line).toContain("<path");
+  expect(line).toContain("Mint #1");
+  expect(lineSvg([{ name: "x", cls: "", points: [{ t: 2026, value: 1 }] }])).toBe("");
+  const bars = barsSvg([{ label: "Mint", value: 10, display: "+10" }, { label: "Fedora", value: 5, display: "+5" }], { highlight: 0 });
+  expect(bars.match(/<rect/g)?.length).toBe(2);
+  expect(bars).toContain("is-lead");
+});
+
+test("share card title size shrinks for long titles", async () => {
+  const { titleSize } = await import("../src/lib/og-card");
+  expect(titleSize("Short")).toBeGreaterThan(titleSize("x".repeat(100)));
+});

@@ -5,6 +5,7 @@ import { externalLinksNewTab, fmtArticleDate, isHubLive, relatedArticles, type A
 import type { ArticleEntry } from "../../lib/article-entries";
 import { TYPE_LABEL, topicBySlug } from "../../lib/article-topics";
 import { faqNode } from "../../lib/structured-data";
+import { renderArticleCharts } from "../../lib/article-chart-render";
 
 interface Props {
   entry: ArticleEntry["entry"];
@@ -16,10 +17,11 @@ const { entry, card: a, cards } = Astro.props;
 const topic = topicBySlug(a.topic)!;
 const hubLive = isHubLive(cards, a.topic);
 // Markdown is rendered by the content loader; external links get the site's new-tab attributes.
-const html = externalLinksNewTab(entry.rendered?.html ?? "", Astro.site?.origin);
+const html = externalLinksNewTab(await renderArticleCharts(entry.rendered?.html ?? "", `article ${a.slug}`), Astro.site?.origin);
 const related = relatedArticles(a, cards);
 const site = Astro.site!.href.replace(/\/$/, "");
 const iso = (d: Date) => d.toISOString().slice(0, 10);
+const ogImage = `${site}/articles/${a.slug}/og.png`;
 const org = { "@type": "Organization", "@id": `${site}/#org`, name: "LinuxStatistics", url: `${site}/` };
 const article = {
   "@type": "Article",
@@ -31,6 +33,7 @@ const article = {
   author: org,
   publisher: org,
   articleSection: topic.name,
+  image: ogImage,
 };
 // Q&A: FAQ markup from the same front-matter fields the page shows, so they can't disagree.
 const qaNode = a.type === "qa" && a.question && a.answer ? faqNode([{ q: a.question, a: a.answer }]) : null;
@@ -42,7 +45,7 @@ const jsonLd = { "@graph": [article, ...(qaNode ? [qaNode] : []), ...(howTo ? [h
 const monthYear = (d: Date) => d.toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
 ---
 
-<Base title={`${a.title} | LinuxStatistics`} description={a.description} jsonLd={a.draft ? undefined : jsonLd} noindex={a.draft} breadcrumbs={hubLive ? [{ name: "Articles", href: "/articles/" }, { name: topic.name, href: `/articles/${topic.slug}/` }, { name: a.title }] : [{ name: "Articles", href: "/articles/" }, { name: a.title }]}>
+<Base title={`${a.title} | LinuxStatistics`} description={a.description} image={ogImage} jsonLd={a.draft ? undefined : jsonLd} noindex={a.draft} breadcrumbs={hubLive ? [{ name: "Articles", href: "/articles/" }, { name: topic.name, href: `/articles/${topic.slug}/` }, { name: a.title }] : [{ name: "Articles", href: "/articles/" }, { name: a.title }]}>
   {a.draft && <div class="article-draft-banner" role="note">Draft, not published. Only visible on the local dev server.</div>}
   <div class="page">
     <div class="with-side">

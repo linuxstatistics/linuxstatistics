@@ -130,6 +130,14 @@ for f in "$DIST"/articles/*/index.html; do
   fi
 done
 echo "ok:   thin article hubs unlinked and out of the sitemap"
+# Article and hub pages point og:image at their own card, and the card is built; no chart line is left unrendered.
+for f in "$DIST"/articles/*/index.html; do
+  t=$(basename "$(dirname "$f")")
+  if ! grep -q "property=\"og:image\" content=\"[^\"]*/articles/$t/og.png\"" "$f"; then echo "FAIL: /articles/$t/ has no own og:image"; fail=1; fi
+  if [ ! -s "$DIST/articles/$t/og.png" ]; then echo "FAIL: /articles/$t/og.png is missing"; fail=1; fi
+  if grep -q '\[chart:' "$f"; then echo "FAIL: /articles/$t/ has an unrendered [chart: ...] line"; fail=1; fi
+done
+echo "ok:   article share cards built, charts rendered"
 # Guides: warn (don't fail) when steps were last checked more than 6 months ago.
 if [ -f "$DIST/articles/guides.json" ]; then
   python3 - "$DIST/articles/guides.json" <<'PY' || true

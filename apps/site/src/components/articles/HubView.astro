@@ -26,6 +26,7 @@ const jsonLd = {
 <Base
   title={`${topic.name}: Linux articles | LinuxStatistics`}
   description={topic.intro}
+  image={`${site}/articles/${topic.slug}/og.png`}
   jsonLd={jsonLd}
   noindex={!live}
   breadcrumbs={[{ name: "Articles", href: "/articles/" }, { name: topic.name }]}
