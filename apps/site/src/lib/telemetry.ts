@@ -3,7 +3,7 @@
  * distro slug. Only distros checked against the project's own docs are
  * listed; anything missing is "not checked" and the site makes no claim.
  * Apps you install (browsers, Steam…) have their own policies and aren't
- * covered. Checked 2026-11-05 and 2026-11-13, pending maintainer review.
+ * covered. Checked 2026-11-05, 2026-11-13 and 2026-11-18, pending maintainer review.
  */
 export type TelemetryLevel =
   /** The OS sends no usage data. */
@@ -347,6 +347,14 @@ export const TELEMETRY: TelemetryInfo[] = [
     evidence: "pve-manager bin/pveupdate (daily pve-daily-update): subscription check runs only if /etc/subscription has an online key; PVE/APLInfo.pm downloads template index from download.proxmox.com and releases.turnkeylinux.org with User-Agent 'PVE/<release>'; then apt update and ACME renewal. No usage-stats code.",
   },
   {
+    key: "pureos",
+    level: "none",
+    detail: "PureOS sends no usage data; it only contacts Purism's servers to check for and download updates.",
+    source: "https://puri.sm/posts/snitching-on-phones-that-snitch-on-you",
+    checked: "build",
+    evidence: "PureOS 11 crimson images (2026-06-12, downloads.puri.sm): GNOME and Plasma live ISO .packages lists and the Librem 5r4 image list have no popularity-contest, reportbug, apport, whoopsie, snapd or Purism reporting package; pureos-meta seeds (source.puri.sm, seed/byzantium/*) name none. network-manager-config-connectivity-pureos only sets a connectivity check (conncheck.pureos.net). Purism post (2021-03-31): no telemetry by default; update checks leave an IP in web logs. popularity-contest is in the archive but not installed.",
+  },
+  {
     key: "puppy",
     level: "none",
     detail: "Puppy Linux sends no usage data; its setup tool only checks whether the internet is reachable, and the package manager downloads from mirrors when you use it.",
@@ -427,6 +435,14 @@ export const TELEMETRY: TelemetryInfo[] = [
     source: "https://github.com/tinycorelinux/Core-scripts",
     checked: "build",
     evidence: "tinycorelinux/Core-scripts master (all 93 files scanned): every wget targets $MIRROR (tce-load, tce-fetch.sh, tce-update, tce-audit, provides.sh, depends-on.sh, update-everything, version -c checks latest-<build>) or a user-given boot HOST in etc/init.d/tc-config. No other outbound calls.",
+  },
+  {
+    key: "trisquel",
+    level: "none",
+    detail: "Trisquel sends no usage data; it only contacts its own servers to check for and download updates.",
+    source: "https://gitlab.trisquel.org/trisquel/ubuntu-purge/-/blob/master/purge-noble",
+    checked: "build",
+    evidence: "Trisquel 12.0 ecne ISO manifests (trisquel, trisquel-mini, triskel, trisquel-sugar at cdimage.trisquel.info) have no apport, whoopsie, ubuntu-report, ubuntu-insights, popularity-contest, snapd or kerneloops (only the python3-apport library, required by xserver-xorg). ubuntu-purge purge-noble removes snapd and ubuntu-advantage-tools; package-helpers (ecne) make-base-files drops motd-news, make-update-notifier drops Livepatch/Ubuntu Pro, make-ubiquity points mirrors at archive.trisquel.org. No project statement on OS telemetry (trisquel.info/en/privacy covers the website only).",
   },
   {
     key: "truenas",

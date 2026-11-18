@@ -10,7 +10,7 @@ answer: "Most Linux distros we checked send no usage data by default. Linux Mint
 distros: ["mint", "popos", "debian", "arch", "ubuntu", "fedora", "opensuse", "zorin", "mx", "elementary"]
 ---
 
-We checked 51 operating systems against their own build files, installer code or published statements. **40 of them send nothing unless you agree to it.** The rest send either an anonymous install count or more detailed usage data, and every one of those can be turned off.
+We checked 53 operating systems against their own build files, installer code or published statements. **42 of them send nothing unless you agree to it.** The rest send either an anonymous install count or more detailed usage data, and every one of those can be turned off.
 
 This covers what the operating system itself sends. Apps you install, such as a browser, Steam or Snap packages, have their own settings.
 
@@ -18,7 +18,7 @@ This covers what the operating system itself sends. Apps you install, such as a 
 
 | What it sends by default | Distros (examples) |
 |---|---|
-| **Nothing** | Linux Mint, Pop!_OS, elementary OS, Arch, MX Linux, Manjaro, EndeavourOS, CachyOS, NixOS, Void, Alpine, Tails |
+| **Nothing** | Linux Mint, Pop!_OS, elementary OS, Arch, MX Linux, Manjaro, EndeavourOS, CachyOS, NixOS, Void, Alpine, Tails, Trisquel, PureOS |
 | **Nothing unless you say yes** | Ubuntu, Debian, Kubuntu, Xubuntu, Lubuntu, KDE neon, Devuan |
 | **An anonymous install count** | Fedora, openSUSE, Zorin OS, Bazzite, Rocky Linux, AlmaLinux, CentOS Stream |
 | **Usage or system data** | Red Hat Enterprise Linux (when registered), TrueNAS, ChromeOS |
@@ -53,6 +53,6 @@ A clean list is a good sign, but it isn't proof. A program can still connect for
 
 ## Sources and method
 
-Every entry on the [telemetry page](/telemetry/) links the file or statement it is based on. Most were checked in the project's build files, for example the package lists for its install images. Where only the project's own statement was available, the page says so. The list was last checked on 13 November 2026.
+Every entry on the [telemetry page](/telemetry/) links the file or statement it is based on. Most were checked in the project's build files, for example the package lists for its install images. Where only the project's own statement was available, the page says so. The list was last checked on 18 November 2026.
 
 If you pick a distro for privacy, the [best Linux for privacy](/best/privacy/) page ranks the options.

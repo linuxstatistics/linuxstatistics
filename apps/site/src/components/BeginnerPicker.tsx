@@ -103,6 +103,11 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
           {result.kind === "recommendation" && <ul className="beginner-reasons">{result.reasons.map((r) => <li key={r}>{r}</li>)}</ul>}
           <p className="beginner-caveat">{result.caveat}</p>
           {result.kind === "recommendation" && <HardwareNotes risks={hardwareRisks({ gpu: answers.gpu, intelMac: answers.machine === "intel-mac" })} bazzite={result.slug === "bazzite"} />}
+          {result.kind === "recommendation" && result.creative && (
+            <p className="beginner-advanced-results">
+              <a href={result.creative}>Looking for audio, video or graphics tools? See distros made for creative work <span className="icon-arrow" aria-hidden="true" /></a>
+            </p>
+          )}
           {result.kind === "compatibility-check" && result.advanced && (
             <p className="beginner-advanced-results">
               <a href={result.advanced}>{!result.advanced.includes("?a=") ? "Pick your board in the advanced quiz" : answers.origin === "chromeos" ? "Installing on a different PC? See matches for a regular PC" : "See distros that fit this computer"} <span className="icon-arrow" aria-hidden="true" /></a>

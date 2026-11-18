@@ -1,8 +1,9 @@
 /**
  * Curated picker profiles, keyed by distro slug. Tags describe how a
  * distro is generally used and maintained (reviewed 2026-11-03, extended
- * 2026-11-06, pending maintainer review). Keep claims conservative; the quiz
- * explains each match, so every tag must be defensible.
+ * 2026-11-06, Ubuntu Studio opened to beginners 2026-11-18, pending
+ * maintainer review). Keep claims conservative; the quiz explains each
+ * match, so every tag must be defensible.
  */
 export type Level = "new" | "some" | "expert";
 export type Use = "everyday" | "gaming" | "dev" | "creative" | "old-hw" | "privacy" | "server" | "ai";
@@ -110,7 +111,7 @@ export const PROFILES: PickerProfile[] = [
   P({ key: "raspios", levels: ["new", "some"], uses: ["everyday", "dev"], updates: "stable", desktops: ["light"], blurb: "The official system for Raspberry Pi boards, with the best hardware support.", platforms: ["pi"], minRamGb: 1, nvidia: "poor", init: "systemd", pkg: "deb", downloadUrl: "https://www.raspberrypi.com/software/", madeFor: "pi" }),
   P({ key: "dietpi", levels: ["some"], uses: ["server"], updates: "stable", desktops: ["light"], blurb: "Minimal Debian for small boards and servers, with a menu that installs common self-hosted apps.", platforms: ["pi", "arm", "pc"], minRamGb: 0.5, nvidia: "poor", init: "systemd", pkg: "deb", downloadUrl: "https://dietpi.com/" }),
   P({ key: "armbian", levels: ["some", "expert"], uses: ["server", "dev"], updates: "stable", desktops: ["light"], blurb: "Debian and Ubuntu builds for hundreds of ARM boards, popular for servers and home labs.", platforms: ["arm", "pi"], minRamGb: 0.5, nvidia: "poor", init: "systemd", pkg: "deb", downloadUrl: "https://www.armbian.com/download/", madeFor: "arm" }),
-  P({ key: "ubuntustudio", levels: ["some"], uses: ["creative"], updates: "stable", desktops: ["kde"], blurb: "Ubuntu with KDE and a full set of audio, video and graphics tools, tuned for low-latency audio.", platforms: ["pc"], minRamGb: 4, nvidia: "good", init: "systemd", pkg: "deb", downloadUrl: "https://ubuntustudio.org/download/", distrosea: "ubuntustudio", useSources: { creative: "https://ubuntustudio.org/" } }),
+  P({ key: "ubuntustudio", levels: ["new", "some"], uses: ["creative"], updates: "stable", desktops: ["kde"], blurb: "Ubuntu with KDE and a full set of audio, video and graphics tools, tuned for low-latency audio.", platforms: ["pc"], minRamGb: 4, nvidia: "good", init: "systemd", pkg: "deb", downloadUrl: "https://ubuntustudio.org/download/", distrosea: "ubuntustudio", useSources: { creative: "https://ubuntustudio.org/" } }),
   P({ key: "avlinux", levels: ["some"], uses: ["creative"], updates: "stable", desktops: ["light"], blurb: "Debian-based system for musicians and video makers, set up for low-latency audio.", platforms: ["pc"], minRamGb: 4, nvidia: "fair", init: "systemd", pkg: "deb", downloadUrl: "https://www.bandshed.net/avlinux/", useSources: { creative: "https://www.bandshed.net/avlinux/" } }),
   P({ key: "tinycore", levels: ["expert"], uses: ["old-hw"], updates: "stable", desktops: ["light"], blurb: "A very small core you build up yourself; runs in RAM on almost anything.", platforms: ["pc", "pc32", "pi"], minRamGb: 0.25, nvidia: "poor", init: "other", pkg: "other", downloadUrl: "http://www.tinycorelinux.net/downloads.html", distrosea: "tinycore" }),
   P({ key: "trisquel", levels: ["new", "some"], uses: ["everyday", "privacy"], updates: "stable", desktops: ["light"], blurb: "Ubuntu-based with only free software, endorsed by the Free Software Foundation.", platforms: ["pc"], minRamGb: 2, nvidia: "poor", init: "systemd", fossOnly: true, pkg: "deb", downloadUrl: "https://trisquel.info/en/download", distrosea: "trisquel" }),

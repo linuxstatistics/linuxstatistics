@@ -50,13 +50,13 @@ export function pickerMode(params: URLSearchParams) { return params.has("a") || 
 const GPU_NAME: Record<string, string> = { nvidia: "NVIDIA", "nvidia-old": "older NVIDIA", amd: "AMD", intel: "Intel" };
 
 /** A detailed-quiz results link for answers the short quiz can't map to one distro; null when the machine is too vague to match. */
-export function advancedResultsHref(a: BeginnerAnswers): string | null {
+export function advancedResultsHref(a: BeginnerAnswers, forUse?: Use): string | null {
   const device = a.machine === "pc32" ? "pc32" : a.machine === "pc" || a.machine === "intel-mac" ? "pc" : undefined;
   if (!device) return null;
-  const use: Record<string, Use> = { everyday: "everyday", gaming: "gaming", older: "old-hw", programming: "dev", ai: "ai" };
+  const purposeUse: Record<string, Use> = { everyday: "everyday", gaming: "gaming", older: "old-hw", programming: "dev", ai: "ai" };
   const answers: Answers = {
     from: a.origin === "windows" || a.origin === "mac" || a.origin === "linux" || a.origin === "chromeos" ? a.origin : undefined,
-    use: a.purpose ? use[a.purpose] : undefined,
+    use: forUse ?? (a.purpose ? purposeUse[a.purpose] : undefined),
     // The short quiz is for newcomers; people already on Linux keep every experience level.
     level: a.origin === "linux" ? undefined : "new",
     device,
@@ -65,7 +65,7 @@ export function advancedResultsHref(a: BeginnerAnswers): string | null {
   return `/pick/?a=${encodeAnswers(answers)}`;
 }
 
-export type BeginnerResult = { kind: "compatibility-check"; title: string; caveat: string; href: string; /** Detailed-quiz results for this computer, when we can match it. */ advanced?: string | null } | { kind: "recommendation"; slug: string; reasons: string[]; caveat: string; alternatives: { slug: string; reason: string }[] };
+export type BeginnerResult = { kind: "compatibility-check"; title: string; caveat: string; href: string; /** Detailed-quiz results for this computer, when we can match it. */ advanced?: string | null } | { kind: "recommendation"; slug: string; reasons: string[]; caveat: string; alternatives: { slug: string; reason: string }[]; /** Detailed-quiz results for creative work, offered next to the general pick. */ creative?: string | null };
 /** Editorial starting points, independent of rank. Eligibility is not hardware certification. */
 export function beginnerRecommendation(a: BeginnerAnswers, tracked: ReadonlySet<string>): BeginnerResult {
   const check = (title: string, caveat: string, href = "/switch/getting-started/#hardware", advanced: string | null = null): BeginnerResult => ({ kind: "compatibility-check", title, caveat, href, advanced });
@@ -87,7 +87,7 @@ export function beginnerRecommendation(a: BeginnerAnswers, tracked: ReadonlySet<
     reasons.splice(0, reasons.length, "Ubuntu provides a documented platform for AI and development tools.", "Long-term support releases are available; choose the release your AI tools support.");
     return { kind: "recommendation", slug, reasons, caveat: a.machine === "intel-mac" ? `${caveat} For AI acceleration, also check your exact GPU, available memory and framework support.` : `Check your exact GPU and available memory before choosing models. ${a.gpu === "nvidia" || a.gpu === "nvidia-old" ? "Verify the CUDA and driver requirements for your tools." : a.gpu === "amd" ? "ROCm supports selected AMD GPUs and OS releases, not every AMD card." : "Do not assume GPU acceleration is supported. Identify the GPU and check your framework; CPU-only inference may be an option."}`, alternatives: [] };
   }
-  return { kind: "recommendation", slug, reasons, caveat, alternatives };
+  return { kind: "recommendation", slug, reasons, caveat, alternatives, creative: a.purpose === "work" ? advancedResultsHref(a, "creative") : undefined };
 }
 
 export const BEGINNER_SOURCES = [

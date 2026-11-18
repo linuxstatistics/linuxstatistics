@@ -108,3 +108,12 @@ test("advanced links carry the short-quiz answers as a beginner on that computer
   // Someone already on Linux isn't assumed to be a beginner.
   expect(decodeAnswers(new URLSearchParams(advancedResultsHref({ origin: "linux", machine: "pc32", purpose: "everyday" })!.split("?")[1]).get("a")).level).toBeUndefined();
 });
+
+test("creative work keeps Mint but links to creative distros for a beginner on that computer", () => {
+  const r = beginnerRecommendation({ ...everyday, purpose: "work" }, known);
+  expect(r.kind === "recommendation" && r.slug).toBe("mint");
+  const href = r.kind === "recommendation" ? r.creative! : "";
+  expect(decodeAnswers(new URLSearchParams(href.split("?")[1]).get("a"))).toMatchObject({ use: "creative", level: "new", device: "pc" });
+  const plain = beginnerRecommendation(everyday, known);
+  expect(plain.kind === "recommendation" && plain.creative).toBeFalsy();
+});

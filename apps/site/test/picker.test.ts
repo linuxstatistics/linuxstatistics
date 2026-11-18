@@ -290,3 +290,16 @@ test("level mismatches name who the distro is really for", () => {
   expect(score(prof("zorin"), { level: "some" }).misses).toContain("Made for beginners; less to tinker with");
   expect(score(prof("arch"), { level: "new" }).misses).toContain("Expects some Linux experience");
 });
+
+test("a beginner doing creative work gets a creative distro, not just a familiar desktop", () => {
+  const s = suggest({ level: "new", use: "creative", device: "pc", ram: 8 }, PROFILES, rankOf);
+  expect(s[0]!.key).toBe("ubuntustudio");
+  expect(s[0]!.reasons).toContain("Good for music, video and graphics work");
+  expect(s[0]!.pct).toBeGreaterThanOrEqual(50);
+});
+
+test("a beginner who wants privacy and no usage data gets a privacy distro on top", () => {
+  const s = suggest({ from: "windows", level: "new", use: "privacy", device: "pc", ram: 8, desktop: "any", telemetry: "none" }, PROFILES, rankOf);
+  expect(prof(s[0]!.key).uses).toContain("privacy");
+  expect(s[0]!.misses).toEqual([]);
+});
