@@ -132,6 +132,8 @@ export const DISTRO_IMAGES: Record<string, DistroImageEntry> = {
   puppy: { file: "puppy.png", source: "https://commons.wikimedia.org/wiki/File:Puppy_logo.svg", license: "Attribution", author: "afgs, puppylinux.com" },
   sparky: { file: "sparky.png", source: "https://commons.wikimedia.org/wiki/File:SparkyLinux-logo-200px.png", license: "GPL", author: "Pavroo" },
   ubuntucinnamon: { file: "ubuntucinnamon.png", source: "https://commons.wikimedia.org/wiki/File:UbuntuCinnamon.png", license: "CC BY-SA 4.0", author: "Ubuntu Cinnamon Remix" },
+  trisquel: { file: "trisquel.png", source: "https://commons.wikimedia.org/wiki/File:Logo-Trisquel.svg", license: "GPL", author: "Rub\u00e9n Rodr\u00edguez P\u00e9rez" },
+  ubuntuunity: { file: "ubuntuunity.png", source: "https://commons.wikimedia.org/wiki/File:Ubuntu_Unity_Logo.png", license: "CC BY-SA 4.0", author: "Allan Carvalho" },
   // Official icons from each project (own website or GitHub organization), checked 2026-11-16.
   archbang: { file: "archbang.png", source: "https://archbang.org/wp-content/uploads/2026/06/archbang-512-300x300.png", license: "Trademark, identify-only", author: "ArchBANG project (Official website icon)" },
   armbian: { file: "armbian.png", source: "https://www.armbian.com/favicon.ico?favicon.0d81kuff2t8-z.ico", license: "Trademark, identify-only", author: "Armbian project (Official website icon)" },
@@ -153,4 +155,7 @@ export const DISTRO_IMAGES: Record<string, DistroImageEntry> = {
   ubuntubudgie: { file: "ubuntubudgie.png", source: "https://ubuntubudgie.org/apple-touch-icon.png", license: "Trademark, identify-only", author: "Ubuntu Budgie project (Official website icon)" },
   ubuntukylin: { file: "ubuntukylin.png", source: "https://github.com/ubuntukylin.png?size=256", license: "Trademark, identify-only", author: "Ubuntu Kylin project (GitHub organization avatar)" },
   whonix: { file: "whonix.png", source: "https://www.whonix.org/apple-touch-icon.png", license: "Trademark, identify-only", author: "Whonix project (Official website icon)" },
+  // Official icons added 2026-11-18.
+  anduin: { file: "anduin.png", source: "https://www.anduinos.com/favicon.svg", license: "Trademark, identify-only", author: "AnduinOS project (Official website icon)" },
+  ubuntustudio: { file: "ubuntustudio.png", source: "https://ubuntustudio.org/wp-content/uploads/fbrfg/favicon.svg", license: "Trademark, identify-only", author: "Ubuntu Studio project (Official website icon)" },
 };
