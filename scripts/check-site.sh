@@ -52,7 +52,8 @@ check index.html 'href="/desktop-share/"' "home links to the desktop share page"
 [ -f "$DIST/favicon.svg" ] && echo "ok:   favicon" || { echo "FAIL: favicon missing"; fail=1; }
 [ -f "$DIST/sitemap-index.xml" ] && echo "ok:   sitemap" || { echo "FAIL: sitemap missing"; fail=1; }
 [ -f "$DIST/robots.txt" ] && echo "ok:   robots.txt" || { echo "FAIL: robots.txt missing"; fail=1; }
-cmp -s "$DIST/sitemap.xml" "$DIST/sitemap-index.xml" && echo "ok:   /sitemap.xml is the sitemap index" || { echo "FAIL: /sitemap.xml missing or differs from sitemap-index.xml"; fail=1; }
+# Plain bash comparison: the build image has no cmp.
+[ -f "$DIST/sitemap.xml" ] && [ "$(cat "$DIST/sitemap.xml")" = "$(cat "$DIST/sitemap-index.xml")" ] && echo "ok:   /sitemap.xml is the sitemap index" || { echo "FAIL: /sitemap.xml missing or differs from sitemap-index.xml"; fail=1; }
 # lastmod is the content date, never the build time: a whole day (the writer adds T00:00:00.000Z), no time of day.
 if grep -oE '<lastmod>[^<]*</lastmod>' "$DIST"/sitemap-[0-9]*.xml | grep -qvE '<lastmod>[0-9]{4}-[0-9]{2}-[0-9]{2}(T00:00:00\.000Z)?</lastmod>'; then echo "FAIL: sitemap lastmod carries a build timestamp"; fail=1; else echo "ok:   sitemap lastmod values are dates"; fi
 grep -q '<loc>https://[^<]*/articles/how-we-rank-distros/</loc><lastmod>[0-9]' "$DIST"/sitemap-[0-9]*.xml && echo "ok:   articles have a lastmod" || { echo "FAIL: article without lastmod in the sitemap"; fail=1; }

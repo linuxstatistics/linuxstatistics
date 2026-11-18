@@ -36,11 +36,6 @@ export interface PackedList {
   rows: (string | number | null)[][];
 }
 
-/** Only the fields the islands use, e.g. for rows rendered into the HTML. */
-export function listRow(d: ListRow): ListRow {
-  return unpackList({ fields: LIST_FIELDS, rows: packList([d]).rows })[0]!;
-}
-
 /** The best-ranked distros as search items: what a picker shows before anything is typed. */
 export function topSearchItems(items: Pick<ListRow, "slug" | "name" | "rank">[], n: number) {
   return items

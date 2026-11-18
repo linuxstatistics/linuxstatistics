@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroStatus, type Family } from "@linux-statistics/shared";
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating } from "../lib/rating";
-import type { ListRow } from "../lib/distro-list";
+import { unpackList, type ListRow } from "../lib/distro-list";
 import { useDistroList } from "../lib/use-distro-list";
 import { DistroMark } from "./DistroMark";
 import { RankDifference } from "./RankDifference";
@@ -132,7 +132,9 @@ function compare(a: ListRow, b: ListRow, key: SortKey): number {
 
 export interface ListViewProps {
   /** Rows rendered into the HTML. With `src`, the first page only; the rest loads from `src`. */
-  items: ListRow[];
+  items?: ListRow[];
+  /** The same rows as a packed list string (lib/distro-list): far smaller island props than `items`. */
+  packed?: string;
   /** Packed distro list to load after hydration (see lib/distro-list). */
   src?: string;
   /** Slugs left out of the loaded list (shown elsewhere on the page, e.g. the podium). */
@@ -149,7 +151,8 @@ export interface ListViewProps {
   offset?: number;
 }
 
-export function ListView({ items: initial, src, exclude, total, pageSize = 0, firstPage, offset = 0, maxHits }: ListViewProps) {
+export function ListView({ items: given, packed, src, exclude, total, pageSize = 0, firstPage, offset = 0, maxHits }: ListViewProps) {
+  const initial = useMemo(() => (packed ? unpackList(JSON.parse(packed)) : (given ?? [])), [packed, given]);
   const { items: listItems, loaded } = useDistroList(initial, src);
   const items = useMemo(
     () => (loaded && exclude?.length ? listItems.filter((d) => !exclude.includes(d.slug)) : listItems),

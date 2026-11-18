@@ -194,3 +194,9 @@ test("with src, a failed load keeps the rows the page rendered", async () => {
   vi.unstubAllGlobals();
   resetDistroList();
 });
+
+test("rows can come as a packed string (small island props) and render the same", async () => {
+  const { packList } = await import("../src/lib/distro-list");
+  render(<ListView packed={JSON.stringify(packList(items))} />);
+  expect(rowNames()).toEqual(["Linux Mint", "Arch Linux", "Fedora"]);
+});

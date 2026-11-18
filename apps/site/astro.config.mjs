@@ -36,9 +36,11 @@ export default defineConfig({
     {
       name: "sitemap-xml-alias",
       hooks: {
-        "astro:build:done": async ({ dir }) => {
+        "astro:build:done": async ({ dir, logger }) => {
           const index = new URL("sitemap-index.xml", dir);
-          if (existsSync(index)) copyFileSync(index, new URL("sitemap.xml", dir));
+          if (!existsSync(index)) return logger.warn("no sitemap-index.xml to copy to sitemap.xml");
+          copyFileSync(index, new URL("sitemap.xml", dir));
+          logger.info("`sitemap.xml` copied from sitemap-index.xml");
         },
       },
     },

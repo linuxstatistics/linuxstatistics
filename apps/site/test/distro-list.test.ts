@@ -1,6 +1,6 @@
 import { afterEach, expect, test, vi } from "vitest";
 import type { DistroListItem } from "@linux-statistics/shared";
-import { LIST_FIELDS, listRow, loadDistroList, packList, resetDistroList, topSearchItems, unpackList } from "../src/lib/distro-list";
+import { LIST_FIELDS, loadDistroList, packList, resetDistroList, topSearchItems, unpackList } from "../src/lib/distro-list";
 
 afterEach(() => {
   resetDistroList();
@@ -20,7 +20,6 @@ test("packing keeps every field the islands use and drops the rest", () => {
     commitsLast30d: 180, firstReleaseYear: 2006, rankTrend: 2, rank1m: 1, rank1mDelta: 1,
     userRating: { average: 4.612, count: 10 },
   });
-  expect(listRow(full)).toEqual(row);
 });
 
 test("packed rows are much smaller than the list objects", () => {
