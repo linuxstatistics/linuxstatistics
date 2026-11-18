@@ -6,7 +6,6 @@
  */
 export const NOINDEX_PATHS = [
   "/articles/beginners/",
-  "/articles/data/",
   "/articles/gaming/",
   "/articles/hardware/",
   "/articles/privacy/",
