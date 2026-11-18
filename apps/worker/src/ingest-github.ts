@@ -7,6 +7,7 @@ import { GITHUB_REPOS } from "./github-repos.js";
 async function countViaLink(url: string, get: (u: string) => Promise<Response>): Promise<number> {
   const res = await get(url);
   if (res.status === 409) return 0; // empty repository
+  if (res.status === 403) return 0; // "too large to list" (e.g. nixpkgs contributors): no count rather than no data
   if (!res.ok) throw new Error(`GitHub ${url} -> ${res.status}`);
   const link = res.headers.get("link") ?? "";
   const last = /[?&]page=(\d+)>; rel="last"/.exec(link);
