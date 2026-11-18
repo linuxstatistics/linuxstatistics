@@ -171,7 +171,8 @@ import { pageGraph, type Crumb } from "../lib/structured-data";
             </p>
           </div>
           <nav class="footer-links" aria-label="Footer">
-            <h2>Explore</h2>
+            <details class="footer-fold" open>
+            <summary><h2>Explore</h2></summary>
             <ul>
               <li><a href="/">Rankings</a></li>
               <li><a href="/rising/">Rising this month</a></li>
@@ -187,9 +188,11 @@ import { pageGraph, type Crumb } from "../lib/structured-data";
               <li><a href="/switch/">Switch from Windows or Mac</a></li>
               <li><a href="/suggest/">Suggest a distro or fix</a></li>
             </ul>
+            </details>
           </nav>
           <nav class="footer-links" aria-label="About">
-            <h2>About</h2>
+            <details class="footer-fold" open>
+            <summary><h2>About</h2></summary>
             <ul>
               <li><a href="/about/">About</a></li>
               <li><a href="/about/ratings/">How scores work</a></li>
@@ -202,6 +205,7 @@ import { pageGraph, type Crumb } from "../lib/structured-data";
               <li><a href="/about/trademarks/">Trademarks</a></li>
               <li><a href="https://github.com/linuxstatistics/linuxstatistics" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Source code (AGPL-3.0)</a></li>
             </ul>
+            </details>
           </nav>
           <nav class="footer-links" aria-label="Follow">
             <h2>Follow</h2>
@@ -222,6 +226,10 @@ import { pageGraph, type Crumb } from "../lib/structured-data";
           </div>
         </div>
         <div class="supporter-wrap"><SupporterRow /></div>
+        <script is:inline>
+          // Phones: fold the footer link groups and distro key facts. They stay open in the HTML for crawlers and without JS.
+          if (matchMedia("(max-width: 760px)").matches) document.querySelectorAll("details.footer-fold, details.key-facts-fold").forEach((d) => d.removeAttribute("open"));
+        </script>
         <div class="footer-bottom">
           <p>© {year} {OPERATOR.name}. LinuxStatistics code is open source under AGPL-3.0; ranking data belongs to its sources. Distro names and logos belong to their owners and are used only to identify them (<a href="/about/trademarks/">trademarks</a>).</p>
           <div class="theme-switch" id="theme-switch" role="radiogroup" aria-label="Theme">

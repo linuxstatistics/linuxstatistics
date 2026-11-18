@@ -54,13 +54,19 @@ export function DistroStats({ data, baseName }: { data: DistroDetail; baseName?:
     <div className="dstats">
       {data.rank != null && (
         <dl className="dstats-pop" aria-label="Popularity">
-          <div>
+          <div className="dstats-rank">
             <dt>Rank</dt>
-            <dd>#{data.rank}</dd>
-          </div>
-          <div>
-            <dt>{RANK_VALUE_LABEL[RANK_SOURCE]}</dt>
-            <dd>{data.hitsPerDay != null ? n(data.hitsPerDay) : "-"}</dd>
+            <dd>
+              #{data.rank}
+              {data.hitsPerDay != null && (
+                <span className="dstats-score">
+                  {RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()} {n(data.hitsPerDay)}{" "}
+                  <a href="/about/#ranking" className="dstats-info" title="Interest, not installs: how we rank" aria-label="How the interest score works">
+                    <span className="icon-info" aria-hidden="true" />
+                  </a>
+                </span>
+              )}
+            </dd>
           </div>
           <div>
             <dt>Last month</dt>

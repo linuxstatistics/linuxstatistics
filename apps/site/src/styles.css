@@ -457,12 +457,16 @@ html.cmdk-open { overflow: hidden; }
 /* Distro facts: a fixed three-number popularity row every listed distro has, then a quiet
    label/value list of whatever details are known, so pages look alike whatever the data. */
 .dstats { display: grid; gap: 4px; }
-.dstats-pop { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; border-block: 1px solid var(--line); }
+.dstats-pop { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); margin: 0; border-block: 1px solid var(--line); }
 .dstats-pop > div { padding: 14px 16px 14px 0; }
 .dstats-pop > div + div { padding-left: 16px; border-left: 1px solid var(--row); }
 .dstats-pop dt { font: 12px var(--sans); color: var(--ink2); margin-bottom: 4px; }
 .dstats-pop dd { margin: 0; font: 700 26px/1.1 var(--display); letter-spacing: -0.02em; white-space: nowrap; }
 .dstats-move .trend { font: 700 22px/1.1 var(--display); }
+.dstats-rank dd { font-size: 36px; }
+.dstats-score { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; font: 400 13px var(--sans); letter-spacing: 0; color: var(--ink2); vertical-align: middle; }
+.dstats-info { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; color: var(--ink2); }
+.dstats-info:hover { color: var(--accent); }
 .dstats-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); margin: 0; }
 .dstats-facts > div { display: contents; }
 .dstats-facts dt, .dstats-facts dd { padding: 10px 0; border-bottom: 1px solid var(--row); }
@@ -1613,3 +1617,19 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 }
 .switch-report-prompt { margin: 32px 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 15px; max-width: 720px; }
 .switch-report-prompt .switch-report-note { font-size: 13px; color: var(--ink2); }
+
+/* Folding footer groups and key facts (open in the HTML; a script folds them on phones). */
+.footer-fold > summary, .key-facts-fold > summary { list-style: none; cursor: pointer; }
+.footer-fold > summary::-webkit-details-marker, .key-facts-fold > summary::-webkit-details-marker { display: none; }
+.footer-fold > summary h2, .key-facts-fold > summary h2 { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.key-facts-fold > summary { min-height: 44px; }
+@media (min-width: 761px) {
+  .footer-fold > summary { pointer-events: none; }
+}
+@media (max-width: 760px) {
+  .footer-fold > summary h2::after, .key-facts-fold > summary h2::after { content: "+"; font: 500 18px/1 var(--sans); }
+  .footer-fold[open] > summary h2::after, .key-facts-fold[open] > summary h2::after { content: "\2212"; }
+  .footer-fold > summary h2 { min-height: 44px; margin-bottom: 0; }
+  .footer-fold[open] > summary h2 { margin-bottom: 18px; }
+  .footer-fold > summary:focus-visible, .key-facts-fold > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+}

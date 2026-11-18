@@ -125,7 +125,7 @@ if grep -qiE 'hitsPerDay|hits_per_day|interest score' "$DIST/telemetry/index.htm
 check llms.txt '# LinuxStatistics' "llms.txt is built"
 check llms-full.txt '## Mint' "llms-full.txt lists distro facts"
 check data/index.html '"@type":"Dataset"' "open data page has Dataset JSON-LD"
-check distro/mint/index.html 'class="key-facts"' "distro page has key facts"
+check distro/mint/index.html '<details class="key-facts key-facts-fold" open' "distro page has key facts, open in the HTML"
 check "compare/$pair/index.html" 'key-facts-pair' "compare pair has key facts"
 # llms-full.txt is an export: no rank numbers or hits.
 if grep -qiE '#[0-9]|ranked|rank_|hits|interest score|index_value' "$DIST/llms-full.txt"; then echo "FAIL: llms-full.txt carries ranking data"; fail=1; else echo "ok:   llms-full.txt has no ranking data"; fi

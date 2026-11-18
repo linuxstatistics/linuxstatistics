@@ -12,9 +12,22 @@ function FactList({ facts }: { facts: KeyFact[] }) {
   );
 }
 
-/** Quotable facts with their sources. Static HTML, no client JS. */
-export function KeyFacts({ title, facts }: { title: string; facts: KeyFact[] }) {
+/**
+ * Quotable facts with their sources. Static HTML, no client JS. `collapsible`
+ * wraps them in an open <details>: crawlers and AI readers get every fact, and
+ * a small script folds it on phones, where the stats table above already shows
+ * most of them.
+ */
+export function KeyFacts({ title, facts, collapsible = false }: { title: string; facts: KeyFact[]; collapsible?: boolean }) {
   if (facts.length === 0) return null;
+  if (collapsible) {
+    return (
+      <details className="key-facts key-facts-fold" open>
+        <summary><h2>{title}</h2></summary>
+        <FactList facts={facts} />
+      </details>
+    );
+  }
   return (
     <section className="key-facts" aria-label={title}>
       <h2>{title}</h2>
