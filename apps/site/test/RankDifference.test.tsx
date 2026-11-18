@@ -6,8 +6,10 @@ import { RankDifference } from "../src/components/RankDifference";
 afterEach(cleanup);
 
 test("zero means same rank, not missing data", () => {
-  render(<RankDifference value={0} />);
-  expect(screen.getByText("– 0")).toHaveAttribute("title", "Same position in the last-month and 12-month rankings");
+  const { container } = render(<RankDifference value={0} />);
+  expect(screen.getByText("– 0")).toHaveAttribute("aria-hidden", "true");
+  expect(container.firstChild).toHaveAttribute("title", "Same position in the last-month and 12-month rankings");
+  expect(screen.getByText("Same position in the last-month and 12-month rankings")).toHaveClass("visually-hidden");
 });
 
 test("missing comparison is labelled separately", () => {
@@ -16,6 +18,10 @@ test("missing comparison is labelled separately", () => {
 });
 
 test.each([3, -2])("rank difference %s names the comparison windows", (value) => {
-  render(<RankDifference value={value} />);
-  expect(screen.getByLabelText(`${Math.abs(value)} places ${value > 0 ? "higher" : "lower"} in the last-month ranking than the 12-month ranking`)).toHaveTextContent(String(Math.abs(value)));
+  const { container } = render(<RankDifference value={value} />);
+  const label = `${Math.abs(value)} places ${value > 0 ? "higher" : "lower"} in the last-month ranking than the 12-month ranking`;
+  expect(screen.getByText(label)).toHaveClass("visually-hidden");
+  expect(container.querySelector("[aria-hidden]")).toHaveTextContent(`${value > 0 ? "▲" : "▼"} ${Math.abs(value)}`);
+  // No aria-label on a generic span: screen readers ignore it there.
+  expect(container.querySelector("[aria-label]")).toBeNull();
 });

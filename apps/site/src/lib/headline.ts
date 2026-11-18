@@ -16,6 +16,19 @@ const places = (n: number) => `${n <= 20 ? WORDS[n] : n} place${n === 1 ? "" : "
  * last-month climber in the 12-month top 20 (or, failing that, the top 100).
  * Pure, so the page and the share card can't disagree.
  */
+/** The top `n` ranked distros in rank order, for the answer line, meta description and ItemList. */
+export function topRanked(items: DistroListItem[], n: number): (DistroListItem & { rank: number })[] {
+  return items
+    .filter((d): d is DistroListItem & { rank: number } => d.rank !== null)
+    .sort((a, b) => a.rank - b.rank)
+    .slice(0, n);
+}
+
+/** "Arch, Mint, Zorin OS, Pop!_OS and Fedora" */
+export function joinNames(names: string[]): string {
+  return names.length < 2 ? (names[0] ?? "") : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+}
+
 export function buildHeadline(items: DistroListItem[]): Headline | null {
   const ranked = items
     .filter((d): d is DistroListItem & { rank: number } => d.rank !== null)

@@ -7,7 +7,8 @@ import { Podium } from "../components/Podium";
 import { SponsorCard } from "../components/SponsorCard";
 import { loadDistros, loadMarketShare, loadMeta, loadRising, loadStats, dataDate } from "../lib/data";
 import { SWITCHERS_HOME_THRESHOLD } from "../config/stats";
-import { buildHeadline } from "../lib/headline";
+import { buildHeadline, joinNames, topRanked } from "../lib/headline";
+import { itemListNode } from "../lib/structured-data";
 import { RANK_SOURCE, RANK_VALUE_LABEL } from "@linux-statistics/shared";
 import { latestLinuxShare, linuxYearlySeries } from "../lib/marketShare";
 import { ShareChart } from "../components/ShareChart";
@@ -28,9 +29,13 @@ const podiumSlugs = items.filter((d) => !restItems.includes(d)).map((d) => d.slu
 const title = headline
   ? `${headline.leader} is #1. Linux distro rankings | LinuxStatistics`
   : "Linux distro rankings and statistics | LinuxStatistics";
-const description = `Rankings for ${items.length} Linux distributions: popularity, last month's movers, desktop market share, GitHub activity and community ratings, plus a quiz to pick one.`;
-const jsonLd = {
-  "@context": "https://schema.org",
+const top5 = topRanked(items, 5);
+const top10 = topRanked(items, 10);
+const monthLabel = asOf ? new Date(`${asOf.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }) : null;
+const description = top5.length >= 3
+  ? `The most popular Linux distros right now: ${joinNames(top5.map((d) => d.name))}. Rankings for ${items.length} distributions from an open interest index.`
+  : `Rankings for ${items.length} Linux distributions: popularity, last month's movers, desktop market share, GitHub activity and community ratings, plus a quiz to pick one.`;
+const dataset = {
   "@type": "Dataset",
   name: "Linux distribution rankings",
   description,
@@ -48,6 +53,13 @@ const jsonLd = {
   // Spelled out in full: Google's Dataset check doesn't resolve an @id-only reference.
   creator: { "@type": "Organization", "@id": `${site}/#org`, name: "LinuxStatistics", url: `${site}/` },
 };
+// Top 10 in rank order; all ten are visible on the page (podium #1-3, table #4-10).
+const jsonLd = {
+  "@graph": [
+    dataset,
+    ...(top10.length ? [itemListNode(site, "Top Linux distributions by interest score", top10.map((d) => ({ name: d.name, href: `/distro/${d.slug}/` })))] : []),
+  ],
+};
 ---
 
 <Base title={title} description={description} jsonLd={jsonLd}>
@@ -60,6 +72,14 @@ const jsonLd = {
     ) : (
       <h1>Linux distro rankings</h1>
     )}
+    {top5.length >= 3 && (
+      <p class="mast-answer">
+        Top Linux distros{monthLabel ? `, ${monthLabel}` : ""}:{" "}
+        {top5.map((d, i) => (
+          <>{i > 0 ? ", " : ""}{d.rank}. <a href={`/distro/${d.slug}/`}>{d.name}</a> ({d.hitsPerDay?.toLocaleString("en-US") ?? "-"})</>
+        ))}.
+      </p>
+    )}
     <p class="mast-note">Ranked by interest, not installs: Wikipedia views, GitHub stars and more, combined in an <a href="/about/#ranking">open index</a>. <a href="/about/#interest-not-installs">Why not page hits?</a></p>
     {switchers != null && <p class="mast-switchers"><a href="/stats/">{switchers.toLocaleString("en-US")} people say LinuxStatistics helped them switch to Linux</a></p>}
   </div>
@@ -67,9 +87,9 @@ const jsonLd = {
   <div class="home">
     <section aria-label="Rankings">
       <Podium items={items} />
-      <div class="sec"><h2>The rest of the chart</h2><span class="sec-sub">{RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}, last 12 months<button type="button" class="rank-explainer-btn" popovertarget="rank-explainer" aria-label="What do these numbers mean?" title="What do these numbers mean?"></button></span></div>
+      <div class="sec"><h2>Full ranking, #4 onward</h2><span class="sec-sub">{RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}, last 12 months<button type="button" class="rank-explainer-btn" popovertarget="rank-explainer" aria-label="What do these numbers mean?" title="What do these numbers mean?"></button></span></div>
       <ListView client:load packed={JSON.stringify(packList(firstRows))} src={LIST_PATH} exclude={podiumSlugs} total={restItems.length} maxHits={Math.max(1, ...items.map((d) => d.hitsPerDay ?? 0))} firstPage={FIRST_PAGE} pageSize={50} offset={items.length - restItems.length} />
-      <div id="rank-explainer" class="rank-explainer" popover role="dialog" aria-labelledby="rank-explainer-h">
+      <div id="rank-explainer" class="rank-explainer" data-nosnippet popover role="dialog" aria-labelledby="rank-explainer-h">
         <div class="rank-explainer-head">
           <h2 id="rank-explainer-h">What these numbers mean</h2>
           <button type="button" class="rank-explainer-close" popovertarget="rank-explainer" popovertargetaction="hide" aria-label="Close">×</button>

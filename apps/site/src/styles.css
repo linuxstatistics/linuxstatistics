@@ -259,17 +259,18 @@ html.cmdk-open { overflow: hidden; }
 .home > * { min-width: 0; }
 
 /* Podium */
-.podium { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 12px; margin: 0 0 28px; }
+.podium { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 12px; margin: 0 0 28px; padding: 0; list-style: none; }
+.pod-item { display: grid; min-width: 0; }
 .pod { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: last baseline; padding: 20px 18px 24px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; text-decoration: none; transition: transform 0.16s var(--ease-out), border-color 0.16s var(--ease-out); }
 @media (hover: hover) { .pod:hover { transform: translateY(-2px); border-color: color-mix(in oklch, var(--ink2) 45%, var(--line)); } }
 .pod:active { transform: scale(0.98); }
 /* Rank digit: its figure height (about 0.69em in Archivo) equals the text beside it, from the top of the
    name's capitals to the baseline of the meta line; the digit sits on that same baseline (align-items: last baseline). */
 .pod .pr { font: 700 58px/1 var(--display); letter-spacing: -0.05em; color: var(--ink2); }
-.pod:first-child .pr { color: var(--accent); font-size: 70px; }
+.pod-item:first-child .pr { color: var(--accent); font-size: 70px; }
 .pod .pt { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .pod .pn { font: 700 24px/1.1 var(--display); letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.pod:first-child .pn { font-size: 32px; }
+.pod-item:first-child .pn { font-size: 32px; }
 .pod .pm { display: flex; flex-wrap: nowrap; gap: 10px; align-items: baseline; font: 13px/1 var(--sans); color: var(--ink2); white-space: nowrap; container-type: inline-size; }
 /* Narrow podium cards: the score keeps its number, the "interest score" label goes (the table header names it). */
 @container (max-width: 210px) { .pod .pm small { display: none; } }
@@ -381,6 +382,11 @@ html.cmdk-open { overflow: hidden; }
 }
 .leaderboard th { text-align: left; font: 500 12px var(--sans); color: var(--ink2); padding: 6px 8px; border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: var(--z-sticky); }
 .leaderboard th button { all: unset; cursor: pointer; }
+/* Sort arrow drawn in CSS with empty alt text: aria-sort already tells assistive tech, and the glyph stays out of the page text. */
+.leaderboard th[aria-sort="ascending"] button::after { content: " ▲" / ""; }
+.leaderboard th[aria-sort="descending"] button::after { content: " ▼" / ""; }
+.mast-answer { margin: 14px 0 0; max-width: 68ch; font-size: 16px; color: var(--ink); }
+.mast-answer a { color: inherit; }
 .leaderboard th button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px; }
 .leaderboard th.num { text-align: right; }
 .leaderboard td { padding: 7px 8px; border-bottom: 1px solid var(--row); }
@@ -971,8 +977,8 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
   .home { grid-template-columns: 1fr; gap: 28px; }
   .podium { grid-template-columns: 1fr; gap: 8px; }
   .pod { padding: 14px 16px 18px; }
-  .pod .pr, .pod:first-child .pr { font-size: 57px; }
-  .pod .pn, .pod:first-child .pn { font-size: 22px; }
+  .pod .pr, .pod-item:first-child .pr { font-size: 57px; }
+  .pod .pn, .pod-item:first-child .pn { font-size: 22px; }
 }
 @media (max-width: 760px) {
   :root { --gutter: 16px; }

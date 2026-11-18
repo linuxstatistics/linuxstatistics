@@ -316,7 +316,6 @@ export function ListView({ items: given, packed, src, exclude, total, pageSize =
                   ) : (
                     <button type="button" onClick={() => toggleSort(c.key)}>
                       {c.label}
-                      {sortKey === c.key ? (asc ? " ▲" : " ▼") : ""}
                     </button>
                   )}
                 </th>
