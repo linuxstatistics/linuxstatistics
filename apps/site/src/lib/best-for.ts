@@ -14,6 +14,8 @@ export interface BestTopic {
   qualifies: (p: PickerProfile) => boolean;
   /** Who the page is for and what matters, one sentence; the direct answer is built from the picks. */
   lead: string;
+  /** Why the picks fit, as a full sentence after "X is our top pick…" (the lead is a fragment). */
+  why: string;
   faq: { q: string; a: string }[];
   related: string[];
 }
@@ -31,6 +33,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { level: "new", use: "everyday", updates: "any" },
     qualifies: (p) => p.levels.includes("new"),
     lead: "For people new to Linux: a familiar desktop, tested updates and little setup.",
+    why: "They have a familiar desktop, tested updates and need little setup.",
     faq: [
       { q: "Which Linux is easiest for a beginner?", a: "Pick a distro with fixed releases, a familiar desktop and a large community. The list on this page is ranked by our quiz engine for a first-time user with everyday needs." },
       { q: "Can I try Linux without installing it?", a: "Yes. Most beginner distros run from a USB stick as a live session, so you can check Wi-Fi, sound and graphics before changing anything." },
@@ -44,6 +47,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { use: "gaming", updates: "any" },
     qualifies: (p) => p.uses.includes("gaming"),
     lead: "For playing Steam and other PC games: current graphics drivers, Proton and gaming tools set up.",
+    why: "They ship current graphics drivers, with Proton and gaming tools set up.",
     faq: [
       { q: "Can I play Windows games on Linux?", a: "Many, through Steam's Proton. Check each game on ProtonDB first; games with kernel-level anti-cheat often don't run." },
       { q: "Do I need a special distro for gaming?", a: "No, but gaming distros save setup: newer drivers, Steam and controller support out of the box." },
@@ -57,6 +61,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { gpu: "nvidia", updates: "any" },
     qualifies: (p) => p.nvidia === "excellent" || p.nvidia === "good",
     lead: "For computers with an NVIDIA card: drivers installed for you, or easy to add from the distro itself.",
+    why: "They install the NVIDIA driver for you, or make it easy to add from the distro itself.",
     faq: [
       { q: "Does Linux work with NVIDIA cards?", a: "Yes. NVIDIA's own driver works on Linux; the difference between distros is whether it's installed for you or one step away." },
       { q: "What about older NVIDIA cards?", a: "GTX 10-series and older need NVIDIA's 580 legacy driver. Fixed-release distros keep it working longer than rolling ones." },
@@ -70,6 +75,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { use: "old-hw", ram: 4, updates: "any" },
     qualifies: (p) => p.uses.includes("old-hw"),
     lead: "For older computers: light desktops that stay quick on modest hardware.",
+    why: "Their light desktops stay quick on modest hardware.",
     faq: [
       { q: "Will Linux make an old laptop faster?", a: "Often, if you pick a light desktop. A modern browser still needs memory, so 4 GB is a comfortable minimum for everyday use." },
       { q: "Does my old laptop support 64-bit?", a: "Almost every laptop from 2008 on does. 32-bit-only machines need one of the few distros that still ship 32-bit images." },
@@ -83,6 +89,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { ram: 1, updates: "any" },
     qualifies: (p) => p.minRamGb <= 1,
     lead: "For computers with 2 GB of memory or less: distros whose default desktop stays usable in 1 GB.",
+    why: "Their default desktop stays usable in 1 GB of memory.",
     faq: [
       { q: "Can Linux run on 2 GB of RAM?", a: "Yes, with a light desktop such as Xfce, LXQt or a window manager. Web browsing is the hard part; keep few tabs open." },
       { q: "How much RAM does Linux need?", a: "The system itself needs well under 1 GB with a light desktop. What you run on top, mostly the browser, decides the rest." },
@@ -96,6 +103,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { device: "pi", updates: "any" },
     qualifies: (p) => p.platforms.includes("pi"),
     lead: "For Raspberry Pi boards: distros with official Pi images.",
+    why: "Each has an official Raspberry Pi image.",
     faq: [
       { q: "What's the default OS for a Raspberry Pi?", a: "Raspberry Pi OS, made by Raspberry Pi itself. Others on this list publish their own Pi images." },
       { q: "How do I install Linux on a Raspberry Pi?", a: "Write the image to a microSD card or SSD with Raspberry Pi Imager, which lists several of these distros." },
@@ -109,6 +117,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { use: "dev", level: "some", updates: "any" },
     qualifies: (p) => p.uses.includes("dev"),
     lead: "For writing software: current toolchains, good container support and a well-documented base.",
+    why: "They offer current toolchains, good container support and a well-documented base.",
     faq: [
       { q: "Should developers use a rolling or fixed-release distro?", a: "Rolling releases get new compilers first; fixed releases change less under you. Containers make either work for most projects." },
       { q: "Is WSL enough instead?", a: "For many tasks, yes. Native Linux helps with hardware access, containers and anything performance-sensitive." },
@@ -122,6 +131,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { use: "server", updates: "stable" },
     qualifies: (p) => p.uses.includes("server"),
     lead: "For a NAS, media server or self-hosting box: long support, stable updates and good container support.",
+    why: "They have long support, stable updates and good container support.",
     faq: [
       { q: "What's a good Linux for a home server?", a: "One with long support and few surprises. Many people run a minimal server install and put their apps in containers." },
       { q: "Do I need a desktop on a server?", a: "No. Most servers are managed over SSH or a web interface; skipping the desktop saves memory and updates." },
@@ -135,6 +145,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { use: "privacy", telemetry: "none", updates: "any" },
     qualifies: (p) => p.uses.includes("privacy"),
     lead: "For people who want less tracking: distros built around privacy, checked for what they send home.",
+    why: "They're built around privacy, and we've checked what they send home.",
     faq: [
       { q: "Which Linux distros send no telemetry?", a: "Most send nothing by default. Our telemetry page lists every distro we checked, grouped by what it sends." },
       { q: "Is any Linux distro anonymous?", a: "Only purpose-built systems like Tails route everything through Tor. A normal distro protects you from vendor tracking, not from the websites you visit." },
@@ -148,6 +159,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { use: "creative", updates: "any" },
     qualifies: (p) => p.uses.includes("creative"),
     lead: "For music, video and graphics: distros that set up low-latency audio and ship creative tools.",
+    why: "They set up low-latency audio and ship creative tools.",
     faq: [
       { q: "Can you make music on Linux?", a: "Yes. Ardour, Bitwig and Reaper run on Linux, and creative distros set up low-latency audio for you." },
       { q: "Does Adobe run on Linux?", a: "No. Kdenlive, DaVinci Resolve, Krita, GIMP and Darktable are the common replacements." },
@@ -161,6 +173,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { use: "ai", gpu: "nvidia", updates: "any" },
     qualifies: (p) => p.uses.includes("ai"),
     lead: "For running models on your own GPU: distros with official CUDA or ROCm support.",
+    why: "They have official CUDA or ROCm support for running models on your own GPU.",
     faq: [
       { q: "Which Linux is best for running LLMs locally?", a: "One that NVIDIA's CUDA or AMD's ROCm officially supports, so drivers and toolkits install from their repositories without workarounds." },
       { q: "How much GPU memory do I need?", a: "It depends on the model size and quantization. Check the model's requirements; the distro doesn't change that." },
@@ -174,6 +187,7 @@ export const BEST_TOPICS: BestTopic[] = [
     answers: { level: "some", use: "everyday", updates: "any" },
     qualifies: (p) => p.laptop != null,
     lead: "For laptops: distros a laptop maker ships preinstalled or certifies, so suspend, battery and Wi-Fi are tested.",
+    why: "A laptop maker ships them preinstalled or certifies them, so suspend, battery and Wi-Fi are tested.",
     faq: [
       { q: "Which laptops come with Linux?", a: "System76, TUXEDO, Framework, Slimbook and others sell laptops with Linux preinstalled or officially supported. Each pick here names its vendor." },
       { q: "Will Linux run on my current laptop?", a: "Usually. Try a live USB first and check Wi-Fi, sleep, the webcam and the touchpad before installing." },

@@ -49,10 +49,13 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
   // Restore from a shared link.
   useEffect(() => {
     setRestored(true);
-    const code = new URLSearchParams(window.location.search).get("a") ?? initialCode;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("a") ?? initialCode;
     if (code == null) return;
     const a = decodeAnswers(code);
     setAnswers(a);
+    // ?edit=1 (from the "Best Linux for…" pages): start at question 1 with these answers chosen.
+    if (params.get("edit") === "1") return;
     setSkipped(new Set(flow(a).filter((q) => a[q.id] === undefined).map((q) => q.id)));
     setDone(true);
   }, [initialCode]);
@@ -305,7 +308,11 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
       <div className="quiz-foot">
         {step > 0 && <button type="button" onClick={back}><span className="icon-arrow icon-arrow-left" aria-hidden="true" /> Back</button>}
         <button type="button" aria-expanded={why} onClick={() => setWhy((w) => !w)}><span className="icon-info" aria-hidden="true" /> Why we ask</button>
-        <button type="button" className="quiz-skip" onClick={skip}>Skip this question</button>
+        {current !== undefined ? (
+          <button type="button" className="quiz-skip" onClick={() => choose(current)}>Keep this answer</button>
+        ) : (
+          <button type="button" className="quiz-skip" onClick={skip}>Skip this question</button>
+        )}
       </div>
       {why && <p className="tip quiz-why-text">{q.why}</p>}
       <p className="quiz-keys">Arrow keys move, Enter chooses, Esc goes back.</p>

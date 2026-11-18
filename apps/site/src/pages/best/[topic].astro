@@ -30,9 +30,9 @@ const month = new Date().toLocaleDateString("en-US", { month: "long", year: "num
 const names = picks.map((p) => bySlug.get(p.key)!.name);
 const top = names[0];
 const answer = top
-  ? `${top} is our top pick${names.length > 1 ? `, followed by ${names.slice(1, 3).join(" and ")}` : ""}. ${topic.lead} Picks come from the same engine as our quiz and are updated monthly.`
+  ? `${top} is our top pick${names.length > 1 ? `, followed by ${names.slice(1, 3).join(" and ")}` : ""}. ${topic.why} Picks come from the same engine as our quiz and are updated monthly.`
   : topic.lead;
-const quizHref = `/pick/?a=${encodeAnswers(topic.answers)}`;
+const quizHref = `/pick/?a=${encodeAnswers(topic.answers)}&edit=1`;
 const faq = [
   ...(top ? [{ q: `What is the ${topic.title.replace(/^Best /, "best ").toLowerCase()}?`, a: `${top}${names.length > 1 ? `, then ${names.slice(1, 3).join(" and ")}` : ""}. ${byKey.get(picks[0]!.key)!.blurb}` }] : []),
   ...topic.faq,
@@ -96,8 +96,8 @@ const fmtTrend = (n: number | null) => (n == null || n === 0 ? null : n > 0 ? `u
 
       <section class="best-quiz">
         <h2>Not quite right?</h2>
-        <p>Answer a few questions about your computer and what you'll use it for. The quiz starts with this page's answers filled in.</p>
-        <a class="cta" href={quizHref}>Take the quiz</a>
+        <p>Go through the quiz with this page's answers already chosen. Change any of them and add your computer's details to get picks for you.</p>
+        <a class="cta" href={quizHref}>Adjust these answers</a>
       </section>
 
       <Faq items={faq} />

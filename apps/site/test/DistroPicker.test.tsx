@@ -77,3 +77,17 @@ test("only good matches are listed beyond the top 3, and weak ones are counted, 
   expect(items.length).toBeGreaterThan(0);
   for (const t of items) expect(Number(t.match(/(\d+)%/)![1])).toBeGreaterThanOrEqual(50);
 });
+
+test("edit=1 starts at question 1 with the link's answers chosen; Keep this answer moves on", async () => {
+  const user = userEvent.setup();
+  window.history.replaceState(null, "", `/pick/?a=${encodeAnswers({ use: "gaming", updates: "any" })}&edit=1`);
+  render(<DistroPicker distros={distros} />);
+  expect(await screen.findByRole("heading", { name: "Where are you coming from?" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "Skip this question" })).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Windows" }));
+  expect(screen.getByRole("heading", { name: "What's it mainly for?" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Gaming/ })).toHaveAttribute("aria-pressed", "true");
+  await user.click(screen.getByRole("button", { name: "Keep this answer" }));
+  expect(screen.queryByRole("heading", { name: "What's it mainly for?" })).toBeNull();
+  expect(screen.queryByRole("heading", { name: "Your best matches" })).toBeNull();
+});
