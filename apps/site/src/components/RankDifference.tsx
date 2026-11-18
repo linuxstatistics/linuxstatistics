@@ -14,7 +14,7 @@ export function RankDifference({ value }: { value: number | null }) {
   const label = `${places} ${value > 0 ? "higher" : "lower"} in the last-month ranking than the 12-month ranking`;
   return (
     <span className={`trend ${value > 0 ? "up" : "down"}`} title={label}>
-      <span aria-hidden="true" data-nosnippet="">{value > 0 ? "▲" : "▼"} {Math.abs(value)}</span>{" "}
+      <span aria-hidden="true" data-nosnippet="">{`${value > 0 ? "▲" : "▼"} ${Math.abs(value)}`}</span>{" "}
       <span className="visually-hidden">{label}</span>
     </span>
   );

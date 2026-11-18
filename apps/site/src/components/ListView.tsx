@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroStatus, type Family } from "@linux-statistics/shared";
-import { FAMILY_LABELS, familyColor } from "../lib/families";
+import { FAMILY_LABELS } from "../lib/families";
 import { formatRating } from "../lib/rating";
 import { unpackList, type ListRow } from "../lib/distro-list";
 import { useDistroList } from "../lib/use-distro-list";
@@ -11,7 +11,7 @@ import { RankDifference } from "./RankDifference";
 function Trend({ value }: { value: number | null }) {
   if (value == null) return <span className="trend flat">No data</span>;
   if (value === 0) return <span className="trend flat">No change</span>;
-  return <span className={`trend ${value > 0 ? "up" : "down"}`}>{value > 0 ? "▲" : "▼"} {Math.abs(value)}</span>;
+  return <span className={`trend ${value > 0 ? "up" : "down"}`}>{`${value > 0 ? "▲" : "▼"} ${Math.abs(value)}`}</span>;
 }
 
 type SortKey =
@@ -98,7 +98,7 @@ const COLUMNS: ColumnDef[] = [
     mobileHide: true,
     cellClass: "fam-cell",
     render: (d) => (
-      <span className={`fam f-${d.family}`} style={{ color: familyColor(d.family) }}>
+      <span className={`fam f-${d.family}`}>
         {FAMILY_LABELS[d.family].toLowerCase()}
       </span>
     ),

@@ -315,7 +315,13 @@ html.cmdk-open { overflow: hidden; }
 .cta:active { transform: scale(0.97); }
 
 /* ---------- Family colors and movement ---------- */
-.fam { font: 12px var(--sans); }
+.fam { font: 12px var(--sans); color: var(--fam-other); }
+.fam.f-debian { color: var(--fam-debian); }
+.fam.f-arch { color: var(--fam-arch); }
+.fam.f-rpm { color: var(--fam-rpm); }
+.fam.f-independent { color: var(--fam-independent); }
+.fam.f-gentoo { color: var(--fam-gentoo); }
+.fam.f-slackware { color: var(--fam-slackware); }
 .trend { font: 600 13px var(--sans); white-space: nowrap; }
 .trend.up { color: var(--up); }
 .trend.down { color: var(--down); }
