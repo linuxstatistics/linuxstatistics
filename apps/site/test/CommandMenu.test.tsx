@@ -3,7 +3,7 @@ import { afterEach, expect, test } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CommandMenu } from "../src/components/CommandMenu";
-import { PAGE_COMMANDS, compareHref, groupCommands, searchCommands } from "../src/lib/command-menu";
+import { PAGE_COMMANDS, PAGE_SECTIONS, compareHref, groupCommands, searchCommands } from "../src/lib/command-menu";
 
 afterEach(cleanup);
 
@@ -19,7 +19,7 @@ test("empty query is the menu: every page, then the top distros by rank, actions
   expect(r[0]).toMatchObject({ kind: "page", href: "/" });
   expect(r.filter((c) => c.kind === "page")).toHaveLength(PAGE_COMMANDS.length);
   expect(r.filter((c) => c.kind === "distro").map((c) => c.label)).toEqual(["Mint", "MX Linux", "Fedora"]);
-  expect(groupCommands(r).map((g) => g.kind)).toEqual(["page", "distro", "action", "link"]);
+  expect(groupCommands(r).map((g) => g.label)).toEqual(["Explore", "Choose a distro", "Reference", "About", "Distros", "Actions", "Follow"]);
   expect(r.at(-1)).toMatchObject({ kind: "link", href: "https://mastodon.social/@linuxstatistics" });
 });
 
@@ -42,6 +42,17 @@ test("'a vs b' becomes a comparison, prerendered page when it exists", () => {
   });
   expect(compareHref("mint", "mx", prerendered)).toBe("/compare/?a=mint&b=mx");
   expect(searchCommands("mint vs mint", items).some((c) => c.kind === "compare")).toBe(false);
+});
+
+test("pages are listed section by section, each section once", () => {
+  const order = PAGE_COMMANDS.map((p) => p.section).filter((x, i, a) => a.indexOf(x) === i);
+  expect(order).toEqual([...PAGE_SECTIONS]);
+  const runs = PAGE_COMMANDS.map((p) => p.section).filter((x, i, a) => x !== a[i - 1]);
+  expect(runs).toEqual([...PAGE_SECTIONS]);
+});
+
+test("typed results keep the section headers", () => {
+  expect(groupCommands(searchCommands("support", items)).map((g) => g.label)).toEqual(["Reference"]);
 });
 
 test("every page command points at a site path", () => {
@@ -93,9 +104,9 @@ test("slash opens it; results are grouped with titles in display order", async (
   const box = screen.getByRole("combobox");
   expect(box).toHaveFocus();
   expect(box).toBeInTheDocument();
-  // Empty query: pages first, then distros, actions and accounts, each under its own title.
+  // Empty query: pages in headed sections, then distros, actions and accounts, each under its own title.
   const groups = screen.getAllByRole("group");
-  expect(groups.map((g) => g.getAttribute("aria-labelledby") && document.getElementById(g.getAttribute("aria-labelledby")!)?.textContent)).toEqual(["Pages", "Distros", "Actions", "Follow"]);
+  expect(groups.map((g) => g.getAttribute("aria-labelledby") && document.getElementById(g.getAttribute("aria-labelledby")!)?.textContent)).toEqual(["Explore", "Choose a distro", "Reference", "About", "Distros", "Actions", "Follow"]);
   // Arrow order follows the visual order: the first option is the first page.
   expect(screen.getAllByRole("option")[0]).toHaveTextContent("Rankings");
   await user.type(box, "mint vs fedora");

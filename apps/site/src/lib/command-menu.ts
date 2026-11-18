@@ -3,6 +3,7 @@ import { matchDistros, type SearchItem } from "../components/DistroSearch";
 import { SOCIAL } from "../config/site";
 
 export interface PageCommand {
+  section: PageSection;
   href: string;
   label: string;
   /** Extra words people might type for this page. */
@@ -10,43 +11,47 @@ export interface PageCommand {
 }
 
 export type Command =
-  | { kind: "page"; id: string; label: string; href: string }
+  | { kind: "page"; id: string; label: string; href: string; section: PageSection }
   | { kind: "distro"; id: string; label: string; href: string; rank: number | null }
   | { kind: "compare"; id: string; label: string; href: string }
   | { kind: "action"; id: string; label: string; action: "theme" }
   | { kind: "link"; id: string; label: string; href: string; hint: string };
 
-/** Every page the menu can open, in the order shown when nothing is typed. */
+/** Headed groups for pages, in display order. */
+export const PAGE_SECTIONS = ["Explore", "Choose a distro", "Reference", "About"] as const;
+export type PageSection = (typeof PAGE_SECTIONS)[number];
+
+/** Every page the menu can open, grouped by section, in the order shown when nothing is typed. */
 export const PAGE_COMMANDS: PageCommand[] = [
-  { href: "/", label: "Rankings", keywords: "home leaderboard chart top" },
-  { href: "/rising/", label: "Rising this month", keywords: "climbers trending movers" },
-  { href: "/pick/", label: "Which distro? Take the quiz", keywords: "picker quiz choose recommend" },
-  { href: "/switch/", label: "Switch to Linux", keywords: "leave migrate" },
-  { href: "/switch/windows/", label: "Switch from Windows", keywords: "windows 10 11 migrate" },
-  { href: "/switch/mac/", label: "Switch from a Mac", keywords: "macos apple silicon migrate" },
-  { href: "/compare/", label: "Compare distros", keywords: "vs versus side by side" },
-  { href: "/desktop-share/", label: "Desktop share over time", keywords: "market share statcounter windows macos" },
-  { href: "/stats/", label: "Linux by the numbers", keywords: "stats statistics numbers totals releases end of life" },
-  { href: "/best/", label: "Best Linux for…", keywords: "best gaming beginners old laptop low ram raspberry pi developers server privacy creative ai laptops" },
-  { href: "/telemetry/", label: "Telemetry by distro", keywords: "privacy tracking data collection telemetry" },
-  { href: "/support-dates/", label: "Support dates", keywords: "end of life eol support lts lifecycle" },
-  { href: "/articles/", label: "Articles", keywords: "blog posts analysis method" },
-  { href: "/data/", label: "Open data", keywords: "download csv json api badge" },
-  { href: "/about/", label: "About and sources", keywords: "method index sources" },
-  { href: "/about/ratings/", label: "How scores work", keywords: "ratings reviews" },
-  { href: "/changelog/", label: "Changelog", keywords: "changes method corrections outages history" },
-  { href: "/suggest/", label: "Suggest a distro or fix", keywords: "add correction feedback" },
-  { href: "/sponsors/", label: "Sponsors", keywords: "advertise sponsor" },
-  { href: "/press/", label: "Press kit", keywords: "logo brand media" },
-  { href: "/privacy/", label: "Privacy", keywords: "data cookies" },
-  { href: "/terms/", label: "Terms and rules", keywords: "rules" },
+  { section: "Explore", href: "/", label: "Rankings", keywords: "home leaderboard chart top" },
+  { section: "Explore", href: "/rising/", label: "Rising this month", keywords: "climbers trending movers" },
+  { section: "Explore", href: "/compare/", label: "Compare distros", keywords: "vs versus side by side" },
+  { section: "Explore", href: "/desktop-share/", label: "Desktop share over time", keywords: "market share statcounter windows macos" },
+  { section: "Explore", href: "/stats/", label: "Linux by the numbers", keywords: "stats statistics numbers totals releases end of life" },
+  { section: "Choose a distro", href: "/pick/", label: "Which distro? Take the quiz", keywords: "picker quiz choose recommend" },
+  { section: "Choose a distro", href: "/best/", label: "Best Linux for…", keywords: "best gaming beginners old laptop low ram raspberry pi developers server privacy creative ai laptops" },
+  { section: "Choose a distro", href: "/switch/", label: "Switch to Linux", keywords: "leave migrate" },
+  { section: "Choose a distro", href: "/switch/windows/", label: "Switch from Windows", keywords: "windows 10 11 migrate" },
+  { section: "Choose a distro", href: "/switch/mac/", label: "Switch from a Mac", keywords: "macos apple silicon migrate" },
+  { section: "Reference", href: "/telemetry/", label: "Telemetry by distro", keywords: "privacy tracking data collection telemetry" },
+  { section: "Reference", href: "/support-dates/", label: "Support dates", keywords: "end of life eol support lts lifecycle" },
+  { section: "Reference", href: "/articles/", label: "Articles", keywords: "blog posts analysis method" },
+  { section: "Reference", href: "/data/", label: "Open data", keywords: "download csv json api badge" },
+  { section: "Reference", href: "/changelog/", label: "Changelog", keywords: "changes method corrections outages history" },
+  { section: "About", href: "/about/", label: "About and sources", keywords: "method index sources" },
+  { section: "About", href: "/about/ratings/", label: "How scores work", keywords: "ratings reviews" },
+  { section: "About", href: "/suggest/", label: "Suggest a distro or fix", keywords: "add correction feedback" },
+  { section: "About", href: "/sponsors/", label: "Sponsors", keywords: "advertise sponsor" },
+  { section: "About", href: "/press/", label: "Press kit", keywords: "logo brand media" },
+  { section: "About", href: "/privacy/", label: "Privacy", keywords: "data cookies" },
+  { section: "About", href: "/terms/", label: "Terms and rules", keywords: "rules" },
 ];
 
 const ACTIONS: Command[] = [{ kind: "action", id: "action:theme", label: "Switch theme (light / dark / system)", action: "theme" }];
 
 const FOLLOW: Command[] = SOCIAL.map((s) => ({ kind: "link", id: `link:${s.name}`, label: `Follow on ${s.name}`, href: s.href, hint: s.handle }));
 
-const pageCmd = (p: PageCommand): Command => ({ kind: "page", id: `page:${p.href}`, label: p.label, href: p.href });
+const pageCmd = (p: PageCommand): Command => ({ kind: "page", id: `page:${p.href}`, label: p.label, href: p.href, section: p.section });
 const distroCmd = (d: SearchItem): Command => ({
   kind: "distro",
   id: `distro:${d.slug}`,
@@ -111,13 +116,26 @@ export function searchCommands(
 
 export const GROUP_LABEL: Record<Command["kind"], string> = { compare: "Compare", distro: "Distros", page: "Pages", action: "Actions", link: "Follow" };
 
-/** Results grouped for display, in the order searchCommands put them. */
-export function groupCommands(results: Command[]): { kind: Command["kind"]; items: Command[] }[] {
-  const groups: { kind: Command["kind"]; items: Command[] }[] = [];
+export interface CommandGroup {
+  kind: Command["kind"];
+  /** Unique per group: the kind, or `page:<section>` for pages. */
+  key: string;
+  label: string;
+  items: Command[];
+}
+
+/**
+ * Results grouped for display, in the order searchCommands put them. Pages split
+ * into their headed sections (Explore, Choose a distro, Reference, About), so the
+ * full menu reads as short labelled lists instead of one long one.
+ */
+export function groupCommands(results: Command[]): CommandGroup[] {
+  const groups: CommandGroup[] = [];
   for (const r of results) {
-    const g = groups.find((x) => x.kind === r.kind);
+    const key = r.kind === "page" ? `page:${r.section}` : r.kind;
+    const g = groups.find((x) => x.key === key);
     if (g) g.items.push(r);
-    else groups.push({ kind: r.kind, items: [r] });
+    else groups.push({ kind: r.kind, key, label: r.kind === "page" ? r.section : GROUP_LABEL[r.kind], items: [r] });
   }
   return groups;
 }

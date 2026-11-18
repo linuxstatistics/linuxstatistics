@@ -1,6 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { SearchItem } from "./DistroSearch";
-import { GROUP_LABEL, groupCommands, searchCommands, type Command } from "../lib/command-menu";
+import { groupCommands, searchCommands, type Command } from "../lib/command-menu";
 
 /**
  * Keep the page still behind the open menu, so a swipe scrolls the menu list.
@@ -168,10 +168,10 @@ export function CommandMenu({ items, staticPairs = [], current }: { items: Searc
             {results.length > 0 ? (
               <div id={listId} role="listbox" className="cmdk-list" aria-label="Results">
                 {groups.map((g) => {
-                  const headingId = `${listId}-${g.kind}`;
+                  const headingId = `${listId}-${g.key.replace(/[^a-z]+/gi, "-")}`;
                   return (
-                    <div key={g.kind} role="group" aria-labelledby={headingId} className="cmdk-group">
-                      <div id={headingId} className="cmdk-group-title" role="presentation">{GROUP_LABEL[g.kind]}</div>
+                    <div key={g.key} role="group" aria-labelledby={headingId} className="cmdk-group">
+                      <div id={headingId} className="cmdk-group-title" role="presentation">{g.label}</div>
                       {g.items.map((r) => {
                         const i = results.indexOf(r);
                         return (
