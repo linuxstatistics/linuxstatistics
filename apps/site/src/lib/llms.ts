@@ -76,7 +76,7 @@ export function datasetJsonLd(site: string, distroCount: number, dateModified: s
     dateModified,
     license: "https://creativecommons.org/licenses/by/4.0/",
     isAccessibleForFree: true,
-    creator: { "@type": "Organization", name: "LinuxStatistics", url: site },
+    creator: { "@type": "Organization", "@id": `${site}/#org`, name: "LinuxStatistics", url: `${site}/` },
     keywords: ["Linux", "Linux distributions", "open data", "desktop market share"],
     distribution: [
       file("distros.json", "application/json"),

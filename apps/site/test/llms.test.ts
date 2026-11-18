@@ -35,3 +35,8 @@ test("Dataset JSON-LD names the licence and every download", () => {
     `${SITE}/data/distros.json`, `${SITE}/data/distros.csv`, `${SITE}/data/notes.json`, `${SITE}/data/market-share.csv`,
   ]);
 });
+
+test("Dataset creator is spelled out with a type and name (Google doesn't follow an @id-only reference)", () => {
+  const ld = datasetJsonLd(SITE, 545, "2026-11-16");
+  expect(ld.creator).toMatchObject({ "@type": "Organization", "@id": `${SITE}/#org`, name: "LinuxStatistics" });
+});

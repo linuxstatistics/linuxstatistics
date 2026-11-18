@@ -92,6 +92,10 @@ check telemetry/index.html 'class="ref-list"' "telemetry page renders"
 check support-dates/index.html 'class="data-table support-table"' "support dates page renders"
 check index.html '"@type":"Organization"' "every page has Organization JSON-LD"
 check index.html 'creativecommons.org/licenses/by/4.0' "home Dataset carries the data licence"
+# Google's Dataset check needs creator spelled out (type and name), not an @id-only reference.
+for f in "$DIST/index.html" "$DIST/data/index.html"; do
+  if python3 -c 'import json,re,sys; s=open(sys.argv[1]).read(); ds=[n for b in re.findall(r"<script type=\"application/ld\+json\">(.*?)</script>",s,re.S) for n in (json.loads(b).get("@graph") or [json.loads(b)]) if n.get("@type")=="Dataset"]; sys.exit(0 if ds and all(isinstance(d.get("creator"),dict) and d["creator"].get("@type") and d["creator"].get("name") for d in ds) else 1)' "$f"; then echo "ok:   Dataset creator has a type and name in ${f#$DIST/}"; else echo "FAIL: Dataset creator missing type or name in ${f#$DIST/}"; fail=1; fi
+done
 check distro/mint/index.html '"BreadcrumbList"' "distro page has BreadcrumbList JSON-LD"
 check distro/mint/index.html '"FAQPage"' "distro page has FAQ JSON-LD"
 # Thin best-for topics are noindex and stay out of the sitemap.

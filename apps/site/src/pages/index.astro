@@ -39,7 +39,8 @@ const jsonLd = {
     "https://gs.statcounter.com/os-market-share/desktop/worldwide",
     "https://github.com/",
   ],
-  creator: { "@id": `${site}/#org` },
+  // Spelled out in full: Google's Dataset check doesn't resolve an @id-only reference.
+  creator: { "@type": "Organization", "@id": `${site}/#org`, name: "LinuxStatistics", url: `${site}/` },
 };
 ---
 
