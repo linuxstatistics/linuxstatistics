@@ -5,11 +5,11 @@ import Base from "../../layouts/Base.astro";
 import RankCredit from "../../components/RankCredit.astro";
 import { SponsorCard } from "../../components/SponsorCard";
 import { FAMILY_LABELS, familyColor } from "../../lib/families";
-import { loadMeta, loadRising, dataDate } from "../../lib/data";
+import { loadMeta, loadRising, indexDate } from "../../lib/data";
 
 const rising = await loadRising();
 const meta = await loadMeta();
-const asOf = dataDate(meta, "wikipedia");
+const asOf = indexDate(meta);
 const month = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }) : "this month";
 const site = Astro.site!.href.replace(/\/$/, "");
 

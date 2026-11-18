@@ -2,7 +2,7 @@
 import Base from "../../layouts/Base.astro";
 import RankCredit from "../../components/RankCredit.astro";
 import { FAMILY_LABELS } from "../../lib/families";
-import { loadDistro, loadDistros, loadMeta, mapLimit, dataDate } from "../../lib/data";
+import { loadDistro, loadDistros, loadMeta, mapLimit, indexDate } from "../../lib/data";
 import { compareSlug, popularPairs } from "../../lib/compare";
 import { formatRating } from "../../lib/rating";
 import { compareSuggestions } from "../../lib/related";
@@ -55,7 +55,7 @@ const related = [...compareSuggestions(list, a, staticPairs, 5), ...compareSugge
 const options = [...topSearchItems(list, 10), ...[a, b].map((d) => ({ slug: d.slug, name: d.name, rank: d.rank }))].filter(
   (o, i, all) => all.findIndex((x) => x.slug === o.slug) === i,
 );
-const asOf = dataDate(meta, "wikipedia");
+const asOf = indexDate(meta);
 
 type Row = { label: string; a: string; b: string; better?: "a" | "b"; split?: number };
 const num = (v: number | null) => (v == null ? "-" : v.toLocaleString("en-US"));

@@ -5,7 +5,7 @@ import Base from "../layouts/Base.astro";
 import { ListView } from "../components/ListView";
 import { Podium } from "../components/Podium";
 import { SponsorCard } from "../components/SponsorCard";
-import { loadDistros, loadMarketShare, loadMeta, loadRising, loadStats, dataDate } from "../lib/data";
+import { loadDistros, loadMarketShare, loadMeta, loadRising, loadStats, indexDate } from "../lib/data";
 import { SWITCHERS_HOME_THRESHOLD } from "../config/stats";
 import { buildHeadline, joinNames, topRanked } from "../lib/headline";
 import { itemListNode } from "../lib/structured-data";
@@ -16,7 +16,7 @@ import { LIST_PATH, packList } from "../lib/distro-list";
 
 const [items, marketShare, meta, rising, stats] = await Promise.all([loadDistros(), loadMarketShare(), loadMeta(), loadRising(), loadStats()]);
 const switchers = stats.site.switchers.total >= SWITCHERS_HOME_THRESHOLD ? stats.site.switchers.total : null;
-const asOf = dataDate(meta, "wikipedia");
+const asOf = indexDate(meta);
 const site = Astro.site!.href.replace(/\/$/, "");
 const headline = buildHeadline(items);
 const share = latestLinuxShare(marketShare);

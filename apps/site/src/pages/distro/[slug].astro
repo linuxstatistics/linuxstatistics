@@ -37,7 +37,7 @@ import { reasonsFor } from "../../lib/verdict";
 import { compareSlug, popularPairs } from "../../lib/compare";
 import { compareSuggestions, neighbours, sameFamily } from "../../lib/related";
 import { FAMILY_LABELS } from "../../lib/families";
-import { loadDistro, loadDistros, loadMeta, mapLimit, dataDate } from "../../lib/data";
+import { loadDistro, loadDistros, loadMeta, mapLimit, indexDate } from "../../lib/data";
 import type { DistroDetail } from "@linux-statistics/shared";
 import { LIST_PATH, topSearchItems } from "../../lib/distro-list";
 
@@ -67,7 +67,7 @@ const primaryFits = profile ? primaryUses(profile) : undefined;
 const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 // "Compare with" search: the top distros in the HTML, the full list loads on first focus.
 const searchItems = topSearchItems(list, 10);
-const asOf = dataDate(meta, "wikipedia");
+const asOf = indexDate(meta);
 const editionNames = Object.fromEntries((data.facts?.editions ?? []).flatMap((e) => { const n = list.find((d) => d.slug === e.slug)?.name; return n ? [[e.slug, n]] : []; }));
 const facts = keyFacts(data, { baseName, asOf, includeRank: true, nameOf: (s) => editionNames[s] });
 const changes = entriesFor(data.slug);

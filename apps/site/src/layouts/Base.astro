@@ -11,7 +11,7 @@ import { CommandMenu } from "../components/CommandMenu";
 import { compareSlug, popularPairs } from "../lib/compare";
 import { LIST_PATH, topSearchItems } from "../lib/distro-list";
 import { PressMenu } from "../components/PressMenu";
-import { loadDistros, loadMarketShare, loadMeta, dataDate } from "../lib/data";
+import { loadDistros, loadMarketShare, loadMeta, indexDate } from "../lib/data";
 import { staleSources } from "../lib/freshness";
 import { latestLinuxShare } from "../lib/marketShare";
 import { OPERATOR, SEARCH_VERIFY, SOCIAL } from "../config/site";
@@ -45,7 +45,7 @@ const [allDistros, marketShare, meta] = await Promise.all([loadDistros(), loadMa
 const jumpItems = topSearchItems(allDistros, 5);
 const staticPairs = popularPairs(allDistros).map(([a, b]) => compareSlug(a, b));
 // Data facts for the footer, shown on every page.
-const asOf = dataDate(meta, "wikipedia");
+const asOf = indexDate(meta);
 const asOfText = asOf ? new Date(`${asOf}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }) : null;
 const share = latestLinuxShare(marketShare);
 const stale = staleSources(meta);

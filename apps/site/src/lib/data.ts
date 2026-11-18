@@ -62,3 +62,12 @@ export function dataDate(meta: Meta, source: Meta["sources"][number]["source"]):
   const s = meta.sources.find((x) => x.source === source);
   return s?.lastSuccessAt ? s.lastSuccessAt.slice(0, 10) : null;
 }
+
+/**
+ * Date of the latest composite index rebuild. Both the daily DistroWatch ingest
+ * and the monthly Wikipedia ingest rebuild it, so take the newer of the two.
+ */
+export function indexDate(meta: Meta): string | null {
+  const dates = [dataDate(meta, "distrowatch"), dataDate(meta, "wikipedia")].filter((d): d is string => d !== null);
+  return dates.sort().at(-1) ?? null;
+}

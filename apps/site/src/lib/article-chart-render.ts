@@ -1,6 +1,6 @@
 import { RANK_SOURCE, RANK_VALUE_LABEL } from "@linux-statistics/shared";
 import { barsSvg, figure, findCharts, fracYear, lineSvg, replaceCharts, type ChartSpec } from "./article-charts";
-import { dataDate, loadDistro, loadDistros, loadMarketShare, loadMeta, loadRising } from "./data";
+import { indexDate, loadDistro, loadDistros, loadMarketShare, loadMeta, loadRising } from "./data";
 import { shareSeries } from "./stats";
 
 const INDEX_SOURCE = "our composite index (interest, not installs)";
@@ -12,7 +12,7 @@ export async function renderArticleCharts(html: string, where: string): Promise<
   for (const f of found) if ("error" in f.spec) throw new Error(`${where}: [chart: ${f.raw}]: ${f.spec.error}`);
   const specs = found.map((f) => f.spec as ChartSpec);
   const meta = await loadMeta();
-  const indexDate = dataDate(meta, "wikipedia");
+  const builtOn = indexDate(meta);
   const need = new Set(specs.map((s) => s.kind));
   const share = need.has("share") ? await loadMarketShare() : [];
   const list = need.has("top") ? await loadDistros() : [];
@@ -65,7 +65,7 @@ export async function renderArticleCharts(html: string, where: string): Promise<
       const now = ds.map((d) => `${d.name} is #${d.rankHistory.at(-1)?.value ?? "?"}`).join(", ");
       const title = ds.length === 1 ? `${ds[0]!.name}'s rank on our index over time` : `${ds[0]!.name} and ${ds[1]!.name} on our index over time`;
       const link = ds.length === 1 ? { href: `/distro/${ds[0]!.slug}/`, label: `${ds[0]!.name} details` } : { href: `/compare/?a=${encodeURIComponent(spec.slugs[0]!)}&b=${encodeURIComponent(spec.slugs[1]!)}`, label: `Compare ${ds[0]!.name} and ${ds[1]!.name}` };
-      return figure(svg, `Rank over time, lower is more interest. Now ${now}.`, { title, source: INDEX_SOURCE, asOf: indexDate, link });
+      return figure(svg, `Rank over time, lower is more interest. Now ${now}.`, { title, source: INDEX_SOURCE, asOf: builtOn, link });
     }
     if (spec.kind === "rising") {
       const top = rising.filter((d) => (d.rank1mDelta ?? 0) > 0).slice(0, 8);
@@ -74,7 +74,7 @@ export async function renderArticleCharts(html: string, where: string): Promise<
       return figure(svg, `Biggest climbers this month: ${top[0]!.name} leads, up ${top[0]!.rank1mDelta} places.`, {
         title: "Places gained this month vs the 12-month ranking",
         source: INDEX_SOURCE,
-        asOf: indexDate,
+        asOf: builtOn,
         link: { href: "/rising/", label: "All rising distros" },
       });
     }
@@ -84,7 +84,7 @@ export async function renderArticleCharts(html: string, where: string): Promise<
     return figure(svg, `Top ${top.length} by ${RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}: ${top.slice(0, 3).map((d) => d.name).join(", ")} lead.`, {
       title: `Top ${top.length} Linux distros by ${RANK_VALUE_LABEL[RANK_SOURCE].toLowerCase()}`,
       source: INDEX_SOURCE,
-      asOf: indexDate,
+      asOf: builtOn,
       link: { href: "/", label: "Full rankings" },
     });
   }, where);
