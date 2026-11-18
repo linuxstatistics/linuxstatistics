@@ -1741,3 +1741,20 @@ dialog.shot-lightbox.shot-lightbox, .distro-page .distro-main > dialog.shot-ligh
   .shot-lightbox[open] { animation: shot-in 180ms var(--ease-out); }
   @keyframes shot-in { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
 }
+
+/* Getting started: hardware check */
+.hw-check { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0 20px; margin: 4px 0 16px; max-width: 640px; }
+.hw-check > div { display: contents; }
+.hw-check dt, .hw-check dd { padding: 8px 0; border-bottom: 1px solid var(--row); }
+.hw-check dt { font-weight: 600; }
+.hw-check dd { margin: 0; color: var(--ink2); }
+@media (max-width: 560px) {
+  .hw-check { grid-template-columns: minmax(0, 1fr); }
+  .hw-check dt { padding-bottom: 0; border-bottom: 0; }
+  .hw-check dd { padding-top: 2px; }
+}
+.hw-more { margin: -4px 0 8px; }
+.hw-more > p { margin-top: 4px; }
+.hw-other-h { margin: 24px 0 8px; font: 700 17px var(--display); }
+.hw-other { margin: 0; padding-left: 1.2em; }
+.hw-other li + li { margin-top: 6px; }

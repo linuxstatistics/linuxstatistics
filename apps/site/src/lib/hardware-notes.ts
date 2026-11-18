@@ -17,13 +17,27 @@ export const OLD_NVIDIA_BAZZITE =
   "On Bazzite, GTX 900 and 10-series cards need the NVIDIA image without \"-open\"; GTX 700-series and older aren't supported, so consider Linux Mint or Debian instead.";
 
 export const WIFI_NOTE =
-  "Wi-Fi is the most common thing that doesn't work on first boot. Intel chips usually work out of the box; some Broadcom chips and Realtek USB adapters need extra drivers, which free-software-only distros leave out. Check from a live USB before installing, and keep a network cable or phone USB tethering handy for the install.";
+  "Wi-Fi is the most common thing that doesn't work on first boot. Intel chips usually work out of the box; some Broadcom chips and Realtek USB adapters need extra drivers, which distros that ship only free software leave out. Check from a live USB before installing, and keep a network cable or phone USB tethering handy for the install.";
 
 export const WIFI_HOW_TO_CHECK =
   "To find your Wi-Fi chip: on Windows, open Device Manager → Network adapters; on a Mac, open System Information → Network → Wi-Fi; from a Linux live USB, run `lspci -k` (or `lsusb` for a USB adapter).";
 
 export const INTEL_MAC_NOTE =
   "Intel Macs can need model-specific drivers for Wi-Fi, the camera and other parts. Check your exact model before installing.";
+
+/** The Wi-Fi lookup without the Windows step, for pages that already list it. */
+export const WIFI_HOW_TO_CHECK_OTHER =
+  "On a Mac, open System Information → Network → Wi-Fi; from a Linux live USB, run `lspci -k` (or `lsusb` for a USB adapter).";
+
+/** Where a Windows user finds what the guide asks them to check. */
+export const WINDOWS_CHECK = [
+  { label: "Processor, memory and 32- or 64-bit", how: "Settings → System → About" },
+  { label: "Graphics card", how: "Task Manager → Performance → GPU" },
+  { label: "Wi-Fi chip", how: "Device Manager → Network adapters" },
+] as const;
+
+export const GRAPHICS_NOTE =
+  "Intel and AMD graphics and current NVIDIA cards work. Only older NVIDIA cards need a closer look.";
 
 export const LIVE_USB_NOTE =
   "Try it from a live USB first: Wi-Fi, sound and graphics should all work before you install.";

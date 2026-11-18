@@ -6,7 +6,7 @@ import { SponsorStack } from "../../../components/SponsorStack";
 import { SwitchReport } from "../../../components/SwitchReport";
 import { loadDistros } from "../../../lib/data";
 import { LIST_PATH, topSearchItems } from "../../../lib/distro-list";
-import { HARDWARE_REVIEWED, HARDWARE_SOURCES, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK, WIFI_NOTE, codeParts } from "../../../lib/hardware-notes";
+import { GRAPHICS_NOTE, HARDWARE_REVIEWED, HARDWARE_SOURCES, INTEL_MAC_NOTE, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK_OTHER, WIFI_NOTE, WINDOWS_CHECK, codeParts } from "../../../lib/hardware-notes";
 const byKey = new Map(PROFILES.map((p) => [p.key, p]));
 const comboItems = topSearchItems(await loadDistros(), 10);
 const GUIDES = [
@@ -25,7 +25,27 @@ const GUIDES = [
     <p class="guide-skip" hidden><a href="#downloads">Already backed up and checked? Skip to the download</a></p>
     <ol class="switch-path">
     <li><h2>Back up before changing anything</h2><p>Copy important files to a separate drive or backup service. Check that you can open them. Save recovery keys and make sure you can restore your current system. Installing Linux can erase files if the wrong disk option is chosen.</p></li>
-    <li id="hardware"><h2>Check your exact computer</h2><p>Identify the model, processor, memory and graphics. A recommendation is not a compatibility guarantee. Check Wi-Fi, sound, webcam, suspend and any accessories you depend on.</p><p><strong>Apple Silicon:</strong> use the <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/docs/platform/feature-support/overview/">Asahi model-support list</a> and <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/fedora/">official Fedora Asahi Remix guidance</a>, not a regular PC image. Intel Macs, Chromebooks, ARM boards and 32-bit PCs also need model-specific checks.</p><p><strong>Wi-Fi:</strong> {WIFI_NOTE} {codeParts(WIFI_HOW_TO_CHECK).map((p) => (p.code ? <code>{p.text}</code> : p.text))}</p><p><strong>Older NVIDIA cards:</strong> {OLD_NVIDIA_NOTE} {OLD_NVIDIA_BAZZITE}</p></li>
+    <li id="hardware">
+      <h2>Check your exact computer</h2>
+      <p>Coming from a Windows PC? Most from the last ten years run Linux well. A recommendation is still not a guarantee, so look up three things first:</p>
+      <dl class="hw-check">
+        {WINDOWS_CHECK.map((c) => <div><dt>{c.label}</dt><dd>{c.how}</dd></div>)}
+      </dl>
+      <p>Then, from a live USB, check that Wi-Fi, sound, the webcam, sleep and any accessories you rely on work.</p>
+      <p><strong>Wi-Fi:</strong> {WIFI_NOTE} {codeParts(WIFI_HOW_TO_CHECK_OTHER).map((p) => (p.code ? <code>{p.text}</code> : p.text))}</p>
+      <p><strong>Graphics:</strong> {GRAPHICS_NOTE}</p>
+      <details class="switch-other-picks hw-more">
+        <summary>Have a GTX 10-series or older NVIDIA card?</summary>
+        <p>{OLD_NVIDIA_NOTE} {OLD_NVIDIA_BAZZITE}</p>
+      </details>
+      <h3 class="hw-other-h">Not a Windows PC?</h3>
+      <ul class="hw-other">
+        <li><strong>Apple Silicon Mac (M1 and later):</strong> regular Linux images don't run. Check the <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/docs/platform/feature-support/overview/">Asahi model-support list</a> and use <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://asahilinux.org/fedora/">Fedora Asahi Remix</a>.</li>
+        <li><strong>Intel Mac:</strong> {INTEL_MAC_NOTE}</li>
+        <li><strong>Chromebook or ARM board:</strong> support depends on the exact model; check the distro's list of supported devices.</li>
+        <li><strong>32-bit PC:</strong> only a few distros still make 32-bit images. See <a href="/best/old-laptop/">the best Linux for old laptops</a>.</li>
+      </ul>
+    </li>
     <li><h2>Check your essential apps and games</h2><p>Make a short list of what you cannot do without. Test real files and workflows, not just whether an app launches. See alternatives for <a href="/switch/windows/#apps-h">Windows apps</a> or <a href="/switch/mac/#apps-h">Mac apps</a>. Early-alpha creative apps need extra caution.</p><p>For games, check <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://www.protondb.com/">ProtonDB</a> and <a target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer" href="https://areweanticheatyet.com/">anti-cheat compatibility</a>. Keeping Windows for a required app or game can be the right answer.</p></li>
     <li><h2>Try before installing, where supported</h2><p>Many desktop distributions offer a live USB session. Follow the project's instructions, select the try/live option when available, and test your hardware before installing. Writing the USB erases that USB drive. A browser demo shows the desktop, not whether your hardware works. Apple Silicon and some systems use a different installation route.</p></li>
     <li id="downloads">
