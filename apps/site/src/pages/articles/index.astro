@@ -32,7 +32,7 @@ const jsonLd = {
       <>
         {jump.length > 1 && (
           <nav class="articles-jump" aria-label="Topics">
-            {jump.map((t) => <a href={`#t-${t}`}>{topicBySlug(t)!.name}</a>)}
+            {jump.map((t) => <a href={`#${t}`}>{topicBySlug(t)!.name}</a>)}
           </nav>
         )}
         {latest.length > 0 && (
@@ -51,8 +51,8 @@ const jsonLd = {
         {sections.map(({ topic, live, articles, more }) => {
           const t = topicBySlug(topic)!;
           return (
-            <section class="articles-topic" id={`t-${topic}`} aria-labelledby={`t-${topic}-h`}>
-              <h2 id={`t-${topic}-h`}>{live ? <a href={`/articles/${topic}/`}>{t.name}</a> : t.name}</h2>
+            <section class="articles-topic" id={topic} aria-labelledby={`${topic}-h`}>
+              <h2 id={`${topic}-h`}>{live ? <a href={`/articles/${topic}/`}>{t.name}</a> : t.name}</h2>
               <ArticleList articles={articles} level={3} />
               {live && <p class="articles-topic-more"><a href={`/articles/${topic}/`}>{more > 0 ? `All ${t.name.toLowerCase()} articles (${more} more)` : `All ${t.name.toLowerCase()} articles`}</a></p>}
             </section>

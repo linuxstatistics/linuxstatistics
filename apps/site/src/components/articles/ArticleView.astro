@@ -71,7 +71,12 @@ const monthYear = (d: Date) => d.toLocaleDateString("en-US", { month: "long", ye
       {related.length > 0 && (
         <nav class="article-related" aria-labelledby="more-h">
           <h2 id="more-h">More articles</h2>
-          <ul>{related.map((r) => <li><a href={`/articles/${r.slug}/`}>{r.title}</a></li>)}</ul>
+          <ul>{related.map((r) => (
+            <li>
+              <a href={`/articles/${r.slug}/`}>{r.title}</a>
+              <span class="article-related-meta"><span class="article-type">{TYPE_LABEL[r.type]}</span> <time datetime={iso(r.published)}>{fmtArticleDate(r.published)}</time></span>
+            </li>
+          ))}</ul>
         </nav>
       )}
     </article>
