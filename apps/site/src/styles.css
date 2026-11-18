@@ -1110,6 +1110,7 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .beginner-back:active { transform: scale(0.97); }
 .beginner-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .beginner-caveat { padding: 16px 0; border-block: 1px solid var(--line); }
+.beginner-advanced-results { margin: 0 0 16px; font-weight: 600; }
 .beginner-alternatives { margin: 28px 0; }
 .beginner-advanced { display: flex; align-items: center; gap: 16px; margin-top: 32px; max-width: 660px; padding: 14px 18px; min-height: 44px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--ink); text-decoration: none; transition: border-color 0.15s var(--ease-out), transform 0.12s var(--ease-out); }
 .beginner-advanced-text { display: grid; gap: 2px; flex: 1; min-width: 0; }
@@ -1145,6 +1146,9 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .hardware-notes p { margin: 0 0 8px; color: var(--ink2); }
 .hardware-notes p span { font-weight: 600; color: var(--ink); }
 .hardware-notes .hardware-notes-more { margin: 0; }
+.quiz-weak { margin: 0 0 16px; padding: 12px 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); color: var(--ink2); }
+.quiz-weak span { font-weight: 600; color: var(--ink); }
+.hardware-tip { margin: 16px 0 0; font-size: 14px; color: var(--ink2); }
 @media (max-width: 480px) { .beginner-actions { gap: 10px; } .beginner-actions .beginner-back { order: 1; } }
 .apps-filters { display: grid; gap: 10px; margin: 0 0 8px; }
 .apps-search { width: 100%; max-width: 420px; padding: 9px 14px; border: 1px solid var(--line); border-radius: var(--pill); background: var(--panel); color: var(--ink); font: inherit; }

@@ -91,3 +91,37 @@ test("edit=1 starts at question 1 with the link's answers chosen; Keep this answ
   expect(screen.queryByRole("heading", { name: "What's it mainly for?" })).toBeNull();
   expect(screen.queryByRole("heading", { name: "Your best matches" })).toBeNull();
 });
+
+test("results warn about hardware only when an answer points to a risk", async () => {
+  window.history.replaceState(null, "", `/pick/?a=${encodeAnswers({ use: "everyday", level: "some", wifi: "intel" })}`);
+  const { unmount } = render(<DistroPicker distros={distros} />);
+  await screen.findByRole("heading", { name: "Your best matches" });
+  expect(screen.queryByRole("heading", { name: /Your (Wi-Fi|older)/ })).toBeNull();
+  expect(screen.getByText(/Try it from a live USB first/)).toBeInTheDocument();
+  unmount();
+  window.history.replaceState(null, "", `/pick/?a=${encodeAnswers({ use: "everyday", level: "some", wifi: "broadcom" })}`);
+  render(<DistroPicker distros={distros} />);
+  expect(await screen.findByRole("heading", { name: "Your Wi-Fi chip" })).toBeInTheDocument();
+});
+
+test("server results get neither the box nor the live-USB tip", async () => {
+  window.history.replaceState(null, "", `/pick/?a=${encodeAnswers({ use: "server", level: "some" })}`);
+  render(<DistroPicker distros={distros} />);
+  await screen.findByRole("heading", { name: "Your best matches" });
+  expect(screen.queryByText(/Try it from a live USB first/)).toBeNull();
+  expect(screen.queryByText(/Wi-Fi:/)).toBeNull();
+});
+
+test("when nothing fits well, the results say so and name what's missing", async () => {
+  window.history.replaceState(null, "", `/pick/?a=${encodeAnswers({ use: "gaming", level: "new", device: "pc32", ram: 2 })}`);
+  render(<DistroPicker distros={distros} />);
+  await screen.findByRole("heading", { name: "Your best matches" });
+  expect(screen.getByRole("note")).toHaveTextContent(/Nothing fits everything you asked for.*Not built mainly for gaming/);
+});
+
+test("a good fit shows no weak-match note", async () => {
+  window.history.replaceState(null, "", `/pick/?a=${encodeAnswers({ use: "everyday", level: "new", desktop: "windows-like" })}`);
+  render(<DistroPicker distros={distros} />);
+  await screen.findByRole("heading", { name: "Your best matches" });
+  expect(screen.queryByRole("note")).toBeNull();
+});

@@ -4,6 +4,7 @@ import { beginnerFlow, beginnerHint, beginnerOptions, beginnerQuery, beginnerRec
 import { PROFILES } from "../lib/picker-profiles";
 import { revealPicker } from "../lib/pick-restore";
 import { HardwareNotes } from "./HardwareNotes";
+import { hardwareRisks } from "../lib/hardware-notes";
 import { QuizCountNote } from "./QuizCountNote";
 import { SwitchReport } from "./SwitchReport";
 import { beginnerCode } from "../lib/quiz-count";
@@ -101,7 +102,12 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
           {profile && <p>{profile.blurb}</p>}
           {result.kind === "recommendation" && <ul className="beginner-reasons">{result.reasons.map((r) => <li key={r}>{r}</li>)}</ul>}
           <p className="beginner-caveat">{result.caveat}</p>
-          {result.kind === "recommendation" && <HardwareNotes oldNvidia={answers.gpu === "nvidia-old"} bazzite={result.slug === "bazzite"} wifi={answers.machine === "intel-mac" ? "risky" : "check"} />}
+          {result.kind === "recommendation" && <HardwareNotes risks={hardwareRisks({ gpu: answers.gpu, intelMac: answers.machine === "intel-mac" })} bazzite={result.slug === "bazzite"} />}
+          {result.kind === "compatibility-check" && result.advanced && (
+            <p className="beginner-advanced-results">
+              <a href={result.advanced}>{!result.advanced.includes("?a=") ? "Pick your board in the advanced quiz" : answers.origin === "chromeos" ? "Installing on a different PC? See matches for a regular PC" : "See distros that fit this computer"} <span className="icon-arrow" aria-hidden="true" /></a>
+            </p>
+          )}
           <div className="beginner-actions">
             <a className="cta" href={result.kind === "recommendation" ? `/switch/getting-started/?distro=${result.slug}` : result.href} target={result.kind === "compatibility-check" && result.href.startsWith("https:") ? "_blank" : undefined} rel={result.kind === "compatibility-check" && result.href.startsWith("https:") ? "noopener noreferrer" : undefined} {...(result.kind === "compatibility-check" && result.href.startsWith("https:") ? { "aria-describedby": "new-tab-description", title: "Opens in a new tab" } : {})}>{result.kind === "recommendation" ? `Getting started with ${name}` : "Check compatibility"}</a>
             {profile && <a href={profile.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Official download</a>}

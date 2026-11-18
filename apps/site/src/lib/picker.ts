@@ -70,6 +70,13 @@ function desktopMiss(p: PickerProfile, want: Desktop): string {
 
 const PKG_TEXT = { deb: "deb packages (apt)", rpm: "rpm packages", pacman: "pacman (Arch packages)", other: "its own package format" } as const;
 
+/** Why a distro's experience level doesn't match, named after who it's actually for. */
+function levelMiss(levels: Level[], want: Level): string {
+  if (want === "new") return "Expects some Linux experience";
+  if (want === "expert") return levels.includes("new") ? "Made for beginners; less to tinker with" : "Aimed at users with some experience; less to tinker with";
+  return levels.includes("expert") ? "Made for experienced users" : "Made for beginners; less to tinker with";
+}
+
 /** Distros that can't work for these answers at all: wrong hardware, too little memory, expert-only for a beginner. */
 export function fits(p: PickerProfile, a: Answers): boolean {
   if (a.device && !p.platforms.includes(a.device)) return false;
@@ -93,7 +100,7 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
 
   if (a.level) {
     if (p.levels.includes(a.level)) crit(3, 3, `Suits ${LEVEL_TEXT[a.level]}`);
-    else crit(3, a.level === "new" ? -4 : -1, undefined, a.level === "new" ? "Expects some Linux experience" : a.level === "expert" ? "Made for beginners; less to tinker with" : "Aimed at a different experience level");
+    else crit(3, a.level === "new" ? -4 : -1, undefined, levelMiss(p.levels, a.level));
   }
   if (a.use) {
     const ok = p.uses.includes(a.use);
@@ -110,7 +117,10 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
   const nvidia = a.gpu === "nvidia" || a.gpu === "nvidia-old";
   if (nvidia) {
     const pts = { excellent: 3, good: 1, fair: 0, poor: -3 }[p.nvidia];
-    crit(3, pts, p.nvidia === "excellent" ? "NVIDIA drivers set up for you" : "NVIDIA drivers easy to add", p.nvidia === "poor" ? "NVIDIA cards poorly supported" : "NVIDIA drivers need manual setup");
+    // Older cards need the 580 legacy driver, which "set up for you" doesn't promise.
+    // Rolling distros get a stronger warning below instead.
+    const legacy = a.gpu === "nvidia-old" && p.updates !== "rolling" ? "; check it offers the 580 legacy driver your card needs" : "";
+    crit(3, pts, (p.nvidia === "excellent" ? "NVIDIA drivers set up for you" : "NVIDIA drivers easy to add") + legacy, p.nvidia === "poor" ? "NVIDIA cards poorly supported" : "NVIDIA drivers need manual setup");
   }
   if (a.gpu === "nvidia-old") {
     crit(0, p.updates === "rolling" ? -2 : 0, undefined, p.updates === "rolling" ? "Rolling updates can move you past the 580 legacy driver your card needs" : undefined);

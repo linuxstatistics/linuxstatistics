@@ -273,3 +273,20 @@ test("display order groups PCs, then Macs/boards, newest first, without changing
   for (const q of QUESTIONS) expect(displayOptions(q).map(([v]) => v).sort(), q.id).toEqual(q.options.map(([v]) => v).sort());
   expect(decodeAnswers("1221421141")).toMatchObject({ device: "pc", gpu: "amd" });
 });
+
+test("older NVIDIA cards aren't promised drivers that work out of the box", () => {
+  const popos = score(prof("popos"), { gpu: "nvidia-old" });
+  expect(popos.reasons).toContain("NVIDIA drivers set up for you; check it offers the 580 legacy driver your card needs");
+  expect(score(prof("popos"), { gpu: "nvidia" }).reasons).toContain("NVIDIA drivers set up for you");
+  // Rolling distros already get the stronger warning; don't say it twice.
+  expect(score(prof("cachyos"), { gpu: "nvidia-old" }).reasons).toContain("NVIDIA drivers set up for you");
+});
+
+test("level mismatches name who the distro is really for", () => {
+  // Tagged for some experience, not beginners.
+  expect(score(prof("nobara"), { level: "expert" }).misses).toContain("Aimed at users with some experience; less to tinker with");
+  expect(score(prof("zorin"), { level: "expert" }).misses).toContain("Made for beginners; less to tinker with");
+  expect(score(prof("arch"), { level: "some" }).misses).toContain("Made for experienced users");
+  expect(score(prof("zorin"), { level: "some" }).misses).toContain("Made for beginners; less to tinker with");
+  expect(score(prof("arch"), { level: "new" }).misses).toContain("Expects some Linux experience");
+});

@@ -8,6 +8,7 @@ import { TELEMETRY_LABEL, telemetryFor } from "../lib/telemetry";
 import { compareSlug } from "../lib/compare";
 import { revealPicker } from "../lib/pick-restore";
 import { HardwareNotes } from "./HardwareNotes";
+import { hardwareRisks } from "../lib/hardware-notes";
 import { QuizCountNote } from "./QuizCountNote";
 import { SwitchReport } from "./SwitchReport";
 
@@ -196,6 +197,11 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
           <p>Nothing we've profiled fits all of that. Try changing the device or memory answer.</p>
         ) : (
           <>
+            {results[0]!.pct < WEAK_TOP && (
+              <p className="quiz-weak" role="note">
+                <span>Nothing fits everything you asked for.</span> {results[0]!.misses.length > 0 ? `Where the closest match falls short: ${results[0]!.misses.join("; ")}. ` : ""}Changing an answer, such as what it will run on or what it's for, may give you better options.
+              </p>
+            )}
             <div className="results" aria-live="polite">
               {top.map((r, i) => (
                 <ResultCard key={r.key} r={r} i={i} d={bySlug.get(r.key)!} p={profileOf.get(r.key)!} server={answers.use === "server"} forUse={forUse} />
@@ -225,9 +231,14 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
               </div>
             )}
             <HardwareNotes
-              oldNvidia={answers.gpu === "nvidia-old"}
+              risks={hardwareRisks({
+                gpu: answers.gpu,
+                wifi: answers.wifi,
+                fossOnly: top.some((r) => profileOf.get(r.key)?.fossOnly),
+                desktop: (answers.device === undefined || answers.device === "pc") && answers.use !== "server",
+              })}
               bazzite={top.some((r) => r.key === "bazzite")}
-              wifi={answers.wifi === "broadcom" || answers.wifi === "realtek" ? "risky" : answers.wifi === "intel" ? "fine" : "check"}
+              liveUsb={answers.use !== "server" && answers.device !== "pi" && answers.device !== "arm"}
             />
             {hidden > 0 && (
               <p className="quiz-hidden">
@@ -319,6 +330,9 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
     </div>
   );
 }
+
+/** When even the best match is below this, the results say so instead of presenting it as a fit. */
+export const WEAK_TOP = 40;
 
 /** Matches below this aren't listed beyond the top 3. */
 export const GOOD_MATCH = 50;

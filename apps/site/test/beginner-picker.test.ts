@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
-import { BEGINNER_QUESTIONS, beginnerHint, beginnerOptions, beginnerFlow, beginnerQuery, beginnerRecommendation, parseBeginner, pickerMode, pruneBeginner } from "../src/lib/beginner-picker";
+import { decodeAnswers } from "../src/lib/picker-questions";
+import { BEGINNER_QUESTIONS, advancedResultsHref, beginnerHint, beginnerOptions, beginnerFlow, beginnerQuery, beginnerRecommendation, parseBeginner, pickerMode, pruneBeginner } from "../src/lib/beginner-picker";
 
 test("uncertain choices are always last and blocked hardware skips irrelevant follow-ups", () => {
   for (const q of BEGINNER_QUESTIONS) expect(["other", "unsure"]).toContain(beginnerOptions(q).at(-1)?.[0]);
@@ -73,4 +74,37 @@ test("machine options: PCs, then Macs newest first, then boards, then not sure",
   expect(beginnerOptions(machine).map(([v]) => v)).toEqual(["pc", "pc32", "apple", "intel-mac", "arm", "unsure"]);
   const gpu = BEGINNER_QUESTIONS.find((q) => q.id === "gpu")!;
   expect(beginnerOptions(gpu).map(([v]) => v)).toEqual(["nvidia", "nvidia-old", "amd", "intel", "unsure"]);
+});
+
+test("GPU names read normally and Intel Mac advice isn't repeated in the caveat", () => {
+  const intel = beginnerRecommendation({ ...everyday, purpose: "gaming", gpu: "intel" }, known);
+  expect(intel.caveat).toContain("image picker for Intel and");
+  expect(intel.caveat).not.toContain("INTEL");
+  const mac = beginnerRecommendation({ ...everyday, machine: "intel-mac" }, known);
+  expect(mac.kind).toBe("recommendation");
+  expect(mac.caveat).not.toMatch(/Intel Mac/);
+});
+
+test("dead ends explain the actual answer and point to matches where we have them", () => {
+  const unsure = beginnerRecommendation({ ...everyday, machine: "unsure" }, known);
+  expect(unsure.kind === "compatibility-check" && unsure.title).toBe("Find out which computer you have");
+  expect(unsure.kind === "compatibility-check" && unsure.advanced).toBeNull();
+  const old32 = beginnerRecommendation({ ...everyday, machine: "pc32" }, known);
+  expect(old32.kind === "compatibility-check" && old32.advanced).toMatch(/^\/pick\/\?a=\d+$/);
+  const arm = beginnerRecommendation({ ...everyday, machine: "arm" }, known);
+  expect(arm.kind === "compatibility-check" && arm.title).toBe("Use your board's own system");
+  const chromebook = beginnerRecommendation({ ...everyday, origin: "chromeos" }, known);
+  expect(chromebook.kind === "compatibility-check" && chromebook.title).toBe("Check your Chromebook first");
+  expect(chromebook.kind === "compatibility-check" && chromebook.advanced).toBeTruthy();
+  const tiny = beginnerRecommendation({ ...everyday, purpose: "older", ram: "1" }, known);
+  expect(tiny.kind === "compatibility-check" && tiny.advanced).toBeTruthy();
+});
+
+test("advanced links carry the short-quiz answers as a beginner on that computer", () => {
+  const href = advancedResultsHref({ origin: "windows", machine: "pc32", purpose: "older", ram: "1" })!;
+  const a = decodeAnswers(new URLSearchParams(href.split("?")[1]).get("a"));
+  expect(a).toMatchObject({ from: "windows", use: "old-hw", level: "new", device: "pc32", ram: 1 });
+  expect(advancedResultsHref({ origin: "windows", machine: "unsure", purpose: "everyday" })).toBeNull();
+  // Someone already on Linux isn't assumed to be a beginner.
+  expect(decodeAnswers(new URLSearchParams(advancedResultsHref({ origin: "linux", machine: "pc32", purpose: "everyday" })!.split("?")[1]).get("a")).level).toBeUndefined();
 });

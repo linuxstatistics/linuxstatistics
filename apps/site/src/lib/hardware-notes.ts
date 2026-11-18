@@ -22,6 +22,49 @@ export const WIFI_NOTE =
 export const WIFI_HOW_TO_CHECK =
   "To find your Wi-Fi chip: on Windows, open Device Manager → Network adapters; on a Mac, open System Information → Network → Wi-Fi; from a Linux live USB, run `lspci -k` (or `lsusb` for a USB adapter).";
 
+export const INTEL_MAC_NOTE =
+  "Intel Macs can need model-specific drivers for Wi-Fi, the camera and other parts. Check your exact model before installing.";
+
+export const LIVE_USB_NOTE =
+  "Try it from a live USB first: Wi-Fi, sound and graphics should all work before you install.";
+
+export type HardwareRisk = "old-nvidia" | "intel-mac" | "wifi";
+
+export interface HardwareRiskInput {
+  gpu?: string;
+  /** The Wi-Fi chip answer, when asked. */
+  wifi?: string;
+  intelMac?: boolean;
+  /** A free-software-only distro is among the suggestions. */
+  fossOnly?: boolean;
+  /** A desktop or laptop PC (not a server, Pi or ARM board); Wi-Fi only matters there. */
+  desktop?: boolean;
+}
+
+/** Hardware risks the answers point to. Empty when nothing specific applies. */
+export function hardwareRisks({ gpu, wifi, intelMac, fossOnly, desktop = true }: HardwareRiskInput): HardwareRisk[] {
+  const risks: HardwareRisk[] = [];
+  if (gpu === "nvidia-old") risks.push("old-nvidia");
+  if (intelMac) risks.push("intel-mac");
+  const knownGood = wifi === "intel" || wifi === "mediatek";
+  if (wifi === "broadcom" || wifi === "realtek" || intelMac || (desktop && fossOnly && !knownGood)) risks.push("wifi");
+  return risks;
+}
+
+const RISK_HEADING: Record<HardwareRisk, string> = {
+  "old-nvidia": "Your older NVIDIA card",
+  "intel-mac": "Your Intel Mac",
+  wifi: "Your Wi-Fi chip",
+};
+
+/** Names the risk when there is one, so the box reads as specific advice, not boilerplate. */
+export function hardwareHeading(risks: HardwareRisk[]): string {
+  if (risks.length === 1) return RISK_HEADING[risks[0]!];
+  // Intel Macs bring the Wi-Fi note with them; that's still one machine to check.
+  if (risks.length === 2 && risks.includes("intel-mac") && risks.includes("wifi")) return RISK_HEADING["intel-mac"];
+  return "Check these before installing";
+}
+
 /** Text in backticks becomes code; used for the notices above. */
 export function codeParts(text: string): { text: string; code: boolean }[] {
   return text.split("`").map((part, i) => ({ text: part, code: i % 2 === 1 }));
