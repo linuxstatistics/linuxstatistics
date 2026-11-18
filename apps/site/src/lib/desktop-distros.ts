@@ -1,7 +1,8 @@
 import type { DistroListItem } from "@linux-statistics/shared";
 import type { DesktopPage } from "./desktops";
 
-type Item = Pick<DistroListItem, "slug" | "name" | "rank" | "defaultDesktop" | "otherDesktops">;
+/** Desktop fields are optional: an API older than the site leaves them out. */
+type Item = Pick<DistroListItem, "slug" | "name" | "rank"> & Partial<Pick<DistroListItem, "defaultDesktop" | "otherDesktops">>;
 
 const byRank = (a: Item, b: Item) => (a.rank ?? Infinity) - (b.rank ?? Infinity) || a.name.localeCompare(b.name);
 
@@ -10,6 +11,6 @@ export function distrosFor(page: Pick<DesktopPage, "ids">, list: Item[]): { byDe
   const ids = new Set<string>(page.ids);
   const byDefault = list.filter((d) => d.defaultDesktop != null && ids.has(d.defaultDesktop)).sort(byRank);
   const taken = new Set(byDefault.map((d) => d.slug));
-  const offered = list.filter((d) => !taken.has(d.slug) && d.otherDesktops.some((x) => ids.has(x))).sort(byRank);
+  const offered = list.filter((d) => !taken.has(d.slug) && (d.otherDesktops ?? []).some((x) => ids.has(x))).sort(byRank);
   return { byDefault, offered };
 }
