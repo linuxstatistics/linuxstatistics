@@ -83,15 +83,19 @@ const COLUMNS: ColumnDef[] = [
     label: "Distro",
     fixed: true,
     render: (d, ctx) => (
-      <a className="with-mark" href={distroHref(d.slug)}>
-        <DistroMark slug={d.slug} name={d.name} deferred={!ctx.mounted} />
-        {d.name}
-      </a>
+      <>
+        <a className="with-mark" href={distroHref(d.slug)}>
+          <DistroMark slug={d.slug} name={d.name} deferred={!ctx.mounted} />
+          {d.name}
+        </a>
+        <span className="name-sub" aria-hidden="true">{FAMILY_LABELS[d.family].toLowerCase()}</span>
+      </>
     ),
   },
   {
     key: "family",
     label: "Family",
+    mobileHide: true,
     cellClass: "fam-cell",
     render: (d) => (
       <span className={`fam f-${d.family}`} style={{ color: familyColor(d.family) }}>

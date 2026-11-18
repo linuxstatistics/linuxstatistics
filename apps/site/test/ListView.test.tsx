@@ -19,7 +19,7 @@ const items: DistroListItem[] = [
 // Distro name is the second cell of each data row.
 function rowNames(): string[] {
   const rows = screen.getAllByRole("row").slice(1); // drop header
-  return rows.map((r) => within(r).getAllByRole("cell")[1]?.textContent?.trim() ?? "");
+  return rows.map((r) => within(r).getAllByRole("cell")[1]?.querySelector("a")?.textContent?.trim() ?? "");
 }
 
 test("renders rows sorted by rank ascending by default", () => {
@@ -196,4 +196,12 @@ test("rows can come as a packed string (small island props) and render the same"
   const { packList } = await import("../src/lib/distro-list");
   render(<ListView packed={JSON.stringify(packList(items))} />);
   expect(rowNames()).toEqual(["Linux Mint", "Arch Linux", "Fedora"]);
+});
+
+test("the name cell carries the family as a phone-only line, hidden from screen readers", () => {
+  const { container } = render(<ListView items={items} />);
+  const sub = container.querySelector("td.distro-name-cell .name-sub");
+  expect(sub).toHaveTextContent("debian");
+  expect(sub).toHaveAttribute("aria-hidden", "true");
+  expect(container.querySelector("th.col-family")).toHaveClass("col-hide-mobile");
 });

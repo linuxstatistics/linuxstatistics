@@ -51,9 +51,10 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
             <tr>
               <th>#</th>
               <th>Distro</th>
-              <th>Family</th>
-              <th class="num">12-month rank</th>
-              <th class="num">Last month</th>
+              <th class="col-hide-mobile">Family</th>
+              <th class="num col-hide-mobile">12-month rank</th>
+              <th class="num col-hide-mobile">Last month</th>
+              <th class="num col-show-mobile">Rank</th>
               <th class="num">Climb</th>
             </tr>
           </thead>
@@ -61,10 +62,11 @@ const maxClimb = Math.max(1, ...rising.map((d) => d.rank1mDelta ?? 0));
             {rising.map((d, i) => (
               <tr>
                 <td class="rank">{i + 1}</td>
-                <td class="distro-name-cell"><a class="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a></td>
-                <td class="fam-cell"><span class={`fam f-${d.family}`} style={{ color: familyColor(d.family) }}>{FAMILY_LABELS[d.family].toLowerCase()}</span></td>
-                <td class="num">{d.rank}</td>
-                <td class="num">{d.rank1m}</td>
+                <td class="distro-name-cell"><a class="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a><span class="name-sub" aria-hidden="true">{FAMILY_LABELS[d.family].toLowerCase()}</span></td>
+                <td class="fam-cell col-hide-mobile"><span class={`fam f-${d.family}`} style={{ color: familyColor(d.family) }}>{FAMILY_LABELS[d.family].toLowerCase()}</span></td>
+                <td class="num col-hide-mobile">{d.rank}</td>
+                <td class="num col-hide-mobile">{d.rank1m}</td>
+                <td class="num col-show-mobile rank-move">#{d.rank}<span aria-hidden="true"> → </span><span class="visually-hidden"> to </span>#{d.rank1m}</td>
                 <td class="num climb-cell">
                   <span class="climb-bar" aria-hidden="true"><i style={`width:${Math.round(((d.rank1mDelta ?? 0) / maxClimb) * 100)}%`} /></span>
                   <span class="trend up">▲ {d.rank1mDelta}</span>
