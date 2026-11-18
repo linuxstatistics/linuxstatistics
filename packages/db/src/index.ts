@@ -13,3 +13,4 @@ export * from "./descriptions.js";
 export * from "./stats.js";
 export * from "./first-party.js";
 export * from "./changelog.js";
+export * from "./facts.js";

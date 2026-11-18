@@ -67,7 +67,8 @@ const suits = reasonsFor(data, baseName).slice(0, 4).map((r) => r.text);
 // "Compare with" search: the top distros in the HTML, the full list loads on first focus.
 const searchItems = topSearchItems(list, 10);
 const asOf = dataDate(meta, "wikipedia");
-const facts = keyFacts(data, { baseName, asOf, includeRank: true });
+const editionNames = Object.fromEntries((data.facts?.editions ?? []).flatMap((e) => { const n = list.find((d) => d.slug === e.slug)?.name; return n ? [[e.slug, n]] : []; }));
+const facts = keyFacts(data, { baseName, asOf, includeRank: true, nameOf: (s) => editionNames[s] });
 const changes = entriesFor(data.slug);
 const faq = distroFaq(data, { baseName });
 const listed = new Map(list.map((d) => [d.slug, d.rank]));
@@ -145,7 +146,7 @@ const jsonLd = {
               )}
             </div>
           )}
-          <DistroStats data={data} baseName={baseName} />
+          <DistroStats data={data} baseName={baseName} names={editionNames} />
         </section>
         {ref && <ReferenceCard name={data.name} profile={ref} insteadName={ref.instead ? list.find((d) => d.slug === ref.instead!.slug)?.name : undefined} />}
         {!ref && suits.length > 0 && (

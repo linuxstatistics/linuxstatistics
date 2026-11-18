@@ -11,7 +11,7 @@ test("distroListItem carries first-party rating aggregates", () => {
     slug: "mint", name: "Linux Mint", family: "debian", status: "active",
     rank: 1, hitsPerDay: 2600, stars: 5200, commitsLast30d: 180,
     firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", rankTrend: 2, rank1m: 3, rank1mDelta: -1,
-    userRating: { average: 4.5, count: 12, mean: 4.6, verifiedCount: 12 }, usesItCount: 30,
+    userRating: { average: 4.5, count: 12, mean: 4.6, verifiedCount: 12 }, usesItCount: 30, defaultDesktop: "gnome", otherDesktops: [],
   });
   expect(parsed.userRating.average).toBe(4.5);
   expect(parsed.usesItCount).toBe(30);

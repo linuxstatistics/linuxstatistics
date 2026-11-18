@@ -5,3 +5,4 @@ export * from "./schemas.js";
 export * from "./sources.js";
 export * from "./views.js";
 export * from "./weights.js";
+export * from "./desktops.js";

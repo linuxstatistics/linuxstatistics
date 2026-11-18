@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 import { afterAll, beforeAll, expect, test } from "vitest";
 import type { PGlite } from "@electric-sql/pglite";
 import { getDistroList, getMeta, initPgliteDb, type Database } from "@linux-statistics/db";
+import { applyAllCuratedFacts } from "../src/ingest-facts.js";
 import { runSources } from "../src/sources-run.js";
 import type { FetchLike } from "../src/http.js";
 
@@ -39,6 +40,8 @@ test("one source failing never blocks the others, and is recorded as failed", as
 });
 
 test("a broken DistroWatch page keeps the previous rankings", async () => {
+  // Every run applies the curated facts first; apply them here so only rankings could change.
+  await applyAllCuratedFacts(db);
   const before = await getDistroList(db);
   const broken: FetchLike = async () => new Response("<html><body>new layout</body></html>", { status: 200 });
   const status = await runSources(db, ["distrowatch"], { fetch: broken, log: () => {} });

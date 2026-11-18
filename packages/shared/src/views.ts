@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { familySchema, distroStatusSchema, periodSchema } from "./families.js";
+import { desktopSchema, distroFactsSchema } from "./desktops.js";
 
 /**
  * API response DTOs (the contract between the API and the web app).
@@ -77,6 +78,9 @@ export const distroListItemSchema = z.object({
   // first-party aggregates over visible user contributions
   userRating: userRatingSchema,
   usesItCount: z.number().int(),
+  // desktop the main download ships with, and the other desktops on offer (empty when unknown)
+  defaultDesktop: desktopSchema.nullable(),
+  otherDesktops: z.array(desktopSchema),
 });
 export type DistroListItem = z.infer<typeof distroListItemSchema>;
 
@@ -116,6 +120,8 @@ export const distroDetailSchema = distroListItemSchema.extend({
   // anonymous picker "did this fit?" votes when this distro was the top pick; null below 30 votes
   quizFit: z.object({ up: z.number().int(), total: z.number().int() }).nullable(),
   myContribution: contributionSchema.nullable(),
+  // desktop, package manager and init; null when we have none
+  facts: distroFactsSchema.nullable(),
 });
 export type DistroDetail = z.infer<typeof distroDetailSchema>;
 

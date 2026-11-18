@@ -8,6 +8,8 @@ import { ingestWikipedia } from "./ingest-wikipedia.js";
 import { ingestEndoflife } from "./ingest-endoflife.js";
 import { ingestDescriptions } from "./ingest-descriptions.js";
 import { WIKIDATA_ENDPOINT, WIKIDATA_SPARQL, parseWikidataDistros } from "./sources/wikidata.js";
+import { WIKIDATA_FACTS_SPARQL, parseWikidataFacts } from "./sources/wikidata-facts.js";
+import { applyAllCuratedFacts, ingestFacts } from "./ingest-facts.js";
 import { politeGet, type FetchLike } from "./http.js";
 
 export const SOURCES = ["distrowatch", "github", "statcounter", "wikidata", "wikipedia", "endoflife", "descriptions"] as const;
@@ -49,6 +51,12 @@ async function runOne(db: Database, source: Source, opts: RunOptions): Promise<n
       log(`wikidata: ${items.length} items, ${r.matched} matched, ${r.discovered.length} discovered (unlisted), ${r.filled.length} blanks filled`);
       for (const c of r.conflicts) log(`wikidata: kept ours for ${c}`);
       for (const x of r.rejected) log(`wikidata: not matched ${x}`);
+      // Desktop and package-manager facts: a second query, after the matching
+      // above wrote the aliases it relies on.
+      const fres = await politeGet(`${WIKIDATA_ENDPOINT}?query=${encodeURIComponent(WIKIDATA_FACTS_SPARQL)}`, { fetch: opts.fetch, headers: { Accept: "application/sparql-results+json" } });
+      if (!fres.ok) throw new Error(`Wikidata facts HTTP ${fres.status} (distro matches saved, earlier facts kept)`);
+      const f = await ingestFacts(db, parseWikidataFacts(await fres.json()));
+      log(`wikidata: ${f.filled.length} fact blanks filled`);
       return r.matched + r.discovered.length;
     }
     case "wikipedia": {
@@ -86,6 +94,14 @@ export async function runSources(
     Source,
     "success" | "failed" | "skipped"
   >;
+  // Hand-checked distro facts ship with the code; apply them on every run so a
+  // deploy reaches the database without waiting for a source. Idempotent.
+  try {
+    const n = (await applyAllCuratedFacts(db)).length;
+    log(`facts: curated facts for ${n} distros`);
+  } catch (err) {
+    log(`facts: curated facts not applied: ${err instanceof Error ? err.message : String(err)}`);
+  }
   for (const source of sources) {
     try {
       const n = await runOne(db, source, opts);

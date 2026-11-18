@@ -10,7 +10,7 @@ afterEach(() => {
 const full: DistroListItem = {
   slug: "mint", name: "Linux Mint", family: "debian", status: "active", rank: 2, hitsPerDay: 2600, stars: 5200,
   commitsLast30d: 180, firstReleaseYear: 2006, repoFullName: "linuxmint/cinnamon", rankTrend: 2, rank1m: 1, rank1mDelta: 1,
-  userRating: { average: 4.61234, count: 10, mean: 4.6, verifiedCount: 9 }, usesItCount: 22,
+  userRating: { average: 4.61234, count: 10, mean: 4.6, verifiedCount: 9 }, usesItCount: 22, defaultDesktop: "cinnamon", otherDesktops: ["mate", "xfce"],
 };
 
 test("packing keeps every field the islands use and drops the rest", () => {

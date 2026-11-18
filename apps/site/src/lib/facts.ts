@@ -2,6 +2,7 @@ import type { DistroDetail } from "@linux-statistics/shared";
 import { FAMILY_LABELS } from "./families";
 import { releaseStats } from "../components/DistroStats";
 import { telemetryFor } from "./telemetry";
+import { factSentences } from "./desktop-links";
 
 export interface KeyFact {
   text: string;
@@ -14,6 +15,8 @@ const month = (d: string) =>
 
 export interface FactOptions {
   baseName?: string | null;
+  /** Display names by slug, for official flavours (Ubuntu's KDE edition is Kubuntu). */
+  nameOf?: (slug: string) => string | undefined;
   /** YYYY-MM-DD of the index data; needed for the rank fact. */
   asOf?: string | null;
   /** Rank sentences are for pages only; exports (llms-full.txt) leave them out. */
@@ -42,6 +45,11 @@ export function keyFacts(d: DistroDetail, opts: FactOptions = {}): KeyFact[] {
     out.push({ text: `${d.name} belongs to the ${FAMILY_LABELS[d.family]} family.`, source: "LinuxStatistics" });
   }
   if (d.firstReleaseYear != null) out.push({ text: `${d.name} was first released in ${d.firstReleaseYear}.`, source: "Wikidata" });
+  if (d.facts) {
+    const curated = d.facts.fieldSources.otherDesktops !== "wikidata" && d.facts.fieldSources.packageManager !== "wikidata";
+    const src = curated ? "LinuxStatistics check of the project's pages" : "Wikidata";
+    for (const text of factSentences(d.name, d.facts, opts.nameOf ?? (() => undefined))) out.push({ text, source: src });
+  }
   const rel = releaseStats(d, today);
   const latest = rel.find((r) => r[0] === "Latest release");
   const support = rel.find((r) => r[0] !== "Latest release");
@@ -67,7 +75,7 @@ export function keyFacts(d: DistroDetail, opts: FactOptions = {}): KeyFact[] {
 }
 
 /** One plain-text block for /llms-full.txt (no rank data). */
-export function factsText(d: DistroDetail, site: string, baseName?: string | null): string {
-  const lines = keyFacts(d, { baseName, includeRank: false }).map((f) => `- ${f.text} (Source: ${f.source})`);
+export function factsText(d: DistroDetail, site: string, baseName?: string | null, nameOf?: (slug: string) => string | undefined): string {
+  const lines = keyFacts(d, { baseName, nameOf, includeRank: false }).map((f) => `- ${f.text} (Source: ${f.source})`);
   return [`## ${d.name}`, "", `Page: ${site}/distro/${d.slug}/`, ...(d.homepage ? [`Website: ${d.homepage}`] : []), "", ...lines].join("\n");
 }

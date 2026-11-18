@@ -1,6 +1,7 @@
 import { and, asc, count, desc, eq, gte, lte } from "drizzle-orm";
 import { MAIN_PERIOD, PERIODS, RANK_SOURCE, TRENDING_PERIOD } from "@linux-statistics/shared";
 import { getDistroReleases } from "./releases.js";
+import { getAllDistroFacts, getDistroFacts } from "./facts.js";
 import type {
   DistroDetail,
   DistroListItem,
@@ -74,6 +75,7 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
     .from(githubSnapshots)
     .orderBy(desc(githubSnapshots.capturedAt));
   const aggByDistro = await getContributionAggregates(db);
+  const factsByDistro = await getAllDistroFacts(db);
 
   const dwByDistro = groupBy(dwAll, (s) => s.distroId); // each list is desc by capturedAt
   const dw1mLatest = new Map<number, (typeof dw1mAll)[number]>();
@@ -115,6 +117,8 @@ export async function getDistroList(db: Database): Promise<DistroListItem[]> {
       rank1mDelta: latest && rank1m !== null ? latest.rank - rank1m : null,
       userRating: ratingOf(aggByDistro.get(d.id) ?? EMPTY_AGG),
       usesItCount: (aggByDistro.get(d.id) ?? EMPTY_AGG).usesItCount,
+      defaultDesktop: factsByDistro.get(d.id)?.defaultDesktop ?? null,
+      otherDesktops: factsByDistro.get(d.id)?.otherDesktops ?? [],
     };
   });
 
@@ -247,6 +251,7 @@ export async function getDistroDetail(
   const mine = userId != null ? await getMyContribution(db, userId, d.id) : null;
   const fit = await getPickerFit(db, d.slug);
   const releases = await getDistroReleases(db, d.id);
+  const facts = await getDistroFacts(db, d.id);
 
   return {
     slug: d.slug,
@@ -276,6 +281,9 @@ export async function getDistroDetail(
     myContribution: mine
       ? { rating: mine.rating, usesIt: mine.usesIt, reviewBody: mine.reviewBody }
       : null,
+    defaultDesktop: facts?.defaultDesktop ?? null,
+    otherDesktops: facts?.otherDesktops ?? [],
+    facts,
   };
 }
 

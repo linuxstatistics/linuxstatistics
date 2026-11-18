@@ -61,7 +61,7 @@ export function llmsFull(site: string, generatedAt: string, details: DistroDetai
     `Generated ${generatedAt}. Dataset version ${DATASET_VERSION}, ${DATA_LICENSE}. ${DATA_CREDIT}.`,
     `Third-party facts keep their own terms: ${Object.values(SOURCES).map((s) => s.name).join(", ")}, endoflife.date (CC BY-SA 4.0).`,
     "",
-    ...sorted.map((d) => factsText(d, site, d.basedOnSlug ? nameOf.get(d.basedOnSlug) : null) + "\n"),
+    ...sorted.map((d) => factsText(d, site, d.basedOnSlug ? nameOf.get(d.basedOnSlug) : null, (slug) => nameOf.get(slug)) + "\n"),
   ].join("\n");
 }
 

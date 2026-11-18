@@ -127,6 +127,13 @@
       "when": 1794791884325,
       "tag": "0017_rare_trish_tilby",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1795018299137,
+      "tag": "0018_slippery_wolfsbane",
+      "breakpoints": true
     }
   ]
 }

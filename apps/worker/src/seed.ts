@@ -16,6 +16,7 @@ import {
 } from "@linux-statistics/db";
 import { parseDistrowatchRanking } from "./sources/distrowatch.js";
 import { ingestDistrowatchRows } from "./ingest-distrowatch.js";
+import { applyAllCuratedFacts } from "./ingest-facts.js";
 import {
   LEGACY_SLUGS,
   MARKET_SHARE,
@@ -93,6 +94,8 @@ async function main(): Promise<void> {
     await addMarketShare(db, { capturedAt, region: "global", platform: "windows", sharePct: point.windows });
     await addMarketShare(db, { capturedAt, region: "global", platform: "macos", sharePct: point.macos });
   }
+
+  await applyAllCuratedFacts(db);
 
   // GitHub rows were added after the ranking rows; rebuild the composite so it sees them.
   const composite = await writeCompositeIndex(db, SEED_CAPTURED_AT);

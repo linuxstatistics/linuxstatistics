@@ -138,6 +138,25 @@ export const distroReleases = pgTable(
 );
 
 /**
+ * Desktop, package manager and init per distro. Curated values win; a source
+ * only fills fields that are empty. `field_sources` says where each value came
+ * from ("curated" or a source name).
+ */
+export const distroFacts = pgTable("distro_facts", {
+  distroId: integer("distro_id")
+    .primaryKey()
+    .references(() => distros.id, { onDelete: "cascade" }),
+  defaultDesktop: text("default_desktop"),
+  otherDesktops: jsonb("other_desktops").$type<string[]>().notNull().default([]),
+  editions: jsonb("editions").$type<{ desktop: string; slug: string }[]>().notNull().default([]),
+  packageManager: text("package_manager"),
+  init: text("init"),
+  sourceUrl: text("source_url"),
+  fieldSources: jsonb("field_sources").$type<Record<string, string>>().notNull().default({}),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/**
  * Clicks on `/go/<partner>` affiliate redirects, one counter per partner per UTC
  * day. Nothing about the visitor is stored.
  */

@@ -23,7 +23,7 @@ import { pairVerdict } from "../../lib/verdict";
 import { nextSteps } from "../../lib/compare-links";
 import SwitchSide from "../../components/SwitchSide.astro";
 import { faqJsonLd, pairFaq } from "../../lib/faq";
-import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
+import { DESKTOP_LABEL, PACKAGE_MANAGER_LABEL, RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statistics/shared";
 import { LIST_PATH, topSearchItems } from "../../lib/distro-list";
 
 export async function getStaticPaths() {
@@ -76,12 +76,15 @@ function split(x: number | null, y: number | null, lowerIsBetter = false): numbe
 
 const rel = (d: DistroDetail, label: string) => releaseStats(d).find((r) => r[0] === label)?.[1] ?? "-";
 
+const desk = (d: DistroDetail) => (d.facts?.defaultDesktop ? DESKTOP_LABEL[d.facts.defaultDesktop] : d.facts && (d.facts.otherDesktops.length || d.facts.editions.length) ? "Your choice" : "-");
 const rows: Row[] = [
   { label: "Popularity rank (12 months)", a: num(a.rank), b: num(b.rank), better: pick(a.rank, b.rank, true), split: split(a.rank, b.rank, true) },
   { label: "Rank last month", a: num(a.rank1m), b: num(b.rank1m), better: pick(a.rank1m, b.rank1m, true), split: split(a.rank1m, b.rank1m, true) },
   { label: RANK_VALUE_LABEL[RANK_SOURCE], a: num(a.hitsPerDay), b: num(b.hitsPerDay), better: pick(a.hitsPerDay, b.hitsPerDay), split: split(a.hitsPerDay, b.hitsPerDay) },
   { label: "Family", a: FAMILY_LABELS[a.family], b: FAMILY_LABELS[b.family] },
   { label: "Based on", a: a.basedOnSlug ? (nameOf.get(a.basedOnSlug) ?? a.basedOnSlug) : "-", b: b.basedOnSlug ? (nameOf.get(b.basedOnSlug) ?? b.basedOnSlug) : "-" },
+  { label: "Default desktop", a: desk(a), b: desk(b) },
+  { label: "Package manager", a: a.facts?.packageManager ? PACKAGE_MANAGER_LABEL[a.facts.packageManager] : "-", b: b.facts?.packageManager ? PACKAGE_MANAGER_LABEL[b.facts.packageManager] : "-" },
   { label: "First released", a: a.firstReleaseYear?.toString() ?? "-", b: b.firstReleaseYear?.toString() ?? "-" },
   { label: "Latest release", a: rel(a, "Latest release"), b: rel(b, "Latest release") },
   { label: "Supported until", a: rel(a, "Supported until"), b: rel(b, "Supported until") },
@@ -168,7 +171,7 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
         </div>
       </section>
     )}
-    <KeyFactsPair sides={[a, b].map((d) => ({ name: d.name, facts: keyFacts(d, { baseName: d.basedOnSlug ? nameOf.get(d.basedOnSlug) : null, asOf, includeRank: true }) }))} />
+    <KeyFactsPair sides={[a, b].map((d) => ({ name: d.name, facts: keyFacts(d, { baseName: d.basedOnSlug ? nameOf.get(d.basedOnSlug) : null, asOf, includeRank: true, nameOf: (s) => nameOf.get(s) }) }))} />
     <Faq items={faq} />
     <EthicalAd placement="compare" />
     <p class="source-note">

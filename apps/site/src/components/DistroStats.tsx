@@ -2,6 +2,8 @@ import { RANK_SOURCE, RANK_VALUE_LABEL, type DistroDetail } from "@linux-statist
 import { FAMILY_LABELS, familyColor } from "../lib/families";
 import { formatRating, ratingDetail } from "../lib/rating";
 import { RankDifference } from "./RankDifference";
+import { desktopLink, offeredLinks, type DesktopLink } from "../lib/desktop-links";
+import { INIT_LABEL, PACKAGE_MANAGER_LABEL } from "@linux-statistics/shared";
 
 type Stat = [label: string, value: string, title?: string];
 
@@ -20,13 +22,13 @@ export function releaseStats(data: DistroDetail, today = new Date().toISOString(
   return out;
 }
 
-export type DetailRow = { label: string; value: string; href?: string; chip?: string; title?: string };
+export type DetailRow = { label: string; value: string; href?: string; chip?: string; title?: string; links?: DesktopLink[] };
 
 /**
  * Facts about the distro itself, leaving out anything unknown. "Other" family is
  * omitted: it only means "not in a family we track" and tells the reader nothing.
  */
-export function detailRows(data: DistroDetail, baseName?: string | null, today?: string): DetailRow[] {
+export function detailRows(data: DistroDetail, baseName?: string | null, today?: string, nameOf: (slug: string) => string | undefined = () => undefined): DetailRow[] {
   const rows: DetailRow[] = [];
   if (data.status === "discontinued") rows.push({ label: "Status", value: "Discontinued" });
   if (data.family !== "other") {
@@ -34,6 +36,19 @@ export function detailRows(data: DistroDetail, baseName?: string | null, today?:
   }
   if (data.basedOnSlug) rows.push({ label: "Based on", value: baseName ?? data.basedOnSlug, href: `/distro/${data.basedOnSlug}/` });
   if (data.firstReleaseYear != null) rows.push({ label: "First released", value: String(data.firstReleaseYear) });
+  const f = data.facts;
+  if (f) {
+    const offered = offeredLinks(f, nameOf);
+    if (f.defaultDesktop) {
+      const d = desktopLink(f.defaultDesktop);
+      rows.push({ label: "Desktop", value: d.label, links: [d] });
+    } else if (offered.length) {
+      rows.push({ label: "Desktop", value: "Your choice at install" });
+    }
+    if (offered.length) rows.push({ label: f.defaultDesktop ? "Also offered" : "Desktops offered", value: offered.map((o) => o.label).join(", "), links: offered });
+    if (f.packageManager) rows.push({ label: "Package manager", value: PACKAGE_MANAGER_LABEL[f.packageManager] });
+    if (f.init) rows.push({ label: "Init system", value: INIT_LABEL[f.init] });
+  }
   for (const [label, value, title] of releaseStats(data, today)) rows.push({ label, value, title });
   if (data.repoFullName) {
     const parts = [data.stars != null ? `${n(data.stars)} stars` : null, data.commitsLast30d != null ? `${n(data.commitsLast30d)} commits in 30 days` : null].filter(Boolean);
@@ -48,8 +63,8 @@ export function detailRows(data: DistroDetail, baseName?: string | null, today?:
  * Two groups with a fixed shape: popularity (every listed distro has it, always three
  * cells) and details (only the facts we know). Static HTML, no client JS.
  */
-export function DistroStats({ data, baseName }: { data: DistroDetail; baseName?: string | null }) {
-  const details = detailRows(data, baseName);
+export function DistroStats({ data, baseName, names }: { data: DistroDetail; baseName?: string | null; names?: Record<string, string> }) {
+  const details = detailRows(data, baseName, undefined, (slug) => names?.[slug]);
   return (
     <div className="dstats">
       {data.rank != null && (
@@ -81,7 +96,17 @@ export function DistroStats({ data, baseName }: { data: DistroDetail; baseName?:
               <dt>{r.label}</dt>
               <dd title={r.title}>
                 {r.chip && <span className="family-chip" style={{ background: r.chip }} />}
-                {r.href ? (
+                {r.links ? (
+                  <span className="dstats-links">
+                    {r.links.map((l, i, all) => (
+                      <span key={l.label}>
+                        {l.href ? <a href={l.href}>{l.label}</a> : l.label}
+                        {i < all.length - 1 && ","}
+                        {i < all.length - 1 && " "}
+                      </span>
+                    ))}
+                  </span>
+                ) : r.href ? (
                   r.href.startsWith("http") ? (
                     <a href={r.href} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{r.value}</a>
                   ) : (
