@@ -42,7 +42,13 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
   }, []);
   // The advanced quiz reveals itself once it has restored its own answers.
   useEffect(() => { if (restored && mode === "beginner") revealPicker(); }, [restored, mode]);
-  useEffect(() => { if (interacted.current) heading.current?.focus(); }, [step, done]);
+  useEffect(() => {
+    const h = heading.current;
+    if (!interacted.current || !h) return;
+    h.focus({ preventScroll: true });
+    const box = h.closest<HTMLElement>(".beginner-picker");
+    if (box && box.getBoundingClientRect().top < 0) box.scrollIntoView({ block: "start" });
+  }, [step, done]);
   const questions = beginnerFlow(answers);
   const q = questions[Math.min(step, questions.length - 1)]!;
   const tracked = new Set(distros.map((d) => d.slug));
@@ -102,8 +108,10 @@ export function BeginnerPicker({ distros, staticPairs }: { distros: PickerDistro
           </div>
           {result.kind === "recommendation" && result.alternatives.length > 0 && <div className="beginner-alternatives"><h3>Other options, if you need them</h3>{result.alternatives.map((a) => <p key={a.slug}><a href={`/distro/${a.slug}/`}>{distros.find((d) => d.slug === a.slug)?.name}</a>: {a.reason}</p>)}</div>}
           <QuizCountNote quiz="start" code={beginnerCode(answers)} topKey={result.kind === "recommendation" ? result.slug : "check"} fresh={finishedHere} />
+          <p className="quiz-nav">
+            <button type="button" onClick={() => navigate(0)}><span className="icon-arrow icon-arrow-left" aria-hidden="true" /> Edit answers</button>
+          </p>
           <SwitchReport page="quiz" distros={distros} />
-          <button type="button" className="chip" onClick={() => navigate(0)}>Edit answers</button>
         </section>
       )}
       <a className="beginner-advanced" href="/pick/?mode=advanced">

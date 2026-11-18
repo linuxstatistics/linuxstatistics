@@ -73,8 +73,20 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
     window.history.replaceState(null, "", url);
   }, [done, code]);
 
+  // Focus the new screen's heading. The first render keeps the page where it is; later
+  // steps bring the quiz's top back into view, since a shorter screen (results → last
+  // question) otherwise leaves phones scrolled to the bottom of the page.
+  const firstScreen = useRef(true);
   useEffect(() => {
-    headingRef.current?.focus();
+    const h = headingRef.current;
+    if (!h) return;
+    h.focus({ preventScroll: true });
+    if (firstScreen.current) {
+      firstScreen.current = false;
+      return;
+    }
+    const quiz = h.closest<HTMLElement>(".quiz");
+    if (quiz && quiz.getBoundingClientRect().top < 0) quiz.scrollIntoView({ block: "start" });
   }, [step, done]);
 
   const results: Suggestion[] = useMemo(
@@ -234,9 +246,12 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
               <button type="button" onClick={copyLink}>{copied ? "Link copied" : "Copy link to these results"}</button>
             </div>
             <QuizCountNote quiz="pick" code={code} topKey={results[0]?.key ?? null} fresh={finishedHere} />
-            <SwitchReport page="quiz" distros={distros} />
           </>
         )}
+        <p className="quiz-nav">
+          <button type="button" onClick={back}><span className="icon-arrow icon-arrow-left" aria-hidden="true" /> Change answers</button>{" "}
+          <button type="button" onClick={restart}>Start over</button>
+        </p>
         {(answers.from === "windows" || answers.from === "mac") && (
           <p className="switch-link">
             <a href={`/switch/${answers.from}/`}>
@@ -244,10 +259,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
             </a>
           </p>
         )}
-        <p className="quiz-nav">
-          <button type="button" onClick={back}><span className="icon-arrow icon-arrow-left" aria-hidden="true" /> Change answers</button>{" "}
-          <button type="button" onClick={restart}>Start over</button>
-        </p>
+        {results.length > 0 && <SwitchReport page="quiz" distros={distros} />}
         <p className="source-note">
           Suggestions come from hand-written profiles of {profiles.length} popular distros, not from your data. Your answers are in this page's link. A finished quiz is counted anonymously (answers and top match, nothing about you) unless you opt out. Try a live USB before installing.
         </p>
@@ -292,7 +304,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
       </fieldset>
       <div className="quiz-foot">
         {step > 0 && <button type="button" onClick={back}><span className="icon-arrow icon-arrow-left" aria-hidden="true" /> Back</button>}
-        <button type="button" aria-expanded={why} onClick={() => setWhy((w) => !w)}>Why we ask</button>
+        <button type="button" aria-expanded={why} onClick={() => setWhy((w) => !w)}><span className="icon-info" aria-hidden="true" /> Why we ask</button>
         <button type="button" className="quiz-skip" onClick={skip}>Skip this question</button>
       </div>
       {why && <p className="tip quiz-why-text">{q.why}</p>}
