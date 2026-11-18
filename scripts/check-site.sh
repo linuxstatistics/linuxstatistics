@@ -10,7 +10,8 @@ check() { # file, pattern, label
 [ -f "$DIST/index.html" ] || { echo "FAIL: no build at $DIST (run pnpm build:site)"; exit 1; }
 check index.html '<table class="leaderboard"' "home has the leaderboard table"
 check index.html 'application/ld+json' "home has JSON-LD"
-check index.html 'class="mast-answer"' "home has the top-distros answer line"
+check index.html 'class="mast-note mast-answer">' "home has the top-distros answer line"
+check index.html 'drawing the most interest' "home answer line names the top distros"
 check index.html '<ol class="podium" role="list"' "home podium is an ordered list"
 # The ranking order for answer engines: ItemList starting at position 1, matching the podium's #1.
 if python3 -c 'import json,re,sys; s=open(sys.argv[1]).read(); l=[n for b in re.findall(r"<script type=\"application/ld\+json\">(.*?)</script>",s,re.S) for n in (json.loads(b).get("@graph") or [json.loads(b)]) if n.get("@type")=="ItemList"]; m=re.search(r"<a class=\"pod\" href=\"([^\"]+)\"",s); e=l[0]["itemListElement"] if l else []; sys.exit(0 if e and e[0]["position"]==1 and m and e[0]["url"].endswith(m.group(1)) else 1)' "$DIST/index.html"; then echo "ok:   home ItemList starts at the podium #1"; else echo "FAIL: home ItemList missing or not starting at #1"; fail=1; fi

@@ -72,15 +72,14 @@ const jsonLd = {
     ) : (
       <h1>Linux distro rankings</h1>
     )}
-    {top5.length >= 3 && (
-      <p class="mast-answer">
-        Top Linux distros{monthLabel ? `, ${monthLabel}` : ""}:{" "}
-        {top5.map((d, i) => (
-          <>{i > 0 ? ", " : ""}{d.rank}. <a href={`/distro/${d.slug}/`}>{d.name}</a> ({d.hitsPerDay?.toLocaleString("en-US") ?? "-"})</>
-        ))}.
-      </p>
-    )}
-    <p class="mast-note">Ranked by interest, not installs: Wikipedia views, GitHub stars and more, combined in an <a href="/about/#ranking">open index</a>. <a href="/about/#interest-not-installs">Why not page hits?</a></p>
+    <p class="mast-note mast-answer">
+      {top5.length >= 3 && (
+        <>The Linux distros drawing the most interest{monthLabel ? ` in ${monthLabel}` : ""} are {top5.map((d, i) => (
+          <>{i === 0 ? "" : i === top5.length - 1 ? " and " : ", "}<a href={`/distro/${d.slug}/`}>{d.name}</a></>
+        ))}.{" "}</>
+      )}
+      We rank by interest, not installs: Wikipedia views, GitHub stars and more, combined in an <a href="/about/#ranking">open index</a>. <a href="/about/#interest-not-installs">Why not page hits?</a>
+    </p>
     {switchers != null && <p class="mast-switchers"><a href="/stats/">{switchers.toLocaleString("en-US")} people say LinuxStatistics helped them switch to Linux</a></p>}
   </div>
 
