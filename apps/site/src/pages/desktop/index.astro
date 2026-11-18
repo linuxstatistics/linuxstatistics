@@ -1,0 +1,57 @@
+---
+import Base from "../../layouts/Base.astro";
+import ReferenceSide from "../../components/ReferenceSide.astro";
+import { DistroMark } from "../../components/DistroMark";
+import { loadDistros } from "../../lib/data";
+import { DESKTOP_PAGES, DESKTOP_PAIRS, WEIGHT_HEADING, WEIGHT_LABEL, desktopPage, pairSlug } from "../../lib/desktops";
+import { distrosFor } from "../../lib/desktop-distros";
+import { itemListNode } from "../../lib/structured-data";
+
+const list = await loadDistros();
+const site = Astro.site!.href.replace(/\/$/, "");
+const rows = DESKTOP_PAGES.map((p) => ({ p, g: distrosFor(p, list) }));
+---
+
+<Base
+  title="Linux desktop environments compared: GNOME, KDE Plasma, Xfce, Cinnamon and more | LinuxStatistics"
+  description="What each Linux desktop looks like, who it suits, how light it is and whether it runs on Wayland, with the distros that ship it by default."
+  jsonLd={itemListNode(site, "Linux desktop environments", DESKTOP_PAGES.map((p) => ({ name: p.name, href: `/desktop/${p.slug}/` })))}
+  breadcrumbs={[{ name: "Desktops" }]}
+>
+  <div class="page">
+    <div class="with-side">
+      <article class="with-side-main prose ref-page">
+        <h1>Linux desktops</h1>
+        <p class="lede">The <a href="/glossary/desktop-environment/">desktop environment</a> is everything you see and click: panels, menus, windows and settings. Most distros ship one by default and offer others. Here's what each one is like and where to find it.</p>
+        <div class="table-scroll">
+          <table class="data-table desktop-index">
+            <thead><tr><th scope="col">Desktop</th><th scope="col">{WEIGHT_HEADING}</th><th scope="col">Comes with</th><th scope="col" class="di-long">In short</th></tr></thead>
+            <tbody>
+              {rows.map(({ p, g }) => (
+                <tr>
+                  <th scope="row"><a href={`/desktop/${p.slug}/`}>{p.name}</a><span class="di-short">{p.summary}</span></th>
+                  <td>{WEIGHT_LABEL[p.weight]}</td>
+                  <td class="dr-logos">
+                    {g.byDefault.length > 0 && (
+                      <a href={`/desktop/${p.slug}/`} aria-label={`${g.byDefault.length} distros come with ${p.name}`} title={g.byDefault.slice(0, 4).map((d) => d.name).join(", ")}>
+                        {g.byDefault.slice(0, 4).map((d) => <DistroMark slug={d.slug} name={d.name} />)}
+                        {g.byDefault.length > 4 && <span class="dr-plus">+{g.byDefault.length - 4}</span>}
+                      </a>
+                    )}
+                  </td>
+                  <td class="di-long">{p.summary}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <h2>Head to head</h2>
+        <ul class="side-links">
+          {DESKTOP_PAIRS.map((x) => <li><a href={`/desktop/${pairSlug(x)}/`}>{desktopPage(x.a)!.name} vs {desktopPage(x.b)!.name}</a></li>)}
+        </ul>
+        <p class="source-note">"Comes with" shows the best-ranked distros that ship that desktop out of the box; hover or open a desktop for the full list. "On older computers" is our own rating of how heavy each desktop is; no project publishes a memory figure.</p>
+      </article>
+      <ReferenceSide sponsorContext="people choosing a Linux desktop" quiz switchBox />
+    </div>
+  </div>
+</Base>

@@ -1,13 +1,16 @@
 import { DESKTOP_LABEL, INIT_LABEL, PACKAGE_MANAGER_LABEL, WINDOW_MANAGERS, type DesktopId, type DistroFacts } from "@linux-statistics/shared";
 import { glossaryBySlug } from "./glossary";
+import { pageForDesktop } from "./desktops";
 
 export interface DesktopLink {
   label: string;
   href?: string;
 }
 
-/** Where a desktop name links: its glossary entry, or the window-manager entry for a WM. */
+/** Where a desktop name links: its desktop page, else its glossary entry, else the window-manager entry for a WM. */
 export function desktopHref(id: DesktopId): string | undefined {
+  const page = pageForDesktop(id);
+  if (page) return `/desktop/${page.slug}/`;
   if (glossaryBySlug(id)) return `/glossary/${id}/`;
   if (WINDOW_MANAGERS.has(id)) return "/glossary/window-manager/";
   return undefined;

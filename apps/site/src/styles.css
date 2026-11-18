@@ -1662,3 +1662,37 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
   .footer-fold[open] > summary h2 { margin-bottom: 18px; }
   .footer-fold > summary:focus-visible, .key-facts-fold > summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
 }
+
+/* ---------- Desktop pages ---------- */
+.desktop-fit { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0 32px; }
+.desktop-fit h2 { font-size: 18px; }
+.desktop-facts, .desktop-options { margin: 24px 0; max-width: 68ch; }
+.desktop-facts > div, .desktop-options > div { padding: 10px 0; border-bottom: 1px solid var(--row); }
+.desktop-facts dt, .desktop-options dt { font: 600 13px var(--sans); color: var(--ink2); }
+.desktop-options dt { font-size: 15px; color: var(--ink); }
+.desktop-facts dd, .desktop-options dd { margin: 4px 0 0; }
+.dr-intro { margin: -4px 0 12px; font: 14px var(--sans); color: var(--ink2); }
+.desktop-ranked { list-style: none; margin: 0; padding: 0; max-width: 520px; }
+.desktop-ranked li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 7px 8px 7px 0; border-bottom: 1px solid var(--row); }
+.desktop-ranked .dr-rank { font: 600 16px var(--display); color: var(--ink2); font-variant-numeric: tabular-nums; }
+.desktop-ranked a { font-weight: 500; text-decoration: none; }
+.desktop-ranked .dr-note { font: 12px var(--sans); color: var(--ink2); }
+.dr-more { font: 14px var(--sans); color: var(--ink2); max-width: 68ch; }
+.desktop-offered { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; max-width: 68ch; }
+.desktop-offered a { padding: 4px 10px 4px 4px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; font: 500 14px var(--sans); }
+@media (hover: hover) { .desktop-ranked a:hover, .desktop-offered a:hover { color: var(--accent); } }
+.dr-logos a { display: inline-flex; align-items: center; gap: 4px; text-decoration: none; white-space: nowrap; }
+.dr-plus { font: 12px var(--sans); color: var(--ink2); margin-left: 2px; }
+.dr-stack { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.dr-stack a { text-decoration: none; }
+.dr-all { display: inline-block; margin-top: 6px; font: 12px var(--sans); color: var(--ink2); }
+.desktop-index td.di-long { min-width: 260px; }
+.desktop-index .di-short { display: none; }
+@media (max-width: 560px) {
+  .desktop-index .di-long { display: none; }
+  .desktop-index .di-short { display: block; margin-top: 4px; font: 400 13px/1.4 var(--sans); color: var(--ink2); }
+  .desktop-index th[scope="row"] { vertical-align: top; }
+  .desktop-index td { vertical-align: top; white-space: nowrap; }
+}
+.desktop-vs td { vertical-align: top; }
+.ref-counts dd.ref-counts-text { font-size: 18px; line-height: 1.2; }

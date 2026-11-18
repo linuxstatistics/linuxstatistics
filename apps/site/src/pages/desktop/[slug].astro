@@ -1,0 +1,169 @@
+---
+import Base from "../../layouts/Base.astro";
+import ReferenceSide from "../../components/ReferenceSide.astro";
+import { DistroMark } from "../../components/DistroMark";
+import { Faq } from "../../components/Faq";
+import { loadDistros } from "../../lib/data";
+import { DESKTOP_LABEL } from "@linux-statistics/shared";
+import { DESKTOP_PAGES, DESKTOP_PAIRS, DESKTOPS_CHECKED, WEIGHT_HEADING, WEIGHT_LABEL, desktopPage, pairSlug, type DesktopPage } from "../../lib/desktops";
+import { distrosFor } from "../../lib/desktop-distros";
+import { faqNode, itemListNode } from "../../lib/structured-data";
+
+export function getStaticPaths() {
+  return [
+    ...DESKTOP_PAGES.map((p) => ({ params: { slug: p.slug }, props: { kind: "page" as const } })),
+    ...DESKTOP_PAIRS.map((p) => ({ params: { slug: pairSlug(p) }, props: { kind: "pair" as const } })),
+  ];
+}
+
+const { kind } = Astro.props as { kind: "page" | "pair" };
+const slug = Astro.params.slug!;
+const list = await loadDistros();
+const site = Astro.site!.href.replace(/\/$/, "");
+const month = new Date(`${DESKTOPS_CHECKED}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
+
+const page = kind === "page" ? desktopPage(slug)! : null;
+const pair = kind === "pair" ? DESKTOP_PAIRS.find((p) => pairSlug(p) === slug)! : null;
+const A = pair ? desktopPage(pair.a)! : null;
+const B = pair ? desktopPage(pair.b)! : null;
+
+const MAX = 12;
+const groups = page ? distrosFor(page, list) : null;
+const pairsWith = (p: DesktopPage) => DESKTOP_PAIRS.filter((x) => x.a === p.slug || x.b === p.slug);
+const otherOf = (x: (typeof DESKTOP_PAIRS)[number], s: string) => desktopPage(x.a === s ? x.b : x.a)!;
+const isWm = page?.slug === "window-managers";
+
+const pageFaq = page
+  ? [
+      { q: `Which Linux distros use ${page.name} by default?`, a: groups!.byDefault.length ? `Of the distros we track, ${groups!.byDefault.slice(0, 5).map((d) => d.name).join(", ")}${groups!.byDefault.length > 5 ? ` and ${groups!.byDefault.length - 5} more` : ""} ship ${isWm ? "a window manager" : page.name} by default.` : `None of the distros we profile ship ${page.name} by default, but several offer it.` },
+      { q: `Is ${page.name} good for older computers?`, a: `${page.weight === "light" ? "Yes. It runs well on older computers." : page.weight === "medium" ? "It works, but it runs better on a computer from the last several years." : "It needs a recent computer."} ${page.weightNote}` },
+      { q: `Does ${page.name} use Wayland?`, a: page.wayland },
+    ]
+  : pair!.faq;
+
+const title = page
+  ? isWm
+    ? "Linux tiling window managers: i3, Sway, Hyprland and niri explained | LinuxStatistics"
+    : `${page.name} desktop: what it looks like, who it suits and which distros use it | LinuxStatistics`
+  : `${A!.name} vs ${B!.name}: which Linux desktop should you use? | LinuxStatistics`;
+const description = page ? `${page.summary} Which distros ship it, how it runs on older computers and Wayland status.` : pair!.verdict;
+const jsonLd = {
+  "@graph": [
+    faqNode(pageFaq),
+    ...(groups && groups.byDefault.length ? [itemListNode(site, `Linux distros with ${page!.name} by default`, groups.byDefault.map((d) => ({ name: d.name, href: `/distro/${d.slug}/` })))] : []),
+  ],
+};
+const crumbs = [{ name: "Desktops", href: "/desktop/" }, { name: page ? page.name : `${A!.name} vs ${B!.name}` }];
+---
+
+<Base title={title} description={description} jsonLd={jsonLd} breadcrumbs={crumbs}>
+  <div class="page">
+    <div class="with-side">
+      <article class="with-side-main prose ref-page desktop-page">
+        <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/desktop/">Desktops</a> / {page ? page.name : `${A!.name} vs ${B!.name}`}</nav>
+        {page && (
+          <>
+            <h1>{isWm ? "Tiling window managers" : page.name}</h1>
+            <p class="lede">{page.summary}</p>
+            <p class="legal-meta">Checked {month} against the project's own pages. The older-computer rating is ours; no project publishes a memory figure.</p>
+            <dl class="ref-counts">
+              <div><dt>{WEIGHT_HEADING}</dt><dd class="ref-counts-text">{WEIGHT_LABEL[page.weight]}</dd></div>
+              <div><dt>Distros that come with it</dt><dd>{groups!.byDefault.length}</dd></div>
+              <div><dt>More that let you pick it</dt><dd>{groups!.offered.length}</dd></div>
+            </dl>
+            <h2>What it looks like</h2>
+            <p>{page.looks}</p>
+            {page.options && (
+              <>
+                <h2>The main options</h2>
+                <dl class="desktop-options">
+                  {page.options.map((o) => <div><dt>{o.name}</dt><dd>{o.text}</dd></div>)}
+                </dl>
+              </>
+            )}
+            <div class="desktop-fit">
+              <section><h2>Good for</h2><ul>{page.suits.map((s) => <li>{s}</li>)}</ul></section>
+              <section><h2>Not ideal if</h2><ul>{page.notFor.map((s) => <li>{s}</li>)}</ul></section>
+            </div>
+            <dl class="desktop-facts">
+              <div><dt>{WEIGHT_HEADING}</dt><dd>{WEIGHT_LABEL[page.weight]}. {page.weightNote} This is our own rating; no project publishes a memory figure.</dd></div>
+              <div><dt>Wayland</dt><dd>{page.wayland}</dd></div>
+              <div><dt>Made by</dt><dd>{page.madeBy}</dd></div>
+              <div><dt>Coming from Windows</dt><dd>{page.fromWindows}</dd></div>
+              <div><dt>Coming from a Mac</dt><dd>{page.fromMac}</dd></div>
+            </dl>
+            {groups!.byDefault.length > 0 && (
+              <section>
+                <h2>Distros that come with {isWm ? "a window manager" : page.name} <span class="ref-n">{groups!.byDefault.length}</span></h2>
+                <p class="dr-intro">Installed and set up out of the box, ranked by our popularity index.</p>
+                <ol class="desktop-ranked">
+                  {groups!.byDefault.slice(0, MAX).map((d) => (
+                    <li>
+                      <span class="dr-rank">{d.rank != null ? `#${d.rank}` : ""}</span>
+                      <a class="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a>
+                      {isWm && d.defaultDesktop && <span class="dr-note">{DESKTOP_LABEL[d.defaultDesktop]}</span>}
+                    </li>
+                  ))}
+                </ol>
+                {groups!.byDefault.length > MAX && <p class="dr-more">And {groups!.byDefault.length - MAX} more: {groups!.byDefault.slice(MAX).map((d, i) => <>{i > 0 && ", "}<a href={`/distro/${d.slug}/`}>{d.name}</a></>)}.</p>}
+              </section>
+            )}
+            {groups!.offered.length > 0 && (
+              <section>
+                <h2>More distros that let you pick it <span class="ref-n">{groups!.offered.length}</span></h2>
+                <p class="dr-intro">They ship another desktop by default but offer {isWm ? "one of these" : page.name} as a separate download or an install option.</p>
+                <ul class="desktop-offered">
+                  {groups!.offered.map((d) => <li><a class="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a></li>)}
+                </ul>
+              </section>
+            )}
+            {pairsWith(page).length > 0 && (
+              <section>
+                <h2>Compare</h2>
+                <ul class="side-links">
+                  {pairsWith(page).map((x) => <li><a href={`/desktop/${pairSlug(x)}/`}>{page.name} vs {otherOf(x, page.slug).name}</a></li>)}
+                </ul>
+              </section>
+            )}
+            <Faq items={pageFaq} />
+            <p class="source-note">
+              Sources: {page.sources.map((s, i) => <>{i > 0 && " · "}<a href={s.href} {...ext}>{s.label}</a></>)}.
+              Distro lists cover the distros we profile, from each project's download or editions page. <a href={`/suggest/?kind=correction&subject=${encodeURIComponent(`Desktop: ${page.name}`)}`}>Suggest a correction</a>.
+            </p>
+          </>
+        )}
+        {pair && (
+          <>
+            <h1>{A!.name} vs {B!.name}</h1>
+            <p class="lede">{pair.verdict}</p>
+            <div class="desktop-fit">
+              <section><h2>{A!.name} is better for</h2><ul>{pair.aBetter.map((s) => <li>{s}</li>)}</ul></section>
+              <section><h2>{B!.name} is better for</h2><ul>{pair.bBetter.map((s) => <li>{s}</li>)}</ul></section>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table compare-table desktop-vs">
+                <thead><tr><th scope="col"></th><th scope="col"><a href={`/desktop/${A!.slug}/`}>{A!.name}</a></th><th scope="col"><a href={`/desktop/${B!.slug}/`}>{B!.name}</a></th></tr></thead>
+                <tbody>
+                  <tr><th scope="row">{WEIGHT_HEADING}</th><td>{WEIGHT_LABEL[A!.weight]}</td><td>{WEIGHT_LABEL[B!.weight]}</td></tr>
+                  <tr><th scope="row">Wayland</th><td>{A!.wayland}</td><td>{B!.wayland}</td></tr>
+                  <tr><th scope="row">From Windows</th><td>{A!.fromWindows}</td><td>{B!.fromWindows}</td></tr>
+                  <tr><th scope="row">From a Mac</th><td>{A!.fromMac}</td><td>{B!.fromMac}</td></tr>
+                  <tr><th scope="row">Comes with it</th>{[A!, B!].map((p) => { const g = distrosFor(p, list).byDefault; return <td>{g.length ? <ul class="dr-stack">{g.slice(0, 5).map((d) => <li><a class="with-mark" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} /><span>{d.name}</span></a></li>)}</ul> : "-"}{g.length > 5 && <a class="dr-all" href={`/desktop/${p.slug}/`}>All {g.length}</a>}</td>; })}</tr>
+                </tbody>
+              </table>
+            </div>
+            <Faq items={pageFaq} />
+            <p class="source-note">The older-computer rating is ours; neither project publishes a memory figure. Details and sources on the <a href={`/desktop/${A!.slug}/`}>{A!.name}</a> and <a href={`/desktop/${B!.slug}/`}>{B!.name}</a> pages.</p>
+          </>
+        )}
+      </article>
+      <ReferenceSide
+        sponsorContext="people choosing a Linux desktop"
+        quiz
+        switchBox
+        links={{ title: "Desktops", items: DESKTOP_PAGES.filter((p) => p.slug !== slug).map((p) => ({ label: p.name, href: `/desktop/${p.slug}/` })), more: { label: "All desktops", href: "/desktop/" } }}
+      />
+    </div>
+  </div>
+</Base>

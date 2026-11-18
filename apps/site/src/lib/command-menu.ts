@@ -35,6 +35,7 @@ export const PAGE_COMMANDS: PageCommand[] = [
   { section: "Choose a distro", href: "/switch/mac/", label: "Switch from a Mac", keywords: "macos apple silicon migrate" },
   { section: "Reference", href: "/telemetry/", label: "Telemetry by distro", keywords: "privacy tracking data collection telemetry" },
   { section: "Reference", href: "/support-dates/", label: "Support dates", keywords: "end of life eol support lts lifecycle" },
+  { section: "Reference", href: "/desktop/", label: "Desktops compared", keywords: "desktop environment gnome kde plasma xfce cinnamon mate cosmic budgie lxqt window manager hyprland sway i3 tiling" },
   { section: "Reference", href: "/glossary/", label: "Glossary", keywords: "terms definitions what is meaning rolling immutable flatpak desktop environment" },
   { section: "Reference", href: "/articles/", label: "Articles", keywords: "blog posts analysis method" },
   { section: "Reference", href: "/data/", label: "Open data", keywords: "download csv json api badge" },
