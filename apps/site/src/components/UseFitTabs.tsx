@@ -1,17 +1,25 @@
 import { useEffect, useState } from "react";
 import type { Use } from "../lib/picker-profiles";
 import { isUse, VERDICT_TEXT, type UseFit } from "../lib/use-fit";
+import type { DistroNotes } from "../lib/distro-notes";
+
+type TabId = Use | "overall";
 
 /**
- * "How it fits what you do": a tab for each use the distro is built for
- * (`primary`), plus the use from ?for=<use> when the quiz sent someone here
- * for something else. Rendered on the server with the first tab open.
+ * "Good and trade-offs": an Overall tab with the hand-written pros and cons
+ * (`overall`), then a tab for each use the distro is built for (`primary`),
+ * plus the use from ?for=<use> when the quiz sent someone here for something
+ * else. Rendered on the server with the first tab open.
  */
-export function UseFitTabs({ name, fits: all, primary }: { name: string; fits: UseFit[]; primary?: Use[] }) {
+export function UseFitTabs({ name, fits: all, primary, overall }: { name: string; fits: UseFit[]; primary?: Use[]; overall?: DistroNotes | null }) {
   const [extra, setExtra] = useState<Use | null>(null);
   const shown = new Set<Use>([...(primary ?? all.map((f) => f.use)), ...(extra ? [extra] : [])]);
   const fits = all.filter((f) => shown.has(f.use));
-  const [active, setActive] = useState<Use>(fits[0]!.use);
+  const tabs: { id: TabId; label: string; verdict?: UseFit["verdict"] }[] = [
+    ...(overall ? [{ id: "overall" as const, label: "Overall" }] : []),
+    ...fits.map((f) => ({ id: f.use, label: f.label, verdict: f.verdict })),
+  ];
+  const [active, setActive] = useState<TabId>(tabs[0]!.id);
 
   useEffect(() => {
     const f = new URLSearchParams(window.location.search).get("for");
@@ -20,62 +28,74 @@ export function UseFitTabs({ name, fits: all, primary }: { name: string; fits: U
     setActive(f);
   }, [all]);
 
-  function pick(use: Use) {
-    setActive(use);
+  function pick(id: TabId) {
+    setActive(id);
     const url = new URL(window.location.href);
-    url.searchParams.set("for", use);
+    if (id === "overall") url.searchParams.delete("for");
+    else url.searchParams.set("for", id);
     window.history.replaceState(null, "", url);
   }
 
   function onKey(e: React.KeyboardEvent<HTMLButtonElement>, i: number) {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
     e.preventDefault();
-    const next = fits[(i + (e.key === "ArrowRight" ? 1 : fits.length - 1)) % fits.length]!;
-    pick(next.use);
-    document.getElementById(`fit-tab-${next.use}`)?.focus();
+    const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length]!;
+    pick(next.id);
+    document.getElementById(`fit-tab-${next.id}`)?.focus();
   }
 
   return (
     <section className="use-fit" aria-labelledby="use-fit-h">
-      <h2 id="use-fit-h">How {name} fits what you do</h2>
-      <div className="use-fit-tabs" role="tablist" aria-label="Uses">
-        {fits.map((f, i) => (
+      <h2 id="use-fit-h">{name}: good and trade-offs</h2>
+      <div className="use-fit-tabs" role="tablist" aria-label="Overall or by use">
+        {tabs.map((t, i) => (
           <button
-            key={f.use}
-            id={`fit-tab-${f.use}`}
+            key={t.id}
+            id={`fit-tab-${t.id}`}
             type="button"
             role="tab"
-            aria-selected={active === f.use}
-            aria-controls={`fit-panel-${f.use}`}
-            tabIndex={active === f.use ? 0 : -1}
-            className={`use-fit-tab v-${f.verdict}`}
-            onClick={() => pick(f.use)}
+            aria-selected={active === t.id}
+            aria-controls={`fit-panel-${t.id}`}
+            tabIndex={active === t.id ? 0 : -1}
+            className={`use-fit-tab${t.verdict ? ` v-${t.verdict}` : " overall"}`}
+            onClick={() => pick(t.id)}
             onKeyDown={(e) => onKey(e, i)}
           >
-            {f.label}
+            {t.label}
           </button>
         ))}
       </div>
+      {overall && (
+        <div id="fit-panel-overall" role="tabpanel" aria-labelledby="fit-tab-overall" hidden={active !== "overall"} className="use-fit-panel">
+          <Columns pros={overall.pros} cons={overall.cons} />
+        </div>
+      )}
       {fits.map((f) => (
         <div key={f.use} id={`fit-panel-${f.use}`} role="tabpanel" aria-labelledby={`fit-tab-${f.use}`} hidden={active !== f.use} className="use-fit-panel">
           <p className={`use-fit-verdict v-${f.verdict}`}>
             {f.label}: <strong>{VERDICT_TEXT[f.verdict]}</strong>
           </p>
-          <div className="pc-grid">
-            <div className="pc-col pc-pro">
-              <h3>Good</h3>
-              {f.pros.length ? <ul>{f.pros.map((t) => <li key={t}>{t}</li>)}</ul> : <p className="note">Nothing that stands out for this.</p>}
-            </div>
-            <div className="pc-col pc-con">
-              <h3>Trade-offs</h3>
-              {f.cons.length ? <ul>{f.cons.map((t) => <li key={t}>{t}</li>)}</ul> : <p className="note">None we know of.</p>}
-            </div>
-          </div>
+          <Columns pros={f.pros} cons={f.cons} />
         </div>
       ))}
       <p className="note use-fit-note">
-        From our hand-written profile of {name}. <a href={`/pick/`}>Take the quiz</a> to compare it with other distros for your setup.
+        {overall ? "Overall: our hand-written notes. By use: from our profile" : "From our hand-written profile"} of {name}. <a href={`/pick/`}>Take the quiz</a> to compare it with other distros for your setup.
       </p>
     </section>
+  );
+}
+
+function Columns({ pros, cons }: { pros: string[]; cons: string[] }) {
+  return (
+    <div className="pc-grid">
+      <div className="pc-col pc-pro">
+        <h3>Good</h3>
+        {pros.length ? <ul>{pros.map((t) => <li key={t}>{t}</li>)}</ul> : <p className="note">Nothing that stands out for this.</p>}
+      </div>
+      <div className="pc-col pc-con">
+        <h3>Trade-offs</h3>
+        {cons.length ? <ul>{cons.map((t) => <li key={t}>{t}</li>)}</ul> : <p className="note">None we know of.</p>}
+      </div>
+    </div>
   );
 }

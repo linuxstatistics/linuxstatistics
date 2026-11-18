@@ -70,3 +70,21 @@ test("tab lines that repeat the general pros and cons are dropped, never emptyin
   const only = [{ use: "gaming" as const, label: "Gaming", verdict: "ok" as const, pros: ["Feels familiar"], cons: [] }];
   expect(withoutRepeats(only, ["Feels familiar to everyone"])[0]!.pros).toEqual(["Feels familiar"]);
 });
+
+test("hand-written notes become an Overall tab first; ?for= still opens its use", async () => {
+  const user = userEvent.setup();
+  const fedora = prof("fedora");
+  const overall = { key: "fedora", pros: ["Hand-written pro"], cons: ["Hand-written con"] };
+  render(<UseFitTabs name="Fedora" fits={useFits(fedora)} primary={primaryUses(fedora)} overall={overall} />);
+  expect(screen.getAllByRole("tab")[0]).toHaveTextContent("Overall");
+  expect(screen.getByRole("tab", { name: "Overall" })).toHaveAttribute("aria-selected", "true");
+  expect(screen.getByText("Hand-written pro")).toBeVisible();
+  await user.click(screen.getByRole("tab", { name: "Programming" }));
+  expect(screen.getByText("Hand-written pro")).not.toBeVisible();
+  await user.click(screen.getByRole("tab", { name: "Overall" }));
+  expect(window.location.search).toBe("");
+  cleanup();
+  window.history.replaceState(null, "", "/distro/fedora/?for=ai");
+  render(<UseFitTabs name="Fedora" fits={useFits(fedora)} primary={primaryUses(fedora)} overall={overall} />);
+  expect(screen.getByRole("tab", { name: "AI & Local LLMs" })).toHaveAttribute("aria-selected", "true");
+});

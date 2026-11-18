@@ -163,8 +163,8 @@ const jsonLd = {
             )}
           </section>
         )}
-        {notes && <ProsCons notes={notes} />}
-        {fits && <UseFitTabs client:visible name={data.name} fits={fits} primary={primaryFits} />}
+        {notes && !fits && <ProsCons notes={notes} />}
+        {fits && <UseFitTabs client:visible name={data.name} fits={fits} primary={primaryFits} overall={notes} />}
         <TelemetryNote slug={data.slug} />
         <KeyFacts title={`${data.name} key facts`} facts={facts} />
         {profile && <DownloadBlock name={data.name} downloadUrl={profile.downloadUrl} verify={verifyFor(data.slug)} distrosea={profile.distrosea} />}
