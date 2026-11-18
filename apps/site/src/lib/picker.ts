@@ -1,4 +1,4 @@
-import type { Desktop, Level, PickerProfile, Use } from "./picker-profiles";
+import type { Desktop, Level, PickerProfile, ProfileDesktop, Use } from "./picker-profiles";
 import type { Answers } from "./picker-questions";
 import { sendsNothingByDefault, telemetryFor } from "./telemetry";
 
@@ -45,6 +45,29 @@ const DESKTOP_TEXT: Record<Desktop, string> = {
   kde: "KDE Plasma",
   light: "a lightweight desktop",
 };
+/**
+ * Whether a profile offers the desktop someone asked for. KDE Plasma's default
+ * layout is a bottom taskbar with a start menu, so it counts as Windows-style
+ * (the quiz's own KDE option says so).
+ */
+export function offersDesktop(p: { desktops: ProfileDesktop[] }, want: Desktop): boolean {
+  return p.desktops.includes(want) || (want === "windows-like" && p.desktops.includes("kde"));
+}
+
+/** What a distro's default desktop actually looks like, for the "watch out" line. */
+const LOOKS: Partial<Record<ProfileDesktop, string>> = {
+  gnome: "GNOME: a top bar and full-screen app overview, not a taskbar",
+  cosmic: "COSMIC: a top panel and dock, not a Windows-style taskbar",
+  "mac-like": "a macOS-style dock",
+  light: "a plain, lightweight desktop",
+};
+
+function desktopMiss(p: PickerProfile, want: Desktop): string {
+  const look = p.desktops.map((d) => LOOKS[d]).find(Boolean);
+  if (want === "windows-like" && look) return `Desktop is ${look}`;
+  return `Doesn't offer ${DESKTOP_TEXT[want]} by default`;
+}
+
 const PKG_TEXT = { deb: "deb packages (apt)", rpm: "rpm packages", pacman: "pacman (Arch packages)", other: "its own package format" } as const;
 
 /** Distros that can't work for these answers at all: wrong hardware, too little memory, expert-only for a beginner. */
@@ -103,13 +126,15 @@ export function score(p: PickerProfile, a: Answers): Omit<Suggestion, "pct"> {
     crit(2, p.updates === want ? 2 : 0, want === "stable" ? "Fixed releases with tested updates" : "Rolling updates with the newest software", p.updates === "rolling" ? "Rolling updates, not fixed releases" : "Fixed releases, not rolling");
   }
   if (a.undo === "yes") {
-    crit(3, p.undo === "rollback" ? 3 : p.undo === "snapshots" ? 2 : 0, p.undo === "rollback" ? "Updates you can roll back" : "Snapshots let you undo updates", "No built-in way to undo updates");
+    crit(3, p.undo === "rollback" ? 3 : p.undo === "snapshots" ? 2 : 0, p.undo === "rollback" ? "Updates you can roll back" : "Snapshots let you undo updates", "Updates can't be rolled back out of the box (Timeshift snapshots can add this)");
   }
   if (a.desktop && a.desktop !== "any") {
-    crit(2, p.desktops.includes(a.desktop) ? 2 : 0, `Offers ${DESKTOP_TEXT[a.desktop]}`, `Doesn't offer ${DESKTOP_TEXT[a.desktop]} by default`);
+    // Someone leaving Windows who asks for a Windows-style desktop cares about it as much as undoable updates.
+    const best = a.from === "windows" && a.desktop === "windows-like" ? 3 : 2;
+    crit(best, offersDesktop(p, a.desktop) ? best : 0, `Offers ${DESKTOP_TEXT[a.desktop]}`, desktopMiss(p, a.desktop));
   } else {
     const fam = a.from ? FAMILIAR[a.from] : undefined;
-    if (fam) crit(2, p.desktops.includes(fam.desktop) ? 2 : 0, fam.reason);
+    if (fam) crit(2, offersDesktop(p, fam.desktop) ? 2 : 0, fam.reason);
   }
   if (a.init === "no-systemd") crit(4, p.init === "other" ? 4 : -4, "Doesn't use systemd", "Uses systemd");
   if (a.foss === "yes") crit(4, p.fossOnly ? 4 : -1, "Free software only", "Includes non-free drivers or firmware");

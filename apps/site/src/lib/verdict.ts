@@ -62,6 +62,7 @@ const DESKTOP_TEXT: Record<string, string> = {
   gnome: "you like the GNOME desktop",
   kde: "you like KDE Plasma and lots of settings",
   light: "you want a light, simple desktop",
+  cosmic: "you like a tiling-friendly desktop with a dock (COSMIC)",
 };
 
 /** "Pick A if… / Pick B if…": reasons that tell them apart (shared ones dropped), at most 3 each. */

@@ -7,7 +7,10 @@
 export type Level = "new" | "some" | "expert";
 export type Use = "everyday" | "gaming" | "dev" | "creative" | "old-hw" | "privacy" | "server" | "ai";
 export type Updates = "stable" | "rolling";
+/** Quiz answers. KDE Plasma's default layout (taskbar, start menu) also counts as Windows-style; see picker.ts. */
 export type Desktop = "windows-like" | "mac-like" | "gnome" | "kde" | "light";
+/** Profile-only desktops: shown and scored as "not what you asked for", never a quiz option (share codes are append-only). */
+export type ProfileDesktop = Desktop | "cosmic";
 /** pc = 64-bit x86, pc32 = 32-bit x86, pi = official Raspberry Pi images, arm = other 64-bit ARM. */
 export type Platform = "pc" | "pc32" | "pi" | "arm";
 /** How easy NVIDIA drivers are: excellent = installed for you or a dedicated image. */
@@ -19,7 +22,7 @@ export interface PickerProfile {
   levels: Level[];
   uses: Use[];
   updates: Updates;
-  desktops: Desktop[];
+  desktops: ProfileDesktop[];
   /** One plain sentence shown with the suggestion. */
   blurb: string;
   platforms: Platform[];
@@ -54,7 +57,7 @@ export const PROFILES: PickerProfile[] = [
   P({ key: "mint", levels: ["new", "some"], uses: ["everyday", "old-hw"], updates: "stable", desktops: ["windows-like", "light"], blurb: "Familiar Windows-style desktop (Cinnamon), Ubuntu LTS base, very little setup.", platforms: ["pc"], minRamGb: 2, nvidia: "good", init: "systemd", pkg: "deb", downloadUrl: "https://linuxmint.com/download.php", distrosea: "linuxmint" }),
   P({ key: "zorin", levels: ["new"], uses: ["everyday"], updates: "stable", desktops: ["windows-like", "mac-like"], blurb: "Polished desktop with Windows- and macOS-style layouts; aimed at people leaving Windows.", platforms: ["pc"], minRamGb: 2, nvidia: "good", init: "systemd", pkg: "deb", downloadUrl: "https://zorin.com/os/download/", distrosea: "zorin" }),
   P({ key: "ubuntu", levels: ["new", "some"], uses: ["everyday", "dev", "server", "ai"], updates: "stable", desktops: ["gnome"], blurb: "The most widely documented desktop Linux; long-term support releases.", platforms: ["pc", "arm", "pi"], minRamGb: 4, nvidia: "good", cuda: true, rocm: true, init: "systemd", pkg: "deb", downloadUrl: "https://ubuntu.com/download/desktop", distrosea: "ubuntu", useSources: { ai: "https://docs.nvidia.com/cuda/cuda-installation-guide-linux/" }, laptop: { vendor: "Framework, Dell and Lenovo", source: "https://frame.work/linux" } }),
-  P({ key: "popos", levels: ["new", "some"], uses: ["everyday", "gaming", "dev", "ai"], updates: "stable", desktops: ["gnome"], blurb: "System76's Ubuntu-based distro with an NVIDIA ISO and a tiling-friendly desktop.", platforms: ["pc"], minRamGb: 4, nvidia: "excellent", cuda: true, init: "systemd", pkg: "deb", downloadUrl: "https://system76.com/pop/download/", distrosea: "popos", useSources: { ai: "https://support.system76.com/articles/cuda/" }, laptop: { vendor: "System76", source: "https://system76.com/laptops" } }),
+  P({ key: "popos", levels: ["new", "some"], uses: ["everyday", "gaming", "dev", "ai"], updates: "stable", desktops: ["cosmic"], blurb: "System76's Ubuntu-based distro with an NVIDIA ISO and its own COSMIC desktop, with tiling built in.", platforms: ["pc"], minRamGb: 4, nvidia: "excellent", cuda: true, init: "systemd", pkg: "deb", downloadUrl: "https://system76.com/pop/download/", distrosea: "popos", useSources: { ai: "https://support.system76.com/articles/cuda/" }, laptop: { vendor: "System76", source: "https://system76.com/laptops" } }),
   P({ key: "fedora", levels: ["some", "expert"], uses: ["everyday", "dev", "server", "ai", "creative"], updates: "stable", desktops: ["gnome", "kde"], blurb: "Up-to-date software on a fixed release cycle; a common choice for developers.", platforms: ["pc", "arm"], minRamGb: 4, nvidia: "fair", cuda: true, rocm: true, init: "systemd", pkg: "rpm", downloadUrl: "https://fedoraproject.org/workstation/download", distrosea: "fedora", useSources: { creative: "https://fedoraproject.org/labs/jam/", ai: "https://docs.nvidia.com/cuda/cuda-installation-guide-linux/" }, laptop: { vendor: "Framework and Slimbook", source: "https://frame.work/linux" } }),
   P({ key: "debian", levels: ["some", "expert"], uses: ["everyday", "dev", "old-hw", "server", "ai"], updates: "stable", desktops: ["gnome", "kde", "light"], blurb: "Very stable base that many other distros build on; you choose the desktop.", platforms: ["pc", "arm"], minRamGb: 1, nvidia: "fair", cuda: true, rocm: true, init: "systemd", pkg: "deb", downloadUrl: "https://www.debian.org/download", distrosea: "debian", useSources: { ai: "https://rocm.docs.amd.com/projects/install-on-linux/en/latest/reference/system-requirements.html" } }),
   P({ key: "mx", levels: ["new", "some"], uses: ["everyday", "old-hw"], updates: "stable", desktops: ["light", "kde"], blurb: "Debian-based with handy graphical tools; light enough for older machines.", platforms: ["pc"], minRamGb: 2, nvidia: "good", init: "other", pkg: "deb", downloadUrl: "https://mxlinux.org/download-links/", distrosea: "mxlinux" }),
