@@ -19,6 +19,7 @@ const PAGES: [path: string, label: string, note: string][] = [
   ["/telemetry/", "Telemetry", "Which distros send usage data by default, checked against each project's documentation"],
   ["/support-dates/", "Support dates", "When each release reaches end of support (endoflife.date)"],
   ["/changelog/", "Changelog", "Every change to the ranking method, data corrections and source outages"],
+  ["/glossary/", "Glossary", "Plain-language definitions of Linux terms: rolling release, immutable, Flatpak, desktop environment and more"],
   ["/guides/verify-download/", "Verify a download", "SHA256 and GPG commands for Windows, macOS and Linux"],
 ];
 

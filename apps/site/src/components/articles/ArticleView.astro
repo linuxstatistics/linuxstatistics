@@ -6,6 +6,7 @@ import type { ArticleEntry } from "../../lib/article-entries";
 import { TYPE_LABEL, topicBySlug } from "../../lib/article-topics";
 import { faqNode } from "../../lib/structured-data";
 import { renderArticleCharts } from "../../lib/article-chart-render";
+import { linkGlossaryTerms } from "../../lib/glossary";
 
 interface Props {
   entry: ArticleEntry["entry"];
@@ -17,7 +18,7 @@ const { entry, card: a, cards } = Astro.props;
 const topic = topicBySlug(a.topic)!;
 const hubLive = isHubLive(cards, a.topic);
 // Markdown is rendered by the content loader; external links get the site's new-tab attributes.
-const html = externalLinksNewTab(await renderArticleCharts(entry.rendered?.html ?? "", `article ${a.slug}`), Astro.site?.origin);
+const html = linkGlossaryTerms(externalLinksNewTab(await renderArticleCharts(entry.rendered?.html ?? "", `article ${a.slug}`), Astro.site?.origin));
 const related = relatedArticles(a, cards);
 const site = Astro.site!.href.replace(/\/$/, "");
 const iso = (d: Date) => d.toISOString().slice(0, 10);

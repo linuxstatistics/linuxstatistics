@@ -1,0 +1,47 @@
+---
+import Base from "../../layouts/Base.astro";
+import { GLOSSARY, GLOSSARY_GROUPS, glossaryBySlug, type GlossaryTerm } from "../../lib/glossary";
+import { definedTermNode } from "../../lib/structured-data";
+
+export function getStaticPaths() {
+  return GLOSSARY.map((t) => ({ params: { term: t.slug } }));
+}
+
+const t = glossaryBySlug(Astro.params.term!) as GlossaryTerm;
+const site = Astro.site!.href.replace(/\/$/, "");
+const group = GLOSSARY_GROUPS.find((g) => g.id === t.group)!;
+const related = (t.related ?? []).map((s) => glossaryBySlug(s)).filter((x): x is GlossaryTerm => !!x);
+const sameGroup = GLOSSARY.filter((x) => x.group === t.group && x.slug !== t.slug && !t.related?.includes(x.slug)).slice(0, 6);
+const jsonLd = { "@graph": [definedTermNode(site, t)] };
+---
+
+<Base
+  title={`What is ${t.term}? Linux glossary | LinuxStatistics`}
+  description={t.short}
+  jsonLd={jsonLd}
+  breadcrumbs={[{ name: "Glossary", href: "/glossary/" }, { name: t.term }]}
+>
+  <article class="page prose ref-page glossary-term">
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/glossary/">Glossary</a> / <a href={`/glossary/#${group.id}`}>{group.label}</a></nav>
+    <h1>{t.term}</h1>
+    {t.aka && t.aka.length > 0 && <p class="legal-meta">Also called: {t.aka.join(", ")}</p>}
+    <p class="lede">{t.short}</p>
+    {t.more && <p>{t.more}</p>}
+    {t.see && t.see.length > 0 && (
+      <ul class="side-links glossary-see">
+        {t.see.map((s) => <li><a href={s.href}>{s.label} <span class="icon-arrow" aria-hidden="true" /></a></li>)}
+      </ul>
+    )}
+    {related.length > 0 && (
+      <section>
+        <h2>Related terms</h2>
+        <dl class="glossary-list">
+          {related.map((r) => <div><dt><a href={`/glossary/${r.slug}/`}>{r.term}</a></dt><dd>{r.short}</dd></div>)}
+        </dl>
+      </section>
+    )}
+    {sameGroup.length > 0 && (
+      <p class="source-note">More in {group.label.toLowerCase()}: {sameGroup.map((x, i) => <>{i > 0 && " · "}<a href={`/glossary/${x.slug}/`}>{x.term}</a></>)}. <a href="/glossary/">All terms</a>.</p>
+    )}
+  </article>
+</Base>

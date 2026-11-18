@@ -61,3 +61,28 @@ export function itemListNode(site: string, name: string, items: { name: string; 
     itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.name, url: new URL(it.href, `${site}/`).href })),
   };
 }
+
+/** DefinedTermSet node for the glossary, with one DefinedTerm per entry. */
+export function definedTermSetNode(site: string, terms: { slug: string; term: string; short: string; aka?: string[] }[]) {
+  const setId = `${site}/glossary/#set`;
+  return {
+    "@type": "DefinedTermSet",
+    "@id": setId,
+    name: "LinuxStatistics glossary",
+    url: `${site}/glossary/`,
+    hasDefinedTerm: terms.map((t) => definedTermNode(site, t, setId)),
+  };
+}
+
+/** One DefinedTerm, linked to the glossary set. */
+export function definedTermNode(site: string, t: { slug: string; term: string; short: string; aka?: string[] }, setId = `${site}/glossary/#set`) {
+  return {
+    "@type": "DefinedTerm",
+    "@id": `${site}/glossary/${t.slug}/#term`,
+    name: t.term,
+    ...(t.aka?.length ? { alternateName: t.aka } : {}),
+    description: t.short,
+    url: `${site}/glossary/${t.slug}/`,
+    inDefinedTermSet: setId,
+  };
+}

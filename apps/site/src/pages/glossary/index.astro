@@ -1,0 +1,38 @@
+---
+import Base from "../../layouts/Base.astro";
+import { GLOSSARY, GLOSSARY_GROUPS } from "../../lib/glossary";
+import { definedTermSetNode } from "../../lib/structured-data";
+
+const site = Astro.site!.href.replace(/\/$/, "");
+const sorted = [...GLOSSARY].sort((a, b) => a.term.localeCompare(b.term));
+const jsonLd = { "@graph": [definedTermSetNode(site, sorted)] };
+---
+
+<Base
+  title="Linux glossary: plain-language definitions | LinuxStatistics"
+  description={`${GLOSSARY.length} Linux terms explained for people new to Linux: distro, rolling release, LTS, immutable, Flatpak, desktop environment, Wayland, live USB and more.`}
+  jsonLd={jsonLd}
+  breadcrumbs={[{ name: "Glossary" }]}
+>
+  <article class="page prose ref-page glossary">
+    <h1>Linux glossary</h1>
+    <p class="lede">The words you'll meet when choosing and installing Linux, each explained in a sentence or two. Written for people coming from Windows or a Mac.</p>
+    <nav class="glossary-jump" aria-label="Sections">
+      {GLOSSARY_GROUPS.map((g) => <a href={`#${g.id}`}>{g.label}</a>)}
+    </nav>
+    {GLOSSARY_GROUPS.map((g) => (
+      <section>
+        <h2 id={g.id}>{g.label}</h2>
+        <dl class="glossary-list">
+          {GLOSSARY.filter((t) => t.group === g.id).map((t) => (
+            <div id={t.slug}>
+              <dt><a href={`/glossary/${t.slug}/`}>{t.term}</a></dt>
+              <dd>{t.short}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    ))}
+    <p class="source-note">Missing a term or found a mistake? <a href="/suggest/?kind=correction&subject=Glossary">Suggest one</a>.</p>
+  </article>
+</Base>

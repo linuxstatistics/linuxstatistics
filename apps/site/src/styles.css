@@ -1584,3 +1584,11 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .articles-latest h3 a { color: var(--ink); text-decoration: none; }
 .articles-latest h3 a:hover { text-decoration: underline; }
 @media (max-width: 760px) { .articles-latest ul { grid-template-columns: 1fr; } }
+
+/* ---------- /glossary ---------- */
+.glossary-jump { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 18px 0 8px; font-size: 14px; }
+.glossary-list { margin: 8px 0 24px; }
+.glossary-list > div { padding: 12px 0; border-top: 1px solid var(--line); scroll-margin-top: 16px; }
+.glossary-list dt { font-weight: 600; margin: 0 0 4px; }
+.glossary-list dd { margin: 0; color: var(--ink2); max-width: 62ch; }
+.glossary-see { margin: 18px 0 8px; }
