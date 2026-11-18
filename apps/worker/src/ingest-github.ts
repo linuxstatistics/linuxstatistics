@@ -1,14 +1,14 @@
 import { findDistroIdBySlug, replaceGithubRepo, setSiteMetrics, type Database } from "@linux-statistics/db";
 import { mapGithubRepo, type GithubRepoResponse } from "./sources/github.js";
-import { politeGet, StopError, type FetchLike } from "./http.js";
+import { politeGet, reasonOf, StopError, type FetchLike } from "./http.js";
 import { GITHUB_REPOS } from "./github-repos.js";
 
 /** Count items from a paginated GitHub list using per_page=1 and the "last" link. */
 async function countViaLink(url: string, get: (u: string) => Promise<Response>): Promise<number> {
   const res = await get(url);
   if (res.status === 409) return 0; // empty repository
-  if (res.status === 403) return 0; // "too large to list" (e.g. nixpkgs contributors): no count rather than no data
-  if (!res.ok) throw new Error(`GitHub ${url} -> ${res.status}`);
+  if (res.status === 403 && /too large to list/i.test(await reasonOf(res))) return 0; // e.g. nixpkgs contributors: no count rather than no data
+  if (!res.ok) throw new Error(`GitHub ${url} -> ${res.status} ${await reasonOf(res)}`.trim());
   const link = res.headers.get("link") ?? "";
   const last = /[?&]page=(\d+)>; rel="last"/.exec(link);
   if (last) return Number(last[1]);
@@ -49,7 +49,7 @@ export async function ingestGithub(
       const distroId = await findDistroIdBySlug(db, key);
       if (!distroId) continue; // distro not ingested yet
       const res = await get(`https://api.github.com/repos/${repo}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${await reasonOf(res)}`.trim());
       const mapped = mapGithubRepo((await res.json()) as GithubRepoResponse);
       const commits = await countViaLink(
         `https://api.github.com/repos/${mapped.repoFullName}/commits?since=${since}&per_page=1`,
