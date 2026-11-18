@@ -124,7 +124,8 @@ for f in "$DIST"/articles/*/index.html; do
   t=$(basename "$(dirname "$f")")
   grep -q 'class="hub-start"' "$f" || continue
   if grep -q 'name="robots" content="noindex"' "$f"; then
-    linked=$(grep -rl "href=\"/articles/$t/\"" "$DIST" --include=index.html 2>/dev/null | grep -v "^$DIST/articles/$t/index.html$" | head -3)
+    # No match is the good case; grep exits 1 then, so don't let set -e stop the script.
+    linked=$(grep -rl "href=\"/articles/$t/\"" "$DIST" --include=index.html 2>/dev/null | grep -v "^$DIST/articles/$t/index.html$" | head -3 || true)
     if [ -n "$linked" ]; then echo "FAIL: thin hub /articles/$t/ is linked from:"; echo "$linked"; fail=1; fi
     if grep -q "/articles/$t/<" "$DIST"/sitemap-*.xml; then echo "FAIL: thin hub /articles/$t/ is in the sitemap"; fail=1; fi
   fi
