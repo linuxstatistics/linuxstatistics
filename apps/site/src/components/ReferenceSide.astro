@@ -1,0 +1,59 @@
+---
+import { SponsorCard } from "./SponsorCard";
+import SwitchSide from "./SwitchSide.astro";
+
+/**
+ * Sidebar for reference pages (telemetry, support dates, glossary, changelog,
+ * data, guides). The sponsor card is always first; each page picks the boxes
+ * that fit it, so the sidebar stays short (it stacks under the page on phones).
+ */
+interface Props {
+  sponsorContext: string;
+  /** "Not sure where to start?" quiz box. */
+  quiz?: boolean;
+  /** Leaving Windows or Mac box. */
+  switchBox?: boolean;
+  /** "Explore the data" links. */
+  explore?: boolean;
+  /** A titled list of links, e.g. related glossary terms or best-for pages. */
+  links?: { title: string; items: { label: string; href: string; note?: string }[]; more?: { label: string; href: string } };
+}
+
+const { sponsorContext, quiz, switchBox, explore, links } = Astro.props;
+---
+
+<aside class="side" aria-label="More">
+  <SponsorCard context={sponsorContext} />
+  {links && links.items.length > 0 && (
+    <section>
+      <h2>{links.title}</h2>
+      <ul class="side-links">
+        {links.items.map((l) => (
+          <li><a href={l.href}>{l.label}</a>{l.note && <span class="from">{l.note}</span>}</li>
+        ))}
+      </ul>
+      {links.more && <p class="side-more"><a href={links.more.href}>{links.more.label}</a></p>}
+    </section>
+  )}
+  {quiz && (
+    <section>
+      <h2>Not sure where to start?</h2>
+      <p>Three plain questions, one starting point, and what to check next.</p>
+      <a class="cta" href="/pick/">Find my distro</a>
+      <p class="side-more">Or browse <a href="/best/">the best distros by use</a>.</p>
+    </section>
+  )}
+  {explore && (
+    <section>
+      <h2>Explore the data</h2>
+      <ul class="stats-side-links">
+        <li><a href="/">Distro rankings</a></li>
+        <li><a href="/stats/">Linux by the numbers</a></li>
+        <li><a href="/telemetry/">Telemetry by distro</a></li>
+        <li><a href="/support-dates/">Support dates</a></li>
+        <li><a href="/data/">Download the data</a></li>
+      </ul>
+    </section>
+  )}
+  {switchBox && <SwitchSide />}
+</aside>

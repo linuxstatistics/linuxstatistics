@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import ReferenceSide from "../../components/ReferenceSide.astro";
 import { PressCopy } from "../../components/PressCopy";
 import { GPG_STEPS, SHA256_STEPS, VERIFY_CHECKED, VERIFY_FILE } from "../../lib/verify-guide";
 
@@ -27,7 +28,9 @@ const jsonLd = {
 ---
 
 <Base breadcrumbs={[{ name: "Switch to Linux", href: "/switch/" }, { name: "Verify a download" }]} title={title} description={description} jsonLd={jsonLd}>
-  <article class="page prose legal verify-guide">
+  <div class="page">
+    <div class="with-side">
+    <article class="with-side-main prose legal verify-guide">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/switch/">Switch to Linux</a> / Verify a download</nav>
     <h1>How to verify a Linux download</h1>
     <p class="lede">Two minutes that confirm the file arrived complete and is the one the project published.</p>
@@ -78,5 +81,18 @@ const jsonLd = {
 
     <h2>Questions</h2>
     {faq.map((f) => (<><h3>{f.q}</h3><p>{f.a}</p></>))}
-  </article>
+    </article>
+    <ReferenceSide
+      sponsorContext="people about to install Linux"
+      quiz
+      switchBox
+      links={{ title: "Terms on this page", items: [
+        { label: "ISO", href: "/glossary/iso/" },
+        { label: "Checksum", href: "/glossary/checksum/" },
+        { label: "Live USB", href: "/glossary/live-usb/" },
+        { label: "Secure Boot", href: "/glossary/secure-boot/" },
+      ] }}
+    />
+    </div>
+  </div>
 </Base>

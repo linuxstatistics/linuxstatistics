@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import ReferenceSide from "../../components/ReferenceSide.astro";
 import { GLOSSARY, GLOSSARY_GROUPS, glossaryBySlug, type GlossaryTerm } from "../../lib/glossary";
 import { definedTermNode } from "../../lib/structured-data";
 
@@ -21,7 +22,9 @@ const jsonLd = { "@graph": [definedTermNode(site, t)] };
   jsonLd={jsonLd}
   breadcrumbs={[{ name: "Glossary", href: "/glossary/" }, { name: t.term }]}
 >
-  <article class="page prose ref-page glossary-term">
+  <div class="page">
+    <div class="with-side">
+    <article class="with-side-main prose ref-page glossary-term">
     <nav class="breadcrumb" aria-label="Breadcrumb"><a href="/glossary/">Glossary</a> / <a href={`/glossary/#${group.id}`}>{group.label}</a></nav>
     <h1>{t.term}</h1>
     {t.aka && t.aka.length > 0 && <p class="legal-meta">Also called: {t.aka.join(", ")}</p>}
@@ -40,8 +43,13 @@ const jsonLd = { "@graph": [definedTermNode(site, t)] };
         </dl>
       </section>
     )}
-    {sameGroup.length > 0 && (
-      <p class="source-note">More in {group.label.toLowerCase()}: {sameGroup.map((x, i) => <>{i > 0 && " · "}<a href={`/glossary/${x.slug}/`}>{x.term}</a></>)}. <a href="/glossary/">All terms</a>.</p>
-    )}
-  </article>
+    <p class="source-note"><a href="/glossary/">All {GLOSSARY.length} terms</a>. Missing one or found a mistake? <a href={`/suggest/?kind=correction&subject=${encodeURIComponent(`Glossary: ${t.term}`)}`}>Suggest a fix</a>.</p>
+    </article>
+    <ReferenceSide
+      sponsorContext="people learning Linux"
+      quiz
+      links={{ title: `More in ${group.label.toLowerCase()}`, items: sameGroup.map((x) => ({ label: x.term, href: `/glossary/${x.slug}/` })), more: { label: "All terms", href: "/glossary/" } }}
+    />
+    </div>
+  </div>
 </Base>

@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import ReferenceSide from "../../components/ReferenceSide.astro";
 import { DistroMark } from "../../components/DistroMark";
 import { Faq } from "../../components/Faq";
 import { dataDate, loadDistro, loadDistros, loadMeta, mapLimit } from "../../lib/data";
@@ -30,7 +31,9 @@ const faq = [
   description={`End-of-support dates for ${rows.length} Linux distributions, soonest first, with extended support where it exists. ${soon.length === 1 ? "One ends" : `${soon.length} end`} in the next six months.`}
   jsonLd={faqNode(faq)}
 >
-  <article class="page prose ref-page">
+  <div class="page">
+    <div class="with-side ref-side-below">
+    <article class="with-side-main prose ref-page">
     <h1>Linux support dates</h1>
     <p class="lede">{answer}</p>
     {updated && <p class="legal-meta">Updated {monthOf(updated)} from <a href="https://endoflife.date/" target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">endoflife.date</a> (CC BY-SA 4.0).</p>}
@@ -73,5 +76,17 @@ const faq = [
     )}
 
     <Faq items={faq} />
-  </article>
+    </article>
+    <ReferenceSide
+      sponsorContext="people keeping Linux up to date"
+      quiz
+      links={{ title: "Related", items: [
+        { label: "What end of life means", href: "/glossary/end-of-life/" },
+        { label: "LTS releases explained", href: "/glossary/lts/" },
+        { label: "Fixed vs rolling releases", href: "/glossary/rolling-release/" },
+        { label: "Best Linux for a home server", href: "/best/home-server/" },
+      ] }}
+    />
+    </div>
+  </div>
 </Base>

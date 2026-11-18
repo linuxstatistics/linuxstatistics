@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import ReferenceSide from "../../components/ReferenceSide.astro";
 import { DistroMark } from "../../components/DistroMark";
 import { Faq } from "../../components/Faq";
 import RelatedArticles from "../../components/RelatedArticles.astro";
@@ -43,7 +44,9 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
   description={`Which Linux distributions send usage data by default, and how to turn it off. ${total} distros checked against their own documentation, ${quiet} send nothing unless you agree.`}
   jsonLd={jsonLd}
 >
-  <article class="page prose ref-page">
+  <div class="page">
+    <div class="with-side">
+    <article class="with-side-main prose ref-page">
     <h1>Linux distro telemetry</h1>
     <p class="lede">{answer}</p>
     <p class="legal-meta">Checked {month}. Operating system defaults only, not apps you install.</p>
@@ -77,5 +80,16 @@ const ext = { target: "_blank", "aria-describedby": "new-tab-description", title
       Not listed means not checked yet, not that a distro sends nothing. <a href="/suggest/?kind=correction">Suggest a distro or a correction</a>.
       The same facts are in <a href="/data/notes.json">notes.json</a> (CC BY 4.0).
     </p>
-  </article>
+    </article>
+    <ReferenceSide
+      sponsorContext="people choosing a private Linux distro"
+      quiz
+      links={{ title: "Privacy-minded picks", items: [
+        { label: "Best Linux for privacy", href: "/best/privacy/" },
+        { label: "What telemetry means", href: "/glossary/telemetry/" },
+        { label: "Which distros have no telemetry?", href: "/articles/linux-distros-no-telemetry/" },
+      ] }}
+    />
+    </div>
+  </div>
 </Base>

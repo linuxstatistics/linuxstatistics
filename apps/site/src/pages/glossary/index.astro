@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import ReferenceSide from "../../components/ReferenceSide.astro";
 import { GLOSSARY, GLOSSARY_GROUPS } from "../../lib/glossary";
 import { definedTermSetNode } from "../../lib/structured-data";
 
@@ -14,7 +15,9 @@ const jsonLd = { "@graph": [definedTermSetNode(site, sorted)] };
   jsonLd={jsonLd}
   breadcrumbs={[{ name: "Glossary" }]}
 >
-  <article class="page prose ref-page glossary">
+  <div class="page">
+    <div class="with-side">
+    <article class="with-side-main prose ref-page glossary">
     <h1>Linux glossary</h1>
     <p class="lede">The words you'll meet when choosing and installing Linux, each explained in a sentence or two. Written for people coming from Windows or a Mac.</p>
     <nav class="glossary-jump" aria-label="Sections">
@@ -34,5 +37,20 @@ const jsonLd = { "@graph": [definedTermSetNode(site, sorted)] };
       </section>
     ))}
     <p class="source-note">Missing a term or found a mistake? <a href="/suggest/?kind=correction&subject=Glossary">Suggest one</a>.</p>
-  </article>
+    </article>
+    <ReferenceSide
+      sponsorContext="people learning Linux"
+      quiz
+      switchBox
+      links={{ title: "Most looked up", items: [
+        { label: "Distro", href: "/glossary/distro/" },
+        { label: "Desktop environment", href: "/glossary/desktop-environment/" },
+        { label: "Rolling release", href: "/glossary/rolling-release/" },
+        { label: "Immutable distro", href: "/glossary/immutable/" },
+        { label: "Flatpak", href: "/glossary/flatpak/" },
+        { label: "Live USB", href: "/glossary/live-usb/" },
+      ] }}
+    />
+    </div>
+  </div>
 </Base>

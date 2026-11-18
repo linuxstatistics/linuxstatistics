@@ -1,5 +1,6 @@
 ---
 import Base from "../../layouts/Base.astro";
+import ReferenceSide from "../../components/ReferenceSide.astro";
 import { loadDistros, loadSourceEvents } from "../../lib/data";
 import { KIND_LABEL, changeRows } from "../../lib/changelog";
 
@@ -23,7 +24,9 @@ const ext = (href: string) => (href.startsWith("http") ? { target: "_blank", "ar
   description="Every change that affects the numbers on LinuxStatistics: ranking method changes, data corrections and data sources that were late or down."
   feed={{ href: "/changelog/feed.xml", title: "LinuxStatistics changelog" }}
 >
-  <article class="page prose changelog">
+  <div class="page">
+    <div class="with-side">
+    <article class="with-side-main prose changelog">
     <h1>Changelog</h1>
     <p class="lede">Anything that changes the numbers you see is listed here: how we rank, what we corrected, and when a data source was late.</p>
     <p class="legal-meta">
@@ -67,7 +70,10 @@ const ext = (href: string) => (href.startsWith("http") ? { target: "_blank", "ar
         ))}
       </ol>
     )}
-  </article>
+    </article>
+    <ReferenceSide sponsorContext="people following Linux by the numbers" explore />
+    </div>
+  </div>
   <script>
     // Filters only hide entries; without JS every entry shows.
     const buttons = document.querySelectorAll<HTMLButtonElement>(".changelog-filter button");
