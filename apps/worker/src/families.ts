@@ -64,8 +64,10 @@ export const ENWIKI_PINS: Record<string, string> = {
  * family. Anything not listed is created as "other" and logged for curation.
  *
  * Families: debian (Debian/Ubuntu/Devuan lineage), arch, rpm (Fedora, RHEL,
- * openSUSE, Mandriva lineage), gentoo (incl. ChromeOS-based), slackware,
- * independent (own base: NixOS, Void, Alpine, Solus, BSDs, …).
+ * openSUSE, Mandriva lineage), gentoo, slackware, independent (own base:
+ * NixOS, Void, Alpine, Solus, BSDs, ChromeOS, …). ChromeOS is built with
+ * Gentoo's Portage tooling but is not a Gentoo distro, so it and FydeOS are
+ * independent, not gentoo.
  */
 export const CURATED: Record<string, CuratedDistro> = {
   cachyos: { family: "arch", basedOn: "arch", firstReleaseYear: 2021, homepage: "https://cachyos.org" },
@@ -111,8 +113,8 @@ export const CURATED: Record<string, CuratedDistro> = {
   lite: { family: "debian", basedOn: "ubuntu" },
   kubuntu: { family: "debian", basedOn: "ubuntu", firstReleaseYear: 2005 },
   tails: { family: "debian", basedOn: "debian", firstReleaseYear: 2009 },
-  fydeos: { family: "gentoo", basedOn: "chromeos" },
-  chromeos: { family: "gentoo" },
+  fydeos: { family: "independent", basedOn: "chromeos" },
+  chromeos: { family: "independent" },
   solus: { family: "independent", firstReleaseYear: 2015 },
   parrot: { family: "debian", basedOn: "debian" },
   hackeros: { family: "debian", basedOn: "debian" },

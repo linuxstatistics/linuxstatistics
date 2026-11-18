@@ -19,3 +19,8 @@ test("hand-checked Wikidata notes and pins refer to curated distros and real fie
   }
   expect(new Set(Object.values(WIKIDATA_PINS)).size).toBe(Object.keys(WIKIDATA_PINS).length);
 });
+
+test("ChromeOS and FydeOS are independent, not Gentoo distros", () => {
+  expect(CURATED.chromeos?.family).toBe("independent");
+  expect(CURATED.fydeos).toMatchObject({ family: "independent", basedOn: "chromeos" });
+});

@@ -29,6 +29,14 @@ const commit = (sha: string) => `${SOURCE_URL}/commit/${sha}`;
  */
 export const CHANGELOG: ChangeEntry[] = [
   {
+    date: "2026-11-18",
+    kind: "correction",
+    title: "ChromeOS and FydeOS moved from the Gentoo family to independent",
+    body: "ChromeOS is built with Gentoo's Portage tools but is Google's own system, not a Gentoo distro. ChromeOS and FydeOS (which is based on ChromeOS) now show as independent. Their ranks don't change.",
+    distros: ["chromeos", "fydeos"],
+    links: [{ label: "ChromeOS on Wikipedia", href: "https://en.wikipedia.org/wiki/ChromeOS" }],
+  },
+  {
     date: "2026-11-13",
     kind: "correction",
     title: "Telemetry checked for 40 more distros, new \"sends usage data\" level",
