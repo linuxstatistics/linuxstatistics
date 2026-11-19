@@ -4,6 +4,7 @@ import { CardsSkeleton } from "./Skeleton";
 import { useMe } from "../api";
 import { Island } from "./Island";
 import { AdminGate } from "./AdminGate";
+import { Distro, Metric, Section, Status, When } from "./AdminParts";
 
 /** Same keys and wording as the worker's gap report (apps/worker/src/gaps.ts). */
 export const LABEL: Record<string, string> = {
@@ -35,54 +36,74 @@ export function gapRows(r: GapReport, field: string): GapReport["rows"] {
   return [...r.rows].filter((x) => !field || x.missing.includes(field)).sort((a, b) => a.rank - b.rank);
 }
 
+const FIRST = 25;
+
 function Report({ r }: { r: GapReport }) {
   const [field, setField] = useState("");
+  const [all, setAll] = useState(false);
   const rows = useMemo(() => gapRows(r, field), [r, field]);
+  const shown = all ? rows : rows.slice(0, FIRST);
   const count = (f: string) => r.rows.filter((x) => x.missing.includes(f)).length;
   return (
     <>
-      <p className="note">
-        Report from <b>{r.generatedAt.slice(0, 10)}</b> covering the top <b>{r.considered}</b> ranked distros. It runs every Monday; nothing here edits data.
-      </p>
-      <div className="adm-filters">
-        <select aria-label="Missing" value={field} onChange={(e) => setField(e.target.value)}>
-          <option value="">Anything missing ({r.rows.length})</option>
-          {FIELDS.map((f) => <option key={f} value={f}>{LABEL[f]} ({count(f)})</option>)}
-        </select>
-      </div>
-      {rows.length === 0 ? <p className="note">Nothing missing here.</p> : (
-        <div className="table-scroll"><table className="data-table">
-          <thead><tr><th className="num">Rank</th><th>Distro</th><th>Missing</th></tr></thead>
-          <tbody>
-            {rows.slice(0, 100).map((x) => (
-              <tr key={x.slug}>
-                <td className="num">{x.rank}</td>
-                <td><a href={`/distro/${x.slug}/`}>{x.name}</a></td>
-                <td>{x.missing.map((m) => LABEL[m] ?? m).join(", ")}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table></div>
-      )}
-      {rows.length > 100 && <p className="note">Showing the 100 highest-ranked of {rows.length}.</p>}
+      <Section title="Missing data" sub={<>Report from <When iso={r.generatedAt} />, top {r.considered} ranked distros</>}>
+        <dl className="adm-metrics">
+          <Metric label="Distros with gaps" value={r.rows.length} sub={`of the top ${r.considered}`} />
+          <Metric label="No profile or notes" value={r.newUnprofiled.length} sub="nothing curated yet" />
+          <Metric label="Proposals" value={r.proposals.length} sub="from free sources" />
+        </dl>
+        <div className="adm-filters">
+          <label className="adm-field is-narrow">
+            <span>Missing</span>
+            <select value={field} onChange={(e) => { setField(e.target.value); setAll(false); }}>
+              <option value="">Anything ({r.rows.length})</option>
+              {FIELDS.map((f) => <option key={f} value={f}>{LABEL[f]} ({count(f)})</option>)}
+            </select>
+          </label>
+        </div>
+        {rows.length === 0 ? <p className="adm-empty">No top-ranked distro is missing this.</p> : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead><tr><th className="num">Rank</th><th>Distro</th><th>Missing</th></tr></thead>
+              <tbody>
+                {shown.map((x) => (
+                  <tr key={x.slug}>
+                    <td className="num">{x.rank}</td>
+                    <td><Distro slug={x.slug} name={x.name} /></td>
+                    <td><span className="adm-chips">{x.missing.map((m) => <span className="adm-chip" key={m}>{LABEL[m] ?? m}</span>)}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {rows.length > FIRST && (
+          <button type="button" className="adm-btn adm-more" aria-expanded={all} onClick={() => setAll(!all)}>
+            {all ? `Show the top ${FIRST}` : `Show all ${rows.length}`}
+          </button>
+        )}
+      </Section>
 
-      <h2>Proposals to review</h2>
-      {r.proposals.length === 0 ? <p className="note">No proposals this week.</p> : (
-        <div className="table-scroll"><table className="data-table">
-          <thead><tr><th>Distro</th><th>Source</th><th>Proposed</th><th>Why</th></tr></thead>
-          <tbody>
-            {r.proposals.map((p) => (
-              <tr key={p.slug + p.kind + p.value}>
-                <td><a href={`/distro/${p.slug}/`}>{p.slug}</a></td>
-                <td>{p.kind === "endoflife" ? "endoflife.date" : "Wikidata (GitHub)"}</td>
-                <td><code>{p.value}</code></td>
-                <td>{p.why}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table></div>
-      )}
-      <p className="note">Proposals are matches by name or link, not checked facts. Confirm each against the project's own site before adding it.</p>
+      <Section title="Proposals to review" sub="Matched by name or link, not yet checked">
+        {r.proposals.length === 0 ? <p className="adm-empty">No proposals this week.</p> : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead><tr><th>Distro</th><th>Source</th><th>Proposed value</th><th>Why it matched</th></tr></thead>
+              <tbody>
+                {r.proposals.map((p) => (
+                  <tr key={p.slug + p.kind + p.value}>
+                    <td><Distro slug={p.slug} name={r.rows.find((x) => x.slug === p.slug)?.name ?? p.slug} /></td>
+                    <td><Status>{p.kind === "endoflife" ? "endoflife.date" : "Wikidata"}</Status></td>
+                    <td className="adm-wrap"><code>{p.value}</code></td>
+                    <td className="adm-wrap adm-muted">{p.why}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="note">Confirm each proposal on the project's own site before adding it to the curated data.</p>
+      </Section>
     </>
   );
 }
@@ -90,19 +111,24 @@ function Report({ r }: { r: GapReport }) {
 function Page({ g }: { g: Gaps }) {
   return (
     <div className="adm">
-      <h2>From visitors</h2>
-      {g.suggestions.length === 0 ? <p className="note">No open corrections or "add a distro" requests.</p> : (
-        <ul className="adm-attention">
-          {g.suggestions.map((s) => (
-            <li key={s.id}>
-              <b>{s.kind === "correction" ? "Correction" : "Add a distro"}</b>{s.subject ? ` (${s.subject})` : ""}: {s.message.length > 160 ? `${s.message.slice(0, 160)}…` : s.message}{" "}
-              <a href="/admin/suggestions/">Review</a>
-            </li>
-          ))}
-        </ul>
-      )}
-      <h2>Missing data</h2>
-      {g.report ? <Report r={g.report as GapReport} /> : <p className="note">No report yet. The first one is saved by the Monday run.</p>}
+      <Section title="From visitors" sub="Open corrections and add-a-distro requests">
+        {g.suggestions.length === 0 ? <p className="adm-empty">No open corrections or add-a-distro requests.</p> : (
+          <ul className="adm-items">
+            {g.suggestions.map((s) => (
+              <li className="adm-item" key={s.id}>
+                <div className="adm-item-head">
+                  <Status tone={s.kind === "correction" ? "warn" : "info"}>{s.kind === "correction" ? "Correction" : "Add a distro"}</Status>
+                  {s.subject && <span className="adm-item-title">{s.subject}</span>}
+                  <span className="adm-item-when"><When iso={s.createdAt} relative /></span>
+                </div>
+                <p className="adm-item-body">{s.message}</p>
+                <div className="adm-actions"><a className="adm-btn" href="/admin/suggestions/">Review in Suggestions</a></div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Section>
+      {g.report ? <Report r={g.report as GapReport} /> : <p className="adm-empty">No gap report yet. The Monday data job saves the first one.</p>}
     </div>
   );
 }
@@ -120,7 +146,7 @@ export function AdminGapsInner() {
   });
   return (
     <AdminGate>
-      {q.isError ? <p className="error">Couldn't load the gaps. Try reloading.</p> : q.isLoading || !q.data ? <CardsSkeleton label="Loading the gaps" /> : <Page g={q.data} />}
+      {q.isError ? <p className="error" role="alert">Couldn't load the gaps. Try reloading.</p> : q.isLoading || !q.data ? <CardsSkeleton label="Loading the gaps" /> : <Page g={q.data} />}
     </AdminGate>
   );
 }

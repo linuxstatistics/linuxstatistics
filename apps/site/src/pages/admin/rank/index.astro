@@ -4,6 +4,6 @@ import { AdminRankCompare } from "../../../components/AdminRankCompare";
 import { CardsSkeleton } from "../../../components/Skeleton";
 ---
 
-<AdminShell title="Our index vs the current rank" current="/admin/rank/" lede="Shadow period: our index is computed but not shown. Switch the main rank once these agree well enough.">
+<AdminShell title="Rank comparison" current="/admin/rank/" lede="How our composite index and the Wikipedia interest index line up against the DistroWatch rank they are checked against.">
   <AdminRankCompare client:only="react"><CardsSkeleton slot="fallback" label="Loading the comparison" /></AdminRankCompare>
 </AdminShell>

@@ -3,6 +3,7 @@ import { CardsSkeleton } from "./Skeleton";
 import { useMe } from "../api";
 import { Island } from "./Island";
 import { AdminGate } from "./AdminGate";
+import { Distro, Metric, Section, Status, shortDate, useDistroNames } from "./AdminParts";
 import { readableAnswers } from "../lib/admin-decode";
 
 interface QuizStats {
@@ -16,71 +17,150 @@ interface QuizStats {
 }
 
 const QUIZ_NAME: Record<string, string> = { pick: "Full quiz", start: "Short quiz" };
-/** "check" is the short quiz's "check your hardware first" result, not a distro. */
-const pickName = (k: string) => (k === "check" ? "(hardware check first)" : k);
+const ORIGIN: Record<string, string> = { windows: "Windows", macos: "macOS", chromeos: "ChromeOS", linux: "Another Linux distro", other: "Something else" };
 
 function Days({ days }: { days: QuizStats["perDay"] }) {
-  const max = Math.max(1, ...days.map((d) => d.pick + d.start));
+  const peak = Math.max(0, ...days.map((d) => d.pick + d.start));
+  const max = Math.max(1, peak);
+  const total = days.reduce((a, d) => a + d.pick + d.start, 0);
+  if (total === 0) return <p className="adm-empty">No finished quizzes in the last 30 days.</p>;
+  const first = days[0];
+  const last = days.at(-1);
   return (
-    <div className="adm-days" role="img" aria-label={`Quiz completions per day for the last 30 days, ${days.reduce((a, d) => a + d.pick + d.start, 0)} in total`}>
-      {days.map((d) => (
-        <div className="adm-day" key={d.day} title={`${d.day}: ${d.pick} full, ${d.start} short`}>
-          <i className="adm-day-start" style={{ height: `${(d.start / max) * 100}%` }} />
-          <i className="adm-day-pick" style={{ height: `${(d.pick / max) * 100}%` }} />
+    <figure className="adm-chart" style={{ margin: 0 }}>
+      <div className="adm-days" role="img" aria-label={`Quiz completions per day for the last 30 days: ${total} in total, at most ${peak} in one day`}>
+        {days.map((d) => (
+          <div className="adm-day" key={d.day} title={`${shortDate(`${d.day}T00:00:00Z`)}: ${d.pick} full, ${d.start} short`}>
+            <i className="adm-day-start" style={{ height: `${(d.start / max) * 100}%` }} />
+            <i className="adm-day-pick" style={{ height: `${(d.pick / max) * 100}%` }} />
+          </div>
+        ))}
+      </div>
+      {first && last && (
+        <div className="adm-axis" aria-hidden="true">
+          <span>{shortDate(`${first.day}T00:00:00Z`)}</span>
+          <span>Most in a day: {peak}</span>
+          <span>{shortDate(`${last.day}T00:00:00Z`)}</span>
         </div>
-      ))}
+      )}
+      <figcaption className="adm-legend">
+        <span className="adm-key adm-key-pick">Full quiz</span>
+        <span className="adm-key adm-key-start">Short quiz</span>
+      </figcaption>
+    </figure>
+  );
+}
+
+function Tally({ rows, label, empty, name }: { rows: { key: string; n: number }[]; label: string; empty: string; name: (k: string) => string }) {
+  if (!rows.length) return <p className="adm-empty">{empty}</p>;
+  const total = rows.reduce((a, r) => a + r.n, 0);
+  return (
+    <div className="table-scroll">
+      <table className="data-table">
+        <thead><tr><th>{label}</th><th className="num">Reports</th></tr></thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.key}>
+              <td>{name(r.key)}</td>
+              <td className="num">{r.n} <span className="adm-muted">({Math.round((r.n / total) * 100)}%)</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-function Tally({ rows, empty }: { rows: { key: string; n: number }[]; empty: string }) {
-  if (!rows.length) return <p className="note">{empty}</p>;
-  return (
-    <table className="data-table">
-      <tbody>{rows.map((r) => <tr key={r.key}><td>{r.key}</td><td className="num">{r.n}</td></tr>)}</tbody>
-    </table>
-  );
-}
-
 function Quiz({ s }: { s: QuizStats }) {
+  const nameOf = useDistroNames();
   const last30 = s.perDay.reduce((a, d) => a + d.pick + d.start, 0);
+  const yes = s.fit.reduce((a, r) => a + r.yes, 0);
+  const pickCell = (quiz: string, key: string) =>
+    quiz === "start" && key === "check" ? <span className="adm-muted">Hardware check first</span> : <Distro slug={key} name={nameOf(key)} />;
   return (
     <div className="adm">
-      <h2>Completions, last 30 days</h2>
-      <p className="note"><b>{last30}</b> in 30 days, <b>{s.totals.completions}</b> all time. <span className="adm-key adm-key-pick">Full quiz</span> <span className="adm-key adm-key-start">Short quiz</span></p>
-      <Days days={s.perDay} />
-      <p className="note"><a href="/api/admin/quiz-completions.csv">Completions CSV</a> · <a href="/api/admin/picker-feedback.csv">Fit votes CSV</a> · <a href="/api/admin/switch-reports.csv">Switch reports CSV</a></p>
+      <dl className="adm-metrics">
+        <Metric label="Completions, 30 days" value={last30.toLocaleString("en-US")} sub={`${s.totals.completions.toLocaleString("en-US")} all time`} />
+        <Metric label={'"Did it fit?" votes'} value={s.totals.votes.toLocaleString("en-US")} sub={s.totals.votes ? `${Math.round((yes / s.totals.votes) * 100)}% said yes` : "none yet"} />
+        <Metric label="Switch reports" value={s.totals.switchReports.toLocaleString("en-US")} sub="all time" />
+      </dl>
 
-      <h2>Top first results</h2>
-      {s.topPicks.length === 0 ? <p className="note">No completions yet.</p> : (
-        <div className="table-scroll"><table className="data-table">
-          <thead><tr><th>Quiz</th><th>First result</th><th className="num">Times</th></tr></thead>
-          <tbody>{s.topPicks.map((r) => <tr key={r.quiz + r.topKey}><td>{QUIZ_NAME[r.quiz] ?? r.quiz}</td><td>{r.quiz === "pick" || r.topKey !== "check" ? <a href={`/distro/${r.topKey}/`}>{pickName(r.topKey)}</a> : pickName(r.topKey)}</td><td className="num">{r.n}</td></tr>)}</tbody>
-        </table></div>
-      )}
+      <Section title="Completions per day" sub="Last 30 days, UTC">
+        <Days days={s.perDay} />
+        <div className="adm-links">
+          <a className="adm-btn" href="/api/admin/quiz-completions.csv">Completions CSV</a>
+          <a className="adm-btn" href="/api/admin/picker-feedback.csv">Fit votes CSV</a>
+          <a className="adm-btn" href="/api/admin/switch-reports.csv">Switch reports CSV</a>
+        </div>
+      </Section>
 
-      <h2>"Did it fit?"</h2>
-      {s.fit.length === 0 ? <p className="note">No votes yet.</p> : (
-        <div className="table-scroll"><table className="data-table">
-          <thead><tr><th>First result</th><th className="num">Yes</th><th className="num">Votes</th></tr></thead>
-          <tbody>{s.fit.map((r) => <tr key={r.topKey}><td>{r.topKey}</td><td className="num">{Math.round((r.yes / r.n) * 100)}%</td><td className="num">{r.n}</td></tr>)}</tbody>
-        </table></div>
-      )}
-      <p className="note">Few votes per pick: read the percentages as hints, not results.</p>
+      <Section title="Top first results" sub="All time, top 15 per quiz">
+        {s.topPicks.length === 0 ? <p className="adm-empty">No finished quizzes yet. Picks show up here after the first one.</p> : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead><tr><th>First result</th><th>Quiz</th><th className="num">Times</th></tr></thead>
+              <tbody>
+                {s.topPicks.map((r) => (
+                  <tr key={r.quiz + r.topKey}>
+                    <td>{pickCell(r.quiz, r.topKey)}</td>
+                    <td><Status>{QUIZ_NAME[r.quiz] ?? r.quiz}</Status></td>
+                    <td className="num">{r.n}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
 
-      <h2>Most common answers</h2>
-      {s.topCodes.length === 0 ? <p className="note">No completions yet.</p> : (
-        <div className="table-scroll"><table className="data-table">
-          <thead><tr><th>Quiz</th><th>Answers</th><th className="num">Times</th></tr></thead>
-          <tbody>{s.topCodes.map((r) => <tr key={r.quiz + r.code}><td>{QUIZ_NAME[r.quiz] ?? r.quiz}</td><td>{readableAnswers(r.quiz, r.code)}</td><td className="num">{r.n}</td></tr>)}</tbody>
-        </table></div>
-      )}
+      <Section title={'"Did it fit?"'} sub="Votes per first result">
+        {s.fit.length === 0 ? <p className="adm-empty">No votes yet. People vote on the quiz results page.</p> : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead><tr><th>First result</th><th className="num">Said yes</th><th className="num">Votes</th></tr></thead>
+              <tbody>
+                {s.fit.map((r) => {
+                  const pct = Math.round((r.yes / r.n) * 100);
+                  return (
+                    <tr key={r.topKey}>
+                      <td><Distro slug={r.topKey} name={nameOf(r.topKey)} /></td>
+                      <td className="num"><span className="adm-pct"><i style={{ width: `${Math.max(2, pct * 0.6)}px` }} aria-hidden="true" />{pct}%</span></td>
+                      <td className="num">{r.n}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="note">With only a few votes per pick, read the percentages as hints, not results.</p>
+      </Section>
 
-      <h2>Switch reports</h2>
-      <div className="adm-two">
-        <div><h3>Came from</h3><Tally rows={s.switchFrom} empty="No reports yet." /></div>
-        <div><h3>Now using</h3><Tally rows={s.switchTo} empty="No reports yet." /></div>
-      </div>
+      <Section title="Most common answers" sub="All time, top 15 per quiz">
+        {s.topCodes.length === 0 ? <p className="adm-empty">No finished quizzes yet.</p> : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead><tr><th>Answers</th><th>Quiz</th><th className="num">Times</th></tr></thead>
+              <tbody>
+                {s.topCodes.map((r) => (
+                  <tr key={r.quiz + r.code}>
+                    <td className="adm-wrap">{readableAnswers(r.quiz, r.code)}</td>
+                    <td><Status>{QUIZ_NAME[r.quiz] ?? r.quiz}</Status></td>
+                    <td className="num">{r.n}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
+
+      <Section title="Switch reports" sub={`"LinuxStatistics helped me switch", ${s.totals.switchReports} in total`}>
+        <div className="adm-two">
+          <div><h3>Came from</h3><Tally rows={s.switchFrom} label="Came from" empty="No reports yet." name={(k) => ORIGIN[k] ?? k} /></div>
+          <div><h3>Now using</h3><Tally rows={s.switchTo} label="Now using" empty="No reports yet." name={(k) => (k === "(not given)" ? "Not given" : nameOf(k))} /></div>
+        </div>
+      </Section>
     </div>
   );
 }
@@ -98,7 +178,7 @@ export function AdminQuizInner() {
   });
   return (
     <AdminGate>
-      {q.isError ? <p className="error">Couldn't load quiz numbers. Try reloading.</p> : q.isLoading || !q.data ? <CardsSkeleton label="Loading quiz numbers" /> : <Quiz s={q.data} />}
+      {q.isError ? <p className="error" role="alert">Couldn't load quiz numbers. Try reloading.</p> : q.isLoading || !q.data ? <CardsSkeleton label="Loading quiz numbers" /> : <Quiz s={q.data} />}
     </AdminGate>
   );
 }

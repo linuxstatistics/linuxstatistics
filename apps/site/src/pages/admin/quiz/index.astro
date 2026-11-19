@@ -4,6 +4,6 @@ import { AdminQuiz } from "../../../components/AdminQuiz";
 import { CardsSkeleton } from "../../../components/Skeleton";
 ---
 
-<AdminShell title="Quiz" current="/admin/quiz/" lede="Finished quizzes, what they picked, whether it fit, and who says they switched. Anonymous counts.">
+<AdminShell title="Quiz" current="/admin/quiz/" lede="Finished quizzes, what they recommended, whether it fit, and who says they switched. Anonymous counts.">
   <AdminQuiz client:only="react"><CardsSkeleton slot="fallback" label="Loading quiz numbers" /></AdminQuiz>
 </AdminShell>

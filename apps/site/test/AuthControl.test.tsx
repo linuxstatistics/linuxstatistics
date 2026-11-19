@@ -69,5 +69,5 @@ test("admins see an admin link in the account menu", async () => {
   }) as unknown as typeof fetch;
   renderControl();
   (await screen.findByRole("button", { name: "Account menu for boss" })).click();
-  expect(await screen.findByRole("menuitem", { name: "Admin: suggestions" })).toHaveAttribute("href", "/admin/suggestions/");
+  expect(await screen.findByRole("menuitem", { name: "Admin" })).toHaveAttribute("href", "/admin/");
 });

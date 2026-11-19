@@ -1,43 +1,62 @@
 ---
 import AdminShell from "../../../layouts/AdminShell.astro";
 import { AdminGateStatic } from "../../../components/AdminGateStatic";
+import { DistroMark } from "../../../components/DistroMark";
 import { loadDistros } from "../../../lib/data";
 import { visualGaps } from "../../../lib/admin-visuals";
 
 const v = visualGaps(await loadDistros(), 100);
-const rankText = (r: number) => (r === Number.MAX_SAFE_INTEGER ? "–" : String(r));
+const rankText = (r: number) => (r === Number.MAX_SAFE_INTEGER ? "unranked" : `#${r}`);
 ---
 
-<AdminShell title="Visuals" current="/admin/visuals/" lede="Distros still on a monogram or without a screenshot, and screenshots that show an old release. Top 100 by rank.">
+<AdminShell title="Visuals" current="/admin/visuals/" lede="Logos and screenshots still missing for the top 100 distros, and screenshots that show an old release.">
   <AdminGateStatic client:only="react" />
-  <div class="adm" id="adm-visuals">
-    <div class="adm-cards">
-      <div class="adm-card"><span class="adm-card-lbl">Logos</span><span class="adm-card-big">{v.logos}</span><span class="adm-card-sub">{v.monograms.length} of the top 100 still on a monogram</span></div>
-      <div class="adm-card"><span class="adm-card-lbl">Screenshots</span><span class="adm-card-big">{v.screenshots}</span><span class="adm-card-sub">{v.noScreenshot.length} of the top 100 without one</span></div>
-      <div class="adm-card"><span class="adm-card-lbl">Older release shown</span><span class="adm-card-big">{v.stale.length}</span><span class="adm-card-sub">checked {v.shotsChecked}</span></div>
-    </div>
+  <div class="adm" id="adm-visuals" hidden>
+    <dl class="adm-metrics">
+      <div class="adm-metric"><dt>Logos</dt><dd><span class="adm-metric-big">{v.logos}</span><span class="adm-metric-sub">{v.monograms.length} of the top 100 still on a monogram</span></dd></div>
+      <div class="adm-metric"><dt>Screenshots</dt><dd><span class="adm-metric-big">{v.screenshots}</span><span class="adm-metric-sub">{v.noScreenshot.length} of the top 100 without one</span></dd></div>
+      <div class="adm-metric"><dt>Older release shown</dt><dd><span class="adm-metric-big">{v.stale.length}</span><span class="adm-metric-sub">screenshots, checked <span class="adm-nowrap">{v.shotsChecked}</span></span></dd></div>
+    </dl>
 
-    <h2>Monograms</h2>
-    {v.monograms.length === 0 ? <p class="note">Every top-100 distro has a logo.</p> : (
-      <div class="table-scroll"><table class="data-table adm-narrow">
-        <thead><tr><th class="num">Rank</th><th>Distro</th></tr></thead>
-        <tbody>{v.monograms.map((d) => <tr><td class="num">{d.rank}</td><td><a href={`/distro/${d.slug}/`}>{d.name}</a></td></tr>)}</tbody>
-      </table></div>
-    )}
-    <p class="note">Sources in order: simple-icons, a free Wikimedia Commons file, then the project's own site or GitHub avatar. Skip a mark that's unreadable at 20 px or invisible on the dark theme.</p>
+    <section class="adm-sec">
+      <h2>Still on a monogram<span class="adm-sec-sub">{v.monograms.length} distros, by rank</span></h2>
+      {v.monograms.length === 0 ? <p class="adm-empty">Every top-100 distro has a logo.</p> : (
+        <ul class="adm-names">
+          {v.monograms.map((d) => (
+            <li><a href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} size={20} /><span>{d.name}</span><span class="adm-rank">#{d.rank}</span></a></li>
+          ))}
+        </ul>
+      )}
+      <p class="note">Look in this order: simple-icons, a free Wikimedia Commons file, then the project's own site or GitHub avatar. Skip any mark that's unreadable at 20 px or doesn't show on the dark theme.</p>
+    </section>
 
-    <h2>Screenshots showing an older release</h2>
-    {v.stale.length === 0 ? <p class="note">None.</p> : (
-      <div class="table-scroll"><table class="data-table">
-        <thead><tr><th class="num">Rank</th><th>Distro</th><th>Shows</th><th>Source</th></tr></thead>
-        <tbody>{v.stale.map((d) => <tr><td class="num">{rankText(d.rank)}</td><td><a href={`/distro/${d.slug}/`}>{d.name}</a></td><td>{d.caption}</td><td><a href={d.source} target="_blank" rel="noopener noreferrer" aria-describedby="new-tab-description" title="Opens in a new tab">Commons</a></td></tr>)}</tbody>
-      </table></div>
-    )}
+    <section class="adm-sec">
+      <h2>Screenshots showing an older release<span class="adm-sec-sub">{v.stale.length} on the site</span></h2>
+      {v.stale.length === 0 ? <p class="adm-empty">None.</p> : (
+        <div class="adm-shots">
+          {v.stale.map((d) => (
+            <div class="adm-shot-row">
+              <img src={`/shots/${d.slug}-640.webp`} alt="" width="120" height="75" loading="lazy" decoding="async" />
+              <div>
+                <a class="adm-distro" href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} size={20} /><span>{d.name}</span></a>
+                <p class="adm-item-meta"><span>Shows {d.caption}</span><span>{rankText(d.rank)}</span><a href={d.source} target="_blank" rel="noopener noreferrer" aria-describedby="new-tab-description" title="Opens in a new tab">Commons file</a></p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
 
-    <h2>No screenshot</h2>
-    {v.noScreenshot.length === 0 ? <p class="note">Every top-100 distro has one.</p> : (
-      <p class="adm-inline-list">{v.noScreenshot.map((d, i) => <>{i ? ", " : ""}<a href={`/distro/${d.slug}/`}>{d.name}</a> <span class="note">#{d.rank}</span></>)}</p>
-    )}
-    <p class="note">Free licence only, default desktop of a current release. An old or wrong desktop is worse than none.</p>
+    <section class="adm-sec">
+      <h2>No screenshot<span class="adm-sec-sub">{v.noScreenshot.length} distros, by rank</span></h2>
+      {v.noScreenshot.length === 0 ? <p class="adm-empty">Every top-100 distro has one.</p> : (
+        <ul class="adm-names">
+          {v.noScreenshot.map((d) => (
+            <li><a href={`/distro/${d.slug}/`}><DistroMark slug={d.slug} name={d.name} size={20} /><span>{d.name}</span><span class="adm-rank">#{d.rank}</span></a></li>
+          ))}
+        </ul>
+      )}
+      <p class="note">Free license only, showing the default desktop of a current release. An old or wrong desktop is worse than none.</p>
+    </section>
   </div>
 </AdminShell>

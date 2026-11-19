@@ -4,6 +4,6 @@ import { AdminEmail } from "../../../components/AdminEmail";
 import { CardsSkeleton } from "../../../components/Skeleton";
 ---
 
-<AdminShell title="Email signups" current="/admin/email/" lede="People who asked for the monthly email, and the page they signed up on.">
+<AdminShell title="Email signups" current="/admin/email/" lede="People who asked for the monthly email, and where they signed up.">
   <AdminEmail client:only="react"><CardsSkeleton slot="fallback" label="Loading signups" /></AdminEmail>
 </AdminShell>

@@ -1,6 +1,6 @@
 ---
 import Base from "./Base.astro";
-import { ADMIN_MENU } from "../lib/admin-menu";
+import { ADMIN_GROUPS, ADMIN_MENU } from "../lib/admin-menu";
 
 interface Props {
   title: string;
@@ -15,16 +15,39 @@ const here = ADMIN_MENU.find((m) => m.href === current);
 
 <Base title={`${title} | Admin | LinuxStatistics`} description={`Admin: ${title.toLowerCase()}.`} noindex>
   <div class="page admin-page admin-shell">
-    <nav class="admin-menu" aria-label="Admin">
-      {ADMIN_MENU.map((m) => (
-        <a href={m.href} aria-current={m.href === current ? "page" : undefined}>{m.label}</a>
-      ))}
-    </nav>
+    <details class="admin-nav" id="admin-nav">
+      <summary>
+        <span class="admin-nav-label">Admin</span>
+        <span class="admin-nav-here">{here?.label ?? title}</span>
+        <span class="t-acc-chevron admin-nav-chev" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M4 6.5L8 10.5L12 6.5" /></svg></span>
+      </summary>
+      <nav aria-label="Admin">
+        {ADMIN_GROUPS.map((g) => (
+          <div class="admin-nav-group">
+            <p class="admin-nav-group-title">{g.label}</p>
+            {g.items.map((m) => (
+              <a href={m.href} aria-current={m.href === current ? "page" : undefined}>{m.label}</a>
+            ))}
+          </div>
+        ))}
+      </nav>
+    </details>
     <div class="admin-main">
       <nav class="breadcrumb" aria-label="Breadcrumb">{current === "/admin/" ? "Admin" : <><a href="/admin/">Admin</a> / {here?.label ?? title}</>}</nav>
       <h1>{title}</h1>
-      {lede && <p class="lede">{lede} Only admins can see this page.</p>}
+      {lede && <p class="lede">{lede}</p>}
       <slot />
     </div>
   </div>
+  <script is:inline>
+    // Wide screens: the admin menu is a sidebar, always open. Phones: a folded menu showing the current page.
+    (function () {
+      var d = document.getElementById("admin-nav");
+      if (!d) return;
+      var mq = window.matchMedia("(min-width: 761px)");
+      var sync = function () { d.open = mq.matches; };
+      sync();
+      mq.addEventListener("change", sync);
+    })();
+  </script>
 </Base>

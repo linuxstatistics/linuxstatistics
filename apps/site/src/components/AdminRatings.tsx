@@ -4,7 +4,7 @@ import { CardsSkeleton } from "./Skeleton";
 import { useMe } from "../api";
 import { Island } from "./Island";
 import { AdminGate } from "./AdminGate";
-import { daysAgoText } from "../lib/freshness";
+import { Distro, Section, Status, When, ago } from "./AdminParts";
 
 export interface ModerationRow {
   id: number;
@@ -20,7 +20,6 @@ export interface ModerationRow {
   hiddenReason: string | null;
 }
 
-const ago = (iso: string) => daysAgoText((Date.now() - new Date(iso).getTime()) / 86_400_000);
 const DAY = 86_400_000;
 
 /** Plain trust note from what we know about the account: forge age and time on this site. */
@@ -54,40 +53,55 @@ function Row({ r }: { r: ModerationRow }) {
     },
   });
   const hidden = r.status === "hidden";
+  const edited = r.updatedAt !== r.createdAt;
+  const fresh = r.author.accountCreatedAt != null && Date.now() - new Date(r.author.accountCreatedAt).getTime() < 30 * DAY;
+  const reasonId = `hide-reason-${r.id}`;
   return (
-    <li className={`adm-review${hidden ? " is-hidden" : ""}`}>
-      <div className="adm-review-head">
-        <a href={`/distro/${r.distro.slug}/`}>{r.distro.name}</a>
-        {r.rating != null && <span className="adm-stars" aria-label={`${r.rating} of 5 stars`}>{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>}
-        {r.usesIt && <span className="adm-status">uses it</span>}
-        {hidden && <span className="adm-status adm-failed">hidden</span>}
+    <li className={`adm-item${hidden ? " is-muted" : ""}`}>
+      <div className="adm-item-head">
+        <Distro slug={r.distro.slug} name={r.distro.name} />
+        {r.rating != null && <span className="adm-stars" role="img" aria-label={`${r.rating} of 5 stars`}>{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>}
+        {r.usesIt && <Status>Uses it</Status>}
+        {hidden && <Status tone="bad">Hidden</Status>}
+        <span className="adm-item-when"><When iso={edited ? r.updatedAt : r.createdAt} relative />{edited ? ", edited" : ""}</span>
       </div>
-      {r.reviewBody ? <p className="adm-review-body">{r.reviewBody}</p> : <p className="note">No written review.</p>}
-      <p className="note">
-        {r.author.username} · {trustNote(r.author)} · joined here {ago(r.author.joinedAt)} · {r.updatedAt !== r.createdAt ? `edited ${ago(r.updatedAt)}` : ago(r.createdAt)}
+      {r.reviewBody ? <p className="adm-item-body">{r.reviewBody}</p> : <p className="note">Rating only, no written review.</p>}
+      <p className="adm-item-meta">
+        <span><strong>{r.author.username}</strong></span>
+        <span>{fresh ? <Status tone="warn">{trustNote(r.author)}</Status> : trustNote(r.author)}</span>
+        <span>Joined here {ago(r.author.joinedAt)}</span>
       </p>
-      {hidden && r.hiddenReason && <p className="note">Hidden {r.hiddenAt ? ago(r.hiddenAt) : ""}: {r.hiddenReason}</p>}
-      {hidden ? (
-        <button type="button" className="adm-toggle" disabled={m.isPending} onClick={() => m.mutate({ action: "unhide" })}>Unhide</button>
-      ) : asking ? (
-        <form
-          className="adm-hide-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (reason.trim().length >= 3) m.mutate({ action: "hide", reason: reason.trim() });
-          }}
-        >
-          <label>
-            <span className="visually-hidden">Why hide it</span>
-            <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Why hide it (spam, off-topic, abusive…)" maxLength={300} required minLength={3} autoFocus />
-          </label>
-          <button type="submit" className="adm-toggle" disabled={m.isPending || reason.trim().length < 3}>Hide</button>
-          <button type="button" className="adm-link" onClick={() => setAsking(false)}>Cancel</button>
-        </form>
-      ) : (
-        <button type="button" className="adm-toggle" onClick={() => setAsking(true)}>Hide…</button>
-      )}
-      {m.isError && <p className="error">Couldn't save. Reload and try again.</p>}
+      {hidden && r.hiddenReason && <p className="note">Hidden {r.hiddenAt ? ago(r.hiddenAt) : ""}. Reason: {r.hiddenReason}</p>}
+      <div className="adm-item-foot">
+        {hidden ? (
+          <div className="adm-actions">
+            <button type="button" className="adm-btn" disabled={m.isPending} aria-busy={m.isPending} onClick={() => m.mutate({ action: "unhide" })}>
+              {m.isPending ? "Unhiding…" : "Unhide"}
+            </button>
+          </div>
+        ) : asking ? (
+          <form
+            className="adm-hide-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (reason.trim().length >= 3) m.mutate({ action: "hide", reason: reason.trim() });
+            }}
+          >
+            <label htmlFor={reasonId}>Why hide it</label>
+            <input id={reasonId} className="adm-input" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Spam, off-topic, abusive…" maxLength={300} required minLength={3} autoFocus aria-describedby={`${reasonId}-help`} />
+            <p className="note" id={`${reasonId}-help`}>Saved with the rating and in the moderation log. At least 3 characters.</p>
+            <div className="adm-actions">
+              <button type="submit" className="adm-btn danger" disabled={m.isPending || reason.trim().length < 3} aria-busy={m.isPending}>{m.isPending ? "Hiding…" : "Hide rating"}</button>
+              <button type="button" className="adm-btn quiet" onClick={() => setAsking(false)}>Cancel</button>
+            </div>
+          </form>
+        ) : (
+          <div className="adm-actions">
+            <button type="button" className="adm-btn" onClick={() => setAsking(true)}>Hide…</button>
+          </div>
+        )}
+      </div>
+      {m.isError && <p className="error" role="alert">Couldn't save. Reload and try again.</p>}
     </li>
   );
 }
@@ -98,19 +112,23 @@ function List({ rows }: { rows: ModerationRow[] }) {
   const n = (s: "visible" | "hidden") => rows.filter((r) => r.status === s).length;
   return (
     <div className="adm">
-      <div className="adm-tabs" role="tablist">
-        {(["visible", "hidden"] as const).map((t) => (
-          <button key={t} type="button" role="tab" className="adm-tab" aria-selected={tab === t} onClick={() => setTab(t)}>
-            {t === "visible" ? "Shown" : "Hidden"}<span className="adm-count">{n(t)}</span>
-          </button>
-        ))}
-      </div>
-      {shown.length === 0 ? (
-        <p className="note">{tab === "visible" ? "No ratings yet." : "Nothing hidden."}</p>
-      ) : (
-        <ul className="adm-reviews">{shown.map((r) => <Row key={r.id} r={r} />)}</ul>
-      )}
-      <p className="note">Hide only: nothing a person wrote is edited or deleted. Hiding needs a reason and is logged; a hidden rating stays hidden if its author edits it.</p>
+      <Section title="Ratings and reviews" sub="Newest first">
+        <div className="adm-tabs" role="tablist" aria-label="Ratings">
+          {(["visible", "hidden"] as const).map((t) => (
+            <button key={t} type="button" role="tab" id={`tab-${t}`} aria-controls="ratings-panel" className="adm-tab" aria-selected={tab === t} onClick={() => setTab(t)}>
+              {t === "visible" ? "Shown" : "Hidden"}<span className="adm-count">{n(t)}</span>
+            </button>
+          ))}
+        </div>
+        <div id="ratings-panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>
+          {shown.length === 0 ? (
+            <p className="adm-empty">{tab === "visible" ? "No ratings yet. They appear here as soon as someone rates a distro." : "Nothing hidden."}</p>
+          ) : (
+            <ul className="adm-items">{shown.map((r) => <Row key={r.id} r={r} />)}</ul>
+          )}
+        </div>
+        <p className="note">Hide only: nothing a person wrote is edited or deleted. A hidden rating stays hidden if its author edits it.</p>
+      </Section>
     </div>
   );
 }
@@ -128,7 +146,7 @@ export function AdminRatingsInner() {
   });
   return (
     <AdminGate>
-      {q.isError ? <p className="error">Couldn't load ratings. Try reloading.</p> : q.isLoading || !q.data ? <CardsSkeleton label="Loading ratings" /> : <List rows={q.data} />}
+      {q.isError ? <p className="error" role="alert">Couldn't load ratings. Try reloading.</p> : q.isLoading || !q.data ? <CardsSkeleton label="Loading ratings" /> : <List rows={q.data} />}
     </AdminGate>
   );
 }

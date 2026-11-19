@@ -3,7 +3,7 @@ import { CardsSkeleton } from "./Skeleton";
 import { useMe } from "../api";
 import { Island } from "./Island";
 import { AdminGate } from "./AdminGate";
-import { daysAgoText } from "../lib/freshness";
+import { Metric, Section, Status, ago } from "./AdminParts";
 
 interface WindowCounts { last7: number; last30: number }
 export interface SourceHealth {
@@ -41,14 +41,12 @@ export function useAdminSummary(enabled: boolean) {
 }
 
 const CARDS: { key: keyof Omit<AdminSummary, "openSuggestions" | "sources">; label: string; href?: string }[] = [
-  { key: "emailSignups", label: "Email signups", href: "/api/admin/email-signups.csv" },
-  { key: "quizCompletions", label: "Quiz completions", href: "/api/admin/quiz-completions.csv" },
-  { key: "switchReports", label: "Switch reports", href: "/api/admin/switch-reports.csv" },
-  { key: "ratings", label: "New ratings" },
+  { key: "quizCompletions", label: "Quiz completions", href: "/admin/quiz/" },
+  { key: "emailSignups", label: "Email signups", href: "/admin/email/" },
+  { key: "switchReports", label: "Switch reports", href: "/admin/quiz/" },
+  { key: "ratings", label: "New ratings", href: "/admin/ratings/" },
   { key: "affiliateClicks", label: "Affiliate clicks", href: "/admin/affiliates/" },
 ];
-
-const ago = (iso: string) => daysAgoText((Date.now() - new Date(iso).getTime()) / 86_400_000);
 
 export function AdminDashboardInner() {
   const { data: me } = useMe();
@@ -56,7 +54,7 @@ export function AdminDashboardInner() {
   return (
     <AdminGate>
       {q.isError ? (
-        <p className="error">Couldn't load the summary. Try reloading.</p>
+        <p className="error" role="alert">Couldn't load the summary. Try reloading.</p>
       ) : q.isLoading || !q.data ? (
         <CardsSkeleton label="Loading the summary" />
       ) : (
@@ -67,43 +65,50 @@ export function AdminDashboardInner() {
 }
 
 function Dashboard({ s }: { s: AdminSummary }) {
-  const attention = s.sources.filter((x) => x.late || x.failing);
+  // Failing sources first, then late ones.
+  const sources = s.sources.filter((x) => x.late || x.failing).sort((a, b) => Number(b.failing) - Number(a.failing));
   const votes = s.fitYes.last30 + s.fitNo.last30;
+  const clear = s.openSuggestions === 0 && sources.length === 0;
   return (
     <div className="adm">
-      <h2>Needs attention</h2>
-      {s.openSuggestions === 0 && attention.length === 0 ? (
-        <p className="note">Nothing waiting: no open suggestions, every source on time.</p>
-      ) : (
-        <ul className="adm-attention">
-          {s.openSuggestions > 0 && (
-            <li><a href="/admin/suggestions/">{s.openSuggestions} open {s.openSuggestions === 1 ? "suggestion" : "suggestions"}</a></li>
-          )}
-          {attention.map((x) => (
-            <li key={x.source}>
-              <a href={`/admin/sources/#${x.source}`}>{x.label}</a>: {x.failing ? "last run failed" : "late"}
-              {x.lastSuccessAt ? `, last good data ${ago(x.lastSuccessAt)}` : ""}
-            </li>
-          ))}
-        </ul>
-      )}
+      <Section title="Needs attention">
+        {clear ? (
+          <p className="adm-allclear"><Status tone="ok">All clear</Status> No open suggestions, and every data source is on time.</p>
+        ) : (
+          <ul className="adm-attention">
+            {sources.map((x) => (
+              <li key={x.source}>
+                <Status tone={x.failing ? "bad" : "warn"}>{x.failing ? "Failing" : "Late"}</Status>
+                <a href={`/admin/sources/#${x.source}`}>{x.label}</a>
+                <span className="adm-attn-detail">{x.lastSuccessAt ? `last good data ${ago(x.lastSuccessAt)}` : "no successful run yet"}</span>
+                <span className="icon-arrow" aria-hidden="true" />
+              </li>
+            ))}
+            {s.openSuggestions > 0 && (
+              <li>
+                <Status tone="info">To review</Status>
+                <a href="/admin/suggestions/">{s.openSuggestions} open {s.openSuggestions === 1 ? "suggestion" : "suggestions"}</a>
+                <span className="icon-arrow" aria-hidden="true" />
+              </li>
+            )}
+          </ul>
+        )}
+      </Section>
 
-      <h2>Last 7 and 30 days</h2>
-      <div className="adm-cards">
-        {CARDS.map((c) => (
-          <div className="adm-card" key={c.key}>
-            <span className="adm-card-lbl">{c.href ? <a href={c.href}>{c.label}</a> : c.label}</span>
-            <span className="adm-card-big">{s[c.key].last7}</span>
-            <span className="adm-card-sub">{s[c.key].last30} in 30 days</span>
-          </div>
-        ))}
-        <div className="adm-card">
-          <span className="adm-card-lbl">Quiz "did it fit?"</span>
-          <span className="adm-card-big">{votes ? `${Math.round((s.fitYes.last30 / votes) * 100)}%` : "–"}</span>
-          <span className="adm-card-sub">yes, {votes} {votes === 1 ? "vote" : "votes"} in 30 days</span>
-        </div>
-      </div>
-      <p className="note">Days are UTC; "7 days" is today and the six before it. Our own anonymous counts only.</p>
+      <Section title="Activity" sub="Last 7 days, with the 30-day total below">
+        <dl className="adm-metrics">
+          {CARDS.map((c) => (
+            <Metric key={c.key} label={c.label} href={c.href} value={s[c.key].last7.toLocaleString("en-US")} sub={`${s[c.key].last30.toLocaleString("en-US")} in 30 days`} />
+          ))}
+          <Metric
+            label={'Quiz "did it fit?"'}
+            href="/admin/quiz/"
+            value={votes ? `${Math.round((s.fitYes.last30 / votes) * 100)}%` : "No votes"}
+            sub={votes ? `said yes, ${votes} ${votes === 1 ? "vote" : "votes"} in 30 days` : "in the last 30 days"}
+          />
+        </dl>
+        <p className="note">Our own anonymous counts. Days are UTC; 7 days means today and the six before it.</p>
+      </Section>
     </div>
   );
 }

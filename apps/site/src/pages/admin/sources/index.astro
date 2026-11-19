@@ -4,6 +4,6 @@ import { AdminSources } from "../../../components/AdminSources";
 import { CardsSkeleton } from "../../../components/Skeleton";
 ---
 
-<AdminShell title="Data health" current="/admin/sources/" lede="Each data source: when it last worked, when it last failed and why.">
+<AdminShell title="Data health" current="/admin/sources/" lede="When each data source last worked, when it last failed, and why.">
   <AdminSources client:only="react"><CardsSkeleton slot="fallback" label="Loading source health" /></AdminSources>
 </AdminShell>
