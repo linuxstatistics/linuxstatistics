@@ -844,6 +844,51 @@ html.cmdk-open { overflow: hidden; }
 
 /* Admin: suggestions queue */
 .admin-page { max-width: 980px; }
+.admin-shell { max-width: 1180px; display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 36px; align-items: start; }
+.admin-menu { position: sticky; top: 16px; display: grid; gap: 4px; padding-top: 8px; }
+.admin-menu a { display: block; padding: 8px 12px; border-radius: var(--radius); color: var(--ink2); text-decoration: none; font-weight: 600; font-size: 14px; }
+.admin-menu a:hover { color: var(--ink); background: var(--row); }
+.admin-menu a[aria-current="page"] { color: var(--ink); background: var(--panel); box-shadow: inset 3px 0 0 var(--accent); }
+@media (max-width: 760px) {
+  .admin-shell { grid-template-columns: 1fr; gap: 16px; }
+  .admin-menu { position: static; display: flex; flex-wrap: wrap; gap: 4px; padding: 0; }
+  .admin-menu a { padding: 8px 12px; min-height: 32px; }
+}
+.adm h2 { font-size: 22px; margin: 36px 0 12px; }
+.adm h2:first-child { margin-top: 0; }
+.adm-attention { display: grid; gap: 8px; padding: 16px 20px; margin: 0; list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.adm-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.adm-card { display: grid; gap: 4px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.adm-card-lbl { font: 600 12px var(--sans); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink2); }
+.adm-card-lbl a { color: inherit; }
+.adm-card-big { font: 800 36px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+.adm-card-sub { font-size: 14px; color: var(--ink2); }
+.adm-source { padding: 24px 0; border-top: 1px solid var(--line); }
+.adm-source:first-child { border-top: 0; padding-top: 0; }
+.adm-source h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px; }
+.adm-src-key { font: 400 13px var(--mono); color: var(--ink2); }
+.adm-status { display: inline-block; padding: 2px 8px; border-radius: var(--pill); font: 600 12px var(--sans); background: var(--row); color: var(--ink2); }
+.adm-status.adm-ok, .adm-status.adm-success { color: var(--up); }
+.adm-status.adm-failing, .adm-status.adm-failed { color: var(--danger); }
+.adm-status.adm-late { color: var(--star); }
+.adm-dl { display: grid; gap: 4px; margin: 0 0 12px; font-size: 14px; }
+.adm-dl div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; }
+.adm-dl dt { color: var(--ink2); }
+.adm-dl dd { margin: 0; }
+.adm-err { color: var(--danger); overflow-wrap: anywhere; }
+.adm-toggle { background: none; border: 1px solid var(--line); border-radius: var(--pill); padding: 8px 16px; font: 600 14px var(--sans); color: var(--ink); cursor: pointer; margin-bottom: 12px; }
+@media (max-width: 560px) { .adm-dl div { grid-template-columns: 1fr; gap: 0; } }
+.adm h3 { font-size: 17px; margin: 0 0 8px; }
+.adm-days { display: grid; grid-template-columns: repeat(30, minmax(0, 1fr)); gap: 2px; align-items: end; height: 120px; padding: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.adm-day { display: flex; flex-direction: column-reverse; height: 100%; background: var(--row); border-radius: 2px; overflow: hidden; }
+.adm-day i { display: block; }
+.adm-day-pick, .adm-key-pick::before { background: var(--accent); }
+.adm-day-start, .adm-key-start::before { background: var(--fam-arch); }
+.adm-key { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; font-size: 13px; }
+.adm-key::before { content: ""; width: 10px; height: 10px; border-radius: 2px; }
+.adm-email { overflow-wrap: anywhere; }
+.adm-nowrap { white-space: nowrap; }
+.adm-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
 .adm-gate { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink2); }
 .adm-tabs { display: flex; gap: 6px; margin: 8px 0 16px; border-bottom: 1px solid var(--line); }
 .adm-tab { background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 10px 14px; font-weight: 600; color: var(--ink2); cursor: pointer; }

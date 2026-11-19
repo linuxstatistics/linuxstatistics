@@ -1,7 +1,11 @@
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
+import { ingestionSourceSchema } from "@linux-statistics/shared";
 import {
+  adminSummary,
   listContributions,
+  quizStats,
+  recentIngestionRuns,
   setContributionStatusById,
   type Database,
 } from "@linux-statistics/db";
@@ -16,6 +20,19 @@ export function registerAdminRoutes(app: FastifyInstance, db: Database): void {
     const q = (req.query as { status?: string }).status;
     const status = q ? statusSchema.parse(q) : undefined;
     return listContributions(db, status);
+  });
+
+  app.get("/api/admin/summary", { preHandler: admin }, async () => adminSummary(db));
+
+  app.get("/api/admin/quiz", { preHandler: admin }, async () => quizStats(db));
+
+  app.get("/api/admin/sources/:source/runs", { preHandler: admin }, async (req, reply) => {
+    const parsed = ingestionSourceSchema.safeParse((req.params as { source: string }).source);
+    if (!parsed.success) {
+      reply.code(404);
+      return { error: "unknown_source" };
+    }
+    return recentIngestionRuns(db, parsed.data);
   });
 
   app.patch("/api/admin/contributions/:id", { preHandler: admin }, async (req, reply) => {

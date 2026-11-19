@@ -44,3 +44,21 @@ test("admin can list and hide a contribution", async () => {
   const detail = await app.inject({ method: "GET", url: "/api/distros/mint" });
   expect(detail.json().userRating).toEqual({ average: null, count: 0, mean: null, verifiedCount: 0 });
 });
+
+test("dashboard summary and run history are admin-only", async () => {
+  for (const url of ["/api/admin/summary", "/api/admin/sources/github/runs", "/api/admin/quiz", "/api/admin/email-signups", "/api/admin/email-signups.csv"]) {
+    expect((await app.inject({ method: "GET", url })).statusCode, url).toBe(401);
+    const userCookie = await loginAs(app, { providerUserId: "210", username: "plain" });
+    expect((await app.inject({ method: "GET", url, headers: { cookie: userCookie } })).statusCode, url).toBe(403);
+  }
+  const cookie = await loginAs(app, { providerUserId: "998", username: "boss2", role: "admin" });
+  const s = await app.inject({ method: "GET", url: "/api/admin/summary", headers: { cookie } });
+  expect(s.statusCode).toBe(200);
+  expect(s.json()).toMatchObject({ quizCompletions: { last7: 0, last30: 0 }, openSuggestions: 0 });
+  expect(s.json().sources).toHaveLength(7);
+  const runs = await app.inject({ method: "GET", url: "/api/admin/sources/github/runs", headers: { cookie } });
+  expect(runs.statusCode).toBe(200);
+  expect(runs.json()).toEqual([]);
+  const bad = await app.inject({ method: "GET", url: "/api/admin/sources/nope/runs", headers: { cookie } });
+  expect(bad.statusCode).toBe(404);
+});

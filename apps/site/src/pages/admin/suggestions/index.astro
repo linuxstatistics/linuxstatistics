@@ -1,14 +1,10 @@
 ---
-import Base from "../../../layouts/Base.astro";
+import AdminShell from "../../../layouts/AdminShell.astro";
 import { AdminSuggestions } from "../../../components/AdminSuggestions";
 import { CardsSkeleton } from "../../../components/Skeleton";
 ---
 
-<Base title="Suggestions | Admin | LinuxStatistics" description="Admin review queue." noindex>
-  <div class="page admin-page">
-    <nav class="breadcrumb" aria-label="Breadcrumb">Admin / Suggestions</nav>
-    <h1>Suggestions</h1>
-    <p class="lede">Visitor suggestions from the <a href="/suggest/">suggest form</a>. Only admins can see this page.</p>
-    <AdminSuggestions client:only="react"><CardsSkeleton slot="fallback" label="Loading suggestions" /></AdminSuggestions>
-  </div>
-</Base>
+<AdminShell title="Suggestions" current="/admin/suggestions/">
+  <p class="lede">Visitor suggestions from the <a href="/suggest/">suggest form</a>. Only admins can see this page.</p>
+  <AdminSuggestions client:only="react"><CardsSkeleton slot="fallback" label="Loading suggestions" /></AdminSuggestions>
+</AdminShell>

@@ -1,0 +1,30 @@
+---
+import Base from "./Base.astro";
+import { ADMIN_MENU } from "../lib/admin-menu";
+
+interface Props {
+  title: string;
+  /** Path of this page, e.g. "/admin/sources/". */
+  current: string;
+  lede?: string;
+}
+
+const { title, current, lede } = Astro.props;
+const here = ADMIN_MENU.find((m) => m.href === current);
+---
+
+<Base title={`${title} | Admin | LinuxStatistics`} description={`Admin: ${title.toLowerCase()}.`} noindex>
+  <div class="page admin-page admin-shell">
+    <nav class="admin-menu" aria-label="Admin">
+      {ADMIN_MENU.map((m) => (
+        <a href={m.href} aria-current={m.href === current ? "page" : undefined}>{m.label}</a>
+      ))}
+    </nav>
+    <div class="admin-main">
+      <nav class="breadcrumb" aria-label="Breadcrumb">{current === "/admin/" ? "Admin" : <><a href="/admin/">Admin</a> / {here?.label ?? title}</>}</nav>
+      <h1>{title}</h1>
+      {lede && <p class="lede">{lede} Only admins can see this page.</p>}
+      <slot />
+    </div>
+  </div>
+</Base>

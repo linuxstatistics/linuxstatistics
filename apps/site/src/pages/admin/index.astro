@@ -1,0 +1,9 @@
+---
+import AdminShell from "../../layouts/AdminShell.astro";
+import { AdminDashboard } from "../../components/AdminDashboard";
+import { CardsSkeleton } from "../../components/Skeleton";
+---
+
+<AdminShell title="Dashboard" current="/admin/" lede="How the site is doing and what needs a person.">
+  <AdminDashboard client:only="react"><CardsSkeleton slot="fallback" label="Loading the summary" /></AdminDashboard>
+</AdminShell>
