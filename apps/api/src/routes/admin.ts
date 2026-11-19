@@ -7,10 +7,11 @@ import {
   listContributions,
   quizStats,
   recentIngestionRuns,
-  setContributionStatusById,
+  listForModeration,
+  moderateContribution,
   type Database,
 } from "@linux-statistics/db";
-import { requireAdmin } from "../lib/session.js";
+import { currentUser, requireAdmin } from "../lib/session.js";
 
 const statusSchema = z.enum(["visible", "hidden", "removed"]);
 
@@ -38,14 +39,30 @@ export function registerAdminRoutes(app: FastifyInstance, db: Database): void {
     return recentIngestionRuns(db, parsed.data);
   });
 
+  app.get("/api/admin/ratings", { preHandler: admin }, async (req) => {
+    const q = z.object({ status: z.enum(["visible", "hidden"]).optional() }).parse(req.query);
+    return listForModeration(db, q.status);
+  });
+
+  // Hide only (no edit or delete). Hiding needs a reason; both actions are logged.
   app.patch("/api/admin/contributions/:id", { preHandler: admin }, async (req, reply) => {
     const id = Number((req.params as { id: string }).id);
     if (!Number.isInteger(id)) {
       reply.code(400);
       return { error: "bad_id" };
     }
-    const { status } = z.object({ status: statusSchema }).parse(req.body);
-    await setContributionStatusById(db, id, status);
+    const body = z
+      .discriminatedUnion("action", [
+        z.object({ action: z.literal("hide"), reason: z.string().trim().min(3).max(300) }),
+        z.object({ action: z.literal("unhide") }),
+      ])
+      .parse(req.body);
+    const adminUser = await currentUser(db, req);
+    const changed = await moderateContribution(db, id, body.action, adminUser!.id, body.action === "hide" ? body.reason : undefined);
+    if (!changed) {
+      reply.code(409);
+      return { error: "not_changed" };
+    }
     return { ok: true };
   });
 }

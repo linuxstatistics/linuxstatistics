@@ -38,15 +38,27 @@ test("admin can list and hide a contribution", async () => {
   const id = list.json()[0].id;
   const patch = await app.inject({
     method: "PATCH", url: `/api/admin/contributions/${id}`, headers: { cookie: adminCookie },
-    payload: { status: "hidden" },
+    payload: { action: "hide", reason: "spam" },
   });
   expect(patch.statusCode).toBe(200);
+  const noReason = await app.inject({
+    method: "PATCH", url: `/api/admin/contributions/${id}`, headers: { cookie: adminCookie },
+    payload: { action: "hide" },
+  });
+  expect(noReason.statusCode).toBe(400);
+  const oldShape = await app.inject({
+    method: "PATCH", url: `/api/admin/contributions/${id}`, headers: { cookie: adminCookie },
+    payload: { status: "removed" },
+  });
+  expect(oldShape.statusCode).toBe(400);
+  const hidden = await app.inject({ method: "GET", url: "/api/admin/ratings?status=hidden", headers: { cookie: adminCookie } });
+  expect(hidden.json()).toMatchObject([{ id, hiddenReason: "spam", author: { username: "rater" } }]);
   const detail = await app.inject({ method: "GET", url: "/api/distros/mint" });
   expect(detail.json().userRating).toEqual({ average: null, count: 0, mean: null, verifiedCount: 0 });
 });
 
 test("dashboard summary and run history are admin-only", async () => {
-  for (const url of ["/api/admin/summary", "/api/admin/sources/github/runs", "/api/admin/quiz", "/api/admin/gaps", "/api/admin/email-signups", "/api/admin/email-signups.csv"]) {
+  for (const url of ["/api/admin/summary", "/api/admin/sources/github/runs", "/api/admin/quiz", "/api/admin/gaps", "/api/admin/ratings", "/api/admin/email-signups", "/api/admin/email-signups.csv"]) {
     expect((await app.inject({ method: "GET", url })).statusCode, url).toBe(401);
     const userCookie = await loginAs(app, { providerUserId: "210", username: "plain" });
     expect((await app.inject({ method: "GET", url, headers: { cookie: userCookie } })).statusCode, url).toBe(403);

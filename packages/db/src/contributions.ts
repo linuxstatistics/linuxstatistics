@@ -1,7 +1,7 @@
-import { and, eq, ne } from "drizzle-orm";
+import { and, desc, eq, ne, sql } from "drizzle-orm";
 import { smoothedScore, type AuthProvider } from "@linux-statistics/shared";
 import type { Database } from "./client.js";
-import { distroContributions, users } from "./schema.js";
+import { distroContributions, distros, moderationLog, users } from "./schema.js";
 
 export type { AuthProvider } from "@linux-statistics/shared";
 
@@ -65,7 +65,10 @@ export interface ContributionRow {
   status: "visible" | "hidden" | "removed";
 }
 
-/** Upsert the caller's single contribution for a distro. Re-activates if previously removed. */
+/**
+ * Upsert the caller's single contribution for a distro. Re-activates it if the
+ * user had removed it; a contribution an admin hid stays hidden when edited.
+ */
 export async function upsertContribution(
   db: Database,
   c: ContributionInput,
@@ -82,7 +85,7 @@ export async function upsertContribution(
     .values({ userId: c.userId, distroId: c.distroId, ...set })
     .onConflictDoUpdate({
       target: [distroContributions.userId, distroContributions.distroId],
-      set,
+      set: { ...set, status: sql`case when ${distroContributions.status} = 'hidden' then 'hidden'::contribution_status else 'visible'::contribution_status end` },
     })
     .returning();
   return row as ContributionRow;
@@ -184,14 +187,88 @@ export async function listContributions(
   return rows as ContributionRow[];
 }
 
-/** Admin: set a contribution's moderation status by id. */
-export async function setContributionStatusById(
+/**
+ * Admin moderation, hide only (owner decision): hide needs a reason, unhide
+ * restores it. Both are logged. A contribution the user removed can't be
+ * hidden or unhidden. Returns false when there's nothing to change.
+ */
+export async function moderateContribution(
   db: Database,
   id: number,
-  status: "visible" | "hidden" | "removed",
-): Promise<void> {
-  await db
+  action: "hide" | "unhide",
+  adminId: number,
+  reason?: string,
+): Promise<boolean> {
+  const why = reason?.trim();
+  if (action === "hide" && !why) throw new Error("reason_required");
+  const from = action === "hide" ? "visible" : "hidden";
+  const now = new Date();
+  const rows = await db
     .update(distroContributions)
-    .set({ status, updatedAt: new Date() })
-    .where(eq(distroContributions.id, id));
+    .set(
+      action === "hide"
+        ? { status: "hidden", hiddenAt: now, hiddenReason: why!, hiddenBy: adminId, updatedAt: now }
+        : { status: "visible", updatedAt: now },
+    )
+    .where(and(eq(distroContributions.id, id), eq(distroContributions.status, from)))
+    .returning({ id: distroContributions.id });
+  if (!rows.length) return false;
+  await db.insert(moderationLog).values({ contributionId: id, action, reason: why ?? null, adminId, at: now });
+  return true;
+}
+
+export interface ModerationRow {
+  id: number;
+  distro: { slug: string; name: string };
+  author: { username: string; provider: string; accountCreatedAt: string | null; joinedAt: string };
+  rating: number | null;
+  usesIt: boolean;
+  reviewBody: string | null;
+  status: "visible" | "hidden" | "removed";
+  createdAt: string;
+  updatedAt: string;
+  hiddenAt: string | null;
+  hiddenReason: string | null;
+}
+
+/** Admin: newest ratings and reviews (user-removed ones left out), with author details for judging trust. */
+export async function listForModeration(db: Database, status?: "visible" | "hidden", limit = 200): Promise<ModerationRow[]> {
+  const rows = await db
+    .select({
+      id: distroContributions.id,
+      slug: distros.slug,
+      name: distros.name,
+      username: users.username,
+      provider: users.provider,
+      accountCreatedAt: users.accountCreatedAt,
+      joinedAt: users.createdAt,
+      rating: distroContributions.rating,
+      usesIt: distroContributions.usesIt,
+      reviewBody: distroContributions.reviewBody,
+      status: distroContributions.status,
+      createdAt: distroContributions.createdAt,
+      updatedAt: distroContributions.updatedAt,
+      hiddenAt: distroContributions.hiddenAt,
+      hiddenReason: distroContributions.hiddenReason,
+    })
+    .from(distroContributions)
+    .innerJoin(users, eq(users.id, distroContributions.userId))
+    .innerJoin(distros, eq(distros.id, distroContributions.distroId))
+    .where(status ? eq(distroContributions.status, status) : ne(distroContributions.status, "removed"))
+    .orderBy(desc(distroContributions.updatedAt), desc(distroContributions.id))
+    .limit(limit);
+  const iso = (d: Date | null) => d?.toISOString() ?? null;
+  return rows.map((r) => ({
+    id: r.id,
+    distro: { slug: r.slug, name: r.name },
+    author: { username: r.username, provider: r.provider, accountCreatedAt: iso(r.accountCreatedAt), joinedAt: r.joinedAt.toISOString() },
+    rating: r.rating,
+    usesIt: r.usesIt,
+    reviewBody: r.reviewBody,
+    status: r.status,
+    createdAt: r.createdAt.toISOString(),
+    updatedAt: r.updatedAt.toISOString(),
+    hiddenAt: iso(r.hiddenAt),
+    hiddenReason: r.hiddenReason,
+  }));
 }

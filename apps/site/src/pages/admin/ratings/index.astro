@@ -1,0 +1,9 @@
+---
+import AdminShell from "../../../layouts/AdminShell.astro";
+import { AdminRatings } from "../../../components/AdminRatings";
+import { CardsSkeleton } from "../../../components/Skeleton";
+---
+
+<AdminShell title="Ratings" current="/admin/ratings/" lede="Newest ratings and reviews, with what we know about each account. Hide what breaks the rules.">
+  <AdminRatings client:only="react"><CardsSkeleton slot="fallback" label="Loading ratings" /></AdminRatings>
+</AdminShell>

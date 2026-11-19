@@ -887,6 +887,19 @@ html.cmdk-open { overflow: hidden; }
 .adm-key { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; font-size: 13px; }
 .adm-key::before { content: ""; width: 10px; height: 10px; border-radius: 2px; }
 .adm-email { overflow-wrap: anywhere; }
+.adm-reviews { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.adm-review { display: grid; gap: 8px; padding: 16px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+.adm-review.is-hidden { border-style: dashed; }
+.adm-review .note { margin: 0; }
+.adm-review-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 600; }
+.adm-stars { color: var(--star); letter-spacing: 1px; }
+.adm-review-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.adm-hide-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.adm-hide-form label { flex: 1 1 240px; }
+.adm-hide-form input { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: var(--pill); padding: 8px 16px; font-size: 14px; }
+.adm-hide-form .adm-toggle { margin: 0; }
+.adm-link { background: none; border: 0; padding: 8px; color: var(--ink2); text-decoration: underline; cursor: pointer; font-size: 14px; }
+.adm-toggle { justify-self: start; }
 .adm-nowrap { white-space: nowrap; }
 .adm-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
 .adm-gate { padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); color: var(--ink2); }

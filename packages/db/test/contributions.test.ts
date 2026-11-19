@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, expect, test } from "vitest";
 import type { PGlite } from "@electric-sql/pglite";
 import {
+  schema,
   initPgliteDb,
   upsertDistro,
   upsertUser,
@@ -8,7 +9,8 @@ import {
   softRemoveContribution,
   getMyContribution,
   getContributionAggregates,
-  setContributionStatusById,
+  moderateContribution,
+  listForModeration,
   listContributions,
   type Database,
 } from "../src/index.js";
@@ -67,12 +69,23 @@ test("smoothing pulls a distro with few ratings toward the site mean", async () 
   expect(agg.mean).toBe(5);
 });
 
-test("admin can hide a contribution by id", async () => {
+test("admin hide needs a reason, survives the user's edit, is logged, and unhides", async () => {
   await upsertContribution(db, { userId, distroId, rating: 5, usesIt: false, reviewBody: "x" });
-  const rows = await listContributions(db);
-  await setContributionStatusById(db, rows[0]!.id, "hidden");
-  const agg = (await getContributionAggregates(db)).get(distroId);
-  expect(agg).toBeUndefined(); // no visible rows remain
+  const id = (await listContributions(db))[0]!.id;
+  await expect(moderateContribution(db, id, "hide", userId, "  ")).rejects.toThrow("reason_required");
+  expect(await moderateContribution(db, id, "hide", userId, "spam link")).toBe(true);
+  expect(await moderateContribution(db, id, "hide", userId, "again")).toBe(false);
+  expect((await getContributionAggregates(db)).get(distroId)).toBeUndefined(); // no visible rows remain
+
+  // Editing a hidden rating doesn't bring it back.
+  await upsertContribution(db, { userId, distroId, rating: 4, usesIt: false, reviewBody: "edited" });
+  const [row] = await listForModeration(db, "hidden");
+  expect(row).toMatchObject({ id, status: "hidden", hiddenReason: "spam link", rating: 4, distro: { slug: expect.any(String) } });
+
+  expect(await moderateContribution(db, id, "unhide", userId)).toBe(true);
+  expect((await getContributionAggregates(db)).get(distroId)?.count).toBe(1);
+  const log = await db.select().from(schema.moderationLog);
+  expect(log.map((l) => [l.action, l.reason])).toEqual([["hide", "spam link"], ["unhide", null]]);
 });
 
 test("same username on two providers creates two distinct users", async () => {

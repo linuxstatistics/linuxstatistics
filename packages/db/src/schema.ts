@@ -302,6 +302,10 @@ export const distroContributions = pgTable(
     reviewBody: text("review_body"),
     source: contributionSourceEnum("source").notNull().default("user"),
     status: contributionStatusEnum("status").notNull().default("visible"),
+    /** Moderation: when and why an admin hid it (kept when unhidden, cleared only by a new hide). */
+    hiddenAt: timestamp("hidden_at", { withTimezone: true }),
+    hiddenReason: text("hidden_reason"),
+    hiddenBy: integer("hidden_by").references(() => users.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
@@ -409,4 +413,16 @@ export const gapReports = pgTable("gap_reports", {
   id: serial("id").primaryKey(),
   generatedAt: timestamp("generated_at", { withTimezone: true }).notNull(),
   report: jsonb("report").notNull(),
+});
+
+/** Moderation log: every hide and unhide, never edited or deleted by the app. */
+export const moderationLog = pgTable("moderation_log", {
+  id: serial("id").primaryKey(),
+  contributionId: integer("contribution_id")
+    .notNull()
+    .references(() => distroContributions.id, { onDelete: "cascade" }),
+  action: text("action").notNull(),
+  reason: text("reason"),
+  adminId: integer("admin_id").references(() => users.id, { onDelete: "set null" }),
+  at: timestamp("at", { withTimezone: true }).notNull().defaultNow(),
 });
