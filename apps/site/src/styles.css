@@ -887,6 +887,8 @@ html.cmdk-open { overflow: hidden; }
 .adm-key { display: inline-flex; align-items: center; gap: 4px; margin-left: 12px; font-size: 13px; }
 .adm-key::before { content: ""; width: 10px; height: 10px; border-radius: 2px; }
 .adm-email { overflow-wrap: anywhere; }
+.adm-inline-list { line-height: 1.9; }
+.adm .data-table.adm-narrow { width: auto; min-width: 280px; }
 .adm-reviews { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
 .adm-review { display: grid; gap: 8px; padding: 16px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
 .adm-review.is-hidden { border-style: dashed; }

@@ -1,0 +1,43 @@
+---
+import AdminShell from "../../../layouts/AdminShell.astro";
+import { AdminGateStatic } from "../../../components/AdminGateStatic";
+import { loadDistros } from "../../../lib/data";
+import { visualGaps } from "../../../lib/admin-visuals";
+
+const v = visualGaps(await loadDistros(), 100);
+const rankText = (r: number) => (r === Number.MAX_SAFE_INTEGER ? "–" : String(r));
+---
+
+<AdminShell title="Visuals" current="/admin/visuals/" lede="Distros still on a monogram or without a screenshot, and screenshots that show an old release. Top 100 by rank.">
+  <AdminGateStatic client:only="react" />
+  <div class="adm" id="adm-visuals">
+    <div class="adm-cards">
+      <div class="adm-card"><span class="adm-card-lbl">Logos</span><span class="adm-card-big">{v.logos}</span><span class="adm-card-sub">{v.monograms.length} of the top 100 still on a monogram</span></div>
+      <div class="adm-card"><span class="adm-card-lbl">Screenshots</span><span class="adm-card-big">{v.screenshots}</span><span class="adm-card-sub">{v.noScreenshot.length} of the top 100 without one</span></div>
+      <div class="adm-card"><span class="adm-card-lbl">Older release shown</span><span class="adm-card-big">{v.stale.length}</span><span class="adm-card-sub">checked {v.shotsChecked}</span></div>
+    </div>
+
+    <h2>Monograms</h2>
+    {v.monograms.length === 0 ? <p class="note">Every top-100 distro has a logo.</p> : (
+      <div class="table-scroll"><table class="data-table adm-narrow">
+        <thead><tr><th class="num">Rank</th><th>Distro</th></tr></thead>
+        <tbody>{v.monograms.map((d) => <tr><td class="num">{d.rank}</td><td><a href={`/distro/${d.slug}/`}>{d.name}</a></td></tr>)}</tbody>
+      </table></div>
+    )}
+    <p class="note">Sources in order: simple-icons, a free Wikimedia Commons file, then the project's own site or GitHub avatar. Skip a mark that's unreadable at 20 px or invisible on the dark theme.</p>
+
+    <h2>Screenshots showing an older release</h2>
+    {v.stale.length === 0 ? <p class="note">None.</p> : (
+      <div class="table-scroll"><table class="data-table">
+        <thead><tr><th class="num">Rank</th><th>Distro</th><th>Shows</th><th>Source</th></tr></thead>
+        <tbody>{v.stale.map((d) => <tr><td class="num">{rankText(d.rank)}</td><td><a href={`/distro/${d.slug}/`}>{d.name}</a></td><td>{d.caption}</td><td><a href={d.source} target="_blank" rel="noopener noreferrer" aria-describedby="new-tab-description" title="Opens in a new tab">Commons</a></td></tr>)}</tbody>
+      </table></div>
+    )}
+
+    <h2>No screenshot</h2>
+    {v.noScreenshot.length === 0 ? <p class="note">Every top-100 distro has one.</p> : (
+      <p class="adm-inline-list">{v.noScreenshot.map((d, i) => <>{i ? ", " : ""}<a href={`/distro/${d.slug}/`}>{d.name}</a> <span class="note">#{d.rank}</span></>)}</p>
+    )}
+    <p class="note">Free licence only, default desktop of a current release. An old or wrong desktop is worse than none.</p>
+  </div>
+</AdminShell>

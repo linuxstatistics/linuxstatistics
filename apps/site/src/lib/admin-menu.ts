@@ -6,6 +6,7 @@ export const ADMIN_MENU = [
   { href: "/admin/quiz/", label: "Quiz" },
   { href: "/admin/email/", label: "Email" },
   { href: "/admin/gaps/", label: "Gaps" },
+  { href: "/admin/visuals/", label: "Visuals" },
   { href: "/admin/sources/", label: "Data health" },
   { href: "/admin/rank/", label: "Rank" },
   { href: "/admin/affiliates/", label: "Affiliates" },
