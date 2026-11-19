@@ -1062,9 +1062,9 @@ html.cmdk-open { overflow: hidden; }
 .suggest-form .field span { font-size: 14px; font-weight: 600; }
 .suggest-form input[type="text"], .suggest-form input[type="email"], .suggest-form textarea { width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; font-size: 15px; }
 .suggest-form textarea { resize: vertical; min-height: 140px; line-height: 1.5; }
-.suggest-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-.suggest-form .primary, .suggest-done button { justify-self: start; background: var(--neon); color: var(--on-neon); font-weight: 600; border: 0; border-radius: var(--pill); padding: 11px 22px; cursor: pointer; }
-.suggest-form .primary:disabled { opacity: 0.5; cursor: wait; }
+.suggest-form .hp, .email-capture .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.suggest-form .primary, .suggest-done button, .email-action .primary { justify-self: start; background: var(--neon); color: var(--on-neon); font-weight: 600; border: 0; border-radius: var(--pill); padding: 11px 22px; cursor: pointer; }
+.suggest-form .primary:disabled, .email-action .primary:disabled { opacity: 0.5; cursor: wait; }
 .suggest-done { max-width: 640px; padding: 22px 24px; background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--up); border-radius: var(--radius); }
 .suggest-done h2 { margin: 0 0 6px !important; }
 .suggest-done p { margin: 0 0 14px; color: var(--ink2); }
@@ -1114,6 +1114,9 @@ html.cmdk-open { overflow: hidden; }
 .app-footer .sponsor-house-ad:hover { color: var(--neon); text-decoration: none; }
 .app-footer .sponsor-house-ad:hover span { opacity: 1; }
 .email-capture { display: grid; gap: 6px; }
+.email-action { display: grid; gap: 10px; justify-items: start; margin: 8px 0 24px; }
+.email-action-done, .email-action-problem { margin: 8px 0 24px; }
+.email-action-done h2 { margin-top: 0; }
 .email-capture-row { display: flex; gap: 6px; }
 .email-capture input { background: var(--bg); border: 1px solid var(--line); border-radius: var(--pill); padding: 10px 16px; min-width: 280px; }
 .email-capture button { background: var(--neon); color: var(--on-neon); border: 0; border-radius: var(--pill); padding: 10px 20px; font-weight: 600; cursor: pointer; }

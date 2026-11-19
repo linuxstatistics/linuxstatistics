@@ -198,7 +198,20 @@ export type StatsPayload = z.infer<typeof statsPayloadSchema>;
 export const emailSignupInputSchema = z.object({
   email: z.email().max(320),
   source: z.string().max(64).optional(),
+  /** Honeypot: hidden from people; a filled value means a bot. */
+  website: z.string().max(200).optional(),
 });
+
+export const emailTokenInputSchema = z.object({ token: z.string().min(10).max(600) });
+
+export interface EmailStatusSummary {
+  counts: { pending: number; confirmed: number; unsubscribed: number; legacy: number };
+  /**
+   * Signups from the last 7 days and how many of them have confirmed so far.
+   * Unconfirmed rows are deleted after 7 days, so older weeks can't be counted.
+   */
+  lastWeek: { signups: number; confirmed: number };
+}
 export type EmailSignupInput = z.infer<typeof emailSignupInputSchema>;
 
 export const SUGGESTION_KINDS = ["add-distro", "correction", "idea", "other"] as const;

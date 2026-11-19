@@ -1,0 +1,17 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { EmailAction } from "../../../components/EmailAction";
+---
+
+<Base
+  title="Confirm your email | LinuxStatistics"
+  description="Confirm your subscription to the State of Linux Distros, the monthly LinuxStatistics email about rising distros, releases and data changes."
+  noindex
+>
+  <article class="page prose email-page">
+    <h1>Confirm your email</h1>
+    <p class="lede">One click and you're on the list for the State of Linux Distros, our monthly email.</p>
+    <EmailAction client:load kind="confirm" />
+    <p class="source-note">We use your address only for this email. See our <a href="/privacy/">privacy policy</a>.</p>
+  </article>
+</Base>

@@ -94,6 +94,21 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npx --yes pnpm@12.14.0 --filter @linux-statistics/worker gaps --top 200 --save
 
+      # Newsletter list upkeep: purge unconfirmed signups after 7 days, day-7
+      # reminder and 30-day expiry for older signups, unsubscribe sync with
+      # Resend. Sending and sync need RESEND_API_KEY and EMAIL_LINK_SECRET (the
+      # same value as on Vercel); without them only the purge runs. Never fails the run.
+      - name: Email list upkeep
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_SEGMENT_ID: ${{ secrets.RESEND_SEGMENT_ID }}
+          EMAIL_LINK_SECRET: ${{ secrets.EMAIL_LINK_SECRET }}
+          WEB_ORIGIN: https://linuxstatistics.com
+          API_PUBLIC_URL: https://linuxstatistics.com
+        run: npx --yes pnpm@12.14.0 --filter @linux-statistics/worker email-list
+
       - name: Report failed sources
         if: steps.ingest.outputs.code == '1'
         run: |

@@ -19,7 +19,7 @@ import { registerAuthRoutes } from "./routes/auth.js";
 import { registerContributionRoutes } from "./routes/contributions.js";
 import { registerAdminRoutes } from "./routes/admin.js";
 import { registerAdminPages } from "./routes/admin-pages.js";
-import { registerEmailRoutes } from "./routes/email.js";
+import { registerEmailRoutes, type EmailRouteOptions } from "./routes/email.js";
 import { registerSuggestionRoutes } from "./routes/suggestions.js";
 import { registerPickerRoutes } from "./routes/picker.js";
 import { registerFirstPartyRoutes } from "./routes/first-party.js";
@@ -57,7 +57,12 @@ export function clientIp(req: FastifyRequest, env: NodeJS.ProcessEnv = process.e
   return req.ip;
 }
 
-export async function buildApp(db: Database): Promise<FastifyInstance> {
+export interface AppOptions {
+  /** Email sending and link settings; defaults come from the environment. */
+  email?: EmailRouteOptions;
+}
+
+export async function buildApp(db: Database, opts: AppOptions = {}): Promise<FastifyInstance> {
   const app = Fastify({ logger: false });
   app.register(cors, { origin: process.env.WEB_ORIGIN ?? true, credentials: true });
   await registerSession(app);
@@ -115,7 +120,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   registerContributionRoutes(app, db);
   registerAdminRoutes(app, db);
   registerAdminPages(app, db, process.env.ADMIN_PAGES_DIR);
-  registerEmailRoutes(app, db);
+  registerEmailRoutes(app, db, opts.email);
   registerSuggestionRoutes(app, db);
   registerPickerRoutes(app, db);
   registerFirstPartyRoutes(app, db);

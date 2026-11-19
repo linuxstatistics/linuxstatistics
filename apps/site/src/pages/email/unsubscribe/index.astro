@@ -1,0 +1,17 @@
+---
+import Base from "../../../layouts/Base.astro";
+import { EmailAction } from "../../../components/EmailAction";
+---
+
+<Base
+  title="Unsubscribe | LinuxStatistics"
+  description="Stop getting the State of Linux Distros, the monthly LinuxStatistics email. One click, no account needed, and we never mail the address again."
+  noindex
+>
+  <article class="page prose email-page">
+    <h1>Unsubscribe</h1>
+    <p class="lede">Stop getting the State of Linux Distros email.</p>
+    <EmailAction client:load kind="unsubscribe" />
+    <p class="source-note">Changed your mind later? Sign up again with the form at the bottom of any page.</p>
+  </article>
+</Base>

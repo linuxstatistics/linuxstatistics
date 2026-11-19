@@ -319,11 +319,24 @@ export const distroContributions = pgTable(
   }),
 );
 
+/**
+ * Newsletter list states. `legacy` = signed up before confirmation existed;
+ * those rows get one confirm email and a reminder, then are dropped.
+ */
+export const emailSignupStatusEnum = pgEnum("email_signup_status", ["pending", "confirmed", "unsubscribed", "legacy"]);
+
 export const emailSignups = pgTable("email_signups", {
   id: serial("id").primaryKey(),
   email: text("email").notNull().unique(),
   source: text("source"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  status: emailSignupStatusEnum("status").notNull().default("pending"),
+  /** SHA-256 of the single-use confirm token; cleared on confirm. */
+  confirmTokenHash: text("confirm_token_hash"),
+  confirmSentAt: timestamp("confirm_sent_at", { withTimezone: true }),
+  reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
+  confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  unsubscribedAt: timestamp("unsubscribed_at", { withTimezone: true }),
 });
 
 export const suggestionStatusEnum = pgEnum("suggestion_status", ["new", "done", "dismissed"]);

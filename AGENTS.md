@@ -74,7 +74,7 @@ Write endpoints require a session. Sign-in uses OAuth2 with GitHub, GitLab or Co
 
 - `apps/site/src/config/affiliate.ts`: provider referral links. Empty array hides the block.
 - `apps/site/src/config/sponsor.ts`: `sponsor` record or `null` (house ad); `sponsorContactHref`.
-- Email capture: `POST /api/email-signups` (public, rate-limited); export via `GET /api/admin/email-signups` (admin). Collect only; no sending.
+- Email list: double opt-in. `POST /api/email-signups` (public, rate-limited, honeypot `website`) stores a `pending` row and sends a confirm email; `/email/confirm/` and `/email/unsubscribe/` act only on a button press (mail scanners open links). Every email has RFC 8058 one-click headers pointing at `/api/email-signups/unsubscribe/one-click`. Mailer and templates: `packages/shared/src/mailer.ts` (node-only subpath, also used by the worker). Sending needs `RESEND_API_KEY` and `EMAIL_LINK_SECRET` (signs unsubscribe links; the same value on Vercel and in Actions); `RESEND_SEGMENT_ID` is the monthly list; `EMAIL_FROM`/`EMAIL_REPLY_TO` default to hello@. Without them signups are stored as `legacy` and nothing is sent. Daily upkeep: `pnpm --filter @linux-statistics/worker email-list` (`--count`, `--ask-legacy` once by hand).
 
 ## Frontend gotchas
 

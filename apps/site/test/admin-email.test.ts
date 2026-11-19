@@ -17,3 +17,12 @@ test("search matches email or page, case-insensitively", () => {
   expect(filterSignups(rows, "  example.n ").map((r) => r.id)).toEqual([3]);
   expect(filterSignups(rows, "nobody")).toEqual([]);
 });
+
+test("search also matches the status label", () => {
+  const withStatus: Signup[] = [
+    { id: 1, email: "a@example.com", source: "/", createdAt: "2026-11-10T09:00:00.000Z", status: "confirmed" },
+    { id: 2, email: "b@example.com", source: "/", createdAt: "2026-11-11T09:00:00.000Z", status: "pending" },
+  ];
+  expect(filterSignups(withStatus, "confirmed").map((r) => r.id)).toEqual([1]);
+  expect(filterSignups(withStatus, "waiting").map((r) => r.id)).toEqual([2]);
+});

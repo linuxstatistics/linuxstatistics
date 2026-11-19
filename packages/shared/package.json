@@ -8,6 +8,8 @@
     ".": "./src/index.ts",
     "./distro-marks": "./src/distro-marks.ts",
     "./marks-node": "./src/marks-node.ts",
+    "./email-tokens": "./src/email-tokens.ts",
+    "./mailer": "./src/mailer.ts",
     "./package.json": "./package.json"
   },
   "scripts": {

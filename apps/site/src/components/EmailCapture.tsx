@@ -3,6 +3,7 @@ import { useEmailSignup } from "../api";
 
 export function EmailCapture() {
   const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
   const [invalid, setInvalid] = useState(false);
   const signup = useEmailSignup();
 
@@ -13,8 +14,8 @@ export function EmailCapture() {
           <svg viewBox="0 0 16 16"><path d="M3.5 8.5L6.5 11.5L12.5 4.5" /></svg>
         </span>
         <span className="email-capture-done-text">
-          <strong>You're on the list.</strong>
-          <span>The first report arrives early next month. Unsubscribe any time.</span>
+          <strong>Check your inbox to confirm.</strong>
+          <span>We sent a link to {email}. Nothing arrives until you click it. Not there? Check spam.</span>
         </span>
       </div>
     );
@@ -27,7 +28,7 @@ export function EmailCapture() {
       return;
     }
     setInvalid(false);
-    signup.mutate({ email, source: "footer" });
+    signup.mutate({ email, source: "footer", ...(website ? { website } : {}) });
   };
 
   return (
@@ -45,6 +46,9 @@ export function EmailCapture() {
         />
         <button type="submit" disabled={signup.isPending}>Subscribe</button>
       </div>
+      <label className="hp" aria-hidden="true">
+        Website <input type="text" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} />
+      </label>
       {(invalid || signup.isError) && (
         <p id="email-capture-msg" className="email-capture-error" role="alert">
           <span className="email-capture-error-icon" aria-hidden="true">!</span>

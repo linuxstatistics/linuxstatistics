@@ -63,10 +63,20 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
       Your rating and review can be removed by you at any time from the distro page; moderators can hide spam or abuse.
     </p>
 
-    <h2>The monthly email</h2>
+    <h2 id="email">The monthly email</h2>
     <p>
-      If you subscribe, we store your email address, where you signed up (for example the footer) and when. We use it only to send the
-      State of Linux Distros report. Every email has an unsubscribe link, and we delete your address when you unsubscribe or ask us to.
+      If you subscribe, we store your email address, where you signed up (for example the footer) and when. We then send one email asking
+      you to confirm. Nothing else is sent until you do, and if you don't confirm within 7 days we delete the address. Once confirmed, we use
+      it only to send the State of Linux Distros report.
+    </p>
+    <p>
+      We don't track whether you open our emails or click their links: the emails have no tracking pixels, and links go straight to this
+      site. Every email has a one-click unsubscribe link. When you unsubscribe, we keep only the address and the dates you signed up and
+      left, marked as unsubscribed, so we never email it again. Ask us and we'll delete that too.
+    </p>
+    <p>
+      If you signed up before we started asking for confirmation, we'll ask you once to confirm, remind you once a week later, and delete
+      the address after 30 days if you don't.
     </p>
 
     <h2 id="quiz">The distro quiz</h2>
@@ -109,7 +119,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
     <ul>
       <li><strong>Vercel</strong>, which hosts the site{analytics.enabled && ", counts page views and measures load times"}.</li>
       <li><strong>Neon</strong>, which hosts the database.</li>
-      <li><strong>An email delivery service</strong>, only for subscribers and only to send the report.</li>
+      <li><strong>Resend</strong>, our email delivery service, only for subscribers: it sends the confirmation and the report and keeps the subscriber list.</li>
       <li><strong>GitHub, GitLab or Codeberg</strong>, only when you choose to sign in with them.</li>
     </ul>
     <p>We don't sell, rent or share your data for advertising. Some of these providers are in the United States; where the law requires, transfers are covered by their standard data-protection terms.</p>
@@ -117,7 +127,7 @@ const updated = new Date(`${POLICIES_UPDATED}T00:00:00Z`).toLocaleDateString("en
     <h2>How long we keep it</h2>
     <ul>
       <li>Account and contributions: until you ask us to delete them.</li>
-      <li>Email address: until you unsubscribe.</li>
+      <li>Email address: until you unsubscribe. Unconfirmed addresses: 7 days. After unsubscribing: only the address and the dates, so we don't email it again, until you ask us to delete it.</li>
       <li>Anonymous counts (page views, quizzes, fit votes, "helped me switch"): kept, because they can't be linked to you.</li>
       <li>Server logs: up to 30 days. Database backups: up to 30 days.</li>
     </ul>

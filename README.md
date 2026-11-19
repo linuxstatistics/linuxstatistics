@@ -68,9 +68,9 @@ After the monthly StatCounter run, `pnpm --filter @linux-statistics/worker month
 
 Production runs on Vercel with a hosted Postgres. `vercel.json` runs `scripts/vercel-build.mjs`, which migrates the database, starts the API locally to build the static site, bundles the API as one Vercel Function for `/api/*`, and writes `.vercel/output`. To try it locally against any Postgres: `DATABASE_URL=… NODE_ENV=production SESSION_SECRET=… node scripts/vercel-build.mjs`.
 
-Build and function settings: `DATABASE_URL` (pooled URL; the build migrates over the direct host), `SESSION_SECRET`, `API_PUBLIC_URL` and `WEB_ORIGIN` (the site's origin), `ADMIN_USERS` and OAuth client ids/secrets. Vercel Web Analytics loads only in Vercel production builds (`VERCEL_ENV=production`; enable Analytics on the project first). The function runs in the Vercel region nearest a Neon host, or `VERCEL_FUNCTION_REGION`.
+Build and function settings: `DATABASE_URL` (pooled URL; the build migrates over the direct host), `SESSION_SECRET`, `API_PUBLIC_URL` and `WEB_ORIGIN` (the site's origin), `ADMIN_USERS` and OAuth client ids/secrets, and for the email list `RESEND_API_KEY`, `RESEND_SEGMENT_ID` and `EMAIL_LINK_SECRET` (also set in Actions for the daily `email-list` step, same value). Vercel Web Analytics loads only in Vercel production builds (`VERCEL_ENV=production`; enable Analytics on the project first). The function runs in the Vercel region nearest a Neon host, or `VERCEL_FUNCTION_REGION`.
 
-`.github/workflows/ingest.yml` ingests daily on GitHub Actions (production environment secrets `DATABASE_URL`, repo secrets `GH_INGEST_TOKEN` and `VERCEL_DEPLOY_HOOK`), then triggers a Vercel rebuild. `.github/workflows/backup.yml` dumps the database nightly, encrypted with `age` to the `BACKUP_AGE_RECIPIENT` repo variable, kept 30 days as a workflow artifact.
+`.github/workflows/ingest.yml` ingests daily on GitHub Actions (production environment secrets `DATABASE_URL`, `RESEND_API_KEY`, `RESEND_SEGMENT_ID` and `EMAIL_LINK_SECRET`, repo secrets `GH_INGEST_TOKEN` and `VERCEL_DEPLOY_HOOK`), then triggers a Vercel rebuild. `.github/workflows/backup.yml` dumps the database nightly, encrypted with `age` to the `BACKUP_AGE_RECIPIENT` repo variable, kept 30 days as a workflow artifact.
 
 `deploy/` has example systemd units and timers for a self-hosted server.
 

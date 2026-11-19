@@ -23,7 +23,7 @@ export default defineConfig({
     react(),
     sitemap({
       // NOINDEX_PATHS lists pages built with a robots noindex (thin /best/ topics); keep them out too.
-      filter: (page) => !page.includes("/admin/") && !page.includes("/pick/match/") && !NOINDEX_PATHS.some((p) => page.endsWith(p)),
+      filter: (page) => !page.includes("/admin/") && !page.includes("/email/") && !page.includes("/pick/match/") && !NOINDEX_PATHS.some((p) => page.endsWith(p)),
       // lastmod is when the page's content last changed: the data date, an article's date, the policies date.
       // Pages without one get no lastmod rather than the build time.
       serialize: async (item) => {

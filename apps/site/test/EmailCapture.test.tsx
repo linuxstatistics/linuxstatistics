@@ -22,8 +22,10 @@ test("submitting a valid email posts and shows confirmation", async () => {
   render(withClient(<EmailCapture />));
   await user.type(screen.getByLabelText(/State of Linux Distros/i), "me@example.com");
   await user.click(screen.getByRole("button", { name: /subscribe/i }));
-  await waitFor(() => expect(screen.getByText(/you're on the list/i)).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByText(/check your inbox to confirm/i)).toBeInTheDocument());
+  expect(screen.getByText(/me@example\.com/)).toBeInTheDocument();
   expect(fetchMock).toHaveBeenCalledOnce();
+  expect(JSON.parse(fetchMock.mock.calls[0]![1].body)).toEqual({ email: "me@example.com", source: "footer" });
 });
 
 test("an invalid email shows an error and sends no request", async () => {
