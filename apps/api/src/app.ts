@@ -18,6 +18,7 @@ import { currentUser, registerSession } from "./lib/session.js";
 import { registerAuthRoutes } from "./routes/auth.js";
 import { registerContributionRoutes } from "./routes/contributions.js";
 import { registerAdminRoutes } from "./routes/admin.js";
+import { registerAdminPages } from "./routes/admin-pages.js";
 import { registerEmailRoutes } from "./routes/email.js";
 import { registerSuggestionRoutes } from "./routes/suggestions.js";
 import { registerPickerRoutes } from "./routes/picker.js";
@@ -113,6 +114,7 @@ export async function buildApp(db: Database): Promise<FastifyInstance> {
   registerAuthRoutes(app, db);
   registerContributionRoutes(app, db);
   registerAdminRoutes(app, db);
+  registerAdminPages(app, db, process.env.ADMIN_PAGES_DIR);
   registerEmailRoutes(app, db);
   registerSuggestionRoutes(app, db);
   registerPickerRoutes(app, db);

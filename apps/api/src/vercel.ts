@@ -1,4 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { fileURLToPath } from "node:url";
 import type { FastifyInstance } from "fastify";
 import { openDb } from "@linux-statistics/db";
 import { buildApp } from "./app.js";
@@ -8,6 +9,9 @@ import { buildApp } from "./app.js";
  * requests. Migrations run in the build and the data job, not here.
  */
 let ready: Promise<FastifyInstance> | undefined;
+
+// The build puts the admin pages next to this file; they're served to admins only.
+process.env.ADMIN_PAGES_DIR ??= fileURLToPath(new URL("./admin-pages/", import.meta.url));
 
 function app(): Promise<FastifyInstance> {
   ready ??= (async () => {

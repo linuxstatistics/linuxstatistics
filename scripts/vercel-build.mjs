@@ -112,6 +112,10 @@ async function main() {
   }
   if (process.env.SKIP_SITE_CHECK !== "1") await run("bash", ["scripts/check-site.sh"], { env: { ...process.env, DIST: join(SITE, "dist") } });
   cpSync(join(SITE, "dist"), join(OUT, "static"), { recursive: true });
+  // Admin pages never go out as static files: they move into the function,
+  // which serves them to admins only (apps/api/src/routes/admin-pages.ts).
+  const adminStatic = join(OUT, "static/admin");
+  if (!existsSync(join(adminStatic, "index.html"))) throw new Error("admin pages missing from the site build");
 
   // 3. The API as one function. sodium-native (session cookies) is a native addon, so it ships unbundled.
   log("bundling the API function");
@@ -145,6 +149,10 @@ async function main() {
   const sessionPkg = dirname(createRequire(join(ROOT, "apps/api/package.json")).resolve("@fastify/secure-session/package.json"));
   copyPackageTree("sodium-native", realpathSync(sessionPkg), fn);
   writeFileSync(join(fn, "package.json"), JSON.stringify({ type: "module" }));
+  cpSync(adminStatic, join(fn, "admin-pages"), { recursive: true });
+  cpSync(join(OUT, "static/404.html"), join(fn, "admin-pages/_404.html"));
+  rmSync(adminStatic, { recursive: true, force: true });
+  if (existsSync(adminStatic)) throw new Error("admin pages are still in the static output");
   writeFileSync(
     join(fn, ".vc-config.json"),
     JSON.stringify(
@@ -169,6 +177,8 @@ async function main() {
       { src: "^/api/(.*)$", headers: { "Cache-Control": "no-store" }, continue: true },
       // Old name for the articles section.
       { src: "^/blog(?:/(.*))?$", status: 301, headers: { Location: "/articles/$1" } },
+      // Admin pages: only through the function (admins get the page, everyone else the 404).
+      { src: "^/admin(?:/.*)?$", headers: { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" }, dest: "/api" },
       { handle: "filesystem" },
       { src: "^/api/.*$", dest: "/api" },
       // Directory pages without a trailing slash (e.g. /rising) serve their index.html.
