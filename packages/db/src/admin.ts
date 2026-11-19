@@ -5,6 +5,7 @@ import {
   affiliateClickDays,
   distroContributions,
   emailSignups,
+  gapReports,
   ingestionRuns,
   pickerFeedback,
   quizCompletions,
@@ -246,4 +247,32 @@ export async function quizStats(db: Database, now: Date = new Date()): Promise<Q
     switchTo: await tally(switchReports.nowUsing),
     totals: { completions: Number(tc?.n ?? 0), votes: fit.reduce((a, r) => a + Number(r.n), 0), switchReports: Number(tr?.n ?? 0) },
   };
+}
+
+const KEEP_GAP_REPORTS = 8;
+
+/** Save one gap report (the worker's JSON) and keep only the newest few. */
+export async function saveGapReport(db: Database, report: { generatedAt: string } & Record<string, unknown>): Promise<void> {
+  await db.insert(gapReports).values({ generatedAt: new Date(report.generatedAt), report });
+  const keep = await db.select({ id: gapReports.id }).from(gapReports).orderBy(desc(gapReports.generatedAt), desc(gapReports.id)).limit(KEEP_GAP_REPORTS);
+  if (keep.length === KEEP_GAP_REPORTS) {
+    await db.delete(gapReports).where(sql`${gapReports.id} not in (${sql.join(keep.map((k) => sql`${k.id}`), sql`, `)})`);
+  }
+}
+
+export interface AdminGaps {
+  /** Newest saved report, or null before the first weekly run. */
+  report: unknown | null;
+  /** Open "correction" and "add-distro" suggestions, newest first. */
+  suggestions: { id: number; kind: string; subject: string | null; message: string; createdAt: string }[];
+}
+
+export async function adminGaps(db: Database): Promise<AdminGaps> {
+  const [latest] = await db.select({ report: gapReports.report }).from(gapReports).orderBy(desc(gapReports.generatedAt), desc(gapReports.id)).limit(1);
+  const open = await db
+    .select({ id: suggestions.id, kind: suggestions.kind, subject: suggestions.subject, message: suggestions.message, createdAt: suggestions.createdAt })
+    .from(suggestions)
+    .where(and(eq(suggestions.status, "new"), sql`${suggestions.kind} in ('correction', 'add-distro')`))
+    .orderBy(desc(suggestions.createdAt), desc(suggestions.id));
+  return { report: latest?.report ?? null, suggestions: open.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() })) };
 }

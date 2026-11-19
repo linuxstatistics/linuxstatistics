@@ -12,8 +12,9 @@ import { politeGet, type FetchLike } from "./http.js";
 /**
  * Data-gap report: for each ranked distro, which curated or fetched pieces are
  * missing, plus proposals from free sources (endoflife.date products, Wikidata
- * source repositories). Read-only: it never writes curated files or the
- * database. A person reviews the proposals and commits the ones that check out.
+ * source repositories). It never writes curated files; `gaps --save` stores
+ * the report for the admin page. A person reviews the proposals and commits
+ * the ones that check out.
  */
 
 export const GAP_FIELDS = ["profile", "notes", "telemetry", "summary", "releaseYear", "homepage", "repo", "releases"] as const;

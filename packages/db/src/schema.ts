@@ -400,3 +400,13 @@ export const siteMetrics = pgTable("site_metrics", {
   value: integer("value").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
 });
+
+/**
+ * Data-gap reports from the worker's `gaps --save` run (weekly), newest kept
+ * for the admin gaps page. The report is the worker's JSON as-is.
+ */
+export const gapReports = pgTable("gap_reports", {
+  id: serial("id").primaryKey(),
+  generatedAt: timestamp("generated_at", { withTimezone: true }).notNull(),
+  report: jsonb("report").notNull(),
+});

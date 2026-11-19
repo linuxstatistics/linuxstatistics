@@ -134,6 +134,13 @@
       "when": 1795018299137,
       "tag": "0018_slippery_wolfsbane",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1795049685057,
+      "tag": "0019_friendly_lyja",
+      "breakpoints": true
     }
   ]
 }

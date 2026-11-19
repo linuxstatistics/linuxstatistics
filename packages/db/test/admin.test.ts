@@ -6,10 +6,12 @@ import {
   addQuizCompletion,
   addSuggestion,
   addSwitchReport,
+  adminGaps,
   adminSummary,
   initPgliteDb,
   quizStats,
   recentIngestionRuns,
+  saveGapReport,
   schema,
   sourceHealth,
   type Database,
@@ -90,4 +92,17 @@ test("quiz stats fill zero days, rank picks and codes per quiz, and tally votes 
   expect(q.switchFrom).toEqual([{ key: "windows", n: 1 }]);
   expect(q.switchTo).toEqual([{ key: "mint", n: 1 }]);
   expect(q.totals).toEqual({ completions: 4, votes: 2, switchReports: 1 });
+});
+
+test("gap reports: newest is served, only the last 8 are kept, open corrections listed", async () => {
+  expect((await adminGaps(db)).report).toBeNull();
+  for (let i = 1; i <= 10; i++) await saveGapReport(db, { generatedAt: `2026-11-${String(i).padStart(2, "0")}T00:00:00.000Z`, n: i });
+  const g = await adminGaps(db);
+  expect(g.report).toMatchObject({ n: 10 });
+  expect((await db.select().from(schema.gapReports)).length).toBe(8);
+  await addSuggestion(db, { kind: "correction", subject: "mint", message: "wrong first release year" });
+  await addSuggestion(db, { kind: "add-distro", message: "please add Foo OS to the list" });
+  const kinds = (await adminGaps(db)).suggestions.map((s) => s.kind).sort();
+  // The "idea" suggestion from the first test is not a data gap.
+  expect(kinds).toEqual(["add-distro", "correction"]);
 });

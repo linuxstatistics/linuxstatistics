@@ -850,7 +850,7 @@ html.cmdk-open { overflow: hidden; }
 .admin-menu a:hover { color: var(--ink); background: var(--row); }
 .admin-menu a[aria-current="page"] { color: var(--ink); background: var(--panel); box-shadow: inset 3px 0 0 var(--accent); }
 @media (max-width: 760px) {
-  .admin-shell { grid-template-columns: 1fr; gap: 16px; }
+  .admin-shell { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .admin-menu { position: static; display: flex; flex-wrap: wrap; gap: 4px; padding: 0; }
   .admin-menu a { padding: 8px 12px; min-height: 32px; }
 }

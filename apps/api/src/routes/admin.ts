@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { ingestionSourceSchema } from "@linux-statistics/shared";
 import {
+  adminGaps,
   adminSummary,
   listContributions,
   quizStats,
@@ -25,6 +26,8 @@ export function registerAdminRoutes(app: FastifyInstance, db: Database): void {
   app.get("/api/admin/summary", { preHandler: admin }, async () => adminSummary(db));
 
   app.get("/api/admin/quiz", { preHandler: admin }, async () => quizStats(db));
+
+  app.get("/api/admin/gaps", { preHandler: admin }, async () => adminGaps(db));
 
   app.get("/api/admin/sources/:source/runs", { preHandler: admin }, async (req, reply) => {
     const parsed = ingestionSourceSchema.safeParse((req.params as { source: string }).source);

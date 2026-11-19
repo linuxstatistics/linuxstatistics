@@ -46,7 +46,7 @@ test("admin can list and hide a contribution", async () => {
 });
 
 test("dashboard summary and run history are admin-only", async () => {
-  for (const url of ["/api/admin/summary", "/api/admin/sources/github/runs", "/api/admin/quiz", "/api/admin/email-signups", "/api/admin/email-signups.csv"]) {
+  for (const url of ["/api/admin/summary", "/api/admin/sources/github/runs", "/api/admin/quiz", "/api/admin/gaps", "/api/admin/email-signups", "/api/admin/email-signups.csv"]) {
     expect((await app.inject({ method: "GET", url })).statusCode, url).toBe(401);
     const userCookie = await loginAs(app, { providerUserId: "210", username: "plain" });
     expect((await app.inject({ method: "GET", url, headers: { cookie: userCookie } })).statusCode, url).toBe(403);
