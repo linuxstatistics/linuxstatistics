@@ -66,6 +66,8 @@ if grep -oE '<lastmod>[^<]*</lastmod>' "$DIST"/sitemap-[0-9]*.xml | grep -qvE '<
 grep -q '<loc>https://[^<]*/articles/how-we-rank-distros/</loc><lastmod>[0-9]' "$DIST"/sitemap-[0-9]*.xml && echo "ok:   articles have a lastmod" || { echo "FAIL: article without lastmod in the sitemap"; fail=1; }
 # The islands' list is internal: disallowed for crawlers and never in the sitemap.
 check robots.txt 'Disallow: /lists/' "robots.txt disallows /lists/"
+# Search-result lengths (Bing flags long titles and long or short descriptions). Limits in scripts/check-meta.py.
+if out=$(python3 "$(dirname "$0")/check-meta.py" "$DIST"); then echo "ok:   ${out##*$'\n'}"; else echo "$out" | sed 's/^/FAIL: /'; fail=1; fi
 # A bare `animation:` shorthand minifies to `animation:none` and silently kills
 # the named keyframes set elsewhere (seen on the brand mark, 2026-11-18).
 if grep -oE '^[^@]*\{[^}]*animation:none' "$DIST"/_astro/*.css 2>/dev/null | grep -qv 'prefers-reduced-motion'; then

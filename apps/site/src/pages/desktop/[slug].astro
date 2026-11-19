@@ -44,9 +44,9 @@ const pageFaq = page
 
 const title = page
   ? isWm
-    ? "Linux tiling window managers: i3, Sway, Hyprland and niri explained | LinuxStatistics"
-    : `${page.name} desktop: what it looks like, who it suits and which distros use it | LinuxStatistics`
-  : `${A!.name} vs ${B!.name}: which Linux desktop should you use? | LinuxStatistics`;
+    ? "Tiling window managers: i3, Sway, Hyprland, niri | LinuxStatistics"
+    : `${page.name} desktop: who it suits and which distros use it | LinuxStatistics`
+  : `${A!.name} vs ${B!.name}: which Linux desktop to use | LinuxStatistics`;
 const description = page ? `${page.summary} Which distros ship it, how it runs on older computers and Wayland status.` : pair!.verdict;
 const jsonLd = {
   "@graph": [

@@ -15,7 +15,7 @@ const site = Astro.site!.href.replace(/\/$/, "");
 ---
 
 <Base
-  title="Best Linux distro for… gaming, old laptops, developers and more | LinuxStatistics"
+  title="Best Linux distro for gaming, laptops and more | LinuxStatistics"
   description="The best Linux distributions for each use: beginners, gaming, NVIDIA, old laptops, low RAM, Raspberry Pi, developers, home servers, privacy and local AI. Ranked by our quiz engine."
   jsonLd={itemListNode(site, "Best Linux distro by use", topics.map(({ t }) => ({ name: t.title, href: `/best/${t.slug}/` })))}
 >

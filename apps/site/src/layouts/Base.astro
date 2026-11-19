@@ -18,6 +18,7 @@ import { OPERATOR, SEARCH_VERIFY, SOCIAL } from "../config/site";
 import { CRYPTO_ADDRESSES, SUPPORT_LINKS, hasSupport } from "../config/support";
 import { SupportBlock } from "../components/SupportBlock";
 import { analytics } from "../config/analytics";
+import { fitDescription, fitTitle } from "../lib/meta-length";
 import Analytics from "@vercel/analytics/astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
 
@@ -34,7 +35,10 @@ interface Props {
   breadcrumbs?: Crumb[];
 }
 
-const { title, description, jsonLd, noindex = false, image: pageImage, feed, breadcrumbs } = Astro.props;
+const { title: rawTitle, description: rawDescription, jsonLd, noindex = false, image: pageImage, feed, breadcrumbs } = Astro.props;
+// Search-result lengths: drop only the brand suffix from a long title, end a long description at a sentence.
+const title = fitTitle(rawTitle);
+const description = fitDescription(rawDescription);
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const siteUrl = Astro.site!.href.replace(/\/$/, "");
 const ld = pageGraph(siteUrl, { page: jsonLd, crumbs: breadcrumbs, url: canonical });

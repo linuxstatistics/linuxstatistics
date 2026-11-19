@@ -81,7 +81,7 @@ const switchFrom = (["windows", "mac"] as const).filter((f) =>
 const familyName = FAMILY_LABELS[data.family];
 const family_label = data.family === "independent" ? "independent" : `${familyName}-family`;
 
-const title = `${data.name}: who it's for, pros, cons and ratings | LinuxStatistics`;
+const title = `${data.name}: who it's for, pros and cons | LinuxStatistics`;
 const based = baseName ? `, based on ${baseName}` : "";
 const description = `${data.name} (${familyName} family${based}): who it suits, pros and cons, popularity, GitHub activity and community ratings.`;
 const jsonLd = {

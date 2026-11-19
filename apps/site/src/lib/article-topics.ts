@@ -64,7 +64,7 @@ export const ARTICLE_TOPICS = [
   {
     slug: "data",
     name: "Data and method",
-    intro: "Analysis built on our own numbers, and how we measure them.",
+    intro: "Analysis built on our own Linux distro numbers: rankings, interest and switching, and how we measure them.",
     related: [
       { label: "How we rank distros", href: "/about/#ranking" },
       { label: "Changelog", href: "/changelog/" },
