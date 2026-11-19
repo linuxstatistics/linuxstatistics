@@ -154,7 +154,9 @@ h1, h2, h3 { text-wrap: balance; }
 @keyframes brand-bar-2 { 0%, 100% { transform: scaleY(1); } 20% { transform: scaleY(0.758); } 40% { transform: scaleY(0.667); } 60% { transform: scaleY(0.879); } 80% { transform: scaleY(0.576); } }
 @keyframes brand-bar-3 { 0%, 100% { transform: scaleY(1); } 20% { transform: scaleY(0.735); } 40% { transform: scaleY(0.918); } 60% { transform: scaleY(0.653); } 80% { transform: scaleY(0.857); } }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .brand:hover .brand-mark-bar { animation: 1200ms ease-in-out infinite; }
+  /* No bare `animation:` shorthand here: with no name it means `animation: none`,
+     which the minifier keeps and which kills the per-bar names set below. */
+  .brand:hover .brand-mark-bar { animation-duration: 1200ms; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
   .brand:hover .brand-mark-bar:nth-of-type(1) { animation-name: brand-bar-1; }
   .brand:hover .brand-mark-bar:nth-of-type(2) { animation-name: brand-bar-2; }
   .brand:hover .brand-mark-bar:nth-of-type(3) { animation-name: brand-bar-3; }

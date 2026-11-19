@@ -66,6 +66,11 @@ if grep -oE '<lastmod>[^<]*</lastmod>' "$DIST"/sitemap-[0-9]*.xml | grep -qvE '<
 grep -q '<loc>https://[^<]*/articles/how-we-rank-distros/</loc><lastmod>[0-9]' "$DIST"/sitemap-[0-9]*.xml && echo "ok:   articles have a lastmod" || { echo "FAIL: article without lastmod in the sitemap"; fail=1; }
 # The islands' list is internal: disallowed for crawlers and never in the sitemap.
 check robots.txt 'Disallow: /lists/' "robots.txt disallows /lists/"
+# A bare `animation:` shorthand minifies to `animation:none` and silently kills
+# the named keyframes set elsewhere (seen on the brand mark, 2026-11-18).
+if grep -oE '^[^@]*\{[^}]*animation:none' "$DIST"/_astro/*.css 2>/dev/null | grep -qv 'prefers-reduced-motion'; then
+  echo "FAIL: minified CSS has animation:none outside reduced-motion (bare animation shorthand?)"; fail=1
+else echo "ok:   no animation:none outside reduced-motion blocks"; fi
 check lists/distros.json '"fields":\["slug","name"' "islands' distro list is built"
 if grep -q '/lists/' "$DIST"/sitemap-*.xml; then echo "FAIL: /lists/ is in the sitemap"; fail=1; else echo "ok:   /lists/ kept out of the sitemap"; fi
 # Page weight: distro lists load from /lists/, not the HTML. Keep every page under 100 KB (agents' page budget).
