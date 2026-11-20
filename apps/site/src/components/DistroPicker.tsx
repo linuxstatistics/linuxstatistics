@@ -236,6 +236,7 @@ export function DistroPicker({ distros, staticPairs = [], initialCode }: { distr
                 wifi: answers.wifi,
                 fossOnly: top.some((r) => profileOf.get(r.key)?.fossOnly),
                 desktop: (answers.device === undefined || answers.device === "pc") && answers.use !== "server",
+                antiCheat: answers.anticheat === "yes" || answers.anticheat === "unsure",
               })}
               bazzite={top.some((r) => r.key === "bazzite")}
               liveUsb={answers.use !== "server" && answers.device !== "pi" && answers.device !== "arm"}

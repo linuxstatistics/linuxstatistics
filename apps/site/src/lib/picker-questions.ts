@@ -23,6 +23,8 @@ export interface Answers {
   foss?: "yes" | "any";
   pkg?: Pkg | "any";
   wifi?: "intel" | "broadcom" | "realtek" | "mediatek" | "unsure";
+  /** Plays online games with anti-cheat. Scores nothing; it only adds a note to the results. */
+  anticheat?: "yes" | "no" | "unsure";
 }
 
 export type QuestionId = keyof Answers;
@@ -165,6 +167,13 @@ export const QUESTIONS: Question[] = [
     why: "Wi-Fi is the most common thing that doesn't work on first boot. Intel chips usually just work; some Broadcom and Realtek chips need extra drivers. On Windows: Device Manager → Network adapters. On a Mac: System Information → Network → Wi-Fi.",
     options: [["intel", "Intel"], ["broadcom", "Broadcom", "Common in older laptops and Intel Macs"], ["realtek", "Realtek", "Including most cheap USB adapters"], ["mediatek", "MediaTek"], ["unsure", "Not sure / wired only"]],
     show: (a) => desktopLike(a) && notServer(a) && a.level !== "new",
+  },
+  {
+    id: "anticheat",
+    legend: "Do you play online games with anti-cheat?",
+    why: "Some online games block Linux with anti-cheat, whichever distro you pick. This doesn't change your picks; it adds a note to your results.",
+    options: [["yes", "Yes", "Competitive shooters, battle royales and similar"], ["no", "No, single-player or none"], ["unsure", "Not sure"]],
+    show: (a) => a.use === "gaming" && desktopLike(a),
   },
 ];
 

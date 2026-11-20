@@ -50,6 +50,7 @@ export const BEST_TOPICS: BestTopic[] = [
     why: "They ship current graphics drivers, with Proton and gaming tools set up.",
     faq: [
       { q: "Can I play Windows games on Linux?", a: "Many, through Steam's Proton. Check each game on ProtonDB first; games with kernel-level anti-cheat often don't run." },
+      { q: "Which games won't run on Linux?", a: "Mostly online games whose anti-cheat blocks Linux. Kernel-level systems such as Riot Vanguard and EA's anti-cheat don't run at all, and Easy Anti-Cheat and BattlEye work only when the publisher turns on Linux support. This depends on the game, not the distro. Check each title on AreWeAntiCheatYet and ProtonDB before you switch." },
       { q: "Do I need a special distro for gaming?", a: "No, but gaming distros save setup: newer drivers, Steam and controller support out of the box." },
     ],
     related: ["nvidia", "beginners", "laptops"],

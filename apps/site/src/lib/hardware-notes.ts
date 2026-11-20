@@ -42,7 +42,21 @@ export const GRAPHICS_NOTE =
 export const LIVE_USB_NOTE =
   "Try it from a live USB first: Wi-Fi, sound and graphics should all work before you install.";
 
-export type HardwareRisk = "old-nvidia" | "intel-mac" | "wifi";
+/** When ANTI_CHEAT_NOTE was last checked against the two pages in ANTI_CHEAT_LINKS; shown on /best/gaming/. */
+export const ANTI_CHEAT_REVIEWED = "2026-11-20";
+
+export const ANTI_CHEAT_LINKS = {
+  tracker: { name: "AreWeAntiCheatYet", href: "https://areweanticheatyet.com/" },
+  proton: { name: "ProtonDB", href: "https://www.protondb.com/" },
+} as const;
+
+export const ANTI_CHEAT_NOTE =
+  "Many online games use anti-cheat that blocks Linux. Kernel-level systems, such as Riot Vanguard and EA's anti-cheat, don't run at all, and Easy Anti-Cheat and BattlEye work only when the publisher turns on Linux support. Single-player games rarely have this problem.";
+
+export const ANTI_CHEAT_ADVICE =
+  "Check each game you care about before you switch. Keeping Windows for a game that is blocked can be the right answer.";
+
+export type HardwareRisk = "old-nvidia" | "intel-mac" | "wifi" | "anti-cheat";
 
 export interface HardwareRiskInput {
   gpu?: string;
@@ -53,15 +67,18 @@ export interface HardwareRiskInput {
   fossOnly?: boolean;
   /** A desktop or laptop PC (not a server, Pi or ARM board); Wi-Fi only matters there. */
   desktop?: boolean;
+  /** They play online games, or aren't sure, so anti-cheat may block some of them. */
+  antiCheat?: boolean;
 }
 
 /** Hardware risks the answers point to. Empty when nothing specific applies. */
-export function hardwareRisks({ gpu, wifi, intelMac, fossOnly, desktop = true }: HardwareRiskInput): HardwareRisk[] {
+export function hardwareRisks({ gpu, wifi, intelMac, fossOnly, desktop = true, antiCheat }: HardwareRiskInput): HardwareRisk[] {
   const risks: HardwareRisk[] = [];
   if (gpu === "nvidia-old") risks.push("old-nvidia");
   if (intelMac) risks.push("intel-mac");
   const knownGood = wifi === "intel" || wifi === "mediatek";
   if (wifi === "broadcom" || wifi === "realtek" || intelMac || (desktop && fossOnly && !knownGood)) risks.push("wifi");
+  if (antiCheat && desktop) risks.push("anti-cheat");
   return risks;
 }
 
@@ -69,6 +86,7 @@ const RISK_HEADING: Record<HardwareRisk, string> = {
   "old-nvidia": "Your older NVIDIA card",
   "intel-mac": "Your Intel Mac",
   wifi: "Your Wi-Fi chip",
+  "anti-cheat": "Your online games",
 };
 
 /** Names the risk when there is one, so the box reads as specific advice, not boilerplate. */

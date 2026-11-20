@@ -265,6 +265,18 @@ test("new answers are appended, so launch codes still decode and new ones round-
   expect(ids({ level: "some", device: "pc" })).toContain("wifi");
 });
 
+test("the anti-cheat question is last, only for gamers on a PC, and scores nothing", () => {
+  expect(QUESTIONS.at(-1)!.id).toBe("anticheat");
+  expect(ids({ use: "gaming", device: "pc" })).toContain("anticheat");
+  expect(ids({ use: "gaming" })).toContain("anticheat");
+  expect(ids({ use: "everyday", device: "pc" })).not.toContain("anticheat");
+  expect(ids({ use: "gaming", device: "pi" })).not.toContain("anticheat");
+  const a: Answers = { from: "windows", use: "gaming", level: "some", device: "pc", anticheat: "yes" };
+  expect(decodeAnswers(encodeAnswers(a))).toEqual(a);
+  const base: Answers = { level: "some", use: "gaming", device: "pc" };
+  expect(suggest({ ...base, anticheat: "yes" }, PROFILES, rankOf).map((s) => s.key)).toEqual(suggest(base, PROFILES, rankOf).map((s) => s.key));
+});
+
 test("display order groups PCs, then Macs/boards, newest first, without changing share codes", () => {
   const device = QUESTIONS.find((q) => q.id === "device")!;
   expect(displayOptions(device).map(([v]) => v)).toEqual(["pc", "pc32", "pi", "arm"]);

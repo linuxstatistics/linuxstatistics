@@ -22,6 +22,29 @@ test("each real risk is named once", () => {
   expect(hardwareRisks({ fossOnly: true, desktop: false })).toEqual([]);
 });
 
+test("anti-cheat is a risk only for desktop players who said yes or unsure", () => {
+  expect(hardwareRisks({ antiCheat: true })).toEqual(["anti-cheat"]);
+  expect(hardwareRisks({ antiCheat: false })).toEqual([]);
+  expect(hardwareRisks({ antiCheat: true, desktop: false })).toEqual([]);
+  expect(hardwareHeading(["anti-cheat"])).toBe("Your online games");
+});
+
+test("the anti-cheat note links out to both lookups", () => {
+  render(<HardwareNotes risks={["anti-cheat"]} />);
+  expect(screen.getByText(/Anti-cheat:/)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "AreWeAntiCheatYet" })).toHaveAttribute("href", "https://areweanticheatyet.com/");
+  expect(screen.getByRole("link", { name: "ProtonDB" })).toHaveAttribute("href", "https://www.protondb.com/");
+});
+
+test("an anti-cheat-only note keeps the live-USB tip; hardware risks and servers don't add it", () => {
+  const { rerender } = render(<HardwareNotes risks={["anti-cheat"]} />);
+  expect(screen.getByText(/Try it from a live USB first/)).toBeInTheDocument();
+  rerender(<HardwareNotes risks={["anti-cheat"]} liveUsb={false} />);
+  expect(screen.queryByText(/Try it from a live USB first/)).toBeNull();
+  rerender(<HardwareNotes risks={["wifi", "anti-cheat"]} />);
+  expect(screen.queryByText(/Try it from a live USB first/)).toBeNull();
+});
+
 test("headings say what to check", () => {
   expect(hardwareHeading(["old-nvidia"])).toBe("Your older NVIDIA card");
   expect(hardwareHeading(["wifi"])).toBe("Your Wi-Fi chip");

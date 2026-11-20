@@ -1,4 +1,4 @@
-import { INTEL_MAC_NOTE, LIVE_USB_NOTE, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK, WIFI_NOTE, codeParts, hardwareHeading, type HardwareRisk } from "../lib/hardware-notes";
+import { ANTI_CHEAT_ADVICE, ANTI_CHEAT_LINKS, ANTI_CHEAT_NOTE, INTEL_MAC_NOTE, LIVE_USB_NOTE, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK, WIFI_NOTE, codeParts, hardwareHeading, type HardwareRisk } from "../lib/hardware-notes";
 
 export interface HardwareNoteInput {
   risks: HardwareRisk[];
@@ -7,6 +7,8 @@ export interface HardwareNoteInput {
   /** Show the one-line live-USB tip when there's no specific risk (off for servers and boards). */
   liveUsb?: boolean;
 }
+
+const EXT = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" } as const;
 
 function Text({ text }: { text: string }) {
   return <>{codeParts(text).map((p, i) => (p.code ? <code key={i}>{p.text}</code> : p.text))}</>;
@@ -41,9 +43,15 @@ export function HardwareNotes({ risks, bazzite, liveUsb = true }: HardwareNoteIn
           <span>Wi-Fi:</span> {WIFI_NOTE} <Text text={WIFI_HOW_TO_CHECK} />
         </p>
       )}
+      {risks.includes("anti-cheat") && (
+        <p>
+          <span>Anti-cheat:</span> {ANTI_CHEAT_NOTE} {ANTI_CHEAT_ADVICE} Look up your games on <a href={ANTI_CHEAT_LINKS.tracker.href} {...EXT}>{ANTI_CHEAT_LINKS.tracker.name}</a> and <a href={ANTI_CHEAT_LINKS.proton.href} {...EXT}>{ANTI_CHEAT_LINKS.proton.name}</a>.
+        </p>
+      )}
       <p className="hardware-notes-more">
         <a href="/switch/getting-started/#hardware">How to check your computer</a>
       </p>
+      {liveUsb && risks.every((r) => r === "anti-cheat") && <p className="hardware-tip">{LIVE_USB_NOTE}</p>}
     </div>
   );
 }

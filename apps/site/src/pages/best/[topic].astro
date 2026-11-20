@@ -10,6 +10,7 @@ import { loadDistros } from "../../lib/data";
 import { BEST_TOPICS, bestPicks, isIndexable, topicBySlug, type BestTopic } from "../../lib/best-for";
 import { PROFILES } from "../../lib/picker-profiles";
 import { encodeAnswers } from "../../lib/picker-questions";
+import { ANTI_CHEAT_ADVICE, ANTI_CHEAT_LINKS, ANTI_CHEAT_NOTE, ANTI_CHEAT_REVIEWED } from "../../lib/hardware-notes";
 import { telemetryFor, TELEMETRY_LABEL } from "../../lib/telemetry";
 import { faqNode, itemListNode } from "../../lib/structured-data";
 
@@ -92,6 +93,16 @@ const fmtTrend = (n: number | null) => (n == null || n === 0 ? null : n > 0 ? `u
             );
           })}
         </ol>
+      )}
+
+      {topic.slug === "gaming" && (
+        <section class="best-anticheat">
+          <h2>Check anti-cheat before you switch</h2>
+          <p>{ANTI_CHEAT_NOTE} {ANTI_CHEAT_ADVICE}</p>
+          <p>
+            Look up your games on <a href={ANTI_CHEAT_LINKS.tracker.href} {...ext}>{ANTI_CHEAT_LINKS.tracker.name}</a> (anti-cheat status) and <a href={ANTI_CHEAT_LINKS.proton.href} {...ext}>{ANTI_CHEAT_LINKS.proton.name}</a> (player reports). Both are run by volunteers, so check the date on each report. This section was last checked {new Date(`${ANTI_CHEAT_REVIEWED}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" })}.
+          </p>
+        </section>
       )}
 
       <section class="best-quiz">
