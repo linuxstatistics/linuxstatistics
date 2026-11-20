@@ -15,7 +15,7 @@ export type Command =
   | { kind: "distro"; id: string; label: string; href: string; rank: number | null }
   | { kind: "compare"; id: string; label: string; href: string }
   | { kind: "action"; id: string; label: string; action: "theme" }
-  | { kind: "link"; id: string; label: string; href: string; hint: string };
+  | { kind: "link"; id: string; label: string; href: string; hint: string; /** Extra words people might type. */ keywords?: string };
 
 /** Headed groups for pages, in display order. */
 export const PAGE_SECTIONS = ["Explore", "Choose a distro", "Reference", "About"] as const;
@@ -51,7 +51,10 @@ export const PAGE_COMMANDS: PageCommand[] = [
 
 const ACTIONS: Command[] = [{ kind: "action", id: "action:theme", label: "Switch theme (light / dark / system)", action: "theme" }];
 
-const FOLLOW: Command[] = SOCIAL.map((s) => ({ kind: "link", id: `link:${s.name}`, label: `Follow on ${s.name}`, href: s.href, hint: s.handle }));
+const FOLLOW: Command[] = [
+  ...SOCIAL.map((s): Command => ({ kind: "link", id: `link:${s.name}`, label: s.name, href: s.href, hint: s.handle })),
+  { kind: "link", id: "link:feed", label: "Feed (Atom)", href: "/feed.xml", hint: "/feed.xml", keywords: "rss subscribe" },
+];
 
 const pageCmd = (p: PageCommand): Command => ({ kind: "page", id: `page:${p.href}`, label: p.label, href: p.href, section: p.section });
 const distroCmd = (d: SearchItem): Command => ({
@@ -112,7 +115,7 @@ export function searchCommands(
   const groups = best(found) > best(pages) ? [found, pages] : [pages, found];
   for (const g of groups) out.push(...g);
   out.push(...ACTIONS.filter((a) => hit(a.label)));
-  out.push(...FOLLOW.filter((f) => f.kind === "link" && hit(`${f.label} ${f.hint}`)));
+  out.push(...FOLLOW.filter((f) => f.kind === "link" && hit(`follow on ${f.label} ${f.hint} ${f.keywords ?? ""}`)));
   return out.slice(0, limit);
 }
 

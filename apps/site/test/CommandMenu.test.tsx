@@ -20,13 +20,16 @@ test("empty query is the menu: every page, then the top distros by rank, actions
   expect(r.filter((c) => c.kind === "page")).toHaveLength(PAGE_COMMANDS.length);
   expect(r.filter((c) => c.kind === "distro").map((c) => c.label)).toEqual(["Mint", "MX Linux", "Fedora"]);
   expect(groupCommands(r).map((g) => g.label)).toEqual(["Explore", "Choose a distro", "Reference", "About", "Distros", "Actions", "Follow"]);
-  expect(r.at(-1)).toMatchObject({ kind: "link", href: "https://mastodon.social/@linuxstatistics" });
+  expect(r.at(-2)).toMatchObject({ kind: "link", href: "https://mastodon.social/@linuxstatistics" });
+  expect(r.at(-1)).toMatchObject({ kind: "link", href: "/feed.xml" });
 });
 
 test("typing puts the best-matching group first", () => {
   expect(groupCommands(searchCommands("mint", items))[0]!.kind).toBe("distro");
   expect(groupCommands(searchCommands("rising", items))[0]!.kind).toBe("page");
-  expect(searchCommands("bluesky", items)[0]).toMatchObject({ kind: "link", label: "Follow on Bluesky" });
+  expect(searchCommands("bluesky", items)[0]).toMatchObject({ kind: "link", label: "Bluesky" });
+  expect(searchCommands("follow on bluesky", items)[0]).toMatchObject({ kind: "link", label: "Bluesky" });
+  expect(searchCommands("rss", items)[0]).toMatchObject({ kind: "link", href: "/feed.xml" });
 });
 
 test("typing a name finds distros and pages by keyword", () => {
