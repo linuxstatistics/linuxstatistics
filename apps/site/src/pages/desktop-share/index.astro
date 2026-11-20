@@ -28,6 +28,8 @@ const jsonLd = {
   description: "Yearly average desktop OS market share worldwide, from StatCounter Global Stats monthly figures.",
   temporalCoverage: first && last ? `${first.year}/${last.year}` : undefined,
   isBasedOn: sc,
+  // Spelled out in full: Google's Dataset check doesn't resolve an @id-only reference.
+  creator: { "@type": "Organization", "@id": `${new URL("/", Astro.site).origin}/#org`, name: "LinuxStatistics", url: new URL("/", Astro.site).href },
   license: "https://creativecommons.org/licenses/by-sa/3.0/",
   distribution: [{ "@type": "DataDownload", encodingFormat: "text/csv", contentUrl: new URL("/data/market-share.csv", Astro.site).href }],
 };

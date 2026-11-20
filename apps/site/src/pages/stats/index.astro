@@ -30,6 +30,8 @@ const jsonLd = {
   description: "Totals for the Linux distros LinuxStatistics tracks: desktop share, distros by family, releases and end-of-support dates, and GitHub activity.",
   url: new URL("/stats/", Astro.site).href,
   dateModified: stats.generatedAt,
+  // Spelled out in full: Google's Dataset check doesn't resolve an @id-only reference.
+  creator: { "@type": "Organization", "@id": `${new URL("/", Astro.site).origin}/#org`, name: "LinuxStatistics", url: new URL("/", Astro.site).href },
   isBasedOn: ["https://gs.statcounter.com/os-market-share/desktop/worldwide", "https://endoflife.date/", "https://www.wikidata.org/"],
   distribution: [{ "@type": "DataDownload", encodingFormat: "application/json", contentUrl: new URL("/data/distros.json", Astro.site).href }],
 };
