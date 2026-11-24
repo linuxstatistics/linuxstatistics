@@ -7,7 +7,7 @@ import MiamiEntry from "../../../components/MiamiEntry.astro";
 import { faqNode } from "../../../lib/structured-data";
 import { CONTACT } from "../../../config/site";
 import { MIAMI_DISCLAIMER, MIAMI_MARKS_NOTE, MIAMI_ONLINE_NOTE, MIAMI_RAM_LINUX, MIAMI_REVIEWED, MIAMI_SOURCES, MIAMI_STORAGE_NOTE, RDR2_PROTON, TARGETS } from "../../../lib/miami-targets";
-import { EVIDENCE, GAMING_LINKS, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../../../lib/miami-status";
+import { EVIDENCE, GAMING_LINKS, MIAMI_ANSWER, MIAMI_PUBLISHED, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../../../lib/miami-status";
 import { OLD_NVIDIA_NOTE } from "../../../lib/hardware-notes";
 
 const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
@@ -17,6 +17,22 @@ const stale = statusIsStale(today);
 const evidenceById = new Map(EVIDENCE.map((e) => [e.id, e]));
 const rdr2Reports = RDR2_PROTON.reports.toLocaleString("en-US");
 const { recent, older } = splitFeed(EVIDENCE);
+const PAGE_TITLE = "GTA VI PC requirements and Linux: what we know | LinuxStatistics";
+const siteOrigin = new URL("/", Astro.site).href.replace(/\/$/, "");
+const pageUrl = `${siteOrigin}/can-i-run/gta-vi/`;
+/** The page, with its dates and the organization as author and publisher (the same byline articles use). */
+const pageNode = {
+  "@type": "WebPage",
+  "@id": `${pageUrl}#webpage`,
+  url: pageUrl,
+  name: PAGE_TITLE.replace(" | LinuxStatistics", ""),
+  isPartOf: { "@id": `${siteOrigin}/#website` },
+  datePublished: MIAMI_PUBLISHED,
+  dateModified: STATUS_REVIEWED,
+  author: { "@id": `${siteOrigin}/#org` },
+  publisher: { "@id": `${siteOrigin}/#org` },
+  inLanguage: "en",
+};
 const faq = [
   { q: "Can I play GTA VI on PC?", a: "Not officially. GTA VI came out on November 19, 2026 for PS5 and Xbox Series X|S, and Rockstar has not announced a PC version or PC requirements." },
   { q: "Will GTA VI run on Linux?", a: `Not officially, because there is no PC release and so no Steam or Proton path yet. Some unofficial projects claim runs on Linux, but those are their own unverified claims. If Rockstar ships a PC version, Proton may run it as it does Red Dead Redemption 2 (rated ${RDR2_PROTON.tier} on ProtonDB), but online anti-cheat can block Linux. Check ProtonDB and AreWeAntiCheatYet after release.` },
@@ -30,9 +46,9 @@ const faq = [
 ---
 
 <Base
-  title="Can your PC run GTA VI? RDR2-based check | LinuxStatistics"
+  title={PAGE_TITLE}
   description="GTA VI has no PC specs yet. Check your GPU, CPU and RAM against Red Dead Redemption 2's requirements and a PS5-class estimate, with Linux notes."
-  jsonLd={faqNode(faq)}
+  jsonLd={{ "@graph": [pageNode, faqNode(faq)] }}
   pageTheme="miami"
   image={new URL("/miami/share.jpg", Astro.site).href}
   breadcrumbs={[{ name: "Best Linux for…", href: "/best/" }, { name: "Gaming", href: "/best/gaming/" }, { name: "Can your PC run GTA VI?" }]}
@@ -46,11 +62,15 @@ const faq = [
         <nav class="miami-crumb" aria-label="Breadcrumb"><a href="/best/">Best Linux for…</a> / <a href="/best/gaming/">Gaming</a> / Can your PC run GTA VI?</nav>
         <span class="miami-chip">No PC version announced · unofficial estimate</span>
         <h1 class="miami-h1" id="miami-h1"><span>Can your PC run GTA&nbsp;VI?</span></h1>
-        <p class="miami-lede">Pick your graphics card, processor and memory. We compare them with Red Dead Redemption 2's PC requirements and a PS5-class target, then tell you what Linux and Proton add.</p>
+        <p class="miami-lede">Pick your graphics card, processor and memory to see where your PC lands, and what Linux and Proton add.</p>
       </div>
     </section>
 
     <div class="miami-body">
+      <p class="miami-answer">{MIAMI_ANSWER}</p>
+      <p class="miami-byline">
+        <time datetime={STATUS_REVIEWED}>Updated {longDate(STATUS_REVIEWED)}</time> · Maintained by <a href="/about/">LinuxStatistics</a>
+      </p>
       <div class="miami-grid">
           <div class="miami-check">
             <h2>Check your PC</h2>

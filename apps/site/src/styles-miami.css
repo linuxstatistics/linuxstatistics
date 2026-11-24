@@ -234,8 +234,13 @@
 .miami-linux p { margin: 0 0 10px; font-size: 14.5px; }
 .miami-linux p:last-child { margin-bottom: 0; }
 
+/* ---------- The answer first, then who keeps it current ---------- */
+.miami-body > .miami-answer { margin: 0; max-width: 72ch; font-size: 18px; line-height: 1.55; font-weight: 500; }
+.miami-body > .miami-byline { margin: 10px 0 36px; font-size: 13.5px; color: var(--g-muted); }
+.miami-byline time { font-weight: 600; }
+
 /* ---------- Two columns: the main flow and a sidebar ---------- */
-.miami-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; column-gap: 56px; align-items: start; margin-top: 8px; }
+.miami-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; column-gap: 56px; align-items: start; }
 /* DOM order is checker, sidebar, rest, so keyboard and screen-reader order matches what is read first.
    On wide screens the sidebar spans both rows beside the checker and the rest. */
 .miami-check { grid-column: 1; grid-row: 1; }

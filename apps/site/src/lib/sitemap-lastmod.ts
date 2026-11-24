@@ -3,6 +3,7 @@ import { join } from "node:path";
 import type { Meta } from "@linux-statistics/shared";
 import { POLICIES_UPDATED } from "../config/site";
 import { readFrontmatter } from "./frontmatter";
+import { STATUS_REVIEWED } from "./miami-status";
 
 /**
  * Sitemap <lastmod> per page: the date its main content last changed, not the
@@ -40,6 +41,8 @@ const POLICY_PAGES = new Set(["/privacy/", "/terms/"]);
 export function lastmodFor(url: string, ctx: LastmodContext): string | undefined {
   const path = new URL(url).pathname;
   if (POLICY_PAGES.has(path)) return ctx.policies;
+  // Kept by hand, so its date is the one the page itself shows as "Updated".
+  if (path === "/can-i-run/gta-vi/") return STATUS_REVIEWED;
   const article = path.match(/^\/articles\/([^/]+)\/$/);
   if (article && ctx.articles[article[1]!]) return ctx.articles[article[1]!];
   // The articles index and topic hubs change when an article is added or updated.

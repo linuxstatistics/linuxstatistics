@@ -1,6 +1,7 @@
 import { resolve } from "node:path";
 import { expect, test } from "vitest";
 import { articleDates, dataDate, lastmodFor, type LastmodContext } from "../src/lib/sitemap-lastmod";
+import { STATUS_REVIEWED } from "../src/lib/miami-status";
 
 const SITE = "https://linuxstatistics.com";
 const ctx: LastmodContext = {
@@ -42,4 +43,9 @@ test("every published article has a date in the sitemap", () => {
   const dates = articleDates(resolve(process.cwd(), "apps/site/src/content/articles"));
   expect(Object.keys(dates).length).toBeGreaterThan(0);
   for (const d of Object.values(dates)) expect(d).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+});
+
+test("the hand-kept PC check page carries the date it shows as updated", () => {
+  expect(lastmodFor(`${SITE}/can-i-run/gta-vi/`, ctx)).toBe(STATUS_REVIEWED);
+  expect(lastmodFor(`${SITE}/can-i-run/gta-vi/`, { ...ctx, data: null })).toBe(STATUS_REVIEWED);
 });
