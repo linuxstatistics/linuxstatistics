@@ -1,5 +1,6 @@
 /* "Can your PC run GTA VI?" card and page. Everything lives under .miami so it can't leak into the rest of the site.
-   Dark by design (a night drive in Miami), whatever the site theme is. */
+   The card on other pages is always the night-drive look (it sits on its own picture). The page follows the site's
+   theme: night colors in dark, a daytime pastel Miami in light (see the token block under "Page"). */
 .miami {
   --g-night: oklch(0.17 0.07 295);
   --g-night2: oklch(0.23 0.1 305);
@@ -93,21 +94,97 @@
 }
 
 /* ---------- Page ---------- */
-.miami-page { background: var(--g-night); min-height: 60vh; }
+/* The page follows the site theme (System, Light or Dark): color-scheme is inherited from the root, so light-dark() picks
+   the right side. The dark values are the original night colors. Light text on dark and dark text on light both pass 4.5:1. */
+.miami-page {
+  color-scheme: inherit;
+  --g-night: light-dark(oklch(0.975 0.014 85), oklch(0.17 0.07 295));
+  --g-night2: light-dark(oklch(0.955 0.03 350), oklch(0.23 0.1 305));
+  --g-panel: light-dark(oklch(0.995 0.005 85), oklch(0.21 0.08 300));
+  --g-line: light-dark(oklch(0.6 0.12 340), oklch(0.42 0.14 330));
+  --g-pink: light-dark(oklch(0.6 0.23 350), oklch(0.72 0.25 350));
+  --g-orange: light-dark(oklch(0.5 0.14 50), oklch(0.8 0.17 55));
+  --g-yellow: light-dark(oklch(0.46 0.1 85), oklch(0.9 0.14 95));
+  --g-cyan: light-dark(oklch(0.45 0.1 210), oklch(0.86 0.13 200));
+  --g-cream: light-dark(oklch(0.22 0.06 300), oklch(0.96 0.02 85));
+  --g-muted: light-dark(oklch(0.42 0.04 300), oklch(0.8 0.04 300));
+  --g-bad: light-dark(oklch(0.5 0.2 25), oklch(0.74 0.2 20));
+  --g-rule: light-dark(oklch(0.86 0.03 330), oklch(0.32 0.09 300));
+  --g-code: light-dark(oklch(0.92 0.02 330), oklch(0.28 0.08 300));
+  --g-off: light-dark(oklch(0.86 0.03 320), oklch(0.34 0.08 300));
+  --g-field: light-dark(oklch(1 0 0), oklch(0.15 0.06 295));
+  --g-soft: light-dark(oklch(0.94 0.04 350), oklch(0.28 0.1 320));
+  --g-target: light-dark(oklch(0.93 0.05 350), oklch(0.26 0.1 320));
+  --g-stale-bg: light-dark(oklch(0.96 0.03 20), oklch(0.24 0.09 20));
+  --g-stale-line: light-dark(oklch(0.55 0.2 20), oklch(0.7 0.19 20 / 0.55));
+  --g-warn-bg: light-dark(oklch(0.97 0.03 70), oklch(0.23 0.09 315));
+  --g-warn-line: light-dark(oklch(0.58 0.14 55), oklch(0.8 0.17 55 / 0.5));
+  --g-on-cyan: light-dark(oklch(0.99 0.005 200), oklch(0.2 0.08 220));
+  --g-scrim-1: light-dark(oklch(0.975 0.014 85 / 0.92), oklch(0.17 0.07 295 / 0.62));
+  --g-scrim-2: light-dark(oklch(0.975 0.014 85 / 0.62), oklch(0.17 0.07 295 / 0.3));
+  --g-lede-bg: light-dark(oklch(0.975 0.014 85 / 0.84), oklch(0.17 0.07 295 / 0.72));
+  --g-halo: light-dark(oklch(0.975 0.014 85 / 0.9), oklch(0.17 0.07 295 / 0.8));
+  --g-h1-shadow: 3px 3px 0 light-dark(oklch(0.86 0.1 350), oklch(0.45 0.22 350)), 0 0 28px light-dark(oklch(0.975 0.014 85 / 0.8), oklch(0.7 0.25 350 / 0.45));
+  --g-sky-1: light-dark(oklch(0.93 0.05 290), oklch(0.17 0.07 295));
+  --g-sky-2: light-dark(oklch(0.9 0.07 320), oklch(0.27 0.15 305));
+  --g-sky-3: light-dark(oklch(0.88 0.09 350), oklch(0.5 0.24 340));
+  --g-sky-4: light-dark(oklch(0.92 0.1 70), oklch(0.72 0.19 45));
+  background: var(--g-night);
+  min-height: 60vh;
+}
+/* Browsers without light-dark() (before Chrome 123, Safari 17.5, Firefox 120) keep the night colors. */
+@supports not (color: light-dark(#000, #fff)) {
+  .miami-page {
+    --g-night: oklch(0.17 0.07 295);
+    --g-night2: oklch(0.23 0.1 305);
+    --g-panel: oklch(0.21 0.08 300);
+    --g-line: oklch(0.42 0.14 330);
+    --g-pink: oklch(0.72 0.25 350);
+    --g-orange: oklch(0.8 0.17 55);
+    --g-yellow: oklch(0.9 0.14 95);
+    --g-cyan: oklch(0.86 0.13 200);
+    --g-cream: oklch(0.96 0.02 85);
+    --g-muted: oklch(0.8 0.04 300);
+    --g-bad: oklch(0.74 0.2 20);
+    --g-rule: oklch(0.32 0.09 300);
+    --g-code: oklch(0.28 0.08 300);
+    --g-off: oklch(0.34 0.08 300);
+    --g-field: oklch(0.15 0.06 295);
+    --g-soft: oklch(0.28 0.1 320);
+    --g-target: oklch(0.26 0.1 320);
+    --g-stale-bg: oklch(0.24 0.09 20);
+    --g-stale-line: oklch(0.7 0.19 20 / 0.55);
+    --g-warn-bg: oklch(0.23 0.09 315);
+    --g-warn-line: oklch(0.8 0.17 55 / 0.5);
+    --g-on-cyan: oklch(0.2 0.08 220);
+    --g-scrim-1: oklch(0.17 0.07 295 / 0.62);
+    --g-scrim-2: oklch(0.17 0.07 295 / 0.3);
+    --g-lede-bg: oklch(0.17 0.07 295 / 0.72);
+    --g-halo: oklch(0.17 0.07 295 / 0.8);
+    --g-h1-shadow: 3px 3px 0 oklch(0.45 0.22 350), 0 0 28px oklch(0.7 0.25 350 / 0.45);
+    --g-sky-1: oklch(0.17 0.07 295);
+    --g-sky-2: oklch(0.27 0.15 305);
+    --g-sky-3: oklch(0.5 0.24 340);
+    --g-sky-4: oklch(0.72 0.19 45);
+  }
+}
+.miami-page .miami-sky { background: radial-gradient(60% 55% at 50% 72%, oklch(0.74 0.2 40 / 0.55), transparent 70%), linear-gradient(180deg, var(--g-sky-1) 0%, var(--g-sky-2) 38%, var(--g-sky-3) 72%, var(--g-sky-4) 100%); }
 .miami-hero { position: relative; isolation: isolate; overflow: hidden; min-height: 460px; display: grid; align-items: end; }
 .miami-hero .miami-sky { position: absolute; inset: 0; z-index: -2; }
 .miami-hero-img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 30% 70%; }
+/* Two pictures, one per theme; only the matching one is shown. The light one is lazy, so dark visitors never fetch it;
+   light visitors still load the night one, which is eager. */
+.miami-hero-img-light { display: none; object-position: 50% 62%; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .miami-hero-img-dark { display: none; }
+  :root:not([data-theme="dark"]) .miami-hero-img-light { display: block; }
+}
+:root[data-theme="light"] .miami-hero-img-dark { display: none; }
+:root[data-theme="light"] .miami-hero-img-light { display: block; }
 /* Night backing from the left so the headline and lede stay readable over the picture. */
 /* The picture fades up into the site's own background, so the header area flows into it instead of ending on a hard edge. */
 .miami-hero { --miami-fade: 130px; }
-.miami-hero-scrim { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, var(--bg) 0, color-mix(in oklch, var(--bg) 55%, transparent) calc(var(--miami-fade) * 0.45), transparent var(--miami-fade)), linear-gradient(90deg, oklch(0.17 0.07 295 / 0.62) 0%, oklch(0.17 0.07 295 / 0.3) 45%, transparent 75%), linear-gradient(180deg, transparent 70%, var(--g-night) 100%); }
-/* In the light theme the fade starts from near-white, which the cream breadcrumb can't sit on: fade over a shorter distance and start the text below it. */
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) .miami-hero { --miami-fade: 60px; }
-  :root:not([data-theme="dark"]) .miami-hero-inner { padding-top: 70px; }
-}
-:root[data-theme="light"] .miami-hero { --miami-fade: 60px; }
-:root[data-theme="light"] .miami-hero-inner { padding-top: 70px; }
+.miami-hero-scrim { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, var(--bg) 0, color-mix(in oklch, var(--bg) 55%, transparent) calc(var(--miami-fade) * 0.45), transparent var(--miami-fade)), linear-gradient(90deg, var(--g-scrim-1) 0%, var(--g-scrim-2) 45%, transparent 75%), linear-gradient(180deg, transparent 70%, var(--g-night) 100%); }
 
 .miami-hero-inner, .miami-body { max-width: 1180px; margin: 0 auto; padding: 0 var(--gutter); width: 100%; }
 .miami-hero-inner { padding-top: 34px; padding-bottom: 120px; }
@@ -118,15 +195,15 @@
   font: 900 clamp(40px, 8vw, 84px)/0.98 var(--display);
   letter-spacing: -0.03em;
   margin: 14px 0 14px;
-  text-shadow: 3px 3px 0 oklch(0.45 0.22 350), 0 0 28px oklch(0.7 0.25 350 / 0.45);
+  text-shadow: var(--g-h1-shadow);
   text-wrap: balance;
 }
 .miami-h1 span { display: inline-block; transform: skewX(-6deg); }
-.miami-lede { font-size: 17px; line-height: 1.55; max-width: 58ch; margin: 0; color: var(--g-cream); text-shadow: 0 1px 12px oklch(0.17 0.07 295 / 0.8); }
+.miami-lede { font-size: 17px; line-height: 1.55; max-width: 58ch; margin: 0; color: var(--g-cream); text-shadow: 0 1px 12px var(--g-halo); }
 
 @media (max-width: 700px) {
   /* On a narrow screen the text sits over the sun: give it a night backing so it stays readable. */
-  .miami-hero-inner > .miami-lede { padding: 12px 14px; border-radius: 12px; background: oklch(0.17 0.07 295 / 0.72); text-shadow: none; }
+  .miami-hero-inner > .miami-lede { padding: 12px 14px; border-radius: 12px; background: var(--g-lede-bg); text-shadow: none; }
   /* The hero is only as tall as its text plus a short fade: the big bottom gap is for wide screens. */
   .miami-hero { min-height: 0; --miami-fade: 80px; }
   .miami-hero-inner { padding-bottom: 56px; }
@@ -140,12 +217,12 @@
 .miami-body h3 { font: 700 18px/1.2 var(--display); margin: 0 0 8px; }
 .miami-body p { line-height: 1.6; color: var(--g-cream); }
 .miami-body a { color: var(--g-cyan); text-underline-offset: 3px; }
-.miami-body code { font-family: var(--mono); font-size: 0.92em; padding: 1px 6px; border-radius: 6px; background: oklch(0.28 0.08 300); color: var(--g-cream); }
+.miami-body code { font-family: var(--mono); font-size: 0.92em; padding: 1px 6px; border-radius: 6px; background: var(--g-code); color: var(--g-cream); }
 /* ---------- Status board, safety box, Linux checklist, ledger ---------- */
 /* Same size and spacing as "Check your PC", so the first card and the checker panel start on one line. */
 .miami-board h2 { margin: 0 0 16px; }
 .miami-board { margin-bottom: 28px; }
-.miami-stale { margin: 0 0 14px; padding: 12px 16px; border: 1px solid oklch(0.7 0.19 20 / 0.55); background: oklch(0.24 0.09 20); border-radius: 12px; }
+.miami-stale { margin: 0 0 14px; padding: 12px 16px; border: 1px solid var(--g-stale-line); background: var(--g-stale-bg); border-radius: 12px; }
 .miami-board-rows { display: grid; gap: 14px; margin-bottom: 12px; }
 .miami-board-row { padding: 18px 18px 14px; border-radius: 14px; background: var(--g-panel); border: 1px solid var(--g-line); border-top-width: 4px; }
 .miami-board-row[data-tone="none"] { border-top-color: var(--g-bad); }
@@ -160,7 +237,7 @@
 .miami-board-row .miami-fine { margin: 0 0 4px; font-size: 12.5px; }
 
 /* A caution box: a full outline in the warning color and a faintly warm fill, with orange bullet markers (no side stripe). */
-.miami-safety { margin: 0; padding: 18px 20px; border-radius: 14px; border: 1px solid oklch(0.8 0.17 55 / 0.5); background: oklch(0.23 0.09 315); }
+.miami-safety { margin: 0; padding: 18px 20px; border-radius: 14px; border: 1px solid var(--g-warn-line); background: var(--g-warn-bg); }
 .miami-safety li::marker { color: var(--g-orange); }
 .miami-safety h2 { margin: 0 0 10px; font-size: 20px; }
 .miami-safety ul, .miami-ready { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
@@ -186,10 +263,10 @@
   padding: 0 12px;
   font: 500 15px var(--sans);
   color: var(--g-cream);
-  background: oklch(0.15 0.06 295);
+  background: var(--g-field);
   border: 1px solid var(--g-line);
   border-radius: 10px;
-  color-scheme: dark;
+  color-scheme: inherit;
 }
 .miami-field select:focus-visible, .miami-link:focus-visible { outline: 3px solid var(--g-cyan); outline-offset: 2px; }
 .miami-link { justify-self: start; min-height: 44px; padding: 0; background: none; border: 0; color: var(--g-cyan); font: 600 14px var(--sans); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
@@ -212,17 +289,17 @@
 .miami-verdict-text { margin: 0 0 20px; max-width: 62ch; }
 
 .miami-ladder { list-style: none; margin: 0 0 22px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
-.miami-ladder li { display: grid; gap: 4px; padding-top: 8px; border-top: 5px solid oklch(0.34 0.08 300); font-size: 12px; color: var(--g-muted); min-height: 52px; align-content: start; }
+.miami-ladder li { display: grid; gap: 4px; padding-top: 8px; border-top: 5px solid var(--g-off); font-size: 12px; color: var(--g-muted); min-height: 52px; align-content: start; }
 .miami-ladder li[data-state="passed"] { border-top-color: var(--g-pink); color: var(--g-cream); }
 .miami-ladder li[data-state="here"] { border-top-color: var(--g-cyan); color: var(--g-cream); }
-.miami-ladder b { justify-self: start; padding: 1px 8px; border-radius: var(--pill); background: var(--g-cyan); color: oklch(0.2 0.08 220); font-size: 11px; }
+.miami-ladder b { justify-self: start; padding: 1px 8px; border-radius: var(--pill); background: var(--g-cyan); color: var(--g-on-cyan); font-size: 11px; }
 
 .miami-parts { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 0; }
-.miami-parts li { display: grid; grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1.4fr); gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid oklch(0.32 0.09 300); }
+.miami-parts li { display: grid; grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1.4fr); gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--g-rule); }
 .miami-part-name { font-weight: 700; }
 .miami-part-detail { color: var(--g-muted); font-size: 14px; }
 .miami-meter { display: inline-flex; gap: 4px; }
-.miami-meter i { width: 26px; height: 9px; border-radius: 3px; background: oklch(0.34 0.08 300); transform-origin: left; }
+.miami-meter i { width: 26px; height: 9px; border-radius: 3px; background: var(--g-off); transform-origin: left; }
 .miami-meter i[data-on="true"] { background: var(--g-pink); animation: miami-fill 0.28s var(--ease-out) both; }
 .miami-meter i:nth-child(2) { animation-delay: 60ms; }
 .miami-meter i:nth-child(3) { animation-delay: 120ms; }
@@ -234,10 +311,10 @@
   .miami-ladder { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-.miami-next { margin: 0 0 18px; padding: 12px 16px; border-radius: 12px; background: oklch(0.28 0.1 320); max-width: 70ch; }
+.miami-next { margin: 0 0 18px; padding: 12px 16px; border-radius: 12px; background: var(--g-soft); max-width: 70ch; }
 .miami-linux { margin: 0 0 14px; padding: 18px 20px; border-radius: 14px; border: 1px solid var(--g-cyan); max-width: 74ch; }
 /* A quiet note under the verdict: a rule above it, no box. */
-.miami-reviewers { margin: 20px 0; padding-top: 16px; border-top: 1px solid oklch(0.32 0.09 300); }
+.miami-reviewers { margin: 20px 0; padding-top: 16px; border-top: 1px solid var(--g-rule); }
 .miami-reviewers h3 { margin: 0 0 6px; font-size: 16px; }
 .miami-reviewers p { margin: 0 0 8px; font-size: 14.5px; line-height: 1.55; }
 .miami-reviewers .miami-reviewers-source { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13.5px; }
@@ -262,7 +339,7 @@
 .miami-side-lower { display: grid; gap: 28px; }
 .miami-gaming h2 { margin: 0 0 6px; font-size: 20px; }
 .miami-gaming ul { list-style: none; margin: 0; padding: 0; }
-.miami-gaming li { display: grid; gap: 2px; padding: 12px 0; border-top: 1px solid oklch(0.32 0.09 300); }
+.miami-gaming li { display: grid; gap: 2px; padding: 12px 0; border-top: 1px solid var(--g-rule); }
 .miami-gaming li a { font-weight: 600; }
 .miami-gaming li span { font-size: 13px; color: var(--g-muted); }
 /* The after-the-questions copy is for narrow screens; the sidebar carries it on wide ones. */
@@ -283,8 +360,8 @@
 .miami-ledger-head h2 { margin: 0; }
 .miami-count { margin: 0; font-size: 13px; color: var(--g-muted); }
 .miami-feed { list-style: none; margin: 0; padding: 0; }
-.miami-entry { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 4px 24px; padding: 22px 0; border-top: 1px solid oklch(0.32 0.09 300); }
-.miami-entry:target { background: oklch(0.26 0.1 320); margin-inline: -16px; padding-inline: 16px; border-radius: 12px; }
+.miami-entry { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 4px 24px; padding: 22px 0; border-top: 1px solid var(--g-rule); }
+.miami-entry:target { background: var(--g-target); margin-inline: -16px; padding-inline: 16px; border-radius: 12px; }
 /* The date is the anchor of each entry: large, in the display face, with the year underneath. */
 .miami-date { display: grid; align-content: start; gap: 2px; }
 .miami-date b { font: 800 24px/1.05 var(--display); letter-spacing: -0.02em; color: var(--g-cream); }
@@ -302,7 +379,7 @@
 }
 .miami-more > summary {
   display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0; cursor: pointer; list-style: none;
-  color: var(--g-cyan); font-weight: 600; border-top: 1px solid oklch(0.32 0.09 300);
+  color: var(--g-cyan); font-weight: 600; border-top: 1px solid var(--g-rule);
 }
 .miami-more > summary::-webkit-details-marker { display: none; }
 .miami-more > summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform 0.2s var(--ease-out); }
@@ -316,7 +393,7 @@
 /* Memory and RAM columns hold short values: keep them on one line. */
 .miami-table-wrap { overflow-x: auto; border: 1px solid var(--g-line); border-radius: 14px; background: var(--g-panel); }
 .miami-table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 700px; }
-.miami-table th, .miami-table td { padding: 14px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid oklch(0.32 0.09 300); }
+.miami-table th, .miami-table td { padding: 14px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--g-rule); }
 .miami-table thead th { font: 600 12px var(--sans); color: var(--g-muted); }
 .miami-table tbody tr:last-child :is(th, td) { border-bottom: 0; }
 .miami-table tbody th { font-weight: 700; text-align: left; }
@@ -333,7 +410,7 @@
 .miami-body .faq { max-width: 760px; margin-top: 0; }
 .miami-body .faq details { padding: 10px 0 14px; }
 .miami-body .faq h2 { color: var(--g-cream); margin: var(--section-gap) 0 16px; font: 800 clamp(22px, 3.2vw, 30px)/1.1 var(--display); letter-spacing: -0.02em; }
-.miami-body .faq details { border-top: 1px solid oklch(0.32 0.09 300); }
+.miami-body .faq details { border-top: 1px solid var(--g-rule); }
 .miami-body .faq details p { color: var(--g-cream); }
 .miami-body .faq summary { cursor: pointer; font-weight: 600; min-height: 32px; }
 .miami-body .faq summary:focus-visible { outline: 3px solid var(--g-cyan); outline-offset: 2px; }
