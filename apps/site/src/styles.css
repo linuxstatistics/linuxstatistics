@@ -1580,7 +1580,11 @@ code, pre, kbd { font-family: var(--mono); font-size: 0.92em; }
 .switch-report-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .switch-report-now { margin-top: 14px; max-width: 360px; }
 .switch-report-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 16px; }
-.switch-report-actions .cta:disabled { opacity: 0.5; cursor: not-allowed; }
+/* Until a choice is made the button reads as inactive: neutral gray, no green. It turns green once "I came from" has a pick. */
+.switch-report-actions .cta { transition: background-color 0.15s var(--ease-out, ease-out), color 0.15s var(--ease-out, ease-out), transform 0.12s var(--ease-out, ease-out); }
+.switch-report-actions .cta { border: 0; }
+.switch-report-actions .cta:disabled { background: var(--line); color: var(--ink2); cursor: not-allowed; transform: none; }
+@media (prefers-reduced-motion: reduce) { .switch-report-actions .cta { transition: none; } }
 .switch-report-note { font-size: 13px; color: var(--ink2); }
 .switch-report-done { margin: 0; }
 .quiz-count-note { font-size: 13px; color: var(--ink2); margin: 14px 0 0; }
