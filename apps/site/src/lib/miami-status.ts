@@ -10,7 +10,7 @@
  * The only hosts an official or press entry may link to. Add an outlet here only after checking it is
  * reputable press; the tests fail for any other host, so a mislabeled entry cannot slip through.
  */
-export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net"] as const;
+export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com"] as const;
 
 export const STATUS_REVIEWED = "2026-11-24";
 
@@ -40,6 +40,34 @@ export interface Evidence {
 
 /** Newest first. */
 export const EVIDENCE: readonly Evidence[] = [
+  {
+    id: "press-2026-11-24-low-fps-build",
+    date: "2026-11-24",
+    track: "community",
+    text: "Press reports that an unofficial effort has booted the leaked console build on PC and renders basic in-game visuals at a very poor frame rate, and that a private group may be slightly further along. The outlet has not verified the clips. The effort translates the console's shaders for Direct3D 12 rather than Vulkan.",
+    kind: "press",
+    confidence: "reported",
+    linux: true,
+    source: {
+      name: "XDA",
+      href: "https://www.xda-developers.com/unofficial-gta-6-pc-port-making-progress-developers-have-first-in-game-visuals/",
+    },
+    short: "XDA",
+  },
+  {
+    id: "press-2026-11-24-effort-offline",
+    date: "2026-11-24",
+    track: "community",
+    text: "Press reports that the largest unofficial PC effort and one of its chat servers went offline a day after the missing executable leaked, and that other servers in that scene are locking down. Reports differ on why, and it is unclear whether any legal notice was sent. Rockstar did not respond to the outlet.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "Decrypt",
+      href: "https://decrypt.co/383860/gta-6-pc-ports-nuked-just-days-before-devs-expected-it-to-be-playable",
+    },
+    short: "Decrypt",
+  },
   {
     id: "press-2026-11-24-takedowns",
     date: "2026-11-24",
@@ -103,8 +131,8 @@ export const STATUS_ROWS: readonly StatusRow[] = [
     label: "Unofficial community projects",
     state: "Experimental, unverified",
     tone: "unverified",
-    summary: "Press reports modders have booted a leaked console build on PC and that Rockstar is reportedly acting against related communities. No playable build is confirmed. Linux runs are the projects' own claims.",
-    evidence: ["press-2026-11-24-takedowns", "community-2026-11-24-linux"],
+    summary: "Press reports modders have booted a leaked console build on PC, with basic visuals at a very poor frame rate, and that the largest effort has gone offline amid reported action against related communities. No playable build is confirmed. Linux runs are the projects' own claims.",
+    evidence: ["press-2026-11-24-low-fps-build", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
   },
   {
     id: "ready",
