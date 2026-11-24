@@ -33,9 +33,11 @@ interface Props {
   feed?: { href: string; title: string };
   /** Visible breadcrumb (also emitted as BreadcrumbList); the last crumb is the current page. */
   breadcrumbs?: Crumb[];
+  /** Names a per-page color theme; the page's own stylesheet restyles the header and footer under `.app[data-page-theme]`. */
+  pageTheme?: string;
 }
 
-const { title: rawTitle, description: rawDescription, jsonLd, noindex = false, image: pageImage, feed, breadcrumbs } = Astro.props;
+const { title: rawTitle, description: rawDescription, jsonLd, noindex = false, image: pageImage, feed, breadcrumbs, pageTheme } = Astro.props;
 // Search-result lengths: drop only the brand suffix from a long title, end a long description at a sentence.
 const title = fitTitle(rawTitle);
 const description = fitDescription(rawDescription);
@@ -115,7 +117,7 @@ import { pageGraph, type Crumb } from "../lib/structured-data";
   </head>
   <body>
     <span id="new-tab-description" class="visually-hidden">Opens in a new tab</span>
-    <div class="app">
+    <div class="app" data-page-theme={pageTheme}>
       <PressMenu client:idle />
       <header class="app-header">
         <a class="brand" href="/" aria-label="LinuxStatistics home">
