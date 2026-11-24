@@ -3,6 +3,7 @@ import "../../../styles-miami.css";
 import Base from "../../../layouts/Base.astro";
 import { MiamiChecker } from "../../../components/MiamiChecker";
 import { Faq } from "../../../components/Faq";
+import MiamiEntry from "../../../components/MiamiEntry.astro";
 import { faqNode } from "../../../lib/structured-data";
 import { CONTACT } from "../../../config/site";
 import { MIAMI_DISCLAIMER, MIAMI_MARKS_NOTE, MIAMI_ONLINE_NOTE, MIAMI_RAM_LINUX, MIAMI_REVIEWED, MIAMI_SOURCES, MIAMI_STORAGE_NOTE, RDR2_PROTON, TARGETS } from "../../../lib/miami-targets";
@@ -14,8 +15,18 @@ const longDate = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("e
 const today = new Date().toISOString().slice(0, 10);
 const stale = statusIsStale(today);
 const evidenceById = new Map(EVIDENCE.map((e) => [e.id, e]));
-const CONF_LABEL = { confirmed: "Confirmed", reported: "Reported", unverified: "Unverified" } as const;
 const rdr2Reports = RDR2_PROTON.reports.toLocaleString("en-US");
+/** The newest reports stay visible; the rest sit behind a "show older" toggle so the page stays short as the ledger grows. */
+const FEED_VISIBLE = 3;
+const recent = EVIDENCE.slice(0, FEED_VISIBLE);
+const older = EVIDENCE.slice(FEED_VISIBLE);
+/** Where to go next for Linux players. Shown in the sidebar on wide screens and after the questions on narrow ones. */
+const GAMING_LINKS = [
+  { name: "Best Linux for gaming", href: "/best/gaming/", note: "Distros that suit gaming" },
+  { name: "Take the distro quiz", href: "/pick/", note: "Find one that fits you" },
+  { name: ANTI_CHEAT_LINKS.tracker.name, href: ANTI_CHEAT_LINKS.tracker.href, note: "Anti-cheat status by game", external: true },
+  { name: ANTI_CHEAT_LINKS.proton.name, href: ANTI_CHEAT_LINKS.proton.href, note: "Player reports by game", external: true },
+];
 const faq = [
   { q: "Can I play GTA VI on PC?", a: "Not officially. GTA VI came out on November 19, 2026 for PS5 and Xbox Series X|S, and Rockstar has not announced a PC version or PC requirements." },
   { q: "Will GTA VI run on Linux?", a: `Not officially, because there is no PC release and so no Steam or Proton path yet. Some unofficial projects claim runs on Linux, but those are their own unverified claims. If Rockstar ships a PC version, Proton may run it as it does Red Dead Redemption 2 (rated ${RDR2_PROTON.tier} on ProtonDB), but online anti-cheat can block Linux. Check ProtonDB and AreWeAntiCheatYet after release.` },
@@ -33,6 +44,7 @@ const faq = [
   description="GTA VI has no PC specs yet. Check your GPU, CPU and RAM against Red Dead Redemption 2's requirements and a PS5-class estimate, with Linux notes."
   jsonLd={faqNode(faq)}
   pageTheme="miami"
+  image={new URL("/miami/share.jpg", Astro.site).href}
   breadcrumbs={[{ name: "Best Linux for…", href: "/best/" }, { name: "Gaming", href: "/best/gaming/" }, { name: "Can your PC run GTA VI?" }]}
 >
   <div class="miami miami-page">
@@ -49,105 +61,144 @@ const faq = [
     </section>
 
     <div class="miami-body">
-      <section class="miami-board" aria-labelledby="miami-board-h">
-        <h2 id="miami-board-h">GTA VI on Linux: where things stand</h2>
-        {stale && <p class="miami-stale" role="status">We last checked this on {longDate(STATUS_REVIEWED)}, {statusAgeDays(today)} days ago. It moves fast, so things may have changed.</p>}
-        <div class="miami-board-rows">
-          {STATUS_ROWS.map((r) => (
-            <article class="miami-board-row" data-tone={r.tone}>
-              <h3>{r.label}</h3>
-              <p class="miami-state">{r.state}</p>
-              <p>{r.summary}</p>
-              {r.evidence.length > 0 && (
-                <p class="miami-fine">
-                  Sources: {r.evidence.map((id, i) => <Fragment>{i > 0 && ", "}<a href={`#ev-${id}`}>{evidenceById.get(id)!.short}</a></Fragment>)}
-                </p>
-              )}
-              {r.id === "ready" && <p class="miami-fine"><a href="#linux-ready">Linux checklist</a></p>}
-            </article>
-          ))}
-        </div>
-        <p class="miami-fine">Last checked {longDate(STATUS_REVIEWED)}. We review this by hand about weekly while things are moving, and show a warning after {STATUS_STALE_DAYS} days without one.</p>
-      </section>
+      <div class="miami-grid">
+          <div class="miami-check">
+            <h2>Check your PC</h2>
+            <MiamiChecker client:load />
+          </div>
 
-      <h2>Check your PC</h2>
-      <MiamiChecker client:load />
-
-      <section class="miami-safety" aria-labelledby="miami-safety-h">
-        <h2 id="miami-safety-h">Before you download anything</h2>
-        <ul>
-          <li>The unofficial projects in the news run a <strong>leaked console build</strong> of the game. No legitimate PC copy exists, so there is nothing official to download for PC today.</li>
-          <li>We don't link to the leak, to any project's code or chat servers, or explain how to get or run it. We link to reporting, and we name no projects.</li>
-          <li>Fake "GTA VI PC download" pages and installers are a common malware lure. Trust only Rockstar's own site and store pages, and <a href="/guides/verify-download/">check the hash of any file</a> you do download.</li>
-          <li>Running or sharing leaked copies may break copyright law and a game's terms of service, and can get online accounts banned. Rockstar is <a href="#ev-press-2026-11-24-takedowns">reportedly taking action</a> against related communities.</li>
-        </ul>
-      </section>
-
-      <section id="linux-ready" aria-labelledby="miami-ready-h">
-        <h2 id="miami-ready-h">Get your Linux setup ready for an official release</h2>
-        <p>If Rockstar ships a PC version, these will matter. They hold for any big game that reaches Proton, so they're worth doing ahead of time:</p>
-        <ul class="miami-ready">
-          <li><strong>A Vulkan-capable graphics card and a current driver.</strong> Mesa for AMD and Intel, NVIDIA's current driver for GeForce. {OLD_NVIDIA_NOTE}</li>
-          <li><strong>Proton's translation layers.</strong> Proton runs Windows games by translating Direct3D to Vulkan with <a href={MIAMI_SOURCES.dxvk.href} {...ext}>{MIAMI_SOURCES.dxvk.name}</a> and <a href={MIAMI_SOURCES.vkd3d.href} {...ext}>{MIAMI_SOURCES.vkd3d.name}</a>, both open source.</li>
-          <li><strong>Memory and storage.</strong> {MIAMI_RAM_LINUX} {MIAMI_STORAGE_NOTE}</li>
-          <li><strong>A distro that suits gaming.</strong> See our <a href="/best/gaming/">best Linux for gaming</a> picks, or <a href="/pick/">take the quiz</a>.</li>
-          <li><strong>A real reference.</strong> <a href={MIAMI_SOURCES.rdr2Proton.href} {...ext}>RDR2 on ProtonDB</a> is rated {RDR2_PROTON.tier} from {rdr2Reports} reports (checked {longDate(RDR2_PROTON.checked)}).</li>
-          <li><strong>Online play is unknown.</strong> {MIAMI_ONLINE_NOTE}</li>
-        </ul>
-      </section>
-
-      <h2>What we compare against</h2>
-      <div class="miami-table-wrap">
-        <table class="miami-table">
-          <thead><tr><th>Target</th><th>Graphics card</th><th>Video memory</th><th>Processor</th><th>RAM</th></tr></thead>
-          <tbody>
-            {TARGETS.map((t) => (
-              <tr>
-                <td>{t.name}</td>
-                <td>{t.gpuExamples}</td>
-                <td>{t.vram} GB</td>
-                <td>{t.cpuExamples}</td>
-                <td>{t.ram} GB</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p class="miami-fine">
-        RDR2 numbers are Rockstar's own, from <a href={MIAMI_SOURCES.rdr2Specs.href} {...ext}>its support page</a>. The PS5-class row is our estimate: no PC version exists, so there are no official numbers to quote.
-        Last reviewed {longDate(MIAMI_REVIEWED)}. When Rockstar publishes PC requirements, we replace this table with them.
-      </p>
-
-      <section id="ledger" aria-labelledby="miami-ledger-h">
-        <h2 id="miami-ledger-h">What we know, and how we know it</h2>
-        <div class="miami-table-wrap">
-          <table class="miami-table miami-ledger">
-            <thead><tr><th>Date</th><th>What was reported</th><th>Source</th><th>Confidence</th></tr></thead>
-            <tbody>
-              {EVIDENCE.map((e) => (
-                <tr id={`ev-${e.id}`}>
-                  <td><time datetime={e.date}>{longDate(e.date)}</time></td>
-                  <td>{e.text} {e.linux && <span class="miami-tag">Linux</span>}</td>
-                  <td>{e.source.href ? <a href={e.source.href} {...ext}>{e.source.name}</a> : e.source.name}</td>
-                  <td><span class="miami-conf" data-conf={e.confidence}>{CONF_LABEL[e.confidence]}</span></td>
-                </tr>
+        <aside class="miami-side" aria-label="Status, safety notes and Linux gaming links">
+          <section class="miami-board" aria-labelledby="miami-board-h">
+            <h2 id="miami-board-h">Where things stand</h2>
+            {stale && <p class="miami-stale" role="status">We last checked this on {longDate(STATUS_REVIEWED)}, {statusAgeDays(today)} days ago. It moves fast, so things may have changed.</p>}
+            <div class="miami-board-rows">
+              {STATUS_ROWS.map((r) => (
+                <article class="miami-board-row" data-tone={r.tone}>
+                  <h3>{r.label}</h3>
+                  <p class="miami-state">{r.state}</p>
+                  <p>{r.summary}</p>
+                  {r.evidence.length > 0 && (
+                    <p class="miami-fine">
+                      Sources: {r.evidence.map((id, i) => <Fragment>{i > 0 && ", "}<a href={`#ev-${id}`}>{evidenceById.get(id)!.short}</a></Fragment>)}
+                    </p>
+                  )}
+                  {r.id === "ready" && <p class="miami-fine"><a href="#linux-ready">Linux checklist</a></p>}
+                </article>
               ))}
-            </tbody>
-          </table>
+            </div>
+            <p class="miami-fine">Last checked {longDate(STATUS_REVIEWED)}. We review this by hand about weekly while things are moving, and show a warning after {STATUS_STALE_DAYS} days without one.</p>
+          </section>
+
+          <div class="miami-side-lower">
+            <section class="miami-safety" aria-labelledby="miami-safety-h">
+              <h2 id="miami-safety-h">Before you download anything</h2>
+              <ul>
+                <li>The unofficial projects in the news run a <strong>leaked console build</strong>. No legitimate PC copy exists, so there is nothing official to download for PC today.</li>
+                <li>We don't link to the leak, to any project's code or chat servers, or explain how to get or run it. We name no projects.</li>
+                <li>Fake "GTA VI PC download" pages are a common malware lure. Trust only Rockstar's own pages, and <a href="/guides/verify-download/">check the hash of any file</a> you do download.</li>
+                <li>Running or sharing leaked copies may break copyright law and a game's terms, and can get accounts banned. Rockstar is <a href="#ev-press-2026-11-24-takedowns">reportedly taking action</a> against related communities.</li>
+              </ul>
+            </section>
+            <section class="miami-gaming" aria-labelledby="miami-gaming-h">
+              <h2 id="miami-gaming-h">Linux gaming</h2>
+              <ul>
+                {GAMING_LINKS.map((l) => <li><a href={l.href} {...(l.external ? ext : {})}>{l.name}</a><span>{l.note}</span></li>)}
+              </ul>
+            </section>
+          </div>
+        </aside>
+
+        <div class="miami-rest">
+          <h2>What we compare against</h2>
+          <div class="miami-table-wrap">
+            <table class="miami-table">
+              <thead><tr><th>Target</th><th>Graphics card</th><th>Video memory</th><th>Processor</th><th>RAM</th></tr></thead>
+              <tbody>
+                {TARGETS.map((t) => (
+                  <tr>
+                    <td>{t.name}</td>
+                    <td>{t.gpuExamples}</td>
+                    <td>{t.vram} GB</td>
+                    <td>{t.cpuExamples}</td>
+                    <td>{t.ram} GB</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p class="miami-fine">
+            RDR2 numbers are Rockstar's own, from <a href={MIAMI_SOURCES.rdr2Specs.href} {...ext}>its support page</a>. The PS5-class row is our estimate: no PC version exists, so there are no official numbers to quote.
+            Last reviewed {longDate(MIAMI_REVIEWED)}. When Rockstar publishes PC requirements, we replace this table with them.
+          </p>
+
+          <section id="linux-ready" aria-labelledby="miami-ready-h">
+            <h2 id="miami-ready-h">Get your Linux setup ready for an official release</h2>
+            <p>If Rockstar ships a PC version, these will matter. They hold for any big game that reaches Proton, so they're worth doing ahead of time:</p>
+            <ul class="miami-ready">
+              <li><strong>A Vulkan-capable graphics card and a current driver.</strong> Mesa for AMD and Intel, NVIDIA's current driver for GeForce. {OLD_NVIDIA_NOTE}</li>
+              <li><strong>Proton's translation layers.</strong> Proton runs Windows games by translating Direct3D to Vulkan with <a href={MIAMI_SOURCES.dxvk.href} {...ext}>{MIAMI_SOURCES.dxvk.name}</a> and <a href={MIAMI_SOURCES.vkd3d.href} {...ext}>{MIAMI_SOURCES.vkd3d.name}</a>, both open source.</li>
+              <li><strong>Memory and storage.</strong> {MIAMI_RAM_LINUX} {MIAMI_STORAGE_NOTE}</li>
+              <li><strong>A distro that suits gaming.</strong> See our <a href="/best/gaming/">best Linux for gaming</a> picks, or <a href="/pick/">take the quiz</a>.</li>
+              <li><strong>A real reference.</strong> <a href={MIAMI_SOURCES.rdr2Proton.href} {...ext}>RDR2 on ProtonDB</a> is rated {RDR2_PROTON.tier} from {rdr2Reports} reports (checked {longDate(RDR2_PROTON.checked)}).</li>
+              <li><strong>Online play is unknown.</strong> {MIAMI_ONLINE_NOTE}</li>
+            </ul>
+          </section>
+
+          <section id="ledger" aria-labelledby="miami-ledger-h">
+            <div class="miami-ledger-head">
+              <h2 id="miami-ledger-h">What we know, and how we know it</h2>
+              <p class="miami-count">{EVIDENCE.length} reports, newest {longDate(EVIDENCE[0]!.date)}</p>
+            </div>
+            <ol class="miami-feed">
+              {recent.map((e) => <MiamiEntry e={e} />)}
+            </ol>
+            {older.length > 0 && (
+              <details class="miami-more">
+                <summary>
+                  <span class="miami-when-closed">Show {older.length} older {older.length === 1 ? "report" : "reports"}</span>
+                  <span class="miami-when-open">Hide older reports</span>
+                </summary>
+                <ol class="miami-feed">
+                  {older.map((e) => <MiamiEntry e={e} />)}
+                </ol>
+              </details>
+            )}
+            <p class="miami-fine">"Confirmed" means Rockstar said it. "Reported" means a news outlet did, and Rockstar hasn't confirmed it. "Unverified" means a project's own claim that no one independent has confirmed. "Linux" marks entries that matter to people running Linux. Newest first.</p>
+          </section>
+
+          <Faq items={faq} open={false} />
+
+          <section class="miami-gaming miami-gaming-inline" aria-labelledby="miami-gaming-h2">
+            <h2 id="miami-gaming-h2">Linux gaming</h2>
+            <ul>
+              {GAMING_LINKS.map((l) => <li><a href={l.href} {...(l.external ? ext : {})}>{l.name}</a><span>{l.note}</span></li>)}
+            </ul>
+          </section>
+
+          <p class="miami-fine">Graphics card and processor tiers are our own hand-made grouping, not benchmark scores.</p>
         </div>
-        <p class="miami-fine">"Confirmed" means Rockstar said it. "Reported" means a news outlet did, and Rockstar hasn't confirmed it. "Unverified" means a project's own claim that no one independent has confirmed. "Linux" marks entries that matter to people running Linux. Newest first.</p>
-      </section>
 
-      <Faq items={faq} />
+      </div>
 
-      <p class="miami-fine">
-        More for Linux players: <a href="/best/gaming/">best Linux for gaming</a>, <a href={ANTI_CHEAT_LINKS.tracker.href} {...ext}>{ANTI_CHEAT_LINKS.tracker.name}</a> and <a href={ANTI_CHEAT_LINKS.proton.href} {...ext}>{ANTI_CHEAT_LINKS.proton.name}</a>.
-        Graphics card and processor tiers are our own hand-made grouping, not benchmark scores.
-      </p>
       <p class="miami-disclaimer">
         {MIAMI_DISCLAIMER} {MIAMI_MARKS_NOTE} See <a href="/about/trademarks/">trademarks and logos</a>.
         If you are a rights holder or a project and want something here changed or removed, email <a href={`mailto:${CONTACT.general}?subject=GTA%20VI%20page`}>{CONTACT.general}</a>; we act on these quickly.
       </p>
     </div>
+    <script is:inline>
+      // A link into the collapsed "older reports" group (for example a source link in the status board) opens it first.
+      (function () {
+        function reveal() {
+          var id;
+          try { id = decodeURIComponent(location.hash.slice(1)); } catch (e) { return; }
+          if (!id) return;
+          var el = document.getElementById(id);
+          var d = el && el.closest && el.closest("details");
+          if (d && !d.open) { d.open = true; el.scrollIntoView(); }
+        }
+        reveal();
+        window.addEventListener("hashchange", reveal);
+      })();
+    </script>
   </div>
 </Base>

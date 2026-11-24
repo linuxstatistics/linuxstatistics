@@ -1,0 +1,27 @@
+---
+import type { Evidence } from "../lib/miami-status";
+
+interface Props {
+  e: Evidence;
+}
+const { e } = Astro.props;
+const CONF_LABEL = { confirmed: "Confirmed", reported: "Reported", unverified: "Unverified" } as const;
+const shortDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+const year = e.date.slice(0, 4);
+const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
+---
+
+<li class="miami-entry" id={`ev-${e.id}`}>
+  <time class="miami-date" datetime={e.date}>
+    <b>{shortDay(e.date)}</b>
+    <span>{year}</span>
+  </time>
+  <div class="miami-entry-body">
+    <div class="miami-entry-meta">
+      <span class="miami-conf" data-conf={e.confidence}>{CONF_LABEL[e.confidence]}</span>
+      {e.linux && <span class="miami-tag">Linux</span>}
+      <span class="miami-src">{e.source.href ? <a href={e.source.href} {...ext}>{e.source.name}</a> : e.source.name}</span>
+    </div>
+    <p>{e.text}</p>
+  </div>
+</li>

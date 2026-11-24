@@ -2,7 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { Island } from "./Island";
 import { CPUS, GPUS, GPU_GROUPS, RAM_OPTIONS } from "../lib/hardware-tiers";
 import { check, parsePicks, picksHash, type Picks } from "../lib/miami-check";
-import { MIAMI_ONLINE_NOTE, MIAMI_SOURCES, MIAMI_STORAGE_NOTE, TARGETS, type Level } from "../lib/miami-targets";
+import { MIAMI_ONLINE_NOTE, MIAMI_SOURCES, MIAMI_STORAGE_NOTE, type Level } from "../lib/miami-targets";
 import { ANTI_CHEAT_LINKS } from "../lib/hardware-notes";
 
 const EXT = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" } as const;
@@ -30,7 +30,17 @@ function Checker() {
   const [copied, setCopied] = useState(false);
   const id = useId();
 
-  useEffect(() => setPicks(parsePicks(window.location.hash)), []);
+  // Read picks from the link on load, and again when the link changes (a share link pasted into an open page).
+  useEffect(() => {
+    const read = () => setPicks(parsePicks(window.location.hash));
+    read();
+    // Only a link that carries picks changes them; in-page links (#ev-..., #linux-ready) leave the result alone.
+    const onChange = () => {
+      if (/(^|[#&])(gpu|cpu|ram)=/.test(window.location.hash)) read();
+    };
+    window.addEventListener("hashchange", onChange);
+    return () => window.removeEventListener("hashchange", onChange);
+  }, []);
 
   const update = (next: Picks) => {
     setPicks(next);
@@ -81,7 +91,7 @@ function Checker() {
         <div className="miami-field">
           <label htmlFor={`${id}-ram`}>Memory (RAM)</label>
           <select id={`${id}-ram`} value={picks.ram ?? ""} onChange={(e) => update({ ...picks, ram: e.target.value ? Number(e.target.value) : null })}>
-            <option value="">Choose your RAM</option>
+            <option value="">Choose RAM</option>
             {RAM_OPTIONS.map((n) => (
               <option key={n} value={n}>{n} GB</option>
             ))}
@@ -96,7 +106,7 @@ function Checker() {
         </p>
       </form>
 
-      <div className="miami-result" aria-live="polite">
+      <div className="miami-result" aria-live="polite" data-empty={v ? undefined : "true"}>
         {v ? (
           <>
             <p className="miami-verdict-kicker">Your PC against our GTA VI estimate</p>
@@ -137,7 +147,16 @@ function Checker() {
             <button type="button" className="miami-link" onClick={copy}>{copied ? "Link copied" : "Copy a link to this result"}</button>
           </>
         ) : (
-          <p className="miami-empty">Choose your graphics card, processor and memory to see where this PC lands against {TARGETS.map((t) => t.name).join(", ").replace(/, ([^,]*)$/, " and $1")}.</p>
+          <>
+            <ol className="miami-ladder" aria-hidden="true">
+              {STEPS.map((s) => (
+                <li key={s.level} data-state="ahead">
+                  <span>{s.label}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="miami-empty">Choose your graphics card, processor and memory to place this PC on the ladder.</p>
+          </>
         )}
       </div>
     </div>
