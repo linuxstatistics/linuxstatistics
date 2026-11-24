@@ -246,6 +246,41 @@ import { pageGraph, type Crumb } from "../lib/structured-data";
       </footer>
     </div>
     <script is:inline>
+      // Scrolling tables: mark each one that has more to see sideways, so CSS can show an arrow at that edge.
+      // Only an attribute changes (data-more="left right"), so it is safe next to islands that render their own tables.
+      (function () {
+        var SEL = ".table-scroll, .miami-table-wrap";
+        function update(el) {
+          var max = el.scrollWidth - el.clientWidth;
+          var more = [];
+          if (max > 2) {
+            if (el.scrollLeft > 2) more.push("left");
+            if (el.scrollLeft < max - 2) more.push("right");
+          }
+          if (more.length) el.setAttribute("data-more", more.join(" "));
+          else el.removeAttribute("data-more");
+        }
+        function bind(el) {
+          if (el.__hint) return;
+          el.__hint = true;
+          el.addEventListener("scroll", function () { update(el); }, { passive: true });
+          if (window.ResizeObserver) {
+            var ro = new ResizeObserver(function () { update(el); });
+            ro.observe(el);
+            if (el.firstElementChild) ro.observe(el.firstElementChild);
+          }
+          update(el);
+        }
+        function scan() { document.querySelectorAll(SEL).forEach(bind); }
+        var queued = false;
+        function later() { if (queued) return; queued = true; requestAnimationFrame(function () { queued = false; scan(); }); }
+        scan();
+        window.addEventListener("resize", later);
+        window.addEventListener("load", later);
+        if (window.MutationObserver) new MutationObserver(later).observe(document.documentElement, { childList: true, subtree: true });
+      })();
+    </script>
+    <script is:inline>
       // Footer theme switch (System / Light / Dark). The search menu's "Switch theme"
       // action cycles it via the "cycle-theme" event.
       (function () {
