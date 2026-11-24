@@ -98,7 +98,16 @@
 .miami-hero .miami-sky { position: absolute; inset: 0; z-index: -2; }
 .miami-hero-img { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: 30% 70%; }
 /* Night backing from the left so the headline and lede stay readable over the picture. */
-.miami-hero-scrim { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, oklch(0.17 0.07 295 / 0.62) 0%, oklch(0.17 0.07 295 / 0.3) 45%, transparent 75%), linear-gradient(180deg, transparent 70%, var(--g-night) 100%); }
+/* The picture fades up into the site's own background, so the header area flows into it instead of ending on a hard edge. */
+.miami-hero { --miami-fade: 130px; }
+.miami-hero-scrim { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, var(--bg) 0, color-mix(in oklch, var(--bg) 55%, transparent) calc(var(--miami-fade) * 0.45), transparent var(--miami-fade)), linear-gradient(90deg, oklch(0.17 0.07 295 / 0.62) 0%, oklch(0.17 0.07 295 / 0.3) 45%, transparent 75%), linear-gradient(180deg, transparent 70%, var(--g-night) 100%); }
+/* In the light theme the fade starts from near-white, which the cream breadcrumb can't sit on: fade over a shorter distance and start the text below it. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .miami-hero { --miami-fade: 60px; }
+  :root:not([data-theme="dark"]) .miami-hero-inner { padding-top: 70px; }
+}
+:root[data-theme="light"] .miami-hero { --miami-fade: 60px; }
+:root[data-theme="light"] .miami-hero-inner { padding-top: 70px; }
 
 .miami-hero-inner, .miami-body { max-width: 980px; margin: 0 auto; padding: 0 var(--gutter); width: 100%; }
 .miami-hero-inner { padding-top: 34px; padding-bottom: 120px; }
@@ -251,6 +260,8 @@
 .app[data-page-theme="miami"] .brand-mark-bar:nth-of-type(2) { fill: oklch(0.8 0.17 55); }
 .app[data-page-theme="miami"] .brand-mark-bar:nth-of-type(3) { fill: oklch(0.9 0.14 95); }
 .app[data-page-theme="miami"] .brand-mark-disc { stroke: oklch(0.55 0.2 330); }
+/* The site leaves 32px above the newsletter band; against this page's dark background that shows as a light strip in light theme. */
+.app[data-page-theme="miami"] .signup-band { margin-top: 0; }
 .app[data-page-theme="miami"] .app-footer { background: linear-gradient(180deg, oklch(0.72 0.25 350), oklch(0.8 0.17 55)); }
 .app[data-page-theme="miami"] .theme-switch button[aria-checked="true"] { color: oklch(0.85 0.2 350); }
 
