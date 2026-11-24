@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { ALLOWED_SOURCE_HOSTS, EVIDENCE, NEVER_LINK_HOSTS, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, statusAgeDays, statusIsStale } from "../src/lib/miami-status";
+import { ALLOWED_SOURCE_HOSTS, EVIDENCE, FEED_VISIBLE, GAMING_LINKS, NEVER_LINK_HOSTS, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../src/lib/miami-status";
 
 const isDate = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(`${d}T00:00:00Z`));
 
@@ -74,5 +74,43 @@ describe("staleness", () => {
     expect(statusIsStale("2026-12-08", "2026-11-24")).toBe(false);
     expect(statusIsStale("2026-12-09", "2026-11-24")).toBe(true);
     expect(STATUS_STALE_DAYS).toBe(14);
+  });
+});
+
+describe("reports feed", () => {
+  test("shows the newest few and keeps the rest, in order, behind the toggle", () => {
+    const { recent, older } = splitFeed(EVIDENCE);
+    expect(recent).toEqual(EVIDENCE.slice(0, FEED_VISIBLE));
+    expect([...recent, ...older]).toEqual(EVIDENCE);
+    expect(recent.length).toBeLessThanOrEqual(FEED_VISIBLE);
+  });
+
+  test("a short list has nothing behind the toggle", () => {
+    expect(splitFeed([1, 2], 3)).toEqual({ recent: [1, 2], older: [] });
+    expect(splitFeed([], 3)).toEqual({ recent: [], older: [] });
+  });
+
+  test("the visible group never hides a newer report behind an older one", () => {
+    const { recent, older } = splitFeed(EVIDENCE);
+    const oldestShown = recent.at(-1)?.date ?? "";
+    for (const e of older) expect(e.date <= oldestShown).toBe(true);
+  });
+});
+
+describe("Linux gaming links", () => {
+  test("internal links are site paths and outside links are only the two lookups the page allows", () => {
+    expect(GAMING_LINKS.length).toBeGreaterThan(0);
+    for (const l of GAMING_LINKS) {
+      if (l.external) {
+        expect(["areweanticheatyet.com", "www.protondb.com"]).toContain(new URL(l.href).host);
+      } else {
+        expect(l.href).toMatch(/^\/[a-z0-9\-/]*\/$/);
+      }
+      expect(l.note.length).toBeGreaterThan(0);
+    }
+  });
+
+  test("names are unique", () => {
+    expect(new Set(GAMING_LINKS.map((l) => l.name)).size).toBe(GAMING_LINKS.length);
   });
 });

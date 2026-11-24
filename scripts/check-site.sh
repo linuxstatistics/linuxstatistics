@@ -69,6 +69,10 @@ miami_body=$(tr '\n' ' ' < "$DIST/can-i-run/gta-vi/index.html" | sed -e 's/.*cla
 if printf '%s' "$miami_body" | grep -q 'class="miami-board"'; then echo "ok:   Miami PC page body found for the link checks"; else echo "FAIL: Miami PC page body not found (link checks would pass on nothing)"; fail=1; fi
 if printf '%s' "$miami_body" | grep -oE 'href="https?://[^"]+"' | grep -qiE '//([a-z0-9-]+\.)*(gitlab\.com|codeberg\.org|discord\.(gg|com)|t\.me|reddit\.com|x\.com|twitter\.com|4chan\.org|mega\.nz|mediafire\.com)([/"])'; then echo "FAIL: Miami PC page body links to a chat, social or file host"; fail=1; else echo "ok:   Miami PC page body links no chat, social or file hosts"; fi
 if printf '%s' "$miami_body" | grep -oE 'href="https?://([a-z0-9-]+\.)*github(usercontent)?\.com[^"]*"' | grep -vE 'github\.com/(doitsujin/dxvk|HansKristian-Work/vkd3d-proton)"' | grep -q .; then echo "FAIL: Miami PC page body links to a GitHub repo other than DXVK or VKD3D-Proton"; fail=1; else echo "ok:   Miami PC page body links no project repos"; fi
+check can-i-run/gta-vi/index.html 'class="miami-more"' "Miami PC page tucks older reports behind a toggle"
+check can-i-run/gta-vi/index.html 'class="miami-gaming"' "Miami PC page has the Linux gaming links"
+if grep -qE '<details[^>]*[[:space:]]open([[:space:]=>])' "$DIST/can-i-run/gta-vi/index.html"; then echo "FAIL: Miami PC page questions should start collapsed"; fail=1; else echo "ok:   Miami PC page questions start collapsed"; fi
+if grep -q 'On this page' "$DIST/can-i-run/gta-vi/index.html"; then echo "FAIL: Miami PC page should have no jump list"; fail=1; else echo "ok:   Miami PC page has no jump list"; fi
 check best/gaming/index.html 'href="/can-i-run/gta-vi/"' "gaming page links the Miami PC card"
 [ -f "$DIST/favicon.svg" ] && echo "ok:   favicon" || { echo "FAIL: favicon missing"; fail=1; }
 [ -f "$DIST/sitemap-index.xml" ] && echo "ok:   sitemap" || { echo "FAIL: sitemap missing"; fail=1; }

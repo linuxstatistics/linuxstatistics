@@ -6,6 +6,8 @@
  * mirror, tracker or anything that explains how to get or run a leaked build. Claims that only appear
  * in project notes are listed as unverified text, without a link. Project names stay out of this file.
  */
+import { ANTI_CHEAT_LINKS } from "./hardware-notes";
+
 /**
  * The only hosts an official or press entry may link to. Add an outlet here only after checking it is
  * reputable press; the tests fail for any other host, so a mislabeled entry cannot slip through.
@@ -169,3 +171,26 @@ export const statusIsStale = (today: string, reviewed: string = STATUS_REVIEWED)
 
 /** Hosts we never link to from this page: code, chat, mirrors and social posts about the projects (Proton's own DXVK and VKD3D-Proton pages are the only github.com links, and they live in miami-targets.ts). */
 export const NEVER_LINK_HOSTS = ["github.com", "gitlab.com", "codeberg.org", "discord.gg", "discord.com", "t.me", "reddit.com", "x.com", "twitter.com", "4chan.org", "mega.nz", "mediafire.com"] as const;
+
+/** How many of the newest reports stay visible; the rest sit behind a "show older" toggle so the page stays short as the ledger grows. */
+export const FEED_VISIBLE = 3;
+
+/** Splits a newest-first list into the reports shown at once and the older ones behind the toggle. */
+export function splitFeed<T>(items: readonly T[], visible: number = FEED_VISIBLE): { recent: T[]; older: T[] } {
+  return { recent: items.slice(0, visible), older: items.slice(visible) };
+}
+
+export interface GamingLink {
+  name: string;
+  href: string;
+  note: string;
+  external?: true;
+}
+
+/** Where to go next for Linux players: internal pages, and the two outside lookups the page already allows. */
+export const GAMING_LINKS: readonly GamingLink[] = [
+  { name: "Best Linux for gaming", href: "/best/gaming/", note: "Distros that suit gaming" },
+  { name: "Take the distro quiz", href: "/pick/", note: "Find one that fits you" },
+  { name: ANTI_CHEAT_LINKS.tracker.name, href: ANTI_CHEAT_LINKS.tracker.href, note: "Anti-cheat status by game", external: true },
+  { name: ANTI_CHEAT_LINKS.proton.name, href: ANTI_CHEAT_LINKS.proton.href, note: "Player reports by game", external: true },
+];

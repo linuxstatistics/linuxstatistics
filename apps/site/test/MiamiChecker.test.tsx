@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, expect, test } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MiamiChecker } from "../src/components/MiamiChecker";
 
@@ -30,4 +30,42 @@ test("a shared address restores the result", async () => {
   window.history.replaceState(null, "", "/can-i-run/gta-vi/#gpu=nvidia-rtx-4070-12-gb&cpu=ryzen-5-5600x&ram=32");
   render(<MiamiChecker />);
   expect(await screen.findByRole("heading", { level: 2, name: "PS5-class or better" })).toBeInTheDocument();
+});
+
+test("before a verdict, a dim four-step ladder is shown and hidden from screen readers", () => {
+  const { container } = render(<MiamiChecker />);
+  const ladder = container.querySelector(".miami-ladder");
+  expect(ladder).not.toBeNull();
+  expect(ladder).toHaveAttribute("aria-hidden", "true");
+  expect(ladder!.querySelectorAll("li")).toHaveLength(4);
+  expect(ladder!.querySelectorAll('li[data-state="ahead"]')).toHaveLength(4);
+  expect(container.querySelector(".miami-result")).toHaveAttribute("data-empty", "true");
+});
+
+test("once there is a verdict the result is no longer marked empty", async () => {
+  window.history.replaceState(null, "", "/can-i-run/gta-vi/#gpu=nvidia-gtx-1060-6-gb&cpu=ryzen-5-5600x&ram=16");
+  const { container } = render(<MiamiChecker />);
+  await screen.findByRole("heading", { level: 2, name: "Meets the RDR2 recommended spec" });
+  expect(container.querySelector(".miami-result")).not.toHaveAttribute("data-empty");
+});
+
+test("pasting a share link into an open page applies its picks", async () => {
+  render(<MiamiChecker />);
+  expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
+  await act(async () => {
+    window.history.replaceState(null, "", "/can-i-run/gta-vi/#gpu=nvidia-rtx-4070-12-gb&cpu=ryzen-5-5600x&ram=32");
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+  });
+  expect(await screen.findByRole("heading", { level: 2, name: "PS5-class or better" })).toBeInTheDocument();
+});
+
+test("in-page links (to a report or the checklist) leave the result alone", async () => {
+  window.history.replaceState(null, "", "/can-i-run/gta-vi/#gpu=nvidia-rtx-4070-12-gb&cpu=ryzen-5-5600x&ram=32");
+  render(<MiamiChecker />);
+  await screen.findByRole("heading", { level: 2, name: "PS5-class or better" });
+  await act(async () => {
+    window.history.replaceState(null, "", "/can-i-run/gta-vi/#ev-press-2026-11-24-takedowns");
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+  });
+  expect(screen.getByRole("heading", { level: 2, name: "PS5-class or better" })).toBeInTheDocument();
 });

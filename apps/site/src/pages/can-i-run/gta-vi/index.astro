@@ -7,8 +7,8 @@ import MiamiEntry from "../../../components/MiamiEntry.astro";
 import { faqNode } from "../../../lib/structured-data";
 import { CONTACT } from "../../../config/site";
 import { MIAMI_DISCLAIMER, MIAMI_MARKS_NOTE, MIAMI_ONLINE_NOTE, MIAMI_RAM_LINUX, MIAMI_REVIEWED, MIAMI_SOURCES, MIAMI_STORAGE_NOTE, RDR2_PROTON, TARGETS } from "../../../lib/miami-targets";
-import { EVIDENCE, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, statusAgeDays, statusIsStale } from "../../../lib/miami-status";
-import { ANTI_CHEAT_LINKS, OLD_NVIDIA_NOTE } from "../../../lib/hardware-notes";
+import { EVIDENCE, GAMING_LINKS, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../../../lib/miami-status";
+import { OLD_NVIDIA_NOTE } from "../../../lib/hardware-notes";
 
 const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
 const longDate = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric", timeZone: "UTC" });
@@ -16,17 +16,7 @@ const today = new Date().toISOString().slice(0, 10);
 const stale = statusIsStale(today);
 const evidenceById = new Map(EVIDENCE.map((e) => [e.id, e]));
 const rdr2Reports = RDR2_PROTON.reports.toLocaleString("en-US");
-/** The newest reports stay visible; the rest sit behind a "show older" toggle so the page stays short as the ledger grows. */
-const FEED_VISIBLE = 3;
-const recent = EVIDENCE.slice(0, FEED_VISIBLE);
-const older = EVIDENCE.slice(FEED_VISIBLE);
-/** Where to go next for Linux players. Shown in the sidebar on wide screens and after the questions on narrow ones. */
-const GAMING_LINKS = [
-  { name: "Best Linux for gaming", href: "/best/gaming/", note: "Distros that suit gaming" },
-  { name: "Take the distro quiz", href: "/pick/", note: "Find one that fits you" },
-  { name: ANTI_CHEAT_LINKS.tracker.name, href: ANTI_CHEAT_LINKS.tracker.href, note: "Anti-cheat status by game", external: true },
-  { name: ANTI_CHEAT_LINKS.proton.name, href: ANTI_CHEAT_LINKS.proton.href, note: "Player reports by game", external: true },
-];
+const { recent, older } = splitFeed(EVIDENCE);
 const faq = [
   { q: "Can I play GTA VI on PC?", a: "Not officially. GTA VI came out on November 19, 2026 for PS5 and Xbox Series X|S, and Rockstar has not announced a PC version or PC requirements." },
   { q: "Will GTA VI run on Linux?", a: `Not officially, because there is no PC release and so no Steam or Proton path yet. Some unofficial projects claim runs on Linux, but those are their own unverified claims. If Rockstar ships a PC version, Proton may run it as it does Red Dead Redemption 2 (rated ${RDR2_PROTON.tier} on ProtonDB), but online anti-cheat can block Linux. Check ProtonDB and AreWeAntiCheatYet after release.` },
