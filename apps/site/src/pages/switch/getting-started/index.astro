@@ -2,13 +2,11 @@
 import MiamiCard from "../../../components/MiamiCard.astro";
 import Base from "../../../layouts/Base.astro";
 import { BEGINNER_REVIEWED, BEGINNER_SOURCES } from "../../../lib/beginner-picker";
-import { PROFILES } from "../../../lib/picker-profiles";
 import { SponsorStack } from "../../../components/SponsorStack";
 import { SwitchReport } from "../../../components/SwitchReport";
 import { loadDistros } from "../../../lib/data";
 import { LIST_PATH, topSearchItems } from "../../../lib/distro-list";
 import { GRAPHICS_NOTE, HARDWARE_REVIEWED, HARDWARE_SOURCES, INTEL_MAC_NOTE, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK_OTHER, WIFI_NOTE, WINDOWS_CHECK, codeParts } from "../../../lib/hardware-notes";
-const byKey = new Map(PROFILES.map((p) => [p.key, p]));
 const comboItems = topSearchItems(await loadDistros(), 10);
 const GUIDES = [
   { key: "mint", name: "Linux Mint", short: "Mint", text: "Mint recommends Cinnamon when you are unsure which edition to choose; Xfce is its lighter option for older computers. Download a current 64-bit image, verify it, then follow Mint's live-session and installation guidance. A live session lets you check hardware before installation.", guideHref: "https://linuxmint-installation-guide.readthedocs.io/en/latest/", guideLabel: "Official Mint installation guide" },
@@ -23,7 +21,7 @@ const GUIDES = [
     <div class="with-side-main beginner-guide">
     <h1 id="getting-started-title">Getting started with Linux</h1>
     <p class="lede">You don't need to replace your current system today. Check what matters, keep a way back, then try Linux.</p>
-    <p class="guide-skip" hidden><a href="#downloads">Already backed up and checked? Skip to the download</a></p>
+    <p class="guide-skip" hidden><a href="#downloads">Already backed up and checked? Skip to the install steps</a></p>
     <ol class="switch-path">
     <li><h2>Back up before changing anything</h2><p>Copy important files to a separate drive or backup service. Check that you can open them. Save recovery keys and make sure you can restore your current system. Installing Linux can erase files if the wrong disk option is chosen.</p></li>
     <li id="hardware">
@@ -57,9 +55,8 @@ const GUIDES = [
             <h3>Your {g.short} next steps</h3>
             <p>{g.text}</p>
             <div class="guide-next-actions">
-              <a class="guide-download" data-download={g.key} href={byKey.get(g.key)!.downloadUrl} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Download {g.name}</a>
+              <a class="guide-download" data-primary={g.key} href={`/distro/${g.key}/`}>View {g.name} details</a>
               <a href={g.guideHref} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{g.guideLabel}</a>
-              <a href={`/distro/${g.key}/`}>{g.short}: rank, ratings, pros and cons</a>
             </div>
           </section>
         ))}
@@ -101,9 +98,9 @@ const GUIDES = [
     }
     document.title = `Getting started with ${names[slug]} safely | LinuxStatistics`;
     document.querySelectorAll<HTMLElement>("[data-guide]").forEach((section) => { section.hidden = section.dataset.guide !== slug; });
-    // A distro was chosen: show only its download as the primary action, and drop the "not sure" prompt.
-    document.querySelectorAll<HTMLAnchorElement>("[data-download]").forEach((link) => {
-      if (link.dataset.download === slug) link.classList.add("cta");
+    // A distro was chosen: show only its page link as the primary action, and drop the "not sure" prompt.
+    document.querySelectorAll<HTMLAnchorElement>("[data-primary]").forEach((link) => {
+      if (link.dataset.primary === slug) link.classList.add("cta");
       else link.hidden = true;
     });
     document.querySelector<HTMLElement>(".guide-unsure")?.setAttribute("hidden", "");
