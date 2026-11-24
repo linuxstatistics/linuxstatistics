@@ -27,10 +27,12 @@ describe("hardware table", () => {
   });
 
   test("targets rise with the level and the review date is a date", () => {
-    for (const key of ["gpuTier", "vram", "cpuTier", "ram"] as const) {
-      expect(TARGETS[0]![key]).toBeLessThan(TARGETS[1]![key]);
-      expect(TARGETS[1]![key]).toBeLessThan(TARGETS[2]![key]);
+    const keys = ["gpuTier", "vram", "cpuTier", "ram"] as const;
+    for (let i = 1; i < TARGETS.length; i++) {
+      for (const key of keys) expect(TARGETS[i]![key]).toBeGreaterThanOrEqual(TARGETS[i - 1]![key]);
+      expect(keys.some((key) => TARGETS[i]![key] > TARGETS[i - 1]![key])).toBe(true);
     }
+    expect(TARGETS.map((t) => t.level)).toEqual([1, 2, 3, 4]);
     expect(MIAMI_REVIEWED).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
@@ -48,9 +50,9 @@ describe("check", () => {
     expect(check({ gpu: gpu("RTX 3060 12 GB"), cpu: cpu("Ryzen 5 5600X"), ram: 17 })).toBeNull();
   });
 
-  test("a PS5-class PC reaches level 3 with nothing to fix", () => {
+  test("a PS5 and Series X-class PC reaches the top level with nothing to fix", () => {
     const v = check({ gpu: gpu("RTX 4070 12 GB"), cpu: cpu("Ryzen 5 5600X"), ram: 32 })!;
-    expect(v.level).toBe(3);
+    expect(v.level).toBe(4);
     expect(v.weakest).toBeNull();
     expect(v.nextStep).toBeNull();
   });
@@ -64,6 +66,19 @@ describe("check", () => {
   });
 
   test("RDR2 minimum hardware lands exactly on level 1, recommended on level 2", () => {
+    expect(check({ gpu: gpu("GTX 770 2 GB"), cpu: cpu("Core i5-2500K"), ram: 8 })!.level).toBe(1);
+    expect(check({ gpu: gpu("GTX 1060 6 GB"), cpu: cpu("Core i7-4770K"), ram: 12 })!.level).toBe(2);
+  });
+
+  test("a Series S-class PC lands between RDR2 recommended and the console class", () => {
+    const v = check({ gpu: gpu("GTX 1660 Super 6 GB"), cpu: cpu("Ryzen 5 2600"), ram: 12 })!;
+    expect(v.level).toBe(3);
+    expect(v.label).toBe("Meets the Series S-class estimate");
+    expect(v.weakest).not.toBeNull();
+    expect(v.nextStep).toMatch(/PS5 and Xbox Series X-class/);
+  });
+
+  test("picks from older shared links keep their meaning: RDR2 levels do not move", () => {
     expect(check({ gpu: gpu("GTX 770 2 GB"), cpu: cpu("Core i5-2500K"), ram: 8 })!.level).toBe(1);
     expect(check({ gpu: gpu("GTX 1060 6 GB"), cpu: cpu("Core i7-4770K"), ram: 12 })!.level).toBe(2);
   });
@@ -82,8 +97,10 @@ describe("check", () => {
 
   test("video memory alone can cap an otherwise fast card", () => {
     const fast = { id: "x", name: "Test card", group: "NVIDIA GeForce", tier: 9, vram: 16, shared: false, linux: "ok" } as const;
-    expect(gpuLevel(fast)).toBe(3);
-    expect(gpuLevel({ ...fast, vram: 6 })).toBe(2); // tier says PS5-class, 6 GB only meets the recommended 4 GB
+    expect(gpuLevel(fast)).toBe(4);
+    expect(gpuLevel({ ...fast, vram: 8 })).toBe(4);
+    expect(gpuLevel({ ...fast, vram: 6 })).toBe(3); // tier says console-class, 6 GB only reaches the Series S-class estimate
+    expect(gpuLevel({ ...fast, vram: 4 })).toBe(2); // 4 GB only meets the RDR2 recommended
     expect(gpuLevel({ ...fast, vram: 3 })).toBe(1);
     expect(gpuLevel({ ...fast, vram: 1 })).toBe(0);
     expect(gpuLevel({ ...fast, tier: 3, vram: 16 })).toBe(1); // and a weak tier caps a big-memory card

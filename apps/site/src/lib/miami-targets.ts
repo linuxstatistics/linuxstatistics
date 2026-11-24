@@ -2,19 +2,20 @@
  * What "Can your PC run GTA VI?" compares against. GTA VI came out on PS5 and Xbox Series X|S
  * on 2026-11-19; Rockstar has announced no PC version and no PC specs. So the targets are
  * Red Dead Redemption 2's published PC requirements (the same studio and engine lineage)
- * plus our own estimate for PS5-class hardware. Re-check all of this when MIAMI_REVIEWED gets
+ * plus our own estimates for the consoles it runs on: the weakest (Xbox Series S) and the
+ * PS5 and Xbox Series X class. Re-check all of this when MIAMI_REVIEWED gets
  * old, and replace the targets with Rockstar's numbers the day they exist.
  */
 export const MIAMI_REVIEWED = "2026-11-24";
 
 export const MIAMI_NAME = "GTA VI";
 
-/** Level 1 to 3: which target a part reaches. 0 means below the RDR2 minimum. */
-export type Level = 0 | 1 | 2 | 3;
+/** Level 1 to 4: which target a part reaches. 0 means below the RDR2 minimum. */
+export type Level = 0 | 1 | 2 | 3 | 4;
 
 export interface Target {
-  level: 1 | 2 | 3;
-  id: "rdr2-min" | "rdr2-rec" | "ps5";
+  level: 1 | 2 | 3 | 4;
+  id: "rdr2-min" | "rdr2-rec" | "series-s" | "console";
   name: string;
   /** Our estimate, not a published number. */
   estimate: boolean;
@@ -55,8 +56,20 @@ export const TARGETS: readonly Target[] = [
   },
   {
     level: 3,
-    id: "ps5",
-    name: "PS5-class (our estimate)",
+    id: "series-s",
+    name: "Xbox Series S-class (our estimate)",
+    estimate: true,
+    gpuTier: 5,
+    vram: 6,
+    cpuTier: 5,
+    ram: 12,
+    gpuExamples: "GeForce GTX 1660 Super or Radeon RX 5600 XT and up",
+    cpuExamples: "Ryzen 5 2600 or Core i5-9400F and up",
+  },
+  {
+    level: 4,
+    id: "console",
+    name: "PS5 and Xbox Series X-class (our estimate)",
     estimate: true,
     gpuTier: 7,
     vram: 8,
@@ -96,12 +109,14 @@ export const LEVEL_LABEL: Record<Level, string> = {
   0: "Below the RDR2 minimum",
   1: "Meets the RDR2 minimum",
   2: "Meets the RDR2 recommended spec",
-  3: "PS5-class or better",
+  3: "Meets the Series S-class estimate",
+  4: "PS5 and Series X-class or better",
 };
 
 export const LEVEL_SUMMARY: Record<Level, string> = {
   0: "If GTA VI follows RDR2's lead, this PC would not get it running.",
   1: "This PC would scrape by on RDR2's lowest settings. GTA VI is a newer game and will likely ask for more.",
   2: "A fair start: this matches what RDR2 recommends. Expect GTA VI to want more.",
-  3: "This PC matches or beats the hardware GTA VI is built around today, our best guess for a PC target.",
+  3: "This PC is in range of the weakest console GTA VI ships on, our best guess for a PC floor. Expect the PS5 and Xbox Series X versions to want more.",
+  4: "This PC matches or beats the PS5 and Xbox Series X hardware GTA VI is built around today, our best guess for a PC target.",
 };

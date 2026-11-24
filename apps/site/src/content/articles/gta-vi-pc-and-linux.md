@@ -34,7 +34,7 @@ Third, it isn't a PC version. A console build booting on a PC is not a playable 
 
 We can't tell you how GTA VI will run on Linux, or whether it will run at all, because there is no PC release and so no Steam or Proton path to test. We can't tell you whether its online mode will work either. Online games often block Linux through anti-cheat, so look the game up on [AreWeAntiCheatYet](https://areweanticheatyet.com/) and [ProtonDB](https://www.protondb.com/) once it ships.
 
-What we can do is give you a fair yardstick. An earlier Rockstar PC game, Red Dead Redemption 2, has official PC requirements and runs on Linux through Proton: ProtonDB rates it Gold from 1,474 reports, as we last checked on November 24. We compare your graphics card, processor and memory with those requirements and with a PS5-class estimate of our own, and we label the estimate as an estimate. Nothing about your hardware leaves your browser: you pick from lists, and the result lives only in the address of the page.
+What we can do is give you a fair yardstick. An earlier Rockstar PC game, Red Dead Redemption 2, has official PC requirements and runs on Linux through Proton: ProtonDB rates it Gold from 1,474 reports, as we last checked on November 24. We compare your graphics card, processor and memory with those requirements and with our own estimates for the Xbox Series S and for the PS5 and Xbox Series X, and we label the estimates as estimates. Nothing about your hardware leaves your browser: you pick from lists, and the result lives only in the address of the page.
 
 ## What you can do today
 

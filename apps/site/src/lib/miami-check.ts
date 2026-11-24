@@ -24,7 +24,7 @@ export interface Verdict {
   label: string;
   summary: string;
   parts: PartResult[];
-  /** The lowest part; the first one when parts tie. Null when everything reaches PS5-class. */
+  /** The lowest part; the first one when parts tie. Null when everything reaches the PS5 and Xbox Series X class. */
   weakest: PartResult | null;
   /** What to improve to reach the next level; null at the top. */
   nextStep: string | null;
@@ -42,7 +42,8 @@ const DETAIL: Record<Level, string> = {
   0: "Below the RDR2 minimum.",
   1: "Meets the RDR2 minimum.",
   2: "Meets the RDR2 recommended spec.",
-  3: "PS5-class or better.",
+  3: "Series S-class.",
+  4: "PS5 and Series X-class or better.",
 };
 
 const PART_NAME: Record<Part, string> = { gpu: "graphics card", cpu: "processor", ram: "memory" };
@@ -78,7 +79,7 @@ export function check(p: Picks): Verdict | null {
     { part: "ram", label: `${p.ram} GB RAM`, level: ramLevel(p.ram), detail: DETAIL[ramLevel(p.ram)] },
   ];
   const level = Math.min(...parts.map((x) => x.level)) as Level;
-  const weakest = level === 3 ? null : parts.find((x) => x.level === level)!;
+  const weakest = level === 4 ? null : parts.find((x) => x.level === level)!;
   const next = TARGETS.find((t) => t.level === level + 1);
   const nextStep =
     weakest && next

@@ -5,7 +5,7 @@
  * benchmark orderings. They are not benchmark scores and not a ranking within a tier:
  * parts in one tier are close enough that a game's requirements don't tell them apart.
  * RDR2's published GPU and CPU names pin T2 (minimum) and T4 (recommended); T7 (GPU) and
- * T6 (CPU) are our estimate for PS5-class hardware. Re-check when MIAMI_REVIEWED gets old.
+ * T6 (CPU) are our estimate for PS5 and Xbox Series X-class hardware; T5 (GPU and CPU) for Xbox Series S-class. Re-check when MIAMI_REVIEWED gets old.
  */
 export type Tier = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 

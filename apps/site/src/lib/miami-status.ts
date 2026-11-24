@@ -21,7 +21,7 @@ export const MIAMI_PUBLISHED = "2026-11-24";
 
 /** The answer shown first on the page, 40 to 60 words so it can be quoted whole. Keep it in step with the status board. */
 export const MIAMI_ANSWER =
-  "GTA VI is out on PS5 and Xbox Series X|S only. Rockstar hasn't announced a PC version or PC requirements, so nothing official runs on Linux yet. Below, we compare your PC with Red Dead Redemption 2's requirements and a PS5-class estimate, and show what's confirmed and what's only reported.";
+  "GTA VI is out on PS5 and Xbox Series X|S only. Rockstar hasn't announced a PC version or PC requirements, so nothing official runs on Linux yet. Below, we compare your PC with Red Dead Redemption 2's requirements and with our estimates for the PS5, Xbox Series X and Series S, and show what's confirmed and what's only reported.";
 
 /** After this many days without a review the page says it may be out of date. */
 export const STATUS_STALE_DAYS = 14;
@@ -117,6 +117,20 @@ export const EVIDENCE: readonly Evidence[] = [
     short: "Notebookcheck (Nov 23)",
   },
   {
+    id: "press-2026-11-23-performance-estimate",
+    date: "2026-11-23",
+    track: "community",
+    text: "Press reports that a hardware reviewer's console testing suggests matching the PS5's quality at 1440p and 60 fps would take at least a Ryzen 7 9700X-class processor with an RTX 5070-class graphics card, and that older mainstream PCs may land near 30 fps. These are estimates from console tests, not measurements on a PC, and there is no PC version to test.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "Notebookcheck",
+      href: "https://www.notebookcheck.net/GTA-6-at-60-fps-on-PC-may-cost-less-than-expected-Geekerwan-estimates.1457142.0.html",
+    },
+    short: "Notebookcheck (estimates)",
+  },
+  {
     id: "rockstar-2026-11-19",
     date: "2026-11-19",
     track: "official",
@@ -201,3 +215,9 @@ export const GAMING_LINKS: readonly GamingLink[] = [
   { name: ANTI_CHEAT_LINKS.tracker.name, href: ANTI_CHEAT_LINKS.tracker.href, note: "Anti-cheat status by game", external: true },
   { name: ANTI_CHEAT_LINKS.proton.name, href: ANTI_CHEAT_LINKS.proton.href, note: "Player reports by game", external: true },
 ];
+
+/** The note shown under a verdict. It never changes the verdict: it only tells people what outlets are saying. */
+export const REVIEWER_NOTE = {
+  evidenceId: "press-2026-11-23-performance-estimate",
+  text: "Press reports that one hardware reviewer's console testing suggests matching the PS5's quality at 1440p and 60 fps will take at least a Ryzen 7 9700X-class processor and an RTX 5070-class graphics card, and that older mainstream PCs may land near 30 fps. These are estimates from console tests, not measurements on a PC.",
+} as const;

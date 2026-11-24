@@ -17,6 +17,11 @@ const stale = statusIsStale(today);
 const evidenceById = new Map(EVIDENCE.map((e) => [e.id, e]));
 const rdr2Reports = RDR2_PROTON.reports.toLocaleString("en-US");
 const { recent, older } = splitFeed(EVIDENCE);
+/** "A or B and up" becomes one line per part, so a name is never split across lines. */
+const examples = (s: string) => {
+  const andUp = s.endsWith(" and up");
+  return { lines: (andUp ? s.slice(0, -" and up".length) : s).split(" or "), andUp };
+};
 const PAGE_TITLE = "GTA VI PC requirements and Linux: what we know | LinuxStatistics";
 const siteOrigin = new URL("/", Astro.site).href.replace(/\/$/, "");
 const pageUrl = `${siteOrigin}/can-i-run/gta-vi/`;
@@ -38,16 +43,16 @@ const faq = [
   { q: "Will GTA VI run on Linux?", a: `Not officially, because there is no PC release and so no Steam or Proton path yet. Some unofficial projects claim runs on Linux, but those are their own unverified claims. If Rockstar ships a PC version, Proton may run it as it does Red Dead Redemption 2 (rated ${RDR2_PROTON.tier} on ProtonDB), but online anti-cheat can block Linux. Check ProtonDB and AreWeAntiCheatYet after release.` },
   { q: "Is there a GTA VI PC version or recomp?", a: "There is no official PC version. Press reports that modders have booted a leaked console build on PC and that Rockstar is reportedly acting against related communities. No playable build is confirmed, and we don't link to the leak or to any project." },
   { q: "Where can I download GTA VI for PC?", a: "Nowhere legitimate: no PC version exists. Pages and installers offering one are a common malware lure. Only trust Rockstar's own site and store pages, and verify the hash of anything you download." },
-  { q: "What are the GTA VI PC system requirements?", a: "There are no official ones. This page compares your PC with Red Dead Redemption 2's published requirements and a PS5-class estimate of ours. Treat both as a guide, not a promise." },
+  { q: "What are the GTA VI PC system requirements?", a: "There are no official ones. This page compares your PC with Red Dead Redemption 2's published requirements and console-class estimates of ours (Xbox Series S, then PS5 and Xbox Series X). Treat both as a guide, not a promise." },
   { q: "Why use Red Dead Redemption 2 as the baseline?", a: `It is a large open-world game from the same studio with published PC requirements. On Linux it is rated ${RDR2_PROTON.tier} on ProtonDB from ${rdr2Reports} reports (checked ${longDate(RDR2_PROTON.checked)}), so it also shows how a game like this behaves under Proton. GTA VI is newer and likely bigger, so expect higher demands.` },
-  { q: "How are the levels decided?", a: "We placed graphics cards and processors into nine tiers by hand, using public benchmark orderings. RDR2's named parts fix the minimum and recommended lines. The PS5-class line is our estimate of a PC that matches the PS5. The tiers are coarse on purpose: they separate hardware generations, not single frames per second." },
+  { q: "How are the levels decided?", a: "We placed graphics cards and processors into nine tiers by hand, using public benchmark orderings. RDR2's named parts fix the minimum and recommended lines. The two console lines are our estimates of a PC that matches the Xbox Series S, and one that matches the PS5 and Xbox Series X. The tiers are coarse on purpose: they separate hardware generations, not single frames per second." },
   { q: "Does this page send my hardware anywhere?", a: "No. Your picks stay in your browser. They appear after the # in the page address so you can copy a link, and browsers never send that part to a server." },
 ];
 ---
 
 <Base
   title={PAGE_TITLE}
-  description="GTA VI has no PC specs yet. Check your GPU, CPU and RAM against Red Dead Redemption 2's requirements and a PS5-class estimate, with Linux notes."
+  description="GTA VI has no PC specs yet. Check your GPU, CPU and RAM against Red Dead Redemption 2 and PS5 and Xbox estimates, with Linux notes."
   jsonLd={{ "@graph": [pageNode, faqNode(faq)] }}
   pageTheme="miami"
   image={new URL("/miami/share.jpg", Astro.site).href}
@@ -68,9 +73,6 @@ const faq = [
 
     <div class="miami-body">
       <p class="miami-answer">{MIAMI_ANSWER}</p>
-      <p class="miami-byline">
-        <time datetime={STATUS_REVIEWED}>Updated {longDate(STATUS_REVIEWED)}</time> · Maintained by <a href="/about/">LinuxStatistics</a>
-      </p>
       <div class="miami-grid">
           <div class="miami-check">
             <h2>Check your PC</h2>
@@ -126,10 +128,10 @@ const faq = [
               <tbody>
                 {TARGETS.map((t) => (
                   <tr>
-                    <td>{t.name}</td>
-                    <td>{t.gpuExamples}</td>
+                    <th scope="row">{t.name.replace(" (our estimate)", "")}{t.estimate && <small>Our estimate</small>}</th>
+                    <td>{examples(t.gpuExamples).lines.map((l, i) => <span class="miami-eg">{i > 0 && "or "}{l}</span>)}{examples(t.gpuExamples).andUp && <span class="miami-eg miami-up">and faster</span>}</td>
                     <td>{t.vram} GB</td>
-                    <td>{t.cpuExamples}</td>
+                    <td>{examples(t.cpuExamples).lines.map((l, i) => <span class="miami-eg">{i > 0 && "or "}{l}</span>)}{examples(t.cpuExamples).andUp && <span class="miami-eg miami-up">and faster</span>}</td>
                     <td>{t.ram} GB</td>
                   </tr>
                 ))}
@@ -137,7 +139,7 @@ const faq = [
             </table>
           </div>
           <p class="miami-fine">
-            RDR2 numbers are Rockstar's own, from <a href={MIAMI_SOURCES.rdr2Specs.href} {...ext}>its support page</a>. The PS5-class row is our estimate: no PC version exists, so there are no official numbers to quote.
+            RDR2 numbers are Rockstar's own, from <a href={MIAMI_SOURCES.rdr2Specs.href} {...ext}>its support page</a>. The two console rows are our estimates: no PC version exists, so there are no official numbers to quote.
             Last reviewed {longDate(MIAMI_REVIEWED)}. When Rockstar publishes PC requirements, we replace this table with them.
           </p>
 

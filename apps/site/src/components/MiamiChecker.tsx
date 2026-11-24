@@ -4,6 +4,7 @@ import { CPUS, GPUS, GPU_GROUPS, RAM_OPTIONS } from "../lib/hardware-tiers";
 import { check, parsePicks, picksHash, type Picks } from "../lib/miami-check";
 import { MIAMI_ONLINE_NOTE, MIAMI_SOURCES, MIAMI_STORAGE_NOTE, type Level } from "../lib/miami-targets";
 import { ANTI_CHEAT_LINKS } from "../lib/hardware-notes";
+import { REVIEWER_NOTE } from "../lib/miami-status";
 
 const EXT = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" } as const;
 const CPU_GROUPS = [...new Set(CPUS.map((c) => c.group))];
@@ -11,13 +12,14 @@ const STEPS: { level: Level; label: string }[] = [
   { level: 0, label: "Below minimum" },
   { level: 1, label: "RDR2 minimum" },
   { level: 2, label: "RDR2 recommended" },
-  { level: 3, label: "PS5-class" },
+  { level: 3, label: "Series S-class" },
+  { level: 4, label: "PS5 and Series X-class" },
 ];
 
 function Meter({ level, label }: { level: Level; label: string }) {
   return (
-    <span className="miami-meter" role="img" aria-label={`${label}: ${level} of 3`}>
-      {[1, 2, 3].map((n) => (
+    <span className="miami-meter" role="img" aria-label={`${label}: ${level} of 4`}>
+      {[1, 2, 3, 4].map((n) => (
         <i key={n} data-on={level >= n ? "true" : "false"} />
       ))}
     </span>
@@ -133,6 +135,14 @@ function Checker() {
             </ul>
 
             {v.nextStep && <p className="miami-next">{v.nextStep}</p>}
+
+            <section className="miami-reviewers" aria-labelledby={`${id}-reviewers`}>
+              <h3 id={`${id}-reviewers`}>What reviewers estimate</h3>
+              <p>{REVIEWER_NOTE.text}</p>
+              <p className="miami-reviewers-source">
+                <span className="miami-conf" data-conf="reported">Reported</span> <a href={`#ev-${REVIEWER_NOTE.evidenceId}`}>Read the report</a>
+              </p>
+            </section>
 
             <section className="miami-linux" aria-labelledby={`${id}-linux`}>
               <h3 id={`${id}-linux`}>On Linux</h3>

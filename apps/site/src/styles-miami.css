@@ -127,6 +127,10 @@
 @media (max-width: 700px) {
   /* On a narrow screen the text sits over the sun: give it a night backing so it stays readable. */
   .miami-hero-inner > .miami-lede { padding: 12px 14px; border-radius: 12px; background: oklch(0.17 0.07 295 / 0.72); text-shadow: none; }
+  /* The hero is only as tall as its text plus a short fade: the big bottom gap is for wide screens. */
+  .miami-hero { min-height: 0; --miami-fade: 80px; }
+  .miami-hero-inner { padding-bottom: 56px; }
+  .miami-body { padding-top: 8px; }
 }
 
 .miami-body { padding-top: 28px; padding-bottom: 72px; }
@@ -203,10 +207,11 @@
 .miami-verdict[data-level="0"] { color: var(--g-bad); }
 .miami-verdict[data-level="1"] { color: var(--g-orange); }
 .miami-verdict[data-level="2"] { color: var(--g-yellow); }
-.miami-verdict[data-level="3"] { color: var(--g-cyan); }
+.miami-verdict[data-level="3"] { color: color-mix(in oklch, var(--g-yellow), var(--g-cyan)); }
+.miami-verdict[data-level="4"] { color: var(--g-cyan); }
 .miami-verdict-text { margin: 0 0 20px; max-width: 62ch; }
 
-.miami-ladder { list-style: none; margin: 0 0 22px; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.miami-ladder { list-style: none; margin: 0 0 22px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
 .miami-ladder li { display: grid; gap: 4px; padding-top: 8px; border-top: 5px solid oklch(0.34 0.08 300); font-size: 12px; color: var(--g-muted); min-height: 52px; align-content: start; }
 .miami-ladder li[data-state="passed"] { border-top-color: var(--g-pink); color: var(--g-cream); }
 .miami-ladder li[data-state="here"] { border-top-color: var(--g-cyan); color: var(--g-cream); }
@@ -221,6 +226,7 @@
 .miami-meter i[data-on="true"] { background: var(--g-pink); animation: miami-fill 0.28s var(--ease-out) both; }
 .miami-meter i:nth-child(2) { animation-delay: 60ms; }
 .miami-meter i:nth-child(3) { animation-delay: 120ms; }
+.miami-meter i:nth-child(4) { animation-delay: 180ms; }
 @keyframes miami-fill { from { transform: scaleX(0.2); opacity: 0.2; } }
 @media (max-width: 640px) {
   .miami-parts li { grid-template-columns: 1fr auto; }
@@ -230,14 +236,19 @@
 
 .miami-next { margin: 0 0 18px; padding: 12px 16px; border-radius: 12px; background: oklch(0.28 0.1 320); max-width: 70ch; }
 .miami-linux { margin: 0 0 14px; padding: 18px 20px; border-radius: 14px; border: 1px solid var(--g-cyan); max-width: 74ch; }
+/* A quiet note under the verdict: a rule above it, no box. */
+.miami-reviewers { margin: 20px 0; padding-top: 16px; border-top: 1px solid oklch(0.32 0.09 300); }
+.miami-reviewers h3 { margin: 0 0 6px; font-size: 16px; }
+.miami-reviewers p { margin: 0 0 8px; font-size: 14.5px; line-height: 1.55; }
+.miami-reviewers .miami-reviewers-source { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: 13.5px; }
+.miami-reviewers .miami-conf { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: var(--pill); background: color-mix(in oklch, currentColor 16%, transparent); font-size: 12.5px; }
+.miami-reviewers .miami-conf::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .miami-linux h3 { color: var(--g-cyan); }
 .miami-linux p { margin: 0 0 10px; font-size: 14.5px; }
 .miami-linux p:last-child { margin-bottom: 0; }
 
 /* ---------- The answer first, then who keeps it current ---------- */
-.miami-body > .miami-answer { margin: 0; max-width: 72ch; font-size: 18px; line-height: 1.55; font-weight: 500; }
-.miami-body > .miami-byline { margin: 10px 0 36px; font-size: 13.5px; color: var(--g-muted); }
-.miami-byline time { font-weight: 600; }
+.miami-body > .miami-answer { margin: 0 0 36px; max-width: 72ch; font-size: 18px; line-height: 1.55; font-weight: 500; }
 
 /* ---------- Two columns: the main flow and a sidebar ---------- */
 .miami-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; column-gap: 56px; align-items: start; }
@@ -303,13 +314,19 @@
 
 /* ---------- Targets table, FAQ, notes ---------- */
 /* Memory and RAM columns hold short values: keep them on one line. */
-.miami-table :is(th, td):nth-child(3), .miami-table :is(th, td):nth-child(5) { white-space: nowrap; }
 .miami-table-wrap { overflow-x: auto; border: 1px solid var(--g-line); border-radius: 14px; background: var(--g-panel); }
-.miami-table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 640px; }
-.miami-table th, .miami-table td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid oklch(0.32 0.09 300); }
+.miami-table { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 700px; }
+.miami-table th, .miami-table td { padding: 14px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid oklch(0.32 0.09 300); }
 .miami-table thead th { font: 600 12px var(--sans); color: var(--g-muted); }
-.miami-table tbody tr:last-child td { border-bottom: 0; }
-.miami-table td:first-child { font-weight: 700; white-space: nowrap; }
+.miami-table tbody tr:last-child :is(th, td) { border-bottom: 0; }
+.miami-table tbody th { font-weight: 700; text-align: left; }
+.miami-table small { display: block; margin-top: 2px; font: 500 12px var(--sans); color: var(--g-muted); }
+.miami-table .miami-eg { display: block; white-space: nowrap; }
+.miami-table .miami-eg + .miami-eg { margin-top: 4px; }
+.miami-table .miami-up { color: var(--g-muted); font-size: 13px; }
+/* Fixed widths: the names and numbers get what they need, the part names are never broken mid-model. */
+.miami-table th:nth-child(1) { width: 25%; }
+.miami-table th:nth-child(3), .miami-table td:nth-child(3), .miami-table th:nth-child(5), .miami-table td:nth-child(5) { width: 11%; white-space: nowrap; }
 .miami-fine { font-size: 13px; color: var(--g-muted); }
 .miami-rest > .miami-fine, .miami-rest section > .miami-fine, .miami-rest .miami-table-wrap + .miami-fine { margin-top: 16px; }
 .miami-body .miami-fine { color: var(--g-muted); }

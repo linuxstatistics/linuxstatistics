@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { MIAMI_REVIEWED } from "../src/lib/miami-targets";
-import { ALLOWED_SOURCE_HOSTS, EVIDENCE, FEED_VISIBLE, GAMING_LINKS, MIAMI_ANSWER, MIAMI_PUBLISHED, NEVER_LINK_HOSTS, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../src/lib/miami-status";
+import { ALLOWED_SOURCE_HOSTS, EVIDENCE, FEED_VISIBLE, GAMING_LINKS, MIAMI_ANSWER, MIAMI_PUBLISHED, REVIEWER_NOTE, NEVER_LINK_HOSTS, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../src/lib/miami-status";
 
 const isDate = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(`${d}T00:00:00Z`));
 
@@ -135,5 +135,22 @@ describe("answer and dates", () => {
   test("the page was published on or before its last review", () => {
     expect(isDate(MIAMI_PUBLISHED)).toBe(true);
     expect(MIAMI_PUBLISHED <= STATUS_REVIEWED).toBe(true);
+  });
+});
+
+describe("reviewer estimates note", () => {
+  test("points at a reported press entry on an allowed outlet", () => {
+    const e = EVIDENCE.find((x) => x.id === REVIEWER_NOTE.evidenceId);
+    expect(e).toBeDefined();
+    expect(e!.kind).toBe("press");
+    expect(e!.confidence).toBe("reported");
+    expect(ALLOWED_SOURCE_HOSTS.some((h) => new URL(e!.source.href!).host.endsWith(h))).toBe(true);
+  });
+
+  test("is framed as reported, says it is an estimate and not a PC measurement, and promises nothing", () => {
+    expect(REVIEWER_NOTE.text).toMatch(/^Press reports/);
+    expect(REVIEWER_NOTE.text).toMatch(/estimates from console tests/);
+    expect(REVIEWER_NOTE.text).toMatch(/not measurements on a PC/);
+    expect(REVIEWER_NOTE.text).not.toMatch(/\b(will definitely|guaranteed|confirmed)\b/i);
   });
 });
