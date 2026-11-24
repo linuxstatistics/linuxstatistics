@@ -44,7 +44,7 @@ export const EVIDENCE: readonly Evidence[] = [
     id: "press-2026-11-24-low-fps-build",
     date: "2026-11-24",
     track: "community",
-    text: "Press reports that an unofficial effort has booted the leaked console build on PC and renders basic in-game visuals at a very poor frame rate, and that a private group may be slightly further along. The outlet has not verified the clips. The effort translates the console's shaders for Direct3D 12 rather than Vulkan.",
+    text: "Press reports that an unofficial effort has booted the leaked console build on PC and renders basic in-game visuals at a very poor frame rate, and that a private group may be slightly further along. The outlet has not verified the clips. The effort reportedly translates the console's shaders for Direct3D 12 rather than Vulkan.",
     kind: "press",
     confidence: "reported",
     linux: true,
