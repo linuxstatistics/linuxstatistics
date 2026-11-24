@@ -2,11 +2,13 @@
 import MiamiCard from "../../../components/MiamiCard.astro";
 import Base from "../../../layouts/Base.astro";
 import { BEGINNER_REVIEWED, BEGINNER_SOURCES } from "../../../lib/beginner-picker";
+import { PROFILES } from "../../../lib/picker-profiles";
 import { SponsorStack } from "../../../components/SponsorStack";
 import { SwitchReport } from "../../../components/SwitchReport";
 import { loadDistros } from "../../../lib/data";
 import { LIST_PATH, topSearchItems } from "../../../lib/distro-list";
 import { GRAPHICS_NOTE, HARDWARE_REVIEWED, HARDWARE_SOURCES, INTEL_MAC_NOTE, OLD_NVIDIA_BAZZITE, OLD_NVIDIA_NOTE, WIFI_HOW_TO_CHECK_OTHER, WIFI_NOTE, WINDOWS_CHECK, codeParts } from "../../../lib/hardware-notes";
+const downloadUrl = new Map(PROFILES.map((p) => [p.key, p.downloadUrl]));
 const comboItems = topSearchItems(await loadDistros(), 10);
 const GUIDES = [
   { key: "mint", name: "Linux Mint", short: "Mint", text: "Mint recommends Cinnamon when you are unsure which edition to choose; Xfce is its lighter option for older computers. Download a current 64-bit image, verify it, then follow Mint's live-session and installation guidance. A live session lets you check hardware before installation.", guideHref: "https://linuxmint-installation-guide.readthedocs.io/en/latest/", guideLabel: "Official Mint installation guide" },
@@ -57,6 +59,7 @@ const GUIDES = [
             <div class="guide-next-actions">
               <a class="guide-download" data-primary={g.key} href={`/distro/${g.key}/`}>View {g.name} details</a>
               <a href={g.guideHref} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">{g.guideLabel}</a>
+              {downloadUrl.get(g.key) && <a href={downloadUrl.get(g.key)} target="_blank" aria-describedby="new-tab-description" title="Opens in a new tab" rel="noopener noreferrer">Download {g.name}</a>}
             </div>
           </section>
         ))}
