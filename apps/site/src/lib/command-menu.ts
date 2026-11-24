@@ -30,6 +30,7 @@ export const PAGE_COMMANDS: PageCommand[] = [
   { section: "Explore", href: "/stats/", label: "Linux by the numbers", keywords: "stats statistics numbers totals releases end of life" },
   { section: "Choose a distro", href: "/pick/", label: "Which distro? Take the quiz", keywords: "picker quiz choose recommend" },
   { section: "Choose a distro", href: "/best/", label: "Best Linux for…", keywords: "best gaming beginners old laptop low ram raspberry pi developers server privacy creative ai laptops" },
+  { section: "Choose a distro", href: "/can-i-run/gta-vi/", label: "Can your PC run GTA VI?", keywords: "gta 6 gta6 vi pc requirements specs gpu cpu proton rdr2 red dead redemption gaming linux recomp port" },
   { section: "Choose a distro", href: "/switch/", label: "Switch to Linux", keywords: "leave migrate" },
   { section: "Choose a distro", href: "/switch/windows/", label: "Switch from Windows", keywords: "windows 10 11 migrate" },
   { section: "Choose a distro", href: "/switch/mac/", label: "Switch from a Mac", keywords: "macos apple silicon migrate" },

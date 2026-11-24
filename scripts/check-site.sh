@@ -56,6 +56,20 @@ check desktop-share/index.html 'sc-growth' "desktop share page has the growth ta
 check desktop-share/index.html 'class="sc-line os-windows"' "desktop share chart renders without JS"
 check desktop-share/index.html 'StatCounter' "desktop share page credits StatCounter"
 check index.html 'href="/desktop-share/"' "home links to the desktop share page"
+check can-i-run/gta-vi/index.html 'class="miami-table"' "Miami PC check page has the targets table without JS"
+check can-i-run/gta-vi/index.html 'unofficial estimate' "Miami PC check page says it is an estimate"
+check can-i-run/gta-vi/index.html 'Not affiliated with Rockstar Games' "Miami PC check page carries the non-affiliation line"
+check can-i-run/gta-vi/index.html 'FAQPage' "Miami PC check page has FAQ JSON-LD"
+check can-i-run/gta-vi/index.html 'class="miami-board"' "Miami PC page has the Linux status board without JS"
+check can-i-run/gta-vi/index.html 'Before you download anything' "Miami PC page has the safety box"
+check can-i-run/gta-vi/index.html 'id="ledger"' "Miami PC page has the evidence ledger"
+# The page body (between the hero and the site footer band) links to reporting only: never code hosts,
+# chat servers or file hosts. github.com is allowed only for Proton's own DXVK and VKD3D-Proton pages.
+miami_body=$(tr '\n' ' ' < "$DIST/can-i-run/gta-vi/index.html" | sed -e 's/.*class="miami miami-page"//' -e 's/class="signup-band".*//')
+if printf '%s' "$miami_body" | grep -q 'class="miami-board"'; then echo "ok:   Miami PC page body found for the link checks"; else echo "FAIL: Miami PC page body not found (link checks would pass on nothing)"; fail=1; fi
+if printf '%s' "$miami_body" | grep -oE 'href="https?://[^"]+"' | grep -qiE '//([a-z0-9-]+\.)*(gitlab\.com|codeberg\.org|discord\.(gg|com)|t\.me|reddit\.com|x\.com|twitter\.com|4chan\.org|mega\.nz|mediafire\.com)([/"])'; then echo "FAIL: Miami PC page body links to a chat, social or file host"; fail=1; else echo "ok:   Miami PC page body links no chat, social or file hosts"; fi
+if printf '%s' "$miami_body" | grep -oE 'href="https?://([a-z0-9-]+\.)*github(usercontent)?\.com[^"]*"' | grep -vE 'github\.com/(doitsujin/dxvk|HansKristian-Work/vkd3d-proton)"' | grep -q .; then echo "FAIL: Miami PC page body links to a GitHub repo other than DXVK or VKD3D-Proton"; fail=1; else echo "ok:   Miami PC page body links no project repos"; fi
+check best/gaming/index.html 'href="/can-i-run/gta-vi/"' "gaming page links the Miami PC card"
 [ -f "$DIST/favicon.svg" ] && echo "ok:   favicon" || { echo "FAIL: favicon missing"; fail=1; }
 [ -f "$DIST/sitemap-index.xml" ] && echo "ok:   sitemap" || { echo "FAIL: sitemap missing"; fail=1; }
 [ -f "$DIST/robots.txt" ] && echo "ok:   robots.txt" || { echo "FAIL: robots.txt missing"; fail=1; }
