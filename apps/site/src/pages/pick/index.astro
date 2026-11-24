@@ -1,4 +1,5 @@
 ---
+import MiamiCard from "../../components/MiamiCard.astro";
 import SwitchSide from "../../components/SwitchSide.astro";
 import PickRestore from "../../components/PickRestore.astro";
 import Base from "../../layouts/Base.astro";
@@ -53,6 +54,7 @@ const quick = QUICK.map((q) => ({ label: q.label, result: beginnerRecommendation
       </div>
       <aside class="side" aria-label="More">
         <SponsorStack context="people about to install Linux" />
+        <MiamiCard />
         <SwitchSide />
         <section>
           <h2>See the full chart</h2>

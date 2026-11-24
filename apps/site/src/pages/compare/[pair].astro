@@ -1,4 +1,5 @@
 ---
+import MiamiCard from "../../components/MiamiCard.astro";
 import Base from "../../layouts/Base.astro";
 import RankCredit from "../../components/RankCredit.astro";
 import { FAMILY_LABELS } from "../../lib/families";
@@ -207,6 +208,7 @@ const description = `${a.name} vs ${b.name}: who each suits, pros and cons, popu
     </div>
     <aside class="side" aria-label="More">
       <SponsorCard context="people comparing Linux distros" />
+      <MiamiCard />
       <section>
         <h2>Still deciding?</h2>
         <p>Three plain questions, one starting point, and what to check next.</p>

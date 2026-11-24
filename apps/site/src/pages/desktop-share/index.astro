@@ -1,4 +1,5 @@
 ---
+import MiamiCard from "../../components/MiamiCard.astro";
 import Base from "../../layouts/Base.astro";
 import { ShareCompare } from "../../components/ShareCompare";
 import { SponsorCard } from "../../components/SponsorCard";
@@ -119,6 +120,7 @@ const jsonLd = {
       </div>
       <aside class="side" aria-label="More">
         <SponsorCard context="people following Linux's growth" />
+        <MiamiCard />
         <SwitchSide />
       </aside>
     </div>

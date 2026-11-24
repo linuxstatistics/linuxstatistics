@@ -1,4 +1,5 @@
 ---
+import MiamiCard from "./MiamiCard.astro";
 import { SponsorCard } from "./SponsorCard";
 import SwitchSide from "./SwitchSide.astro";
 
@@ -24,6 +25,7 @@ const { sponsorContext, quiz, switchBox, explore, links } = Astro.props;
 
 <aside class="side" aria-label="More">
   <SponsorCard context={sponsorContext} />
+  <MiamiCard />
   {links && links.items.length > 0 && (
     <section>
       <h2>{links.title}</h2>

@@ -1,4 +1,5 @@
 ---
+import MiamiCard from "../../components/MiamiCard.astro";
 import Base from "../../layouts/Base.astro";
 import RankCredit from "../../components/RankCredit.astro";
 import { DistroStats } from "../../components/DistroStats";
@@ -206,6 +207,7 @@ const jsonLd = {
       </div>
       <aside class="side" aria-label="Related">
         <SponsorCard />
+        <MiamiCard />
         <section class="compare-box">
           <h2>Compare {data.name} with…</h2>
           <CompareWith client:visible self={{ slug: data.slug, name: data.name }} items={searchItems} src={LIST_PATH} staticPairs={[...staticPairs]} />

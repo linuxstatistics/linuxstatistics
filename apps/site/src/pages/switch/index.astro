@@ -1,4 +1,5 @@
 ---
+import MiamiCard from "../../components/MiamiCard.astro";
 import Base from "../../layouts/Base.astro";
 import { SponsorStack } from "../../components/SponsorStack";
 import { WINDOWS_10, SWITCH_PICKS, fmt } from "../../lib/switch";
@@ -46,6 +47,7 @@ import RelatedArticles from "../../components/RelatedArticles.astro";
       </div>
       <aside class="side" aria-label="More">
         <SponsorStack context="people leaving Windows and macOS for Linux" />
+        <MiamiCard />
         <RelatedArticles topic="beginners" title="Articles for switchers" />
         <section>
           <h2>Not sure where to start?</h2>

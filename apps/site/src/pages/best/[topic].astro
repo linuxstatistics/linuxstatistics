@@ -4,6 +4,7 @@ import { DistroMark } from "../../components/DistroMark";
 import { Faq } from "../../components/Faq";
 import { SponsorCard } from "../../components/SponsorCard";
 import SwitchSide from "../../components/SwitchSide.astro";
+import MiamiCard from "../../components/MiamiCard.astro";
 import RelatedArticles from "../../components/RelatedArticles.astro";
 import { BEST_TO_TOPIC } from "../../lib/article-topics";
 import { loadDistros } from "../../lib/data";
@@ -119,6 +120,7 @@ const fmtTrend = (n: number | null) => (n == null || n === 0 ? null : n > 0 ? `u
     </div>
     <aside class="side" aria-label="More">
       <SponsorCard context="people choosing a Linux distro" />
+      <MiamiCard />
       {related.length > 0 && (
         <section>
           <h2>Also see</h2>
