@@ -12,7 +12,7 @@ import { ANTI_CHEAT_LINKS } from "./hardware-notes";
  * The only hosts an official or press entry may link to. Add an outlet here only after checking it is
  * reputable press; the tests fail for any other host, so a mislabeled entry cannot slip through.
  */
-export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com", "videocardz.com"] as const;
+export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com", "videocardz.com", "tweaktown.com"] as const;
 
 export const STATUS_REVIEWED = "2026-11-25";
 
@@ -50,6 +50,20 @@ export interface Evidence {
 /** Newest first. */
 export const EVIDENCE: readonly Evidence[] = [
   {
+    id: "press-2026-11-25-takedown-notice",
+    date: "2026-11-25",
+    track: "community",
+    text: "Press reports that Take-Two filed a copyright takedown notice against the largest unofficial PC effort, and that the code-hosting site applied it to the project's whole network of about 3,000 copies. Take-Two argues the project is a derivative work that breaks Rockstar's ban on reverse engineering, and calls its \"bring your own files\" line misleading because the only files available are the leaked ones. Other projects were still online at the time.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "TweakTown",
+      href: "https://www.tweaktown.com/news/114877/gta-6-pc-port-takedown-confirmed-take-two-cites-rockstars-ban-on-reverse-engineering/index.html",
+    },
+    short: "TweakTown",
+  },
+  {
     id: "press-2026-11-24-in-game-rendering",
     date: "2026-11-24",
     track: "community",
@@ -81,7 +95,7 @@ export const EVIDENCE: readonly Evidence[] = [
     id: "press-2026-11-24-effort-offline",
     date: "2026-11-24",
     track: "community",
-    text: "Press reports that the largest unofficial PC effort and one of its chat servers went offline a day after the missing executable leaked, and that other servers in that scene are locking down. Reports differ on why, and it is unclear whether any legal notice was sent. Rockstar did not respond to the outlet.",
+    text: "Press reports that the largest unofficial PC effort and one of its chat servers went offline a day after the missing executable leaked, and that other servers in that scene are locking down. Reports differed at first on why. Rockstar did not respond to the outlet.",
     kind: "press",
     confidence: "reported",
     linux: false,
@@ -182,8 +196,8 @@ export const STATUS_ROWS: readonly StatusRow[] = [
     label: "Unofficial community projects",
     state: "Experimental, unverified",
     tone: "unverified",
-    summary: "Press reports modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, and that the largest effort has gone offline amid reported action against related communities. No playable build is confirmed. Linux runs are the projects' own claims.",
-    evidence: ["press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
+    summary: "Press reports modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, and that the largest effort was hit by a Take-Two takedown notice. No playable build is confirmed. Linux runs are the projects' own claims.",
+    evidence: ["press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
   },
   {
     id: "ready",
