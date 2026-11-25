@@ -12,9 +12,9 @@ import { ANTI_CHEAT_LINKS } from "./hardware-notes";
  * The only hosts an official or press entry may link to. Add an outlet here only after checking it is
  * reputable press; the tests fail for any other host, so a mislabeled entry cannot slip through.
  */
-export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com"] as const;
+export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com", "videocardz.com"] as const;
 
-export const STATUS_REVIEWED = "2026-11-24";
+export const STATUS_REVIEWED = "2026-11-25";
 
 /** When the page first went up (YYYY-MM-DD). */
 export const MIAMI_PUBLISHED = "2026-11-24";
@@ -49,6 +49,20 @@ export interface Evidence {
 
 /** Newest first. */
 export const EVIDENCE: readonly Evidence[] = [
+  {
+    id: "press-2026-11-24-in-game-rendering",
+    date: "2026-11-24",
+    track: "community",
+    text: "Press reports that an unofficial PC project, built on a translation layer for Xbox games, shows the leaked console build booting, loading its menus and drawing its first 3D scenes, based on footage shared from livestreams. The outlet says no verified public build shows the game fully playable, and that Xbox owners have no known way to extract their own copy of the game, so anyone trying it would depend on leaked files.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "VideoCardz",
+      href: "https://videocardz.com/newz/gta-6-pc-project-reportedly-reaches-in-game-rendering",
+    },
+    short: "VideoCardz",
+  },
   {
     id: "press-2026-11-24-low-fps-build",
     date: "2026-11-24",
@@ -95,7 +109,7 @@ export const EVIDENCE: readonly Evidence[] = [
     id: "community-2026-11-24-linux",
     date: "2026-11-24",
     track: "community",
-    text: "Some of the unofficial projects claim runs under Proton on Linux, and at least one describes a Linux compatibility layer. These are the projects' own claims, with slow frame rates and missing graphics features, and nobody independent has confirmed them.",
+    text: "At least one unofficial project says it runs on Linux through Proton, and now says it reaches the game's story intro on a stock Proton build, though not playable and with a recorded run that crashed after about ten minutes. Others describe Wine-style translation layers. These are the projects' own claims, with no independent test and no playable run.",
     kind: "community",
     confidence: "unverified",
     linux: true,
@@ -169,7 +183,7 @@ export const STATUS_ROWS: readonly StatusRow[] = [
     state: "Experimental, unverified",
     tone: "unverified",
     summary: "Press reports modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, and that the largest effort has gone offline amid reported action against related communities. No playable build is confirmed. Linux runs are the projects' own claims.",
-    evidence: ["press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
+    evidence: ["press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
   },
   {
     id: "ready",
