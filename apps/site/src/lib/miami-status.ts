@@ -12,7 +12,7 @@ import { ANTI_CHEAT_LINKS } from "./hardware-notes";
  * The only hosts an official or press entry may link to. Add an outlet here only after checking it is
  * reputable press; the tests fail for any other host, so a mislabeled entry cannot slip through.
  */
-export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com", "videocardz.com", "tweaktown.com"] as const;
+export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com", "videocardz.com", "tweaktown.com", "techradar.com"] as const;
 
 export const STATUS_REVIEWED = "2026-11-25";
 
@@ -49,6 +49,20 @@ export interface Evidence {
 
 /** Newest first. */
 export const EVIDENCE: readonly Evidence[] = [
+  {
+    id: "press-2026-11-25-chapter-one-playable",
+    date: "2026-11-25",
+    track: "community",
+    text: "Press reports that some unofficial PC projects now seem to have the opening chapter playable, including driving around the first area, but only at a few frames per second. The outlet says a stable, acceptable port is a different matter and that any playable version soon would likely be rough, with bugs and crashes. It also relays reports that Take-Two is sending takedown notices to some of these projects and to some social posts showing footage, without official confirmation.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "TechRadar",
+      href: "https://www.techradar.com/gaming/the-very-unofficial-gta-6-pc-ports-are-speeding-ahead-with-chapter-1-seemingly-now-playable-but-rockstar-is-rumored-to-be-playing-whack-a-mole-with-these-projects",
+    },
+    short: "TechRadar",
+  },
   {
     id: "press-2026-11-25-new-leader-open-world",
     date: "2026-11-25",
@@ -210,8 +224,8 @@ export const STATUS_ROWS: readonly StatusRow[] = [
     label: "Unofficial community projects",
     state: "Experimental, unverified",
     tone: "unverified",
-    summary: "Press reports that modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, that one effort now draws much of the open world at single-digit frame rates, and that the largest effort was hit by a Take-Two takedown notice. No playable build is confirmed. Linux runs are the projects' own claims.",
-    evidence: ["press-2026-11-25-new-leader-open-world", "press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
+    summary: "Press reports that modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, that one effort now draws much of the open world at single-digit frame rates, and that the largest effort was hit by a Take-Two takedown notice. Some efforts are now reported to seem playable at only a few frames per second, but no playable build is confirmed, and press expects any early one to be rough. Linux runs are the projects' own claims.",
+    evidence: ["press-2026-11-25-chapter-one-playable", "press-2026-11-25-new-leader-open-world", "press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
   },
   {
     id: "ready",
