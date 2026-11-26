@@ -50,6 +50,20 @@ export interface Evidence {
 /** Newest first. */
 export const EVIDENCE: readonly Evidence[] = [
   {
+    id: "press-2026-11-25-new-leader-open-world",
+    date: "2026-11-25",
+    track: "community",
+    text: "Press reports that a new open-source project appears to have taken the lead among unofficial PC efforts. It reportedly boots the leaked console build and draws most of the in-game graphics, including the open world, vehicles and pedestrians, at single-digit frame rates, and has been tested only on a Windows PC with an AMD graphics card. The outlet says it is nowhere near playable and that using this and similar projects means supplying the leaked files, since console owners can't currently extract their own copy.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "XDA",
+      href: "https://www.xda-developers.com/new-frontrunner-race-to-unofficially-bring-gta6-to-pc-already-hitting-5-7fps/",
+    },
+    short: "XDA (Nov 25)",
+  },
+  {
     id: "press-2026-11-25-takedown-notice",
     date: "2026-11-25",
     track: "community",
@@ -196,8 +210,8 @@ export const STATUS_ROWS: readonly StatusRow[] = [
     label: "Unofficial community projects",
     state: "Experimental, unverified",
     tone: "unverified",
-    summary: "Press reports modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, and that the largest effort was hit by a Take-Two takedown notice. No playable build is confirmed. Linux runs are the projects' own claims.",
-    evidence: ["press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
+    summary: "Press reports that modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, that one effort now draws much of the open world at single-digit frame rates, and that the largest effort was hit by a Take-Two takedown notice. No playable build is confirmed. Linux runs are the projects' own claims.",
+    evidence: ["press-2026-11-25-new-leader-open-world", "press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
   },
   {
     id: "ready",
