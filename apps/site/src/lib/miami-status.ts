@@ -12,9 +12,9 @@ import { ANTI_CHEAT_LINKS } from "./hardware-notes";
  * The only hosts an official or press entry may link to. Add an outlet here only after checking it is
  * reputable press; the tests fail for any other host, so a mislabeled entry cannot slip through.
  */
-export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com", "videocardz.com", "tweaktown.com", "techradar.com"] as const;
+export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com", "videocardz.com", "tweaktown.com", "techradar.com", "heise.de"] as const;
 
-export const STATUS_REVIEWED = "2026-11-26";
+export const STATUS_REVIEWED = "2026-11-27";
 
 /** When the page first went up (YYYY-MM-DD). */
 export const MIAMI_PUBLISHED = "2026-11-24";
@@ -45,6 +45,20 @@ export interface Evidence {
 
 /** Newest first. */
 export const EVIDENCE: readonly Evidence[] = [
+  {
+    id: "press-2026-11-27-scenes-above-30fps",
+    date: "2026-11-27",
+    track: "community",
+    text: "Press reports that clips of several unofficial PC efforts now show individual scenes running above 30 frames per second on Windows, and that a community tracker rates the leading one as playable, though not yet at console frame rates. The outlet stresses that single fast scenes don't mean the whole game works, that stability and frame pacing are still problems, that ray tracing isn't working properly, and that the clips are hard to verify. It adds that videos of multiplayer mods are circulating and that an unofficial build could arrive before any official PC version.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "heise online",
+      href: "https://www.heise.de/en/news/GTA-6-Unofficial-PC-port-makes-major-progress-11540120.html",
+    },
+    short: "heise (Nov 27)",
+  },
   {
     id: "press-2026-11-26-tracker-near-console-rate",
     date: "2026-11-26",
@@ -248,8 +262,8 @@ export const STATUS_ROWS: readonly StatusRow[] = [
     label: "Unofficial community projects",
     state: "Experimental, unverified",
     tone: "unverified",
-    summary: "Press reports that modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, that one effort now draws much of the open world at single-digit frame rates, and that the largest effort was hit by a Take-Two takedown notice. One effort is now reported, mostly from a community tracker and social clips, to run the early game at near-console frame rates (about 25 to 30 frames per second), but no stable, complete build is confirmed and the footage so far is mostly open water, not busier areas. Linux runs are the projects' own claims.",
-    evidence: ["press-2026-11-26-tracker-near-console-rate", "press-2026-11-26-stable-30-claim", "press-2026-11-25-chapter-one-playable", "press-2026-11-25-new-leader-open-world", "press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
+    summary: "Press reports that modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, that one effort now draws much of the open world at single-digit frame rates, and that the largest effort was hit by a Take-Two takedown notice. Several efforts are now reported, mostly from a community tracker and social clips, to run parts of the early game at or near console frame rates (about 25 to 30 frames per second, with single scenes above that), but no stable, complete build is confirmed and the footage so far is mostly single scenes, not busier areas. Linux runs are the projects' own claims.",
+    evidence: ["press-2026-11-27-scenes-above-30fps", "press-2026-11-26-tracker-near-console-rate", "press-2026-11-26-stable-30-claim", "press-2026-11-25-chapter-one-playable", "press-2026-11-25-new-leader-open-world", "press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
   },
   {
     id: "ready",
