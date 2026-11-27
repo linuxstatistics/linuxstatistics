@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { MIAMI_REVIEWED } from "../src/lib/miami-targets";
-import { ALLOWED_SOURCE_HOSTS, EVIDENCE, FEED_VISIBLE, GAMING_LINKS, MIAMI_ANSWER, MIAMI_PUBLISHED, REVIEWER_NOTE, NEVER_LINK_HOSTS, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../src/lib/miami-status";
+import { ALLOWED_SOURCE_HOSTS, EVIDENCE, FEED_VISIBLE, GAMING_LINKS, MIAMI_PUBLISHED, REVIEWER_NOTE, NEVER_LINK_HOSTS, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../src/lib/miami-status";
 
 const isDate = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d) && !Number.isNaN(Date.parse(`${d}T00:00:00Z`));
 
@@ -116,18 +116,7 @@ describe("Linux gaming links", () => {
   });
 });
 
-describe("answer and dates", () => {
-  test("the lead answer is 40 to 60 words, so it can be quoted whole", () => {
-    const n = MIAMI_ANSWER.trim().split(/\s+/).length;
-    expect(n).toBeGreaterThanOrEqual(40);
-    expect(n).toBeLessThanOrEqual(60);
-  });
-
-  test("the lead answer says there is no PC version and does not promise one", () => {
-    expect(MIAMI_ANSWER).toMatch(/hasn't announced a PC version/);
-    expect(MIAMI_ANSWER).not.toMatch(/\b(will|coming|soon)\b/i);
-  });
-
+describe("dates", () => {
   test("the targets table is never reviewed after the date the page shows as updated", () => {
     expect(MIAMI_REVIEWED <= STATUS_REVIEWED).toBe(true);
   });

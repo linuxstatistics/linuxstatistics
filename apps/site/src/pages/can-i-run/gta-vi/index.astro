@@ -7,7 +7,7 @@ import MiamiEntry from "../../../components/MiamiEntry.astro";
 import { faqNode } from "../../../lib/structured-data";
 import { CONTACT } from "../../../config/site";
 import { MIAMI_DISCLAIMER, MIAMI_MARKS_NOTE, MIAMI_ONLINE_NOTE, MIAMI_RAM_LINUX, MIAMI_REVIEWED, MIAMI_SOURCES, MIAMI_STORAGE_NOTE, RDR2_PROTON, TARGETS } from "../../../lib/miami-targets";
-import { EVIDENCE, GAMING_LINKS, MIAMI_ANSWER, MIAMI_PUBLISHED, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../../../lib/miami-status";
+import { EVIDENCE, GAMING_LINKS, MIAMI_PUBLISHED, STATUS_REVIEWED, STATUS_ROWS, STATUS_STALE_DAYS, splitFeed, statusAgeDays, statusIsStale } from "../../../lib/miami-status";
 import { OLD_NVIDIA_NOTE } from "../../../lib/hardware-notes";
 
 const ext = { target: "_blank", "aria-describedby": "new-tab-description", title: "Opens in a new tab", rel: "noopener noreferrer" };
@@ -73,7 +73,6 @@ const faq = [
     </section>
 
     <div class="miami-body">
-      <p class="miami-answer">{MIAMI_ANSWER}</p>
       <div class="miami-grid">
           <div class="miami-check">
             <h2>Check your PC</h2>

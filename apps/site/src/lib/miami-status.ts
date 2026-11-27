@@ -19,10 +19,6 @@ export const STATUS_REVIEWED = "2026-11-26";
 /** When the page first went up (YYYY-MM-DD). */
 export const MIAMI_PUBLISHED = "2026-11-24";
 
-/** The answer shown first on the page, 40 to 60 words so it can be quoted whole. Keep it in step with the status board. */
-export const MIAMI_ANSWER =
-  "GTA VI is out on PS5 and Xbox Series X|S only. Rockstar hasn't announced a PC version or PC requirements, so nothing official runs on Linux yet. Below, we compare your PC with Red Dead Redemption 2's requirements and with our estimates for the PS5, Xbox Series X and Series S, and show what's confirmed and what's only reported.";
-
 /** After this many days without a review the page says it may be out of date. */
 export const STATUS_STALE_DAYS = 14;
 
