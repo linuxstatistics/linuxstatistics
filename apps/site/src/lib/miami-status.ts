@@ -14,7 +14,7 @@ import { ANTI_CHEAT_LINKS } from "./hardware-notes";
  */
 export const ALLOWED_SOURCE_HOSTS = ["rockstargames.com", "notebookcheck.net", "decrypt.co", "xda-developers.com", "videocardz.com", "tweaktown.com", "techradar.com"] as const;
 
-export const STATUS_REVIEWED = "2026-11-25";
+export const STATUS_REVIEWED = "2026-11-26";
 
 /** When the page first went up (YYYY-MM-DD). */
 export const MIAMI_PUBLISHED = "2026-11-24";
@@ -49,6 +49,34 @@ export interface Evidence {
 
 /** Newest first. */
 export const EVIDENCE: readonly Evidence[] = [
+  {
+    id: "press-2026-11-26-tracker-near-console-rate",
+    date: "2026-11-26",
+    track: "community",
+    text: "Press reports that a community tracker now rates the leading unofficial PC effort as near-complete, with about 25 frames per second in play and 30 in cutscenes, visuals close to the console's and infrequent crashes, and that its developer says roughly 80 percent of the story is playable. The figures are the tracker's and the developer's own, not independent tests. The outlet adds, from viewer comments it calls speculation, that performance may be limited by the processor and could improve, and that a release this weekend can't be ruled out.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "Notebookcheck",
+      href: "https://www.notebookcheck.net/GTA-6-recomp-hits-90-progress-and-here-s-what-that-means.1460623.0.html",
+    },
+    short: "Notebookcheck (Nov 26)",
+  },
+  {
+    id: "press-2026-11-26-stable-30-claim",
+    date: "2026-11-26",
+    track: "community",
+    text: "Press reports that one unofficial PC effort is shown running an early boat mission at roughly 25 to 30 frames per second at 4K, which would match the consoles' 30 fps, and that the project briefly went public and was pulled within about an hour, according to a social media post. The outlet relies on social media clips, some already removed, and warns that open water is a light test, that busy areas like the city may be harder, and that a playable build is not the same as a stable, glitch-free full port.",
+    kind: "press",
+    confidence: "reported",
+    linux: false,
+    source: {
+      name: "TechRadar",
+      href: "https://www.techradar.com/gaming/pc-gamers-could-see-an-unofficial-gta-6-port-sooner-rather-than-later-stable-30fps-gameplay-at-4k-has-reportedly-been-achieved",
+    },
+    short: "TechRadar (Nov 26)",
+  },
   {
     id: "press-2026-11-25-chapter-one-playable",
     date: "2026-11-25",
@@ -224,8 +252,8 @@ export const STATUS_ROWS: readonly StatusRow[] = [
     label: "Unofficial community projects",
     state: "Experimental, unverified",
     tone: "unverified",
-    summary: "Press reports that modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, that one effort now draws much of the open world at single-digit frame rates, and that the largest effort was hit by a Take-Two takedown notice. Some efforts are now reported to seem playable at only a few frames per second, but no playable build is confirmed, and press expects any early one to be rough. Linux runs are the projects' own claims.",
-    evidence: ["press-2026-11-25-chapter-one-playable", "press-2026-11-25-new-leader-open-world", "press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
+    summary: "Press reports that modders have booted a leaked console build on PC, got through its first setup and reached basic visuals at a very poor frame rate, that one effort now draws much of the open world at single-digit frame rates, and that the largest effort was hit by a Take-Two takedown notice. One effort is now reported, mostly from a community tracker and social clips, to run the early game at near-console frame rates (about 25 to 30 frames per second), but no stable, complete build is confirmed and the footage so far is mostly open water, not busier areas. Linux runs are the projects' own claims.",
+    evidence: ["press-2026-11-26-tracker-near-console-rate", "press-2026-11-26-stable-30-claim", "press-2026-11-25-chapter-one-playable", "press-2026-11-25-new-leader-open-world", "press-2026-11-25-takedown-notice", "press-2026-11-24-in-game-rendering", "press-2026-11-24-low-fps-build", "press-2026-11-23-booting", "press-2026-11-24-effort-offline", "press-2026-11-24-takedowns", "community-2026-11-24-linux"],
   },
   {
     id: "ready",
