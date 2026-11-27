@@ -217,7 +217,7 @@ export const EVIDENCE: readonly Evidence[] = [
     text: "GTA VI is out. Rockstar's game page lists PlayStation 5 and Xbox Series X|S, and no PC version.",
     kind: "official",
     confidence: "confirmed",
-    linux: true,
+    linux: false,
     source: { name: "Rockstar Games", href: "https://www.rockstargames.com/VI" },
     short: "Rockstar Games",
   },
